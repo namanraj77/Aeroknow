@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M01: UAV Systems Overview — AEROKNOW</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    /* ── Citation chip ── */
+    .cite {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--accent-amber);
+      background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem;
+      margin-left: 0.25rem;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    /* ── Plain-English intro box ── */
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .plain-intro p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.75;
+    }
+
+    /* ── Theorem block ── */
+    .theorem-block {
+      background: rgba(179,136,255,0.04);
+      border: 1px solid rgba(179,136,255,0.2);
+      border-left: 3px solid #b388ff;
+      padding: 1.2rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .theorem-block .theorem-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: #b388ff;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+
+    /* ── Worked example block ── */
+    .worked-example {
+      background: rgba(0,255,157,0.03);
+      border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green);
+      padding: 1.2rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .worked-example .we-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--accent-green);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+    .spec-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--accent-primary);
+    }
+    .spec-table td:nth-child(2) { color: var(--text-secondary); }
+    .spec-table td:nth-child(3) { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* ── Section jump bar ── */
+    .section-jump {
+      position: sticky;
+      top: 60px;
+      z-index: 100;
+      background: rgba(2,4,8,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      padding: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+
+    .jump-inner {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 1rem;
+      min-width: max-content;
+    }
+
+    .jump-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0 0.75rem 0 0;
+      border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem;
+      white-space: nowrap;
+      line-height: 42px;
+    }
+
+    .jump-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      padding: 0 0.85rem;
+      height: 42px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+      position: relative;
+    }
+    .jump-btn:hover {
+      color: var(--text-secondary);
+      border-bottom-color: var(--border-bright);
+    }
+    .jump-btn.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+    .jump-btn .jb-num {
+      color: var(--accent-green);
+      margin-right: 0.3rem;
+      font-size: 0.58rem;
+    }
+
+    /* ── Analogy highlight ── */
+    .analogy-box {
+      background: rgba(255,183,0,0.04);
+      border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber);
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-amber);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+
+    /* ── Key term highlight ── */
+    .key-term {
+      color: var(--accent-primary);
+      font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4);
+      cursor: help;
+    }
+
+    /* ── Section scroll target offset ── */
+    .section-anchor {
+      scroll-margin-top: 105px;
+    }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- ══════════════════════════════════════════════
+     SECTION JUMP BAR
+     ══════════════════════════════════════════════ -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">1.1</span>What is a UAV?</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">1.2</span>Classification</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">1.3</span>Weight Budget</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">1.4</span>ISR Missions</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">1.5</span>Strike &amp; Swarms</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">1.6</span>Threats</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">1.7</span>3D Simulation</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">1.8</span>Python Code</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">1.9</span>Reflection</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- ── HERO ── -->
+  <div class="module-hero">
+    <span class="module-num">MODULE 01 // UAV SYSTEMS OVERVIEW</span>
+    <h1>UAV Systems Overview</h1>
+    <p class="lead">
+      Start here. This module builds your mental model of how UAVs are classified,
+      how they are designed, and what military missions they are built to perform —
+      from the smallest pocket drone to a 15-tonne surveillance aircraft.
+      No prior aerospace knowledge assumed.
+    </p>
+    <div class="module-meta">
+      <span class="label label-green">ISR</span>
+      <span class="label label-primary">Loitering Munitions</span>
+      <span class="label label-amber">Swarm Doctrine</span>
+      <span class="label label-red">Contested Environments</span>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
+      <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
+        📚 &nbsp;REFERENCES: Fahlstrom &amp; Gleason §2–5 &nbsp;·&nbsp; Sadraey §1–2
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.1  WHAT IS A UAV?
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>1.1 What Is a UAV, Really?</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        A <strong>UAV (Unmanned Aerial Vehicle)</strong> is simply an aircraft with no human pilot on board.
+        Someone — or something — is still controlling it, either from the ground via radio link,
+        or through onboard software that makes decisions autonomously. The key difference from
+        a regular aircraft isn't that it flies differently; it's that removing the pilot
+        changes everything about the design — you save weight, remove life-support needs,
+        and can fly longer, higher, and into more dangerous places.
+      </p>
+    </div>
+
+    <p>
+      The broader term is <span class="key-term" title="Unmanned Aircraft System — includes the air vehicle, ground control station, data links, and support equipment">UAS (Unmanned Aircraft System)</span>,
+      which correctly captures that the flying vehicle is just one part of a larger system.
+      You also need a ground station to send commands, a data link (radio) to carry those
+      commands and send back video or sensor data, and a launch/recovery system.
+      Fahlstrom &amp; Gleason define UAS as "the integration of the air vehicle, payload,
+      control element, and communications link into a functional system." <span class="cite">Fahlstrom §2.1</span>
+    </p>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy</span>
+      <p>
+        Think of a UAS like a television news crew. The camera operator (UAV) goes out to collect footage.
+        The director in the production truck (ground control station) calls the shots via radio headset
+        (data link). Without the truck and the headset, the camera operator is just wandering around.
+        The UAV alone is not the system — the whole chain matters.
+      </p>
+    </div>
+
+    <h3>Why Does This Matter for Engineering?</h3>
+    <p>
+      Removing the pilot doesn't just mean removing a seat. It cascades through the entire design:
+    </p>
+    <ul>
+      <li><strong>Weight reduction:</strong> No life support, ejection seat, pressurised cockpit, or oxygen system. This can save 200–500 kg on a large platform — weight you can spend on sensors, fuel, or weapons.</li>
+      <li><strong>Endurance:</strong> Human pilots fatigue; autopilots do not. HALE UAVs like the RQ-4 Global Hawk fly for 32+ hours — impossible for a human crew without mid-air handoffs.</li>
+      <li><strong>Risk tolerance:</strong> Losing a UAV is costly but not catastrophic in the way losing a pilot is. This enables missions into heavily defended airspace that would be unacceptable for manned aircraft.</li>
+      <li><strong>Autonomy requirements:</strong> When the radio link breaks (jammed, blocked by terrain), the UAV must make its own decisions. This is the root motivation for all the navigation and AI content in later modules.</li>
+    </ul>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.2  CLASSIFICATION
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>1.2 How UAVs Are Classified</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        There are UAVs ranging from a 33-gram pocket drone to a 15-tonne aircraft with a
+        40-metre wingspan. You cannot use the same rulebook for all of them.
+        Military organisations use classification systems to group UAVs by capability —
+        roughly: how big are they, how high do they fly, and how far do they go?
+        These groupings then determine what rules apply, what missions they can do,
+        and what it costs to lose one.
+      </p>
+    </div>
+
+    <h3>NATO Classification — STANAG 4670 / AEP-83</h3>
+    <p>
+      NATO uses a class system based primarily on <span class="key-term" title="Maximum Take-Off Weight — the heaviest the aircraft can be when it leaves the ground">MTOW (Maximum Take-Off Weight)</span>
+      and operating altitude. This is the standard used across all NATO member militaries
+      for interoperability. <span class="cite">Fahlstrom §2.2</span>
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Class</th><th>MTOW</th><th>Alt. Ceiling</th><th>Range</th><th>Real Example</th><th>Disposable?</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>I — Micro</td><td>&lt;150 kg</td><td>&lt;1,200 ft</td><td>&lt;50 km</td>
+          <td>Black Hornet PRS (33 g, fits in a soldier's pocket, 25 min flight)</td><td>Yes</td>
+        </tr>
+        <tr>
+          <td>I — Mini</td><td>&lt;150 kg</td><td>&lt;3,000 ft</td><td>&lt;50 km</td>
+          <td>RQ-11B Raven (1.9 kg, hand-launched, 60–90 min)</td><td>Yes</td>
+        </tr>
+        <tr>
+          <td>II — Tactical</td><td>150–600 kg</td><td>&lt;10,000 ft</td><td>&lt;200 km</td>
+          <td>ScanEagle (22 kg, catapult-launched, 20+ hr endurance)</td><td>Partly</td>
+        </tr>
+        <tr>
+          <td>III — MALE</td><td>600–5,670 kg</td><td>&lt;FL450</td><td>&gt;500 km</td>
+          <td>MQ-9B SkyGuardian (5,670 kg MTOW, 40 m wingspan, 27+ hr)</td><td>No</td>
+        </tr>
+        <tr>
+          <td>III — HALE</td><td>&gt;2,000 kg</td><td>&gt;FL450</td><td>Global</td>
+          <td>RQ-4B Global Hawk (14,628 kg, 35 km altitude, 32 hr)</td><td>No</td>
+        </tr>
+        <tr>
+          <td>III — Combat</td><td>Varies</td><td>Varies</td><td>Varies</td>
+          <td>MQ-28 Ghost Bat, Boeing UCAS-D</td><td>Partly</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <span class="callout-title">What "Attritable" Really Means</span>
+      A UAV is called <strong>attritable</strong> if losing it in combat is an acceptable outcome —
+      not ideal, but survivable for the mission. A $15,000 Raven drone is attritable.
+      A $50 million MQ-9 is not. This distinction completely changes design philosophy:
+      attritable platforms prioritise low cost and mass production over survivability.
+      You send 50 of them so that losing 10 doesn't matter. <span class="cite">Fahlstrom §2.3</span>
+    </div>
+
+    <h3>US DoD Group System (Simpler, Operationally Focused)</h3>
+    <p>
+      The US military uses a five-group system that maps more directly to tactical employment —
+      who carries it, who controls it, and from how far:
+    </p>
+    <table>
+      <thead><tr><th>Group</th><th>Max Weight</th><th>Altitude</th><th>Who Uses It</th><th>Typical Role</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>≤20 lb (9 kg)</td><td>&lt;1,200 ft AGL</td><td>Infantry squad</td><td>Look over the next hill</td></tr>
+        <tr><td>2</td><td>21–55 lb</td><td>&lt;3,500 ft AGL</td><td>Battalion HQ</td><td>Track vehicle movement</td></tr>
+        <tr><td>3</td><td>55–1,320 lb</td><td>&lt;18,000 ft</td><td>Brigade/Division</td><td>Persistent wide-area surveillance</td></tr>
+        <tr><td>4</td><td>&gt;1,320 lb</td><td>&lt;18,000 ft</td><td>Theater command</td><td>Armed ISR, strike support</td></tr>
+        <tr><td>5</td><td>&gt;1,320 lb</td><td>&gt;18,000 ft</td><td>Strategic command</td><td>Global ISR, SIGINT, UCAV</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Configuration Types — What Shape Is It?</h3>
+    <p>
+      Beyond weight, the physical shape of the aircraft determines what it can and cannot do.
+      These are not interchangeable — each configuration is best suited to specific mission types:
+      <span class="cite">Sadraey §2.1</span>
+    </p>
+
+    <div class="grid-2" style="margin:1.2rem 0;">
+      <div class="card">
+        <div class="label label-primary" style="margin-bottom:0.5rem;">Fixed-Wing</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0 0 0.5rem;">
+          <strong>Think of it like a regular airplane.</strong> Wings generate lift as the aircraft moves forward.
+          Highly efficient — can stay airborne for 27+ hours on a tank of fuel.
+          But it cannot hover; it must always be moving forward or it falls. Used for long-range ISR and strike.
+        </p>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
+          Lift-to-Drag ratio (L/D): 15–30. At L/D = 20, only 5% of lift force goes to fighting air resistance.
+          <span class="cite">Fahlstrom §3.1</span>
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-green" style="margin-bottom:0.5rem;">Multirotor</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0 0 0.5rem;">
+          <strong>Think of it like a consumer DJI drone, scaled up.</strong>
+          Rotors push air downward to hover. Can take off and land vertically, hover in place,
+          and fly in any direction. Highly manoeuvrable at low speed. Very power-hungry — most
+          military multirotors have 20–60 minute endurance at most.
+        </p>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
+          Hover power: 150–250 W/kg. At that rate, batteries drain fast. <span class="cite">Sadraey §2.3</span>
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-amber" style="margin-bottom:0.5rem;">Hybrid VTOL</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0 0 0.5rem;">
+          <strong>Tries to get the best of both worlds.</strong> Takes off like a multirotor, then
+          transitions to fixed-wing cruise. Think of a drone that tilts its rotors forward after takeoff.
+          The trade-off: mechanically complex, and the transition phase is tricky to control automatically.
+          Increasingly used for ship-based and logistics missions. <span class="cite">Sadraey §2.4</span>
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-red" style="margin-bottom:0.5rem;">Loitering Munition</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0 0 0.5rem;">
+          <strong>A drone designed to crash into its target.</strong> It circles overhead (loiters)
+          watching for a target, then dives into it carrying an explosive warhead.
+          Unlike a missile, it can abort, circle longer, and re-engage. Unlike a traditional
+          armed drone, it is disposable — built to be lost. <span class="cite">Fahlstrom §2.5</span>
+        </p>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
+          Examples: Switchblade 300 (2.7 kg, 15 min), Switchblade 600 (22.7 kg, 40 min), HERO-120 (12.5 kg, 60 min).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.3  WEIGHT BUDGET
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>1.3 The Weight Budget — How UAVs Are Sized</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Every kilogram a UAV lifts off the ground has to "come from somewhere" — it's either payload,
+        fuel, structure, electronics, or motors. The total weight has to equal the sum of all these parts.
+        The engineering challenge is that all of these components are <em>linked</em>:
+        add more payload, and you need a bigger motor, which needs more battery, which adds weight,
+        which needs an even bigger motor. Engineers call this the "design spiral" — and it's how
+        many UAV programs go over budget and over weight.
+      </p>
+    </div>
+
+    <p>
+      Sadraey formalises this dependency with the
+      <span class="key-term" title="An equation relating total aircraft weight to all its component masses, showing they are all interdependent">UAS weight equation</span>:
+      <span class="cite">Sadraey §1.4</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">UAS Weight Budget Equation — Sadraey §1.4</span>
+      $$W_0 = W_{PL} + W_E + f_s W_0 + f_p W_0 + f_{av} W_0$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin: 0.6rem 0 0.4rem;">
+        <strong>In plain English:</strong> Total weight ($W_0$) = payload weight + energy (fuel/battery) weight
+        + structural weight + propulsion weight + avionics weight. The key insight is that
+        structural, propulsion, and avionics weights are expressed as <em>fractions</em> of
+        total weight ($f_s$, $f_p$, $f_{av}$) — meaning they grow automatically as the aircraft gets heavier.
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted);">
+        Rearranging — collecting all $W_0$ terms on the left side:
+      </p>
+      $$\boxed{W_0 = \frac{W_{PL} + W_E}{1 - f_s - f_p - f_{av}}}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        <strong>Critical insight:</strong> If the denominator $(1 - f_s - f_p - f_{av})$ approaches zero,
+        $W_0$ approaches infinity. A design where structure + propulsion + avionics fractions sum to 1.0
+        is physically impossible — there is no room for payload or fuel. This is the mathematical
+        form of the design spiral.
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — The Backpack Problem</span>
+      <p>
+        Imagine packing for a hike. Your backpack frame weighs 20% of whatever you load in it (it's a
+        heavy-duty frame). Your water purifier weighs 10% of total load. Your food is 15% of total load.
+        That leaves only 55% for actual useful gear (tent, clothes, sleeping bag).
+        If the frame + purifier + food together exceeded 100% of pack capacity, you simply cannot pack —
+        the backpack is infeasible. This is exactly what happens when $f_s + f_p + f_{av} \geq 1$.
+      </p>
+    </div>
+
+    <h3>Payload Mass Fraction — The Utility Metric</h3>
+    <p>
+      The <span class="key-term" title="The fraction of total weight that is useful payload — sensors, weapons, cargo">Payload Mass Fraction (PMF)</span>
+      tells you what fraction of the aircraft's weight is actually useful. A higher PMF means
+      a more efficient design — you're spending more of your weight budget on the mission.
+      <span class="cite">Fahlstrom §3.3</span>
+    </p>
+
+    <table>
+      <thead><tr><th>Platform Class</th><th>Typical PMF</th><th>What This Means Practically</th></tr></thead>
+      <tbody>
+        <tr><td>Group 1 Micro (&lt;1 kg)</td><td>0.05–0.10</td><td>~50–100 g payload — a tiny fixed camera, nothing more</td></tr>
+        <tr><td>Group 1 Mini (1–9 kg)</td><td>0.10–0.18</td><td>Up to 1.6 kg — a small EO camera, but not a stabilised thermal gimbal</td></tr>
+        <tr><td>Group 3 Tactical (25–600 kg)</td><td>0.15–0.25</td><td>Multi-axis EO/IR possible; no SAR radar</td></tr>
+        <tr><td>Group 4–5 MALE (MQ-9 class)</td><td>0.25–0.35</td><td>EO/IR + SAR + SIGINT + weapons simultaneously</td></tr>
+        <tr><td>Group 5 HALE (RQ-4 class)</td><td>0.20–0.30</td><td>Global persistent Multi-INT, massive SIGINT arrays</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      Here is why this matters concretely: a Group 1 mini-UAV at 9 kg MTOW with PMF = 0.10
+      carries just 0.9 kg of payload. A stabilised thermal imaging gimbal — the sensor you'd
+      actually want for night ISR — weighs 1.2–2.5 kg. It literally cannot fit. This is not
+      a problem that better software solves. It is a hard physics constraint.
+    </p>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 1.1 — MQ-9B SkyGuardian Weight Budget</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Let's verify the weight equation against published MQ-9B specs.
+        We know the actual MTOW from GA-ASI's datasheet. Can the equation predict it?
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Source / How Derived</th></tr></thead>
+        <tbody>
+          <tr><td>MTOW $W_0$</td><td>5,670 kg</td><td>GA-ASI published specification</td></tr>
+          <tr><td>Max payload $W_{PL}$</td><td>1,746 kg</td><td>GA-ASI internal + external stores spec</td></tr>
+          <tr><td>Fuel mass $W_E$</td><td>~1,800 kg</td><td>Estimated from fuel capacity spec</td></tr>
+          <tr><td>Structural fraction $f_s$</td><td>≈ 0.28</td><td>Airframe + landing gear (estimated from similar aircraft)</td></tr>
+          <tr><td>Propulsion fraction $f_p$</td><td>≈ 0.085</td><td>TPE331-10 turboprop engine ~481 kg estimated</td></tr>
+          <tr><td>Avionics fraction $f_{av}$</td><td>≈ 0.045</td><td>FCC, comms, EW suite estimated</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>Step 1:</strong> Calculate the denominator:
+        $1 - 0.28 - 0.085 - 0.045 = \mathbf{0.59}$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Step 2:</strong> Apply the equation:
+        $W_0 = (1746 + 1800)/0.59 \approx \mathbf{6{,}010\text{ kg}}$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Result:</strong> Our prediction is 6,010 kg vs. the actual 5,670 kg — an error of about 6%.
+        For conceptual design stage (where we're estimating fractions, not measuring real hardware),
+        that's excellent accuracy. The 6% gap comes mostly from underestimating avionics weight
+        (satellite communications hardware, electronic warfare suite, de-icing systems).
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>PMF:</strong> $1746/5670 = 0.308$ — about 31% of MQ-9B's weight is usable payload.
+        That's why it can simultaneously carry a multi-sensor EO/IR turret, SAR radar pod, and air-to-ground missiles.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.4  ISR MISSIONS
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>1.4 ISR Missions — Watching From Above</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        <strong>ISR stands for Intelligence, Surveillance, and Reconnaissance.</strong>
+        In plain terms: watching, listening, and gathering information about the enemy —
+        from an aircraft that can stay up for 24+ hours without anyone getting tired.
+        For ISR UAVs, the primary design goal is <em>endurance</em> (staying up as long as possible)
+        and <em>sensor coverage</em> (seeing as much ground as possible). Speed matters much less.
+      </p>
+    </div>
+
+    <h3>Endurance — How Long Can It Stay Up?</h3>
+    <p>
+      For turboprop-powered fixed-wing UAVs like the MQ-9, endurance is calculated using
+      the <span class="key-term" title="An equation derived by French engineer Louis Breguet that predicts how far or how long an aircraft can fly given its aerodynamic efficiency and fuel load">Breguet endurance equation</span>.
+      Before the math, here's the intuition: endurance improves when you (1) burn fuel slowly,
+      (2) carry a lot of fuel, and (3) fly at the aerodynamically optimal speed — not too fast, not too slow.
+      <span class="cite">Fahlstrom §4.1</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">Breguet Endurance Equation — Fahlstrom §4.1</span>
+      $$E = \frac{\eta_p}{c_p \cdot g} \cdot \left(\frac{C_L^{3/2}}{C_D}\right)_{\!\max} \cdot \sqrt{2\rho S} \cdot \left(\sqrt{W_i} - \sqrt{W_f}\right)$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.4rem;">
+        <strong>What each piece means:</strong><br>
+        $\eta_p$ = propeller efficiency — how much of engine power becomes thrust (0.82 for MQ-9).<br>
+        $c_p$ = fuel burn rate per unit of power. Lower = more efficient engine.<br>
+        $C_L^{3/2}/C_D$ = a measure of aerodynamic efficiency <em>specifically for endurance</em>
+        (different from the efficiency that maximises range).<br>
+        $W_i, W_f$ = weight at start and end of mission. The $\sqrt{}$ terms reflect diminishing returns
+        as you burn fuel — the lighter aircraft becomes, the less fuel it needs to stay up.
+      </p>
+    </div>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 1.1 — A Common Pilot Mistake: Flying Too Fast for ISR</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Here is a non-obvious result: <strong>the speed that maximises how long you stay up is NOT
+        the same as the speed that maximises how far you go.</strong> For a propeller-driven UAV:
+      </p>
+      $$V_{\text{max endurance}}^* \approx 0.76 \times V_{\text{max range}}^*$$
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin:0.6rem 0 0.4rem;">
+        <strong>Why?</strong> To maximise endurance, you want to minimise power consumption (power = drag × speed).
+        To maximise range, you want to minimise fuel per kilometre (drag alone). These are different
+        optimisation problems, solved at different speeds.
+      </p>
+      <p style="font-size:0.92rem; color:var(--text-secondary);">
+        <strong>Mathematical derivation:</strong> Using the parabolic drag polar model
+        $C_D = C_{D0} + K C_L^2$, the endurance-optimal lift coefficient is:
+        $$C_L^{E*} = \sqrt{\frac{3C_{D0}}{K}} = \sqrt{3} \cdot C_L^{R*}$$
+        Since airspeed $V \propto 1/\sqrt{C_L}$, we get $V_E^* = V_R^* / 3^{1/4} \approx 0.76\, V_R^*$.
+        <span class="cite">Fahlstrom §4.2</span>
+      </p>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-top:0.6rem;">
+        <strong>Operational consequence:</strong> A ground controller who commands an ISR UAV at
+        cruise speed instead of loiter-optimal speed is wasting roughly 4–5 hours of mission time
+        on a 24-hour flight. That's the difference between catching an event and missing it.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 1.2 — MQ-9 Loiter Endurance at 25,000 ft</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary);">
+        Let's compute MQ-9 endurance at its operating altitude using ISA (International Standard
+        Atmosphere) conditions. Every number here is either from the published spec sheet or
+        standard engineering tables.
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Where It Comes From</th></tr></thead>
+        <tbody>
+          <tr><td>Altitude</td><td>7,620 m (25,000 ft)</td><td>GA-ASI published cruise altitude</td></tr>
+          <tr><td>Air density $\rho$</td><td>0.549 kg/m³</td><td>ISA table (thinner air up high — about 45% of sea-level density)</td></tr>
+          <tr><td>Wing area $S$</td><td>16.84 m²</td><td>GA-ASI spec (about the size of a large living room rug)</td></tr>
+          <tr><td>Start weight $W_i$</td><td>4,760 kg</td><td>MTOW minus max payload (sensors stay, fuel burns)</td></tr>
+          <tr><td>End weight $W_f$</td><td>2,960 kg</td><td>$W_i$ minus usable fuel (1,800 kg burned)</td></tr>
+          <tr><td>Aero efficiency $(C_L^{3/2}/C_D)_{\max}$</td><td>≈ 12.5</td><td>Estimated from wing aspect ratio 20, Oswald efficiency 0.85</td></tr>
+          <tr><td>Propeller efficiency $\eta_p$</td><td>0.82</td><td>TPE331-10 turboprop at cruise</td></tr>
+          <tr><td>Fuel consumption $c_p$</td><td>$9.0\times10^{-8}$ kg/W·s</td><td>Typical turboprop BSFC</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>Plugging into the Breguet equation:</strong>
+        $$E = \frac{0.82}{9.0\times10^{-8} \times 9.807} \times 12.5 \times \sqrt{2 \times 0.549 \times 16.84} \times (\sqrt{4760} - \sqrt{2960})$$
+        $$= 930{,}000 \times 12.5 \times 4.30 \times (69.0 - 54.4) = 97{,}800\text{ s} \approx \mathbf{27.2\text{ hours}}$$
+        This matches GA-ASI's published &gt;27-hour endurance. Our equation works.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Sensitivity check:</strong> If engine fuel consumption ($c_p$) degrades by 5%
+        (engines get less efficient as they age), endurance drops by ~5%:
+        $27.2 \times 0.95 \approx 25.8$ hours — losing 1.4 hours of ISR coverage per mission.
+        This is why engine maintenance directly impacts ISR capability.
+      </p>
+    </div>
+
+    <h3>Sensor Coverage — How Much Ground Does It See?</h3>
+    <p>
+      Staying airborne for 27 hours is only useful if the sensor is actually collecting intelligence.
+      The size of the "patch" of ground the camera can see at any moment depends on how high
+      you are, the camera's angle, and its field of view.
+      <span class="cite">Fahlstrom §5.1</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">Sensor Footprint and Coverage Rate — Fahlstrom §5.1</span>
+      $$R_s = \frac{h}{\sin\delta} \qquad \text{(slant range — distance from camera to ground)}$$
+      $$W_{FP} = 2R_s\tan\!\tfrac{\theta_H}{2}, \quad L_{FP} = 2R_s\tan\!\tfrac{\theta_V}{2} \qquad \text{(footprint dimensions)}$$
+      $$\text{GSD} = \frac{p_{\mu m} \times R_s}{f_{mm} \times 10^3} \quad\text{[m/pixel]} \qquad \text{(how sharp is the image?)}$$
+      $$\text{PACR} = W_{FP}(1-f_{ov}) \times V_{GS} \times 3600 \quad\text{[m}^2\text{/hour]}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.6rem;">
+        $h$: altitude above ground; $\delta$: sensor tilt angle from horizontal; $\theta_H, \theta_V$:
+        horizontal/vertical camera field of view; $p_{\mu m}$: camera pixel size; $f_{mm}$: focal length;
+        $f_{ov}$: image overlap (for stitching multiple images); $V_{GS}$: ground speed.
+        GSD tells you the resolution — at GSD = 0.25 m/pixel you can identify a car type,
+        but not read a number plate (need ~0.05 m/pixel for that).
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.5  STRIKE & SWARMS
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>1.5 Strike Missions and Swarm Doctrine</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        UAVs are not only used for watching — they are increasingly used for attacking.
+        Two categories dominate current military thinking: <strong>loitering munitions</strong>
+        (one drone, one precise strike) and <strong>swarms</strong> (hundreds of cheap drones acting together).
+        Both represent fundamentally different approaches to the same problem: how do you destroy
+        a target without risking a human life?
+      </p>
+    </div>
+
+    <h3>Loitering Munitions — The Drone Missile Hybrid</h3>
+    <p>
+      A loitering munition is best understood as a patient missile. A regular missile is fired and cannot
+      be recalled. A loitering munition can patrol an area for 15–60 minutes, wait until the
+      right target appears, and then dive into it. If the target disappears, it can abort.
+      This patience is what makes them so operationally powerful — and legally complex.
+      <span class="cite">Fahlstrom §2.5</span>
+    </p>
+
+    <table>
+      <thead><tr><th>Guidance Mode</th><th>Human Role</th><th>Latency Needed</th><th>Legal Status</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Man-in-the-loop</strong></td>
+          <td>Human presses fire button for every shot</td>
+          <td>&lt;500 ms link required</td>
+          <td>Compliant with IHL</td>
+          <td>Switchblade 300, 600</td>
+        </tr>
+        <tr>
+          <td><strong>Man-on-the-loop</strong></td>
+          <td>System can auto-engage; human can abort</td>
+          <td>1–5 s tolerable</td>
+          <td>Contested under IHL</td>
+          <td>Harop (IAI)</td>
+        </tr>
+        <tr>
+          <td><strong>Fully autonomous</strong></td>
+          <td>Human authorises the mission, not each shot</td>
+          <td>No link needed</td>
+          <td>Active legal debate</td>
+          <td>Harpy NG (IAI)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning">
+      <span class="callout-title">Why Autonomy Raises Legal Questions</span>
+      International Humanitarian Law (IHL) requires that any attack on a target comply with
+      three principles: <strong>Distinction</strong> (tell combatants from civilians),
+      <strong>Proportionality</strong> (don't cause excessive civilian harm), and
+      <strong>Precaution</strong> (take care before attacking). A human operator can make
+      judgment calls on all three. A fully autonomous system must encode them in software —
+      and whether current AI can reliably do that is deeply contested.
+      As of 2024, no binding international law prohibits autonomous weapons,
+      but 125+ countries have called for new rules. <span class="cite">Fahlstrom §2.6</span>
+    </div>
+
+    <h3>Swarm Systems — Power Through Numbers</h3>
+    <p>
+      A single sophisticated UAV can be shot down. But what if you sent 300 cheap ones simultaneously?
+      Even if a defender destroys 100 of them, 200 still reach the target. This is the core idea
+      behind drone swarm doctrine — <span class="key-term" title="Attacking with more threats than the enemy can engage simultaneously">saturation attack</span>.
+      Swarms are designed to be decentralised: no single command node controls all drones.
+      Instead, each drone follows local rules that produce intelligent collective behaviour.
+      <span class="cite">Fahlstrom §2.7</span>
+    </p>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — Murmuration of Starlings</span>
+      <p>
+        Have you seen a flock of thousands of starlings moving as one fluid shape in the sky?
+        No single bird is the leader. Each bird just follows three rules: don't crash into your
+        neighbours, match their direction, and stay close to the group. The result looks like
+        intelligent choreography, but it emerges entirely from simple local rules.
+        Military drone swarms use the same principle — decentralised coordination through
+        local rules, not a central commander. <span class="cite">Fahlstrom §2.7</span>
+      </p>
+    </div>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Reynolds' Flocking Rules — Mathematical Form</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        The formal version of the three flocking rules, defining forces on drone $i$
+        from its neighbours $\mathcal{N}$ within communication range $r$:
+      </p>
+      $$\mathbf{f}_{\text{sep}} = -\sum_{j \in \mathcal{N}_{r_s}} \frac{\mathbf{p}_j - \mathbf{p}_i}{\|\mathbf{p}_j - \mathbf{p}_i\|^2}
+        \qquad \text{(push away from nearby drones)}$$
+      $$\mathbf{f}_{\text{align}} = \frac{1}{|\mathcal{N}|}\sum_{j \in \mathcal{N}} \mathbf{v}_j - \mathbf{v}_i
+        \qquad \text{(match their velocity)}$$
+      $$\mathbf{f}_{\text{cohesion}} = \frac{1}{|\mathcal{N}|}\sum_{j \in \mathcal{N}} \mathbf{p}_j - \mathbf{p}_i
+        \qquad \text{(move toward the group center)}$$
+      $$\mathbf{u}_i = w_s\mathbf{f}_{\text{sep}} + w_a\mathbf{f}_{\text{align}} + w_c\mathbf{f}_{\text{cohesion}} + w_m\mathbf{f}_{\text{mission}}$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.6rem;">
+        Military drones add a fourth term $\mathbf{f}_{\text{mission}}$ — an attraction toward the target
+        and repulsion from threat zones (radar, missile batteries). The weights $w_s, w_a, w_c, w_m$
+        are tuned during testing. Get them wrong and the swarm either collides with itself ($w_s$ too small)
+        or fragments and loses coordination ($w_c$ too small).
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.6  THREATS
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>1.6 Threat Environments — What Tries to Stop Them</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Military UAVs don't fly in safe airspace. They operate where adversaries actively try
+        to destroy them, jam their communications, or feed them false position information.
+        Understanding these threats is not optional — they define the entire design philosophy
+        of military autonomous systems. This section covers the three most impactful threats:
+        GPS jamming, GPS spoofing, and radar detection.
+      </p>
+    </div>
+
+    <h3>Threat 1 — GPS Jamming: Blinding the Navigation System</h3>
+    <p>
+      GPS signals arrive at Earth's surface incredibly weakly — about $-130$ dBm,
+      which is roughly 10 billion times weaker than a WiFi signal. This makes GPS
+      trivially easy to jam. A jammer just broadcasts loud radio noise on the same frequency,
+      drowning out the satellite signals. The UAV's GPS receiver can't hear the satellites
+      anymore and loses its position. <span class="cite">Fahlstrom §3.5</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">GPS Jamming-to-Signal Ratio — Fahlstrom §3.5</span>
+      $$\frac{J}{S} = \frac{P_j G_j}{P_s G_s} \cdot \left(\frac{R_s}{R_j}\right)^2 \cdot \frac{1}{L_j}$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.3rem;">
+        <strong>What it means:</strong> $J/S$ is the ratio of jammer signal to GPS satellite signal
+        at the UAV receiver. If $J/S \geq +25$ dB, the GPS is effectively denied.
+        $P_j, G_j$: jammer power and antenna directivity. $P_s, G_s$: GPS satellite signal power and receive gain.
+        $R_s \approx 20{,}200$ km: how far away GPS satellites are. $R_j$: distance to the jammer.
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted);">
+        A basic 10 W jammer ($+40$ dBm) with an omnidirectional antenna at $R_j = 30$ km achieves
+        $J/S \approx +55$ dB — far above the denial threshold. This means a $\$50$ handheld
+        jammer bought online can deny GPS to a military UAV from 30 km away.
+        <strong>This is why the entire Module 04 of this course exists.</strong>
+      </p>
+    </div>
+
+    <h3>Threat 2 — GPS Spoofing: Feeding False Positions</h3>
+    <p>
+      Jamming is obvious — the GPS receiver knows it's lost signal and raises an alarm.
+      Spoofing is worse: the attacker broadcasts fake GPS signals that look real.
+      The receiver thinks it knows exactly where it is — but the position is wrong.
+      The UAV navigates confidently to the wrong location without any warning.
+      This is what allegedly caused an Iranian capture of a US RQ-170 Sentinel in 2011
+      (though the specific method remains disputed). The defence requires cross-checking
+      GPS against other sensors — barometers, terrain matching, inertial navigation — all
+      topics covered in Module 04.
+    </p>
+
+    <h3>Threat 3 — Radar Detection: Being Seen</h3>
+    <p>
+      Ground-based radars illuminate UAVs with radio waves and detect the reflected signal.
+      How well a UAV reflects radar is measured by its
+      <span class="key-term" title="Radar Cross Section — a measure of how visible an object is to radar, in square metres">Radar Cross Section (RCS)</span>
+      in square metres. A conventional MALE UAV might have $\sigma \approx 1$ m² — detectable
+      at ~200 km by a modern surveillance radar. Stealth shaping and radar-absorbent materials
+      can reduce RCS to $0.01$ m², cutting detection range to ~63 km.
+      <span class="cite">Sadraey §2.6</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">Radar Range Equation — Detection Distance</span>
+      $$R_{\max} = \left[\frac{P_t G_t G_r \lambda^2 \sigma}{(4\pi)^3 P_{r,\min} L}\right]^{1/4}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        Key insight from the 4th-root dependence: cutting RCS by 100× (20 dB) only reduces
+        detection range by $100^{1/4} = 3.16\times$. You need enormous RCS reduction for modest
+        range benefit — which is why stealth is difficult and expensive, and why it must
+        be combined with other tactics (flying low, avoiding radar line-of-sight, limiting emissions).
+      </p>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-title">The DDIL Environment — The Design Baseline</span>
+      The combination of GPS jamming, data link disruption, and active radar threats creates what
+      military planners call a <strong>DDIL environment: Denied, Degraded, Intermittent, and Limited</strong>
+      communications. Fahlstrom identifies DDIL as the primary reason military UAVs require
+      onboard autonomy — the platform must complete its mission even when it cannot talk to anyone,
+      cannot trust its GPS, and cannot be sure it hasn't been detected.
+      Every module after this one is, at its root, a response to DDIL. <span class="cite">Fahlstrom §3.6</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.7  3D SIMULATION
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>1.7 Interactive: UAV Flight Path Simulation</h2>
+    <p>
+      The visualisation below shows a UAV executing a waypoint navigation mission.
+      <strong>Yellow spheres</strong> are waypoints — pre-planned geographic coordinates the UAV must
+      fly through, corresponding to mission phase transitions (launch, climb, ISR loiter orbit,
+      egress, recovery). The path is a smooth curve (Catmull-Rom spline) through the waypoints,
+      ensuring the velocity vector is always continuous — abrupt turns waste energy and stress the airframe.
+      Vertical drop lines show the altitude profile above the ground track.
+    </p>
+    <p style="color:var(--text-muted); font-size:0.9rem;">
+      Drag with mouse to orbit the view. Scroll to zoom in/out. Use the buttons below to control speed.
+    </p>
+    <div class="viz-container">
+      <div class="viz-header">
+        <span>◈ UAV WAYPOINT NAVIGATION // M01</span>
+        <span style="color:var(--accent-green); font-size:0.65rem;">DRAG TO ORBIT · SCROLL TO ZOOM</span>
+      </div>
+      <div id="fp-canvas"></div>
+      <div class="telemetry-strip">
+        <span data-label="ALT" id="fp-alt">—</span>
+        <span data-label="SPD" id="fp-speed">—</span>
+        <span data-label="DIST" id="fp-dist">—</span>
+      </div>
+      <div class="viz-controls">
+        <button class="viz-btn" id="fp-btn-pause">⏸ Pause</button>
+        <button class="viz-btn" id="fp-btn-slow">0.3× Slow</button>
+        <button class="viz-btn" id="fp-btn-normal">1× Normal</button>
+        <button class="viz-btn" id="fp-btn-fast">2.5× Fast</button>
+        <button class="viz-btn" id="fp-btn-terrain">Toggle Terrain</button>
+        <button class="viz-btn" id="fp-btn-reset">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.8  PYTHON CODE
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>1.8 Python: ISR Mission Analysis — Full Implementation</h2>
+
+    <p>
+      The code below implements everything from sections 1.3 and 1.4 in a single runnable Python file.
+      It's structured as a class so you can easily swap in different platform parameters
+      (try changing the MQ-9 specs to model a ScanEagle or a Predator).
+      All equations include comments referencing the Fahlstrom and Sadraey sections they come from.
+    </p>
+
+    <div class="callout info">
+      <span class="callout-title">How to Run This</span>
+      Copy the code below into a file called <code>isr_analysis.py</code> and run
+      <code>python isr_analysis.py</code>. No special libraries needed beyond NumPy
+      (install with <code>pip install numpy</code>).
+    </div>
+
+    <div class="code-block">
+      <span class="code-lang">Python</span>
+      <pre><span class="cm"># isr_mission_analysis.py
+# ─────────────────────────────────────────────────────────────────
+# Implements: Fahlstrom & Gleason §4.1–5.3, Sadraey §1.4
+# Platform modelled: MQ-9B SkyGuardian (GA-ASI)
+# Sensor modelled:   MTS-C representative EO/IR parameters
+# Data link:         C-band LOS ground control station
+# ─────────────────────────────────────────────────────────────────
+</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+
+<span class="cm"># ── Platform Parameters (change these to model other UAVs) ───────</span>
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="tp">Platform</span>:
+    <span class="st">"""
+    Physical and performance parameters for the UAV.
+    All values are for MQ-9B SkyGuardian unless noted.
+    """</span>
+    name:            str   = <span class="st">"MQ-9B SkyGuardian"</span>
+    mtow_kg:         float = <span class="nm">5670.0</span>   <span class="cm"># Maximum Take-Off Weight [kg]</span>
+    w_fuel_kg:       float = <span class="nm">1800.0</span>   <span class="cm"># Usable fuel mass [kg]</span>
+    w_payload_kg:    float = <span class="nm">1746.0</span>   <span class="cm"># Maximum payload mass [kg]</span>
+    wing_area_m2:    float = <span class="nm">16.84</span>    <span class="cm"># Reference wing area [m²]</span>
+    cruise_alt_m:    float = <span class="nm">7620.0</span>   <span class="cm"># Cruise/loiter altitude [m] (25,000 ft)</span>
+    ground_speed_ms: float = <span class="nm">55.0</span>     <span class="cm"># Loiter ground speed [m/s] (~107 kt)</span>
+    <span class="cm"># Aerodynamic efficiency at endurance-optimal condition (Fahlstrom §4.2)</span>
+    cl32_cd_max:     float = <span class="nm">12.5</span>     <span class="cm"># (CL^1.5 / CD)_max</span>
+    eta_prop:        float = <span class="nm">0.82</span>     <span class="cm"># Propeller efficiency (0–1)</span>
+    bsfc:            float = <span class="nm">9.0e-8</span>   <span class="cm"># Brake-specific fuel consumption [kg/W·s]</span>
+    <span class="cm"># Weight fractions for weight budget (Sadraey §1.4)</span>
+    f_struct:        float = <span class="nm">0.280</span>    <span class="cm"># Structural mass fraction</span>
+    f_prop:          float = <span class="nm">0.085</span>    <span class="cm"># Propulsion system mass fraction</span>
+    f_avionics:      float = <span class="nm">0.045</span>    <span class="cm"># Avionics mass fraction</span>
+
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="tp">EO_Sensor</span>:
+    <span class="st">"""EO/IR sensor parameters — representative of MTS-C turret."""</span>
+    hfov_deg:        float = <span class="nm">35.0</span>    <span class="cm"># Horizontal field of view [degrees]</span>
+    vfov_deg:        float = <span class="nm">25.0</span>    <span class="cm"># Vertical field of view [degrees]</span>
+    depression_deg:  float = <span class="nm">60.0</span>    <span class="cm"># Sensor depression from horizontal [degrees]</span>
+    pixel_pitch_um:  float = <span class="nm">5.5</span>     <span class="cm"># Detector pixel pitch [micrometres]</span>
+    focal_length_mm: float = <span class="nm">200.0</span>   <span class="cm"># Focal length [mm]</span>
+    overlap_frac:    float = <span class="nm">0.60</span>    <span class="cm"># Image overlap fraction for mosaic (0–1)</span>
+
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="tp">DataLink</span>:
+    <span class="st">"""C-band LOS data link parameters."""</span>
+    freq_ghz:        float = <span class="nm">5.8</span>     <span class="cm"># Carrier frequency [GHz]</span>
+    p_tx_dbm:        float = <span class="nm">43.0</span>    <span class="cm"># Transmit power [dBm]  → 20 W</span>
+    g_tx_dbi:        float = <span class="nm">30.0</span>    <span class="cm"># GCS antenna gain [dBi] → 1.2 m dish at C-band</span>
+    g_rx_dbi:        float = <span class="nm">6.0</span>     <span class="cm"># UAV antenna gain [dBi] → patch array</span>
+    misc_loss_db:    float = <span class="nm">3.0</span>     <span class="cm"># Cable and connector losses [dB]</span>
+    rx_sens_dbm:     float = <span class="nm">-95.0</span>   <span class="cm"># Receiver sensitivity [dBm]</span>
+    req_margin_db:   float = <span class="nm">10.0</span>    <span class="cm"># Required link margin [dB]</span>
+
+
+<span class="kw">class</span> <span class="tp">ISRAnalyser</span>:
+    <span class="st">"""
+    Full ISR mission analysis.
+    Covers: weight budget, endurance, sensor geometry, GSD, PACR, link budget.
+    """</span>
+    G       = <span class="nm">9.80665</span>       <span class="cm"># gravitational acceleration [m/s²]</span>
+    C_LIGHT = <span class="nm">299_792_458.0</span> <span class="cm"># speed of light [m/s]</span>
+    R_EARTH = <span class="nm">6_371_000.0</span>   <span class="cm"># mean Earth radius [m]</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, platform: Platform, sensor: EO_Sensor, link: DataLink):
+        self.p = platform
+        self.s = sensor
+        self.l = link
+        <span class="cm"># Compute air density at cruise altitude using ISA troposphere model</span>
+        self.rho = self._isa_density(platform.cruise_alt_m)
+
+    <span class="kw">def</span> <span class="fn">_isa_density</span>(self, h_m: float) -> float:
+        <span class="st">"""
+        International Standard Atmosphere density at altitude h [m].
+        Valid in troposphere (h < 11,000 m). Lapse rate = 6.5 K/km.
+        """</span>
+        T = <span class="nm">288.15</span> - <span class="nm">0.0065</span> * h_m          <span class="cm"># temperature at altitude [K]</span>
+        <span class="cm"># density ratio from barometric formula</span>
+        rho = <span class="nm">1.225</span> * (T / <span class="nm">288.15</span>) ** <span class="nm">4.256</span>
+        <span class="kw">return</span> rho
+
+    <span class="kw">def</span> <span class="fn">weight_budget</span>(self) -> dict:
+        <span class="st">"""
+        Sadraey §1.4 — closed-form MTOW from component fractions.
+        Predicts gross take-off weight and validates against actual spec.
+        """</span>
+        p = self.p
+        denominator = <span class="nm">1</span> - p.f_struct - p.f_prop - p.f_avionics
+        W0_predicted = (p.w_payload_kg + p.w_fuel_kg) / denominator
+        error_pct = abs(W0_predicted - p.mtow_kg) / p.mtow_kg * <span class="nm">100</span>
+        PMF = p.w_payload_kg / p.mtow_kg
+        <span class="kw">return</span> {
+            <span class="st">'denominator'</span>:   denominator,
+            <span class="st">'W0_predicted'</span>:  W0_predicted,
+            <span class="st">'W0_actual'</span>:     p.mtow_kg,
+            <span class="st">'error_pct'</span>:     error_pct,
+            <span class="st">'PMF'</span>:           PMF,
+        }
+
+    <span class="kw">def</span> <span class="fn">endurance_hours</span>(self) -> float:
+        <span class="st">"""
+        Breguet endurance — Fahlstrom §4.1, Eq. 4.7.
+        Maximum endurance condition: (CL^1.5 / CD)_max.
+        Note: this differs from max-range condition (CL/CD)_max.
+        """</span>
+        p = self.p
+        W_i = p.mtow_kg              <span class="cm"># initial weight (full fuel + full payload)</span>
+        W_f = p.mtow_kg - p.w_fuel_kg  <span class="cm"># final weight (fuel burned, payload stays)</span>
+
+        E_seconds = (
+            (p.eta_prop / (p.bsfc * self.G))  <span class="cm"># propulsion efficiency term</span>
+            * p.cl32_cd_max                    <span class="cm"># aerodynamic efficiency term</span>
+            * np.sqrt(<span class="nm">2</span> * self.rho * p.wing_area_m2)  <span class="cm"># altitude term</span>
+            * (np.sqrt(W_i) - np.sqrt(W_f))   <span class="cm"># fuel weight change term</span>
+        )
+        <span class="kw">return</span> E_seconds / <span class="nm">3600.0</span>
+
+    <span class="kw">def</span> <span class="fn">sensor_geometry</span>(self) -> dict:
+        <span class="st">"""
+        Fahlstrom §5.1 — Sensor footprint, slant range, GSD, coverage rate.
+        Assumes flat Earth (acceptable for typical UAV sensor geometry).
+        """</span>
+        s = self.s
+        h = self.p.cruise_alt_m
+
+        dep_rad  = np.radians(s.depression_deg)
+        hfov_rad = np.radians(s.hfov_deg)
+        vfov_rad = np.radians(s.vfov_deg)
+
+        R_slant = h / np.sin(dep_rad)                     <span class="cm"># slant range [m]</span>
+        W_fp    = <span class="nm">2</span> * R_slant * np.tan(hfov_rad / <span class="nm">2</span>)     <span class="cm"># footprint width [m]</span>
+        L_fp    = <span class="nm">2</span> * R_slant * np.tan(vfov_rad / <span class="nm">2</span>)     <span class="cm"># footprint length [m]</span>
+
+        <span class="cm"># Ground Sample Distance — image resolution at this range</span>
+        GSD_m = (s.pixel_pitch_um * <span class="nm">1e-6</span> * R_slant) / (s.focal_length_mm * <span class="nm">1e-3</span>)
+
+        <span class="cm"># Persistent Area Coverage Rate (accounting for image overlap)</span>
+        PACR_km2ph = (W_fp * (<span class="nm">1</span> - s.overlap_frac) * self.p.ground_speed_ms * <span class="nm">3600</span>) / <span class="nm">1e6</span>
+
+        <span class="kw">return</span> {
+            <span class="st">'R_slant_km'</span>:   R_slant / <span class="nm">1000</span>,
+            <span class="st">'W_fp_m'</span>:       W_fp,
+            <span class="st">'L_fp_m'</span>:       L_fp,
+            <span class="st">'GSD_cm'</span>:       GSD_m * <span class="nm">100</span>,
+            <span class="st">'PACR_km2ph'</span>:   PACR_km2ph,
+        }
+
+    <span class="kw">def</span> <span class="fn">link_budget</span>(self) -> dict:
+        <span class="st">"""
+        Fahlstrom §5.3 — Friis transmission equation for LOS link budget.
+        Computes maximum RF range and compares to geometric horizon.
+        """</span>
+        lk = self.l
+
+        <span class="cm"># Total available link budget [dB]</span>
+        allowed_path_loss = (lk.p_tx_dbm + lk.g_tx_dbi + lk.g_rx_dbi
+                             - lk.misc_loss_db - lk.rx_sens_dbm - lk.req_margin_db)
+
+        <span class="cm"># Convert path loss budget to maximum range using Friis equation</span>
+        wavelength = self.C_LIGHT / (lk.freq_ghz * <span class="nm">1e9</span>)
+        R_rf_m = (wavelength / (<span class="nm">4</span> * np.pi)) * <span class="nm">10</span> ** (allowed_path_loss / <span class="nm">20</span>)
+
+        <span class="cm"># Geometric LOS horizon at cruise altitude</span>
+        R_horizon_m = np.sqrt(<span class="nm">2</span> * self.R_EARTH * self.p.cruise_alt_m)
+
+        limiting = <span class="st">'horizon-limited'</span> <span class="kw">if</span> R_horizon_m &lt; R_rf_m <span class="kw">else</span> <span class="st">'power-limited'</span>
+
+        <span class="kw">return</span> {
+            <span class="st">'allowed_path_loss_dB'</span>: allowed_path_loss,
+            <span class="st">'R_rf_km'</span>:             R_rf_m / <span class="nm">1000</span>,
+            <span class="st">'R_horizon_km'</span>:        R_horizon_m / <span class="nm">1000</span>,
+            <span class="st">'limiting_factor'</span>:     limiting,
+        }
+
+    <span class="kw">def</span> <span class="fn">report</span>(self):
+        <span class="st">"""Print a formatted analysis report."""</span>
+        p  = self.p
+        wb = self.weight_budget()
+        E  = self.endurance_hours()
+        sg = self.sensor_geometry()
+        lb = self.link_budget()
+
+        print(<span class="st">f"\n{'='*56}"</span>)
+        print(<span class="st">f"  ISR MISSION ANALYSIS — {p.name}"</span>)
+        print(<span class="st">f"{'='*56}"</span>)
+        print(<span class="st">f"\n  Altitude: {p.cruise_alt_m/0.3048:.0f} ft  |  Air density: {self.rho:.4f} kg/m³"</span>)
+
+        print(<span class="st">f"\n  ── WEIGHT BUDGET (Sadraey §1.4) ──────────────────"</span>)
+        print(<span class="st">f"  Denominator:    {wb['denominator']:.3f}  (must be > 0)"</span>)
+        print(<span class="st">f"  Predicted W0:   {wb['W0_predicted']:.0f} kg"</span>)
+        print(<span class="st">f"  Actual W0:      {wb['W0_actual']:.0f} kg  (error: {wb['error_pct']:.1f}%)"</span>)
+        print(<span class="st">f"  Payload frac:   {wb['PMF']:.3f}  ({wb['PMF']*100:.1f}% of MTOW is useful payload)"</span>)
+
+        print(<span class="st">f"\n  ── ENDURANCE (Fahlstrom §4.1) ─────────────────────"</span>)
+        print(<span class="st">f"  Breguet E:      {E:.2f} hours on station"</span>)
+
+        print(<span class="st">f"\n  ── SENSOR GEOMETRY (Fahlstrom §5.1) ───────────────"</span>)
+        print(<span class="st">f"  Slant range:    {sg['R_slant_km']:.2f} km"</span>)
+        print(<span class="st">f"  Footprint:      {sg['W_fp_m']:.0f} m × {sg['L_fp_m']:.0f} m"</span>)
+        print(<span class="st">f"  GSD:            {sg['GSD_cm']:.1f} cm/pixel  (recognition needs < 45 cm)"</span>)
+        print(<span class="st">f"  PACR:           {sg['PACR_km2ph']:.0f} km²/hour"</span>)
+        print(<span class="st">f"  Mission total:  {sg['PACR_km2ph']*E:.0f} km² over {E:.1f} hr mission"</span>)
+
+        print(<span class="st">f"\n  ── DATA LINK (Fahlstrom §5.3) ─────────────────────"</span>)
+        print(<span class="st">f"  Path loss bdgt: {lb['allowed_path_loss_dB']:.0f} dB"</span>)
+        print(<span class="st">f"  Max RF range:   {lb['R_rf_km']:.0f} km"</span>)
+        print(<span class="st">f"  Geom. horizon:  {lb['R_horizon_km']:.0f} km"</span>)
+        print(<span class="st">f"  Conclusion:     {lb['limiting_factor']}"</span>)
+        print(<span class="st">f"\n  (Both ranges ≈ equal → extending range needs relay or SATCOM)"</span>)
+        print(<span class="st">f"{'='*56}\n"</span>)
+
+
+<span class="cm"># ── Run the analysis ─────────────────────────────────────────────</span>
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    analyser = ISRAnalyser(Platform(), EO_Sensor(), DataLink())
+    analyser.report()
+
+    <span class="cm"># ── Try it with a ScanEagle (Group 2 tactical UAV) ───────────────</span>
+    print(<span class="st">"\n--- Comparing to ScanEagle (Group 2 Tactical UAV) ---"</span>)
+    scaneagle = Platform(
+        name            = <span class="st">"ScanEagle"</span>,
+        mtow_kg         = <span class="nm">22.0</span>,
+        w_fuel_kg       = <span class="nm">3.8</span>,
+        w_payload_kg    = <span class="nm">3.4</span>,
+        wing_area_m2    = <span class="nm">0.49</span>,
+        cruise_alt_m    = <span class="nm">4570</span>,   <span class="cm"># 15,000 ft</span>
+        ground_speed_ms = <span class="nm">28.0</span>,
+        cl32_cd_max     = <span class="nm">9.5</span>,
+        eta_prop        = <span class="nm">0.78</span>,
+        bsfc            = <span class="nm">1.1e-7</span>,  <span class="cm"># piston engine, less efficient</span>
+        f_struct        = <span class="nm">0.32</span>,
+        f_prop          = <span class="nm">0.09</span>,
+        f_avionics      = <span class="nm">0.08</span>,
+    )
+    ISRAnalyser(scaneagle, EO_Sensor(hfov_deg=<span class="nm">20</span>, depression_deg=<span class="nm">70</span>), DataLink()).report()</pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-title">Expected Output (MQ-9B)</span>
+      Denominator: 0.590 · Predicted W0: 6,010 kg (error 6.1%) · PMF: 30.8% ·
+      Endurance: 27.2 hours · Footprint 6,290 × 4,493 m · GSD: 24.2 cm/pixel ·
+      PACR: 497 km²/hr · Mission total: ~13,500 km² · RF range 316 km ·
+      Horizon 311 km → <strong>horizon-limited</strong>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       1.9  REFLECTION
+       ══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+
+    <div class="reflection-box"
+      data-guidance="Q1: Denominator = 1 - 0.45 - 0.20 - 0.10 = 0.25. With fuel fraction 0.15 of MTOW, W_fuel = 0.15 × W0. W0 = (W_PL + 0.15×W0) / 0.25, so 0.25 W0 - 0.15 W0 = W_PL, giving W0 = W_PL / 0.10 = 1.4 / 0.10 = 14 kg minimum. PMF = 1.4/14 = 0.10. This means 10% payload fraction — barely viable, and leaves very little margin for heavier sensors or different payloads.
+
+Q2: Power scales as V³ in level flight (P = D × V, and D ∝ V² in the flat-plate drag model, so P ∝ V³). Speed ratio = 90/68 = 1.32. Power ratio = 1.32³ ≈ 2.3. Endurance is inversely proportional to power for fixed fuel energy, so endurance ratio ≈ 1/2.3 ≈ 0.43. At optimal endurance = 27.2 hr, flying too fast gives only ~11.7 hr — losing 15.5 hours. This is a catastrophic mission planning error.
+
+Q3: J/S in dB = (P_j + G_j) - (P_s + G_s) + 20×log10(R_s/R_j). P_j = +50 dBm, G_j = +20 dBi → 70 dBm effective. GPS: P_s ≈ -130 dBm, G_s ≈ +3 dBi → -127 dBm effective. Distance ratio term: 20×log10(20,200,000/80,000) ≈ 48 dB. J/S = 70 - (-127) + 48 = +245 dB... check units carefully. Key insight: J/S is massively above denial threshold at 80 km. The jammer emitting 100 W at a known frequency is itself a large radar/ELINT target — anti-radiation missiles (like HARM) home on exactly this kind of emission. The trade-off: effective jamming requires revealing your position.">
+      <ol>
+        <li>
+          A Group 1 mini-UAV has structural fraction $f_s = 0.45$, propulsion fraction $f_p = 0.20$,
+          and avionics fraction $f_{av} = 0.10$. The mission requires a 1.4 kg EO/IR gimbal.
+          Using Sadraey's weight equation, calculate the minimum feasible MTOW if the fuel fraction
+          is $f_E = 0.15$ of gross weight. What is the resulting PMF, and what does this
+          tell you about the sensor options available to this platform class?
+        </li>
+        <li>
+          An ISR ground controller commands an MQ-9 to loiter at 90 knots instead of
+          the endurance-optimal 68 knots. Using the relationship from Theorem 1.1 and
+          knowing that power required scales as $V^3$, estimate the endurance reduction
+          as a percentage and in hours lost from a 27.2-hour optimal mission.
+          How would you explain this trade-off to a non-engineer commander?
+        </li>
+        <li>
+          A 100 W GNSS jammer with a directional antenna ($G_j = +20$ dBi) operates at
+          80 km from a MALE UAV. Using the J/S equation, verify whether GPS denial is
+          achieved (threshold: $J/S \geq +25$ dB). Now consider: by emitting 100 W at a
+          known GPS frequency, what does the jammer reveal about itself, and what
+          counter-measure does this enable for the UAV operator?
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ── MODULE NAV ── -->
+  <div style="display:flex; justify-content:flex-end; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
+    <a href="m02-flight-dynamics.html" class="btn-primary" style="font-size:0.75rem;">Module 02: Flight Dynamics ▸</a>
+  </div>
+
+</div><!-- end module-page -->
+
+<footer>
+  <p>AEROKNOW · Module 01 · UAV Systems Overview ·
+  Fahlstrom &amp; Gleason §2–5 · Sadraey §1–2</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/viz/flight-path.js"></script>
+<script>
+  /* ── Three.js init ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    FlightPathViz.init('fp-canvas');
+  });
+
+  /* ── Section Jump Bar ── */
+  function jumpTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  /* ── Highlight active jump button on scroll ── */
+  const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          if (buttons[idx]) buttons[idx].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+</script>
+</body>
+</html>

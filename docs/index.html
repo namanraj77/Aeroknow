@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEROKNOW — UAV Systems Educational Platform</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <script src="assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    .hero {
+      min-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 4rem 4rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 70% 40%, rgba(0,212,255,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 80%, rgba(0,255,157,0.03) 0%, transparent 40%);
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      color: var(--accent-green);
+      margin-bottom: 1.2rem;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 40px; height: 1px;
+      background: var(--accent-green);
+      box-shadow: var(--glow-green);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      margin-bottom: 0.4rem;
+      color: var(--text-primary);
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent-primary);
+      text-shadow: 0 0 40px rgba(0,212,255,0.4);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin: 1.5rem 0 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: transparent;
+      border: 1px solid var(--accent-primary);
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.85rem 2rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent-primary);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: var(--transition);
+      z-index: -1;
+    }
+
+    .btn-primary:hover {
+      color: var(--bg-void);
+      box-shadow: var(--glow-primary);
+      text-shadow: none;
+    }
+
+    .btn-primary:hover::before { transform: scaleX(1); }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-dim);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.85rem 2rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: var(--transition);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-bright);
+      color: var(--text-primary);
+    }
+
+    .hero-stats {
+      position: absolute;
+      right: 4rem; top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .stat-item {
+      text-align: right;
+      border-right: 2px solid var(--border-bright);
+      padding-right: 1rem;
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      display: block;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* HUD crosshair deco */
+    .hud-ring {
+      position: absolute;
+      right: 22%;
+      top: 50%;
+      transform: translate(50%, -50%);
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,212,255,0.06);
+      pointer-events: none;
+    }
+
+    .hud-ring::before {
+      content: '';
+      position: absolute;
+      inset: 15px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,212,255,0.1);
+    }
+
+    .hud-ring::after {
+      content: '';
+      position: absolute;
+      inset: 35px;
+      border-radius: 50%;
+      border: 1px dashed rgba(0,212,255,0.08);
+    }
+
+    /* Modules grid section */
+    .section-modules {
+      padding: 4rem;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--accent-green);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-modules h2 {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .section-modules > p {
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+      font-size: 0.95rem;
+      max-width: 600px;
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--border-dim);
+      border: 1px solid var(--border-dim);
+    }
+
+    .module-card {
+      background: var(--bg-card);
+    }
+
+    /* Topic weights bar */
+    .weights-section {
+      padding: 3rem 4rem;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-dim);
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .weight-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .weight-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      width: 200px;
+      letter-spacing: 0.05em;
+    }
+
+    .weight-bar-bg {
+      flex: 1;
+      height: 4px;
+      background: var(--border-dim);
+      position: relative;
+    }
+
+    .weight-bar-fill {
+      height: 100%;
+      transition: width 1s ease;
+    }
+
+    .weight-pct {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      width: 40px;
+      text-align: right;
+    }
+
+    /* Prerequisites */
+    .prereq-section {
+      padding: 3rem 4rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero { padding: 3rem 1.5rem; }
+      .hero-stats { display: none; }
+      .section-modules, .weights-section, .prereq-section { padding: 2rem 1.5rem; }
+      .hud-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hud-corner tl"></div>
+  <div class="hud-corner br"></div>
+  <div class="hud-ring"></div>
+
+  <div class="hero-eyebrow">UAV Systems · PhD-Level Education Platform</div>
+
+  <h1>
+    Master <em>Autonomous</em><br>
+    UAV Systems
+  </h1>
+
+  <p class="hero-sub">
+    A rigorous, book-level curriculum covering military UAV architectures, GNSS-denied navigation,
+    machine learning integration, sensor fusion, and systems engineering — with interactive 3D simulations
+    and copy-paste Python code throughout.
+  </p>
+
+  <div class="hero-cta">
+    <a href="modules/m01-uav-systems.html" class="btn-primary">Begin Module 01 ▸</a>
+    <a href="#modules" class="btn-secondary">View All Modules</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <span class="stat-num">10</span>
+      <span class="stat-label">Modules</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">4</span>
+      <span class="stat-label">3D Simulations</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">PhD</span>
+      <span class="stat-label">Depth Level</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── TOPIC WEIGHTS ── -->
+<section class="weights-section">
+  <p class="section-label">Curriculum Emphasis</p>
+  <h2 style="font-size:1.2rem; margin-bottom:1.5rem; color:var(--text-secondary);">Topic Weight Distribution</h2>
+  <div>
+    <div class="weight-bar-row">
+      <span class="weight-label">ML / Deep Learning</span>
+      <div class="weight-bar-bg"><div class="weight-bar-fill" style="width:40%; background:var(--accent-primary); box-shadow:var(--glow-primary)"></div></div>
+      <span class="weight-pct">40%</span>
+    </div>
+    <div class="weight-bar-row">
+      <span class="weight-label">GNSS-Denied Navigation</span>
+      <div class="weight-bar-bg"><div class="weight-bar-fill" style="width:20%; background:var(--accent-green);"></div></div>
+      <span class="weight-pct">20%</span>
+    </div>
+    <div class="weight-bar-row">
+      <span class="weight-label">Systems Engineering</span>
+      <div class="weight-bar-bg"><div class="weight-bar-fill" style="width:20%; background:var(--accent-amber);"></div></div>
+      <span class="weight-pct">20%</span>
+    </div>
+    <div class="weight-bar-row">
+      <span class="weight-label">GNC Fundamentals</span>
+      <div class="weight-bar-bg"><div class="weight-bar-fill" style="width:10%; background:var(--accent-red);"></div></div>
+      <span class="weight-pct">10%</span>
+    </div>
+    <div class="weight-bar-row">
+      <span class="weight-label">Flight Dynamics</span>
+      <div class="weight-bar-bg"><div class="weight-bar-fill" style="width:10%; background:#b388ff;"></div></div>
+      <span class="weight-pct">10%</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── MODULES ── -->
+<section class="section-modules" id="modules">
+  <p class="section-label">Curriculum</p>
+  <h2>10 Book-Level Modules</h2>
+  <p>Each module contains rigorous theory, MathJax-rendered equations, annotated Python simulations, and open-ended reflection checkpoints.</p>
+
+  <div class="modules-grid">
+
+    <a class="module-card" href="modules/m01-uav-systems.html">
+      <span class="module-card-num">MODULE 01</span>
+      <div class="module-card-title">UAV Systems Overview</div>
+      <div class="module-card-desc">Taxonomy, military mission profiles, ISR architectures, threat environments, and key subsystems.</div>
+      <div class="module-card-tags">
+        <span class="label label-green">ISR</span>
+        <span class="label label-primary">Strike</span>
+        <span class="label label-amber">Swarm</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m02-flight-dynamics.html">
+      <span class="module-card-num">MODULE 02</span>
+      <div class="module-card-title">Flight Dynamics</div>
+      <div class="module-card-desc">6-DOF rigid body mechanics, aerodynamics, rotorcraft vs fixed-wing, stability analysis, and Python simulation.</div>
+      <div class="module-card-tags">
+        <span class="label label-primary">6-DOF</span>
+        <span class="label label-amber">Euler Angles</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m03-gnc-fundamentals.html">
+      <span class="module-card-num">MODULE 03</span>
+      <div class="module-card-title">GNC Fundamentals</div>
+      <div class="module-card-desc">PID, LQR, waypoint guidance, attitude controllers, inner/outer loops, and hardware-in-the-loop concepts.</div>
+      <div class="module-card-tags">
+        <span class="label label-primary">PID</span>
+        <span class="label label-green">LQR</span>
+        <span class="label label-amber">Guidance</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m04-gnss-denied-nav.html">
+      <span class="module-card-num">MODULE 04</span>
+      <div class="module-card-title">GNSS-Denied Navigation</div>
+      <div class="module-card-desc">EKF/UKF theory, visual-inertial odometry (VIO), terrain-aided navigation, and RF-contested environments.</div>
+      <div class="module-card-tags">
+        <span class="label label-red">EKF</span>
+        <span class="label label-green">VIO</span>
+        <span class="label label-primary">TAN</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m05-sensor-fusion.html">
+      <span class="module-card-num">MODULE 05</span>
+      <div class="module-card-title">Sensor Fusion</div>
+      <div class="module-card-desc">IMU, camera, LiDAR, radar integration. Bayesian fusion, covariance modeling, temporal alignment.</div>
+      <div class="module-card-tags">
+        <span class="label label-primary">Bayesian</span>
+        <span class="label label-amber">LiDAR</span>
+        <span class="label label-green">IMU</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m06-ml-foundations.html">
+      <span class="module-card-num">MODULE 06</span>
+      <div class="module-card-title">ML Foundations for UAV</div>
+      <div class="module-card-desc">Supervised/RL frameworks, optimization theory, dataset pipelines for UAV perception, sim-to-real gap.</div>
+      <div class="module-card-tags">
+        <span class="label label-primary">Supervised</span>
+        <span class="label label-green">RL</span>
+        <span class="label label-amber">Sim-to-Real</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m07-deep-learning-uav.html">
+      <span class="module-card-num">MODULE 07</span>
+      <div class="module-card-title">Deep Learning & Perception</div>
+      <div class="module-card-desc">CNNs, ViTs, object detection (YOLO/DETR), optical flow, depth estimation, and UAV-specific datasets.</div>
+      <div class="module-card-tags">
+        <span class="label label-primary">CNN</span>
+        <span class="label label-green">ViT</span>
+        <span class="label label-amber">YOLO</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m08-autonomy-decision.html">
+      <span class="module-card-num">MODULE 08</span>
+      <div class="module-card-title">Autonomy & Decision-Making</div>
+      <div class="module-card-desc">POMDP, behavior trees, mission planning, threat response, OODA loop integration, lethal autonomy ethics.</div>
+      <div class="module-card-tags">
+        <span class="label label-red">POMDP</span>
+        <span class="label label-primary">BT</span>
+        <span class="label label-amber">Ethics</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m09-swarm-systems.html">
+      <span class="module-card-num">MODULE 09</span>
+      <div class="module-card-title">Swarm Systems</div>
+      <div class="module-card-desc">Multi-agent coordination, consensus algorithms, mesh networking, anti-swarm countermeasures, MARL.</div>
+      <div class="module-card-tags">
+        <span class="label label-green">MARL</span>
+        <span class="label label-primary">Consensus</span>
+        <span class="label label-amber">Mesh</span>
+      </div>
+    </a>
+
+    <a class="module-card" href="modules/m10-systems-engineering.html">
+      <span class="module-card-num">MODULE 10</span>
+      <div class="module-card-title">Systems Engineering & Reliability</div>
+      <div class="module-card-desc">MBSE, FMEA, fault tolerance, DO-178C, MIL-STD-882, safety cases, and airworthiness for autonomy.</div>
+      <div class="module-card-tags">
+        <span class="label label-amber">FMEA</span>
+        <span class="label label-red">MIL-STD</span>
+        <span class="label label-primary">DO-178C</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ── PREREQUISITES ── -->
+<section class="prereq-section">
+  <p class="section-label">Before You Begin</p>
+  <h2 style="font-size:1.2rem; margin-bottom:1rem; color:var(--text-primary);">Prerequisites</h2>
+  <div class="grid-3" style="gap:1rem;">
+    <div class="card" style="padding:1rem;">
+      <div class="label label-primary" style="margin-bottom:0.5rem;">Mathematics</div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 0;">Linear algebra, calculus, probability theory, differential equations</p>
+    </div>
+    <div class="card" style="padding:1rem;">
+      <div class="label label-green" style="margin-bottom:0.5rem;">Programming</div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 0;">Python (NumPy, SciPy, PyTorch). No hardware required — simulation only.</p>
+    </div>
+    <div class="card" style="padding:1rem;">
+      <div class="label label-amber" style="margin-bottom:0.5rem;">Physics</div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 0;">Classical mechanics, basic aerodynamics, electromagnetics fundamentals</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>AEROKNOW · UAV Systems Educational Platform · Built for academic and research use<br>
+  <a href="https://github.com">GitHub</a> · Static site deployable to GitHub Pages from /docs</p>
+</footer>
+
+<script src="assets/js/nav.js"></script>
+
+</body>
+</html>
