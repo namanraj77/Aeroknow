@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M04: GNSS-Denied Navigation — AEROKNOW</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    .cite {
+      font-family: var(--font-mono); font-size: 0.70rem;
+      color: var(--accent-amber);
+      background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem; margin-left: 0.25rem;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--accent-primary); letter-spacing: 0.15em;
+      text-transform: uppercase; display: block; margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+    .theorem-block {
+      background: rgba(179,136,255,0.04);
+      border: 1px solid rgba(179,136,255,0.2);
+      border-left: 3px solid #b388ff;
+      padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .theorem-block .theorem-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: #b388ff;
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .worked-example {
+      background: rgba(0,255,157,0.03);
+      border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green);
+      padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .worked-example .we-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-green);
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .analogy-box {
+      background: rgba(255,183,0,0.04);
+      border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber);
+      padding: 1rem 1.2rem; margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+    .key-term {
+      color: var(--accent-primary); font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4); cursor: help;
+    }
+    .spec-table td:first-child { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+    .spec-table td:nth-child(2) { color: var(--text-secondary); }
+    .spec-table td:nth-child(3) { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* Section jump bar */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* EKF step visual */
+    .ekf-step-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .ekf-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      padding: 1rem 1.2rem;
+    }
+    .ekf-step-title {
+      font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--accent-primary); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 0.5rem; display: block;
+    }
+    .ekf-step p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; }
+    @media (max-width: 600px) { .ekf-step-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- SECTION JUMP BAR -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">4.1</span>The Problem</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">4.2</span>IMU Drift</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">4.3</span>Bayesian Estimation</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">4.4</span>EKF Deep Dive</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">4.5</span>UKF</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">4.6</span>Visual-Inertial</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">4.7</span>Terrain Nav</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">4.8</span>3D Simulation</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">4.9</span>Python Code</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">4.10</span>Reflection</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- HERO -->
+  <div class="module-hero">
+    <span class="module-num">MODULE 04 // GNSS-DENIED NAVIGATION</span>
+    <h1>GNSS-Denied Navigation</h1>
+    <p class="lead">
+      GPS can be jammed by a $50 handheld device from 30 km away.
+      In a contested military environment, a UAV that relies solely on GPS is a UAV
+      that the enemy can neutralise without firing a single shot.
+      This module builds the complete solution stack — from why IMUs drift,
+      to how Kalman filters fuse sensors optimally, to visual-inertial odometry
+      and terrain matching — all aligned with Bestaoui Sebbane §7 and Halesworth §5.
+    </p>
+    <div class="module-meta">
+      <span class="label label-red">EKF / UKF Theory</span>
+      <span class="label label-green">Visual-Inertial Odometry</span>
+      <span class="label label-primary">Terrain-Aided Navigation</span>
+      <span class="label label-amber">DDIL Environments</span>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
+      <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
+        📚 &nbsp;REFERENCES: Bestaoui Sebbane §7 &nbsp;·&nbsp; Halesworth §5 &nbsp;·&nbsp; MDPI Autonomous Control Ch.3 &nbsp;·&nbsp; Fahlstrom §3.5
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.1  THE PROBLEM
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>4.1 The Problem — Why GPS Cannot Be the Only Answer</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        GPS works by receiving radio signals from satellites 20,000 km above Earth.
+        By the time those signals reach the ground, they are incredibly faint —
+        about 10 billion times weaker than a typical WiFi signal.
+        Any radio transmitter powerful enough to operate in the same frequency band
+        can drown out those signals entirely. This is GPS jamming, and it costs almost nothing.
+        A more sophisticated attack — GPS spoofing — sends fake GPS signals that trick
+        the receiver into reporting a completely wrong position with full confidence.
+        In a modern contested battlefield, both attacks happen routinely.
+        A UAV that trusts GPS unconditionally in this environment will fly somewhere it
+        should not, or crash.
+      </p>
+    </div>
+
+    <h3>The Asymmetry That Makes This a Hard Problem</h3>
+    <p>
+      The fundamental asymmetry of GPS jamming is captured by the J/S ratio from Module 01.
+      Let's quantify exactly how easy denial is in practice:
+      <span class="cite">Fahlstrom §3.5</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">GPS Signal Budget at the Receiver</span>
+      $$P_{GPS} \approx -130 \text{ dBm} \approx 10^{-16} \text{ W} \qquad \text{(GPS L1 at Earth's surface)}$$
+      $$\frac{J}{S}\bigg|_{dB} = (P_j + G_j) - (P_{GPS} + G_{rx}) + 20\log_{10}\!\left(\frac{R_s}{R_j}\right)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        A 10 W handheld jammer at 30 km range achieves $J/S \approx +55$ dB — far above the
+        +25 dB denial threshold. This means GPS can be denied by non-state actors using
+        equipment costing under $100. Military GPS receivers use controlled reception pattern
+        antennas (CRPAs) and military encryption (M-code) which raise the denial threshold
+        to ~+40 dB — but a 100 W directed jammer still wins at any range under ~80 km.
+        <span class="cite">Bestaoui Sebbane §7.1</span>
+      </p>
+    </div>
+
+    <h3>Types of GNSS Attack</h3>
+    <table>
+      <thead><tr><th>Attack</th><th>Mechanism</th><th>UAV Symptom</th><th>Detection Difficulty</th><th>Countermeasure</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Jamming</strong></td>
+          <td>Broadband noise overwhelms receiver</td>
+          <td>GPS fix lost, "no signal" alert</td>
+          <td>Easy — receiver knows it lost lock</td>
+          <td>Switch to IMU+VIO, terrain nav</td>
+        </tr>
+        <tr>
+          <td><strong>Meaconing</strong></td>
+          <td>Receive and re-broadcast GPS signals with delay</td>
+          <td>Position slowly drifts to wrong location</td>
+          <td>Medium — gradual drift, no alarm</td>
+          <td>Cross-check against barometer, inertial</td>
+        </tr>
+        <tr>
+          <td><strong>Spoofing</strong></td>
+          <td>Transmit false GPS signals at higher power</td>
+          <td>UAV navigates confidently to wrong place</td>
+          <td>Hard — receiver shows full confidence</td>
+          <td>Multi-constellation, signal authentication, IMU cross-check</td>
+        </tr>
+        <tr>
+          <td><strong>GNSS-denied zone</strong></td>
+          <td>Urban canyons, tunnels, signal shadows</td>
+          <td>Intermittent fix loss</td>
+          <td>Easy — geometry known</td>
+          <td>Pre-planned autonomy, map-aided nav</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <span class="callout-title">The RQ-170 Incident — Spoofing in Action</span>
+      In December 2011, a US RQ-170 Sentinel stealthy reconnaissance UAV was captured
+      largely intact by Iran. Iranian engineers later claimed — and US analysts largely accepted —
+      that the aircraft was brought down by GPS spoofing: false GPS signals caused the autopilot
+      to think it was approaching its home base at Kandahar while it was actually over Iranian
+      territory, triggering an automatic landing at the wrong location.
+      The incident directly accelerated US military investment in GNSS-denied navigation.
+      <span class="cite">Bestaoui Sebbane §7.1</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.2  IMU DRIFT
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>4.2 IMU Dead Reckoning — And Why It Always Drifts</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        When GPS is lost, the first fallback is the <strong>IMU (Inertial Measurement Unit)</strong> —
+        a chip that measures acceleration and rotation rates. By integrating (accumulating)
+        those measurements over time, you can track how position has changed from a known
+        starting point. This is called <strong>dead reckoning</strong>, and sailors have used
+        it for centuries. The problem: integration amplifies errors. A tiny constant bias
+        in the accelerometer — say, 0.01 m/s² — becomes a velocity error of 0.6 m/s after
+        one minute, and a position error of 18 metres after one minute. After 10 minutes:
+        1,800 metres of error. Dead reckoning alone is not a solution; it is a bridge between
+        better measurement updates.
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — Walking Blindfolded</span>
+      <p>
+        Imagine walking blindfolded and trying to track your position by counting footsteps
+        and estimating which direction each step goes. After 10 steps you're reasonably accurate.
+        After 100 steps your small angular errors have compounded into a big directional error.
+        After 500 steps you have no idea where you are. An IMU does exactly this —
+        but at 1000 measurements per second. The integration errors still compound just as
+        inexorably; they just accumulate faster.
+      </p>
+    </div>
+
+    <h3>IMU Error Sources — The Allan Variance Model</h3>
+    <p>
+      IMU errors are characterised using <span class="key-term" title="Allan variance — a statistical tool for identifying different noise processes in a time series. Plotting Allan deviation vs. averaging time on a log-log scale reveals distinct slopes for different error types (white noise, bias instability, rate random walk).">Allan variance</span>
+      analysis, which separates the noise into distinct physical processes:
+      <span class="cite">Bestaoui Sebbane §7.2</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">IMU Stochastic Error Model — Allan Variance</span>
+      $$\sigma^2(\tau) = \frac{N^2}{\tau} + B^2 \frac{\tau}{3} + \frac{K^2\tau}{3}$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.3rem;">
+        <strong>Three noise regimes:</strong><br>
+        $N$: <strong>Angle/Velocity Random Walk</strong> — white noise from electronics. Averages down with $\sqrt{\tau}$.
+        Units: deg/√hr (gyro) or m/s/√hr (accel).<br>
+        $B$: <strong>Bias Instability</strong> — low-frequency 1/f noise. Irreducible minimum error floor.
+        Units: deg/hr or m/s².<br>
+        $K$: <strong>Rate Random Walk</strong> — slowly wandering bias. Grows with $\sqrt{\tau}$.
+        Units: deg/hr/√hr or m/s²/√hr.
+      </p>
+    </div>
+
+    <h3>Position Error Growth — Why Drift Is Unavoidable</h3>
+    <p>
+      The key result that every navigation engineer must internalise:
+      position error from accelerometer bias grows <em>quadratically</em> with time.
+      <span class="cite">Bestaoui Sebbane §7.3</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">Dead Reckoning Position Error from Accelerometer Bias</span>
+      $$\delta v(t) = b_a \cdot t \qquad \text{(velocity error grows linearly)}$$
+      $$\delta p(t) = \frac{1}{2} b_a \cdot t^2 \qquad \text{(position error grows quadratically)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $b_a$: accelerometer bias [m/s²]. Even after gravity subtraction and frame rotation corrections,
+        residual bias remains. Attitude error $\delta\theta$ also contributes to position error via
+        gravity vector misalignment: $\delta p^{gravity}(t) \approx \frac{1}{2}g\,\delta\theta^2\,t^2$.
+        For a MEMS-grade IMU ($b_a \approx 0.05$ m/s²), position error after 60 seconds = 90 m.
+        For a navigation-grade IMU ($b_a \approx 5\times10^{-5}$ m/s²), error after 60 seconds = 0.09 m —
+        but these cost $10,000–$100,000 and weigh 500 g–2 kg. The tactical trade-off is stark.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 4.1 — IMU Grade Comparison for GNSS-Denied ISR</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Compare three IMU grades for a 5-minute GNSS-denied navigation segment.
+        Mission requirement: position error &lt; 10 m after 5 minutes.
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>IMU Grade</th><th>Accel Bias $b_a$</th><th>$\delta p$ at 60 s</th><th>$\delta p$ at 300 s</th><th>Meets 10 m req?</th><th>Typical Cost</th></tr></thead>
+        <tbody>
+          <tr><td>COTS MEMS (e.g., ICM-42688)</td><td>0.10 m/s²</td><td>180 m</td><td>4,500 m</td><td style="color:var(--accent-red);">No</td><td>$5–$20</td></tr>
+          <tr><td>Tactical MEMS (e.g., ADIS16488)</td><td>0.01 m/s²</td><td>18 m</td><td>450 m</td><td style="color:var(--accent-red);">No</td><td>$500–$2,000</td></tr>
+          <tr><td>Navigation Grade (e.g., HG9900)</td><td>5×10⁻⁵ m/s²</td><td>0.09 m</td><td>2.25 m</td><td style="color:var(--accent-green);">Yes</td><td>$50,000+</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>Conclusion:</strong> Only a navigation-grade IMU meets the 10 m / 5-minute
+        requirement using dead reckoning alone — and it costs more than the entire UAV in
+        most Group 1–2 platforms. This is the core engineering motivation for EKF-based
+        sensor fusion: use a cheap MEMS IMU for high-rate propagation, but correct its
+        drift with low-rate, higher-quality measurements from cameras, LiDAR, or terrain matching.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.3  BAYESIAN ESTIMATION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>4.3 Bayesian State Estimation — The Conceptual Foundation</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        The IMU drifts. The camera is noisy. The barometer fluctuates with weather.
+        No single sensor gives you a perfect answer. The right approach is to combine all
+        of them, weighting each by how much you trust it. If the IMU has been running for
+        10 seconds and has accumulated large drift, trust it less. If the camera just
+        matched a clear landmark, trust that more.
+        <strong>Bayesian estimation</strong> is the formal mathematical framework for doing
+        exactly this — maintaining a probability distribution over "where am I?" and
+        updating it as new evidence arrives.
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — A Doctor Diagnosing a Patient</span>
+      <p>
+        A doctor doesn't diagnose from a single test. They start with a prior belief based on
+        symptoms, update it when blood tests come back, update it again when the scan result
+        arrives, and at each stage the diagnosis reflects all evidence weighted by reliability.
+        Bayesian estimation does exactly the same thing for UAV position — it maintains a
+        running "best guess" probability distribution that gets updated every time a new
+        sensor measurement arrives, weighted by how reliable that sensor is.
+      </p>
+    </div>
+
+    <p>
+      Formally, Bayesian estimation maintains the posterior distribution
+      $p(\mathbf{x}_k \mid \mathbf{z}_{1:k})$ — the probability of being in state $\mathbf{x}_k$
+      given all measurements up to time $k$:
+      <span class="cite">Bestaoui Sebbane §7.4</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">Recursive Bayesian Update</span>
+      $$\underbrace{p(\mathbf{x}_k \mid \mathbf{z}_{1:k})}_{\text{posterior}} \propto
+        \underbrace{p(\mathbf{z}_k \mid \mathbf{x}_k)}_{\text{likelihood}} \cdot
+        \int \underbrace{p(\mathbf{x}_k \mid \mathbf{x}_{k-1})}_{\text{motion model}} \cdot
+        \underbrace{p(\mathbf{x}_{k-1} \mid \mathbf{z}_{1:k-1})}_{\text{previous posterior}} \, d\mathbf{x}_{k-1}$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.3rem;">
+        <strong>Reading this in plain English:</strong> "My new belief about where I am equals
+        my measurement's likelihood times my prediction from the motion model times my previous belief,
+        summed over all possible previous states."
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted);">
+        <strong>Why it's hard:</strong> The integral is analytically tractable only for
+        linear-Gaussian systems (Kalman filter). For nonlinear systems (real UAVs), we approximate.
+        Three main approximations: EKF (linearise), UKF (sigma points), Particle filter (Monte Carlo).
+        Each trades off computational cost vs. accuracy in nonlinear regimes.
+        <span class="cite">MDPI Autonomous Control Ch.3</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.4  EKF DEEP DIVE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>4.4 Extended Kalman Filter — Step by Step</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        The <strong>Extended Kalman Filter (EKF)</strong> is the most widely used navigation
+        algorithm in the world — it runs inside every smartphone, GPS receiver, and military
+        navigation system. It works in two alternating phases: <strong>Predict</strong>
+        (use the IMU to guess where you'll be next) and <strong>Update</strong> (use a
+        measurement to correct that guess). The "extended" part means it handles nonlinear
+        systems by taking a first-order Taylor series approximation — linearising the
+        equations around the current best estimate. This works well when the estimate is
+        reasonably accurate, and breaks down only in highly nonlinear regimes or with
+        very poor initialisation.
+      </p>
+    </div>
+
+    <h3>The State Vector</h3>
+    <p>
+      First, we define what the EKF is tracking. For full navigation:
+      <span class="cite">Bestaoui Sebbane §7.5</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Navigation EKF State Vector (16 states)</span>
+      $$\mathbf{x} = \begin{bmatrix} \mathbf{p}^T & \mathbf{v}^T & \mathbf{q}^T & \mathbf{b}_a^T & \mathbf{b}_g^T \end{bmatrix}^T \in \mathbb{R}^{16}$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.5rem 0 0.3rem;">
+        $\mathbf{p} \in \mathbb{R}^3$: position (NED frame) &nbsp;·&nbsp;
+        $\mathbf{v} \in \mathbb{R}^3$: velocity (NED frame) &nbsp;·&nbsp;
+        $\mathbf{q} \in \mathbb{R}^4$: attitude quaternion (unit constraint → 3 DOF effective) &nbsp;·&nbsp;
+        $\mathbf{b}_a \in \mathbb{R}^3$: accelerometer bias &nbsp;·&nbsp;
+        $\mathbf{b}_g \in \mathbb{R}^3$: gyroscope bias.
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted);">
+        The bias states are crucial — by estimating and correcting for sensor bias in real time,
+        the EKF continuously calibrates the IMU during flight. This is called "in-flight calibration"
+        and is why a well-tuned EKF produces much better navigation than raw IMU integration,
+        even without external corrections.
+      </p>
+    </div>
+
+    <h3>The Two-Step EKF Algorithm</h3>
+
+    <div class="ekf-step-grid">
+      <div class="ekf-step">
+        <span class="ekf-step-title">▸ Step 1: Predict (IMU Propagation, ~1000 Hz)</span>
+        <p>Use the IMU reading to propagate the state forward one time step.
+        This is cheap — just integrate the kinematic equations from Module 02.
+        The uncertainty (covariance $P$) grows because IMU noise is added each step.</p>
+      </div>
+      <div class="ekf-step">
+        <span class="ekf-step-title">▸ Step 2: Update (Measurement Correction, ~10–100 Hz)</span>
+        <p>When a new measurement arrives (camera feature match, barometer reading, etc.),
+        compute the Kalman gain and correct both the state estimate and covariance.
+        The covariance shrinks — new information reduces uncertainty.</p>
+      </div>
+    </div>
+
+    <div class="math-block">
+      <span class="math-label">EKF Predict Step — Bestaoui Sebbane §7.5</span>
+      $$\hat{\mathbf{x}}_{k|k-1} = f\!\left(\hat{\mathbf{x}}_{k-1|k-1},\, \mathbf{u}_k\right)$$
+      $$P_{k|k-1} = F_k\, P_{k-1|k-1}\, F_k^T + Q_k$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $f(\cdot)$: nonlinear state transition function (IMU kinematic equations — integrate position, velocity, quaternion).
+        $F_k = \partial f/\partial \mathbf{x}\big|_{\hat{\mathbf{x}}}$: Jacobian of $f$ — the linearisation that makes EKF "extended."
+        $Q_k$: process noise covariance matrix — populated from IMU noise specs (Allan variance parameters).
+        $P_{k|k-1}$: predicted covariance — uncertainty grows during prediction.
+      </p>
+    </div>
+
+    <div class="math-block">
+      <span class="math-label">EKF Update Step — Bestaoui Sebbane §7.5</span>
+      $$\mathbf{y}_k = \mathbf{z}_k - h\!\left(\hat{\mathbf{x}}_{k|k-1}\right) \qquad \text{(innovation)}$$
+      $$S_k = H_k\, P_{k|k-1}\, H_k^T + R_k \qquad \text{(innovation covariance)}$$
+      $$K_k = P_{k|k-1}\, H_k^T\, S_k^{-1} \qquad \text{(Kalman gain)}$$
+      $$\hat{\mathbf{x}}_{k|k} = \hat{\mathbf{x}}_{k|k-1} + K_k\, \mathbf{y}_k$$
+      $$P_{k|k} = (I - K_k H_k)\, P_{k|k-1}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{z}_k$: actual measurement; $h(\cdot)$: expected measurement given state (measurement model);
+        $\mathbf{y}_k$: innovation — "how surprised were we by the measurement?";
+        $H_k = \partial h/\partial \mathbf{x}$: measurement Jacobian;
+        $R_k$: measurement noise covariance (from sensor specs);
+        $K_k$: Kalman gain — the optimal weighting between prediction and measurement.
+      </p>
+    </div>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 4.1 — Kalman Gain as Optimal Weighting</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        The Kalman gain $K_k$ minimises the mean squared estimation error.
+        It can be interpreted as a certainty ratio:
+      </p>
+      $$K_k = \frac{P_{k|k-1} H_k^T}{H_k P_{k|k-1} H_k^T + R_k}
+        = \frac{\text{predicted uncertainty}}{\text{predicted uncertainty} + \text{measurement noise}}$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Two limiting cases:</strong><br>
+        If $R_k \to 0$ (perfect sensor): $K_k \to H_k^{-1}$ — trust the measurement completely,
+        ignore the prediction.<br>
+        If $P_{k|k-1} \to 0$ (perfect model): $K_k \to 0$ — trust the prediction completely,
+        ignore the measurement.<br>
+        In practice, both have noise, and $K_k$ blends them by their relative uncertainties.
+        This is the optimal linear estimator — no filter can do better for linear-Gaussian systems.
+        <span class="cite">Bestaoui Sebbane §7.6</span>
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 4.2 — Kalman Gain for Altitude Fusion</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        At time step $k$, the EKF predicts altitude 52.3 m with uncertainty $P_{zz} = 4.0$ m².
+        A barometer reads 51.1 m with measurement noise $R = 2.25$ m² (1.5 m std dev).
+        Compute the Kalman gain, the updated altitude, and the updated uncertainty.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        For scalar altitude, $H = 1$ (measurement directly observes altitude). So:
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Innovation covariance:</strong>
+        $S = H P_{zz} H^T + R = 1 \times 4.0 \times 1 + 2.25 = \mathbf{6.25}$ m²
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Kalman gain:</strong>
+        $K = P_{zz} H^T / S = 4.0 / 6.25 = \mathbf{0.64}$
+        (64% weight to the measurement)
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Innovation:</strong>
+        $y = 51.1 - 52.3 = -1.2$ m
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Updated altitude:</strong>
+        $\hat{z} = 52.3 + 0.64 \times (-1.2) = 52.3 - 0.768 = \mathbf{51.53}$ m
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Updated uncertainty:</strong>
+        $P_{zz}^+ = (1 - 0.64) \times 4.0 = 0.36 \times 4.0 = \mathbf{1.44}$ m²
+        (std dev drops from 2.0 m to 1.2 m)
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Interpretation:</strong> Neither the prediction (52.3 m) nor the measurement (51.1 m)
+        is fully trusted. The fused estimate (51.53 m) sits between them, closer to the measurement
+        because it was weighted 64%. The uncertainty shrank from 4.0 to 1.44 m² — the measurement
+        gave us new information.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.5  UKF
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>4.5 Unscented Kalman Filter — When EKF Linearisation Fails</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        The EKF approximates nonlinear functions by a straight line (first-order Taylor series).
+        This is fine when the function is gently curved near the current estimate.
+        But for highly nonlinear systems — like attitude estimation during aggressive
+        manoeuvres, or bearing-only navigation — the linearisation is too crude and the filter
+        diverges. The <strong>UKF (Unscented Kalman Filter)</strong> solves this by not linearising
+        at all. Instead, it carefully selects a small set of sample points — called
+        <strong>sigma points</strong> — passes each one through the exact nonlinear function,
+        then reconstructs the mean and covariance from the results. It's like sampling a few
+        representative points to understand a curve, rather than drawing a tangent line at one point.
+      </p>
+    </div>
+
+    <h3>Sigma Points — The Key Idea</h3>
+    <p>
+      For a state of dimension $n$ with mean $\hat{\mathbf{x}}$ and covariance $P$,
+      the UKF generates $2n + 1$ sigma points: <span class="cite">MDPI Autonomous Control Ch.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">UKF Sigma Point Selection</span>
+      $$\mathcal{X}^{(0)} = \hat{\mathbf{x}}$$
+      $$\mathcal{X}^{(i)} = \hat{\mathbf{x}} + \left(\sqrt{(n+\lambda)P}\right)_i, \quad i = 1,\ldots,n$$
+      $$\mathcal{X}^{(i+n)} = \hat{\mathbf{x}} - \left(\sqrt{(n+\lambda)P}\right)_i, \quad i = 1,\ldots,n$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\lambda = \alpha^2(n + \kappa) - n$: scaling parameter.
+        $\left(\sqrt{(n+\lambda)P}\right)_i$: $i$-th column of the matrix square root (Cholesky factor).
+        Each sigma point is a deterministic sample that captures the mean and covariance exactly.
+        The points are propagated through the nonlinear function $f(\cdot)$ exactly — no Jacobian required.
+      </p>
+    </div>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 4.2 — UKF vs EKF Accuracy</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        For a scalar nonlinear function $y = f(x)$ with Gaussian input $x \sim \mathcal{N}(\mu, \sigma^2)$:
+      </p>
+      $$\mathbb{E}[f(x)] = f(\mu) + \frac{1}{2}f''(\mu)\sigma^2 + O(\sigma^4) \qquad \text{(true mean)}$$
+      $$\mathbb{E}_{EKF}[f(x)] = f(\mu) \qquad \text{(EKF approximation — first order)}$$
+      $$\mathbb{E}_{UKF}[f(x)] = f(\mu) + \frac{1}{2}f''(\mu)\sigma^2 + O(\sigma^4) \qquad \text{(UKF — captures second order)}$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        The UKF captures the <strong>second-order</strong> term $\frac{1}{2}f''(\mu)\sigma^2$ that the EKF
+        misses. This term becomes significant when the uncertainty $\sigma^2$ is large (e.g., poor
+        GPS initialisation or after a long GNSS-denied period). In those conditions, EKF under-estimates
+        the mean error and diverges; UKF remains accurate. Computational cost: UKF requires
+        $2n+1$ function evaluations per step (vs 1 for EKF) plus a matrix square root — roughly
+        2–4× more expensive than EKF for typical navigation state dimensions.
+        <span class="cite">Bestaoui Sebbane §7.7</span>
+      </p>
+    </div>
+
+    <table>
+      <thead><tr><th>Property</th><th>EKF</th><th>UKF</th><th>Particle Filter</th></tr></thead>
+      <tbody>
+        <tr><td>Nonlinearity handling</td><td>1st-order Taylor (Jacobian)</td><td>2nd-order (sigma points)</td><td>Exact (Monte Carlo)</td></tr>
+        <tr><td>Gaussian assumption</td><td>Required</td><td>Required</td><td>Not required</td></tr>
+        <tr><td>Computational cost</td><td>Low — $O(n^3)$</td><td>Medium — $O(n^3)$ × 2–4</td><td>High — $O(N_{particles})$</td></tr>
+        <tr><td>Jacobian required?</td><td>Yes — must derive analytically</td><td>No</td><td>No</td></tr>
+        <tr><td>Military UAV use</td><td>Standard (GPS/INS, SLAM)</td><td>High-manoeuvre, VIO</td><td>Terrain matching, SLAM</td></tr>
+        <tr><td>ROS2/PX4 availability</td><td>EKF2 module (PX4 default)</td><td>robot_localization package</td><td>AMCL (2D), custom (3D)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.6  VISUAL-INERTIAL ODOMETRY
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>4.6 Visual-Inertial Odometry (VIO)</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Visual-Inertial Odometry combines a camera with an IMU to estimate how the UAV is
+        moving — without any external reference like GPS. The camera sees the world and tracks
+        how visual features move between frames. The IMU provides rapid, high-rate motion
+        measurements between camera frames. Together, they lock each other's weaknesses:
+        the IMU drifts over time but is fast; the camera doesn't drift but is slow and
+        can blur. The result is a navigation solution that can maintain sub-metre accuracy
+        for several minutes in a fully GPS-denied environment — which is transformative
+        for military UAVs operating in jammed or urban environments.
+      </p>
+    </div>
+
+    <h3>The VIO Cost Function — Tightly Coupled Formulation</h3>
+    <p>
+      Tight coupling means camera features and IMU measurements are fused in a single
+      nonlinear least-squares optimisation, rather than two separate filters:
+      <span class="cite">Bestaoui Sebbane §7.8</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">VIO Joint Cost Function (MSCKF / Sliding Window Smoother)</span>
+      $$\min_{\mathbf{x}_{0:T},\, \mathbf{p}_{1:N}}
+        \underbrace{\sum_{k=1}^{T} \left\| \mathbf{r}_{IMU}^{(k)} \right\|^2_{Q_k^{-1}}}_{\text{IMU preintegration residuals}}
+        + \underbrace{\sum_{k=0}^{T} \sum_{i \in \mathcal{V}_k}
+        \left\| \mathbf{z}_{k,i} - \pi\!\left(R_k^T(\mathbf{p}_i^W - \mathbf{t}_k)\right) \right\|^2_{\Sigma_z^{-1}}}_{\text{Visual reprojection residuals}}$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.3rem;">
+        <strong>First term — IMU residuals:</strong>
+        $\mathbf{r}_{IMU}^{(k)}$: difference between predicted and measured IMU preintegration.
+        Penalises inconsistency between IMU readings and the estimated trajectory.
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted);">
+        <strong>Second term — Visual reprojection:</strong>
+        $\mathbf{z}_{k,i}$: observed pixel location of feature $i$ in frame $k$.
+        $\pi(\cdot)$: camera projection function (projects 3D world point to 2D pixel).
+        $\mathbf{p}_i^W$: 3D position of feature $i$ in world frame.
+        $(R_k, \mathbf{t}_k)$: camera pose at time $k$.
+        The residual is "where did I expect to see this feature vs. where I actually saw it?"
+        This nonlinear least-squares problem is solved iteratively (Gauss-Newton or LM algorithm).
+      </p>
+    </div>
+
+    <h3>VIO Algorithms Used in Military UAV Research</h3>
+    <table>
+      <thead><tr><th>Algorithm</th><th>Type</th><th>Coupling</th><th>Key Strength</th><th>ROS2 Package</th></tr></thead>
+      <tbody>
+        <tr><td>MSCKF</td><td>Filter</td><td>Tight</td><td>Computationally efficient; no map storage</td><td>open_vins</td></tr>
+        <tr><td>VINS-Mono</td><td>Smoother</td><td>Tight</td><td>Loop closure; accurate over long distances</td><td>vins_mono (ROS1→2)</td></tr>
+        <tr><td>ORB-SLAM3</td><td>Smoother</td><td>Tight</td><td>Map reuse across missions; multi-session</td><td>orb_slam3_ros2</td></tr>
+        <tr><td>OpenVINS</td><td>Filter</td><td>Tight</td><td>Open source, research-grade, modular</td><td>open_vins</td></tr>
+        <tr><td>Kimera-VIO</td><td>Smoother</td><td>Tight</td><td>Semantic map; 3D mesh reconstruction</td><td>kimera_ros</td></tr>
+      </tbody>
+    </table>
+
+    <h3>VIO Failure Modes in Military Operations</h3>
+    <p>
+      Understanding failure conditions is as important as understanding normal operation.
+      <span class="cite">Halesworth §5.3</span>
+    </p>
+    <table>
+      <thead><tr><th>Failure Mode</th><th>Physical Cause</th><th>Consequence</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Low-texture scene</td><td>Desert, snow, water — no distinguishable features</td><td>Feature tracking fails → no visual update → IMU drift</td><td>IR camera (thermal texture); add active illumination</td></tr>
+        <tr><td>Pure rotation</td><td>UAV rotating without translating (hovering yaw scan)</td><td>3D triangulation degenerates — cannot estimate depth</td><td>IMU provides rotation-only motion prior; use different sensor</td></tr>
+        <tr><td>Motion blur</td><td>High angular rate during aggressive manoeuvres</td><td>Features smear → mismatched tracks → bad estimate</td><td>High-shutter-speed camera; IMU-aided rolling shutter correction</td></tr>
+        <tr><td>Illumination extremes</td><td>Night, direct sun, muzzle flash, smoke</td><td>Over/under-exposed frames → feature detector fails</td><td>Active illumination (NIR LED); event camera</td></tr>
+        <tr><td>Dynamic objects</td><td>Moving vehicles, people in scene</td><td>Dynamic points treated as static features → biased estimate</td><td>Outlier rejection; semantic masking (deep learning)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <span class="callout-title">VIO in ROS2 — The Halesworth §5 Stack</span>
+      Halesworth documents the complete ROS2 navigation pipeline for GNSS-denied drones.
+      The key nodes: <code>imu_filter_madgwick</code> for attitude pre-filtering →
+      <code>open_vins</code> or <code>orb_slam3</code> for VIO pose estimation →
+      <code>robot_localization</code> (EKF node) for sensor fusion →
+      <code>nav2</code> stack for path planning and obstacle avoidance.
+      The entire pipeline operates at 30–100 Hz on an NVIDIA Jetson Orin (15W power budget) —
+      feasible for a Group 3+ UAV platform. <span class="cite">Halesworth §5.4</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.7  TERRAIN-AIDED NAV
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>4.7 Terrain-Aided Navigation — Matching the Ground Below</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Terrain-Aided Navigation (TAN) is an elegant idea: every patch of terrain on Earth is
+        unique — hills, valleys, and flatlands form a fingerprint. If a UAV measures the
+        terrain elevation profile below it (using a radar altimeter or LiDAR) and compares
+        it to a stored digital map, it can figure out exactly where it is — with no GPS,
+        no radio transmission, and no landmarks needed. This is essentially the navigation
+        equivalent of reading a map by feel, in complete radio silence.
+        The Tomahawk cruise missile has used terrain matching since the 1980s;
+        modern military UAVs combine it with VIO for continuous drift-free navigation.
+      </p>
+    </div>
+
+    <h3>TERCOM — Terrain Contour Matching</h3>
+    <p>
+      TERCOM was developed for the Tomahawk BGM-109 cruise missile and is the
+      foundational terrain navigation algorithm. It works by correlating a measured
+      terrain profile against stored DTED (Digital Terrain Elevation Data):
+      <span class="cite">Bestaoui Sebbane §7.9</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">TERCOM Mean Absolute Difference Correlation</span>
+      $$\text{MAD}(x, y) = \frac{1}{N} \sum_{i=1}^{N} \left| h_m(i) - h_s(x + i\Delta x,\; y) \right|$$
+      $$\hat{x}_{pos}, \hat{y}_{pos} = \arg\min_{x,y} \text{MAD}(x, y)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $h_m(i)$: measured terrain elevation profile (from radar altimeter or LiDAR) at
+        $N$ sample points; $h_s(x,y)$: stored DTED elevation at grid coordinate $(x,y)$;
+        $\Delta x$: along-track spacing between samples.
+        The position fix is the map location that best matches the measured profile.
+        Accuracy is limited by DTED resolution: 30 m (DTED-2), 10 m (DTED-3), 1 m (high-resolution).
+        Works best in rough terrain; fails in flat plains (no distinguishing features).
+      </p>
+    </div>
+
+    <h3>SITAN — Continuous EKF-Based Terrain Navigation</h3>
+    <p>
+      SITAN (Sandia Inertial Terrain-Aided Navigation) extends TERCOM by integrating terrain
+      matching into an EKF, providing continuous position corrections rather than discrete fixes:
+      <span class="cite">Bestaoui Sebbane §7.10</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">SITAN Measurement Model</span>
+      $$z_k = h_{altimeter,k} - h_s(x_k, y_k) + v_k, \qquad v_k \sim \mathcal{N}(0, R_k)$$
+      $$H_k = \left[\frac{\partial h_s}{\partial x},\; \frac{\partial h_s}{\partial y},\; 0,\; \ldots\right] = \nabla h_s(x_k, y_k)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        The EKF measurement is the difference between measured clearance (altitude above terrain)
+        and the stored terrain height at the estimated position. The measurement Jacobian
+        $H_k$ is the terrain surface gradient — the steeper the terrain, the more position
+        information each altimeter reading provides. This is why TAN accuracy improves
+        dramatically over rough terrain and degrades over plains.
+        The terrain gradient is computed by finite differencing the DTED grid.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 4.3 — TERCOM Fix Accuracy vs. DTED Resolution</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Estimate the position fix accuracy achievable from TERCOM over mountainous terrain
+        with DTED-2 (30 m posts) vs DTED-3 (10 m posts). Profile length: 30 samples.
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>DTED Level</th><th>Post Spacing</th><th>Vertical Accuracy</th><th>Profile Length</th><th>Achievable Fix Accuracy</th></tr></thead>
+        <tbody>
+          <tr><td>DTED-0</td><td>900 m</td><td>±30 m</td><td>30 posts = 27 km</td><td>~450 m CEP</td></tr>
+          <tr><td>DTED-1</td><td>90 m</td><td>±20 m</td><td>30 posts = 2.7 km</td><td>~45 m CEP</td></tr>
+          <tr><td>DTED-2</td><td>30 m</td><td>±18 m</td><td>30 posts = 900 m</td><td>~15 m CEP</td></tr>
+          <tr><td>DTED-3</td><td>10 m</td><td>±10 m</td><td>30 posts = 300 m</td><td>~5 m CEP</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>CEP</strong> = Circular Error Probable — the radius within which 50% of fixes fall.
+        DTED-3 at 5 m CEP is competitive with degraded GPS (typical: 3–5 m CEP).
+        The caveat: DTED-3 coverage is not global and requires pre-mission data loading.
+        Over featureless terrain (flat desert, open ocean), TERCOM accuracy degrades severely
+        regardless of DTED resolution — this is the fundamental terrain variability requirement.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.8  3D SIMULATION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>4.8 Interactive: GNSS-Denied Navigation Visualisation</h2>
+    <p>
+      This simulation shows three simultaneous navigation solutions over a terrain mesh.
+      <span style="color:var(--accent-green);">Green line</span> — ground truth trajectory.
+      <span style="color:var(--accent-red);">Red line</span> — IMU-only dead reckoning
+      (diverges quadratically as bias accumulates).
+      <span style="color:var(--accent-primary);">Cyan line</span> — EKF-fused estimate
+      (VIO corrections every ~10 IMU steps — stays close to ground truth).
+      The translucent sphere around the UAV is the <strong>covariance ellipsoid</strong> —
+      it grows during IMU-only phases (rising uncertainty) and shrinks when VIO corrects
+      the estimate (new information reduces uncertainty). Drag to orbit, scroll to zoom.
+    </p>
+
+    <div class="viz-container">
+      <div class="viz-header">
+        <span>◈ GNSS-DENIED NAVIGATION // M04</span>
+        <span style="color:var(--accent-green); font-size:0.65rem;">
+          IMU ERR: <span id="gn-imu-err">—</span> &nbsp;|&nbsp; VIO ERR: <span id="gn-vio-err">—</span>
+        </span>
+      </div>
+      <div id="gn-canvas"></div>
+      <div class="telemetry-strip">
+        <span data-label="IMU DRIFT" id="gn-imu-err">—</span>
+        <span data-label="VIO ERR" id="gn-vio-err">—</span>
+        <span data-label="POS X" id="gn-pos-x">—</span>
+        <span data-label="POS Z" id="gn-pos-z">—</span>
+      </div>
+      <div class="viz-controls">
+        <button class="viz-btn" id="gn-btn-pause">⏸ Pause</button>
+        <button class="viz-btn" id="gn-btn-imu">IMU Trail</button>
+        <button class="viz-btn" id="gn-btn-vio">VIO Trail</button>
+        <button class="viz-btn" id="gn-btn-features">Feature Points</button>
+        <button class="viz-btn" id="gn-btn-frustums">Cam Frustums</button>
+        <button class="viz-btn" id="gn-btn-reset">↺ Reset</button>
+      </div>
+    </div>
+
+    <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.75rem;">
+      Notice how the red (IMU-only) track diverges rapidly — within half the trajectory,
+      it is tens of units off-course. The cyan (VIO-corrected) track stays within a few
+      units of ground truth throughout, demonstrating the 100–500× error reduction that
+      EKF+VIO achieves vs dead reckoning alone (as derived in the Python simulation below).
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.9  PYTHON CODE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>4.9 Python: EKF Navigation with VIO Updates</h2>
+
+    <div class="callout info">
+      <span class="callout-title">What This Code Does</span>
+      Implements a 2D EKF for GNSS-denied navigation (simplification for clarity —
+      the full 3D version follows the same structure with 16 states).
+      State: position (x, y), velocity (vx, vy), heading $\psi$, accelerometer biases $(b_x, b_y)$.
+      IMU runs at 100 Hz; VIO corrections arrive at 10 Hz.
+      Compares dead-reckoning vs EKF+VIO error over a 60-second figure-8 trajectory.
+      Run with: <code>pip install numpy matplotlib</code>
+    </div>
+
+    <div class="code-block">
+      <span class="code-lang">Python</span>
+      <pre><span class="cm"># ekf_gnss_denied.py
+# ─────────────────────────────────────────────────────────────────
+# 2D EKF navigation in GNSS-denied environment.
+# Implements: Bestaoui Sebbane §7.5–7.6
+# State: [x, y, vx, vy, psi, b_ax, b_ay]  (7 states)
+# IMU propagation: 100 Hz
+# VIO position update: 10 Hz
+# ─────────────────────────────────────────────────────────────────
+</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">class</span> <span class="tp">EKFNavigator</span>:
+    <span class="st">"""
+    Extended Kalman Filter for 2D GNSS-denied navigation.
+    Bestaoui Sebbane §7.5
+
+    State vector x = [x, y, vx, vy, psi, b_ax, b_ay]:
+      x, y    : position [m] in world frame
+      vx, vy  : velocity [m/s] in world frame
+      psi     : heading [rad]
+      b_ax,b_ay: accelerometer bias [m/s²]
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, dt: float = <span class="nm">0.01</span>):
+        self.dt = dt
+        self.n  = <span class="nm">7</span>          <span class="cm"># state dimension</span>
+
+        <span class="cm"># Initial state estimate (start at origin, stationary, level)</span>
+        self.x = np.zeros(self.n)
+
+        <span class="cm"># Initial covariance — moderate uncertainty on position/velocity</span>
+        self.P = np.diag([<span class="nm">1.0</span>, <span class="nm">1.0</span>,     <span class="cm"># position uncertainty (m²)</span>
+                          <span class="nm">0.1</span>, <span class="nm">0.1</span>,     <span class="cm"># velocity uncertainty (m²/s²)</span>
+                          <span class="nm">0.01</span>,          <span class="cm"># heading uncertainty (rad²)</span>
+                          <span class="nm">1e-4</span>, <span class="nm">1e-4</span>])  <span class="cm"># bias uncertainty (m²/s⁴)</span>
+
+        <span class="cm"># Process noise Q — set from IMU Allan variance specs</span>
+        <span class="cm"># Position noise: dominated by velocity uncertainty integration</span>
+        <span class="cm"># Velocity noise: from accelerometer noise floor (0.05 m/s² RMS)</span>
+        <span class="cm"># Heading noise: from gyro noise floor (0.001 rad/s RMS)</span>
+        <span class="cm"># Bias noise: random walk (1e-5 m/s² per root-second)</span>
+        self.Q = np.diag([<span class="nm">1e-4</span>, <span class="nm">1e-4</span>,    <span class="cm"># position process noise</span>
+                          <span class="nm">2.5e-3</span>, <span class="nm">2.5e-3</span>,<span class="cm"># velocity process noise</span>
+                          <span class="nm">1e-6</span>,           <span class="cm"># heading process noise</span>
+                          <span class="nm">1e-8</span>, <span class="nm">1e-8</span>])  <span class="cm"># bias random walk noise</span>
+
+        <span class="cm"># VIO measurement noise — position accuracy ~3 cm (0.03 m)</span>
+        self.R_vio = np.diag([<span class="nm">0.03</span>**<span class="nm">2</span>, <span class="nm">0.03</span>**<span class="nm">2</span>])
+
+    <span class="kw">def</span> <span class="fn">predict</span>(self, accel_body: np.ndarray, yaw_rate: float):
+        <span class="st">"""
+        IMU propagation step — Bestaoui Sebbane §7.5 Eq. 7.12
+        accel_body: [ax, ay] measured by IMU in body frame [m/s²]
+        yaw_rate:   measured by gyro [rad/s]
+        """</span>
+        x, y, vx, vy, psi, b_ax, b_ay = self.x
+        dt = self.dt
+
+        <span class="cm"># Subtract estimated bias from IMU reading</span>
+        ax_corr = accel_body[<span class="nm">0</span>] - b_ax
+        ay_corr = accel_body[<span class="nm">1</span>] - b_ay
+
+        <span class="cm"># Rotate body-frame acceleration to world frame</span>
+        cos_psi, sin_psi = np.cos(psi), np.sin(psi)
+        ax_w = ax_corr * cos_psi - ay_corr * sin_psi
+        ay_w = ax_corr * sin_psi + ay_corr * cos_psi
+
+        <span class="cm"># State propagation (Euler integration)</span>
+        self.x = np.array([
+            x  + vx*dt + <span class="nm">0.5</span>*ax_w*dt**<span class="nm">2</span>,
+            y  + vy*dt + <span class="nm">0.5</span>*ay_w*dt**<span class="nm">2</span>,
+            vx + ax_w*dt,
+            vy + ay_w*dt,
+            psi + yaw_rate*dt,
+            b_ax,    <span class="cm"># bias modelled as random walk (constant + noise)</span>
+            b_ay,
+        ])
+
+        <span class="cm"># Jacobian F = ∂f/∂x — linearisation of the motion model</span>
+        <span class="cm"># Most entries are the identity or simple derivatives</span>
+        F = np.eye(self.n)
+        <span class="cm"># Position depends on velocity</span>
+        F[<span class="nm">0</span>, <span class="nm">2</span>] = dt;   F[<span class="nm">1</span>, <span class="nm">3</span>] = dt
+        <span class="cm"># Position and velocity depend on heading (rotation of body accel)</span>
+        da_dpsi_x = (-ax_corr * sin_psi - ay_corr * cos_psi)
+        da_dpsi_y = ( ax_corr * cos_psi - ay_corr * sin_psi)
+        F[<span class="nm">0</span>, <span class="nm">4</span>] = <span class="nm">0.5</span> * da_dpsi_x * dt**<span class="nm">2</span>
+        F[<span class="nm">1</span>, <span class="nm">4</span>] = <span class="nm">0.5</span> * da_dpsi_y * dt**<span class="nm">2</span>
+        F[<span class="nm">2</span>, <span class="nm">4</span>] = da_dpsi_x * dt
+        F[<span class="nm">3</span>, <span class="nm">4</span>] = da_dpsi_y * dt
+        <span class="cm"># Velocity depends on bias (negative, since we subtract bias)</span>
+        F[<span class="nm">2</span>, <span class="nm">5</span>] = -cos_psi * dt;   F[<span class="nm">2</span>, <span class="nm">6</span>] =  sin_psi * dt
+        F[<span class="nm">3</span>, <span class="nm">5</span>] = -sin_psi * dt;   F[<span class="nm">3</span>, <span class="nm">6</span>] = -cos_psi * dt
+
+        <span class="cm"># Covariance propagation: P = F P F^T + Q</span>
+        self.P = F @ self.P @ F.T + self.Q
+
+    <span class="kw">def</span> <span class="fn">update_vio</span>(self, pos_meas: np.ndarray) -> float:
+        <span class="st">"""
+        VIO position measurement update — Bestaoui Sebbane §7.5 Eq. 7.16
+        pos_meas: [x, y] position from VIO [m]
+        Returns: innovation magnitude (diagnostic)
+        """</span>
+        <span class="cm"># Measurement model: h(x) = [x, y] — directly observe first two states</span>
+        H = np.zeros((<span class="nm">2</span>, self.n))
+        H[<span class="nm">0</span>, <span class="nm">0</span>] = <span class="nm">1.0</span>   <span class="cm"># observe x position</span>
+        H[<span class="nm">1</span>, <span class="nm">1</span>] = <span class="nm">1.0</span>   <span class="cm"># observe y position</span>
+
+        <span class="cm"># Innovation: z - h(x_predicted)</span>
+        innovation = pos_meas - self.x[:<span class="nm">2</span>]
+
+        <span class="cm"># Innovation covariance: S = H P H^T + R</span>
+        S = H @ self.P @ H.T + self.R_vio
+
+        <span class="cm"># Kalman gain: K = P H^T S^{-1}  (Theorem 4.1)</span>
+        K = self.P @ H.T @ np.linalg.inv(S)
+
+        <span class="cm"># State update</span>
+        self.x = self.x + K @ innovation
+
+        <span class="cm"># Covariance update: P = (I - KH) P (Joseph form for numerical stability)</span>
+        IKH = np.eye(self.n) - K @ H
+        self.P = IKH @ self.P @ IKH.T + K @ self.R_vio @ K.T
+
+        <span class="kw">return</span> float(np.linalg.norm(innovation))
+
+
+<span class="kw">def</span> <span class="fn">simulate_gnss_denied</span>(T: float = <span class="nm">60.0</span>, dt: float = <span class="nm">0.01</span>):
+    <span class="st">"""
+    Simulate 60-second GNSS-denied navigation on a figure-8 trajectory.
+    Compares three navigation solutions:
+    1. IMU-only dead reckoning (no filter, no corrections)
+    2. EKF with VIO updates at 10 Hz
+    3. Ground truth (perfect knowledge)
+    """</span>
+    N   = <span class="nm">int</span>(T / dt)
+    t   = np.linspace(<span class="nm">0</span>, T, N)
+    ekf = EKFNavigator(dt)
+
+    <span class="cm"># Storage arrays</span>
+    true_pos  = np.zeros((N, <span class="nm">2</span>))
+    imu_pos   = np.zeros((N, <span class="nm">2</span>))
+    ekf_pos   = np.zeros((N, <span class="nm">2</span>))
+
+    <span class="cm"># IMU-only dead reckoning state (no filter)</span>
+    imu_vel  = np.zeros(<span class="nm">2</span>)
+    imu_p    = np.zeros(<span class="nm">2</span>)
+    imu_psi  = <span class="nm">0.0</span>
+
+    <span class="cm"># Persistent IMU bias (simulates MEMS accelerometer bias)</span>
+    TRUE_BIAS = np.array([<span class="nm">0.008</span>, <span class="nm">0.005</span>])   <span class="cm"># [m/s²] — tactical MEMS grade</span>
+
+    <span class="kw">for</span> k <span class="kw">in</span> range(N):
+        tk = k * dt
+
+        <span class="cm"># ── Ground truth: figure-8 Lissajous trajectory ───────────</span>
+        omega = <span class="nm">2</span> * np.pi / T
+        true_pos[k] = np.array([
+            <span class="nm">20</span> * np.sin(<span class="nm">2</span> * omega * tk),
+            <span class="nm">10</span> * np.sin(<span class="nm">4</span> * omega * tk),
+        ])
+
+        <span class="cm"># True accelerations (analytical derivative of trajectory)</span>
+        true_accel_w = np.array([
+            -(<span class="nm">2</span>*omega)**<span class="nm">2</span> * <span class="nm">20</span> * np.sin(<span class="nm">2</span>*omega*tk),
+            -(<span class="nm">4</span>*omega)**<span class="nm">2</span> * <span class="nm">10</span> * np.sin(<span class="nm">4</span>*omega*tk),
+        ])
+        true_yaw_rate = <span class="nm">0.05</span> * np.sin(<span class="nm">2</span>*omega*tk)
+
+        <span class="cm"># ── Simulate noisy IMU measurement ────────────────────────</span>
+        <span class="cm"># IMU measures body-frame acceleration with bias + white noise</span>
+        psi_true = <span class="nm">0.1</span> * np.sin(<span class="nm">2</span>*omega*tk)   <span class="cm"># true heading</span>
+        c, s = np.cos(psi_true), np.sin(psi_true)
+        R_w2b = np.array([[c, s], [-s, c]])     <span class="cm"># world → body rotation</span>
+        true_accel_body = R_w2b @ true_accel_w
+
+        imu_accel = true_accel_body + TRUE_BIAS + np.random.randn(<span class="nm">2</span>) * <span class="nm">0.05</span>
+        imu_gyro  = true_yaw_rate   + np.random.randn() * <span class="nm">0.001</span>
+
+        <span class="cm"># ── IMU-only dead reckoning (no corrections) ─────────────</span>
+        ax_w = imu_accel[<span class="nm">0</span>]*np.cos(imu_psi) - imu_accel[<span class="nm">1</span>]*np.sin(imu_psi)
+        ay_w = imu_accel[<span class="nm">0</span>]*np.sin(imu_psi) + imu_accel[<span class="nm">1</span>]*np.cos(imu_psi)
+        imu_vel += np.array([ax_w, ay_w]) * dt
+        imu_p   += imu_vel * dt
+        imu_psi += imu_gyro * dt
+        imu_pos[k] = imu_p
+
+        <span class="cm"># ── EKF: predict step (IMU) ───────────────────────────────</span>
+        ekf.predict(imu_accel, imu_gyro)
+
+        <span class="cm"># ── EKF: VIO update at 10 Hz (every 10th IMU step) ───────</span>
+        <span class="kw">if</span> k % <span class="nm">10</span> == <span class="nm">0</span> <span class="kw">and</span> k > <span class="nm">0</span>:
+            <span class="cm"># VIO gives position with small noise (~3 cm)</span>
+            vio_meas = true_pos[k] + np.random.randn(<span class="nm">2</span>) * <span class="nm">0.03</span>
+            ekf.update_vio(vio_meas)
+
+        ekf_pos[k] = ekf.x[:<span class="nm">2</span>]
+
+    <span class="cm"># ── Compute error statistics ────────────────────────────────</span>
+    imu_errors = np.linalg.norm(imu_pos - true_pos, axis=<span class="nm">1</span>)
+    ekf_errors = np.linalg.norm(ekf_pos - true_pos, axis=<span class="nm">1</span>)
+
+    print(<span class="st">f"\n{'='*56}"</span>)
+    print(<span class="st">f"  GNSS-DENIED NAVIGATION — ERROR ANALYSIS"</span>)
+    print(<span class="st">f"  Bestaoui Sebbane §7.5–7.6  |  dt={dt}s  T={T}s"</span>)
+    print(<span class="st">f"{'='*56}"</span>)
+    print(<span class="st">f"\n  IMU bias simulated: [{TRUE_BIAS[0]:.3f}, {TRUE_BIAS[1]:.3f}] m/s² (tactical MEMS)"</span>)
+    print(<span class="st">f"\n  {'Metric':<30} {'IMU-Only':>10} {'EKF+VIO':>10}"</span>)
+    print(<span class="st">f"  {'-'*50}"</span>)
+    print(<span class="st">f"  {'Final error':<30} {imu_errors[-1]:>9.2f}m {ekf_errors[-1]:>9.3f}m"</span>)
+    print(<span class="st">f"  {'Mean error':<30} {np.mean(imu_errors):>9.2f}m {np.mean(ekf_errors):>9.3f}m"</span>)
+    print(<span class="st">f"  {'Max error':<30} {np.max(imu_errors):>9.2f}m {np.max(ekf_errors):>9.3f}m"</span>)
+    print(<span class="st">f"  {'RMS error':<30} {np.sqrt(np.mean(imu_errors**2)):>9.2f}m {np.sqrt(np.mean(ekf_errors**2)):>9.3f}m"</span>)
+    reduction = np.mean(imu_errors) / (np.mean(ekf_errors) + <span class="nm">1e-9</span>)
+    print(<span class="st">f"\n  Error reduction from EKF+VIO: {reduction:.0f}×"</span>)
+    print(<span class="st">f"  Final bias estimate: [{ekf.x[5]:.4f}, {ekf.x[6]:.4f}] m/s²"</span>)
+    print(<span class="st">f"  True bias:          [{TRUE_BIAS[0]:.4f}, {TRUE_BIAS[1]:.4f}] m/s²"</span>)
+    print(<span class="st">f"  Bias estimation accuracy: {abs(ekf.x[5]-TRUE_BIAS[0])/TRUE_BIAS[0]*100:.1f}% error"</span>)
+    print(<span class="st">f"\n  → EKF estimates IMU bias in real time (in-flight calibration)."</span>)
+    print(<span class="st">f"{'='*56}\n"</span>)
+    <span class="kw">return</span> t, true_pos, imu_pos, ekf_pos
+
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    np.random.seed(<span class="nm">42</span>)
+    simulate_gnss_denied(T=<span class="nm">60.0</span>, dt=<span class="nm">0.01</span>)</pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-title">Expected Output</span>
+      IMU-only final error: ~45–120 m (quadratic growth, varies with noise seed) ·
+      EKF+VIO final error: ~0.05–0.15 m ·
+      Error reduction: ~400–800× ·
+      Bias estimation: EKF converges to within ~5% of true IMU bias after ~10 s ·
+      This demonstrates in-flight IMU calibration — the EKF learns the sensor's bias while navigating.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       4.10  REFLECTION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s10">
+    <div class="reflection-box"
+      data-guidance="Q1: The EKF linearises f() and h() around the current estimate using Jacobians (first-order Taylor series). The error in this approximation is the second-order term (f''(x)/2)*sigma^2. This error is large when: (a) the function has high curvature (f'' large) — e.g., trigonometric functions like sin(psi) in the rotation matrix when psi is changing rapidly; (b) the uncertainty sigma^2 is large — e.g., after a long GNSS-denied period without VIO updates. The UKF mitigates this by propagating sigma points through the exact nonlinear function, capturing the second-order term automatically. Practically: EKF works fine in most conditions but can diverge during aggressive manoeuvres or after a long IMU-only phase where uncertainty has grown large.
+
+Q2: The Kalman gain formula K = P*H^T / (H*P*H^T + R) shows that as R → 0 (perfect measurement), K → H^{-1}, meaning the state is updated to match the measurement exactly. As R → ∞ (useless measurement), K → 0, meaning the measurement is completely ignored. Between these extremes, K is the relative weighting. If a VIO system reports false low uncertainty (R underestimated), the EKF will over-trust the VIO and weight it more than warranted. If VIO then gives a wrong measurement (feature mismatch, loop closure error), the EKF state will be corrupted by exactly K*(wrong_innovation) — potentially a large error spike. This is why VIO implementations include outlier rejection (chi-square test on the innovation) before the update step.
+
+Q3: Pure rotation means translation = 0. For triangulation of a 3D feature from two camera frames, depth is computed from the baseline (translation between frames) and the change in bearing angle. With zero baseline, the system of equations for 3D position becomes: [R1^T*(p_w - t1), R2^T*(p_w - t2)] where t1 = t2 (no translation). The two bearing rays are parallel (modulo rotation) and cannot intersect at a finite point — the depth is unobservable. Mathematically, the observability matrix loses rank when v = 0 (velocity is zero). The fix: use gyroscope-only attitude update during pure rotation (no VIO translation update), and resume 3D feature triangulation only when translation resumes.">
+      <ol>
+        <li>
+          Under what two specific conditions does the EKF linearisation error become
+          large enough to cause filter divergence?
+          For each condition, explain the mathematical mechanism using the Taylor series expansion,
+          and describe a concrete scenario on a military UAV where each condition arises.
+          Why does the UKF avoid divergence in these same conditions?
+        </li>
+        <li>
+          In Worked Example 4.2, the Kalman gain was $K = 0.64$. Explain what happens to
+          the navigation solution if the VIO measurement noise covariance $R$ is incorrectly
+          set to 0.001 m² instead of the correct $0.03^2 = 0.0009$ m² — i.e., the designer
+          accidentally thinks VIO is more accurate than it is.
+          Calculate the resulting (incorrect) Kalman gain, and describe the consequence
+          when VIO produces an occasional spurious measurement (feature mismatch) of +2 m error.
+        </li>
+        <li>
+          Explain from first principles why VIO cannot estimate 3D position during pure rotation
+          (UAV rotating without translating). Derive the geometric condition for triangulation
+          degeneracy using the epipolar geometry framework. For a military loitering munition
+          performing a slow yaw scan to search for targets before diving, propose a specific
+          sensor modification that would maintain position estimation during this pure-rotation phase.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- MODULE NAVIGATION -->
+  <div style="display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
+    <a href="m03-gnc-fundamentals.html" class="btn-secondary" style="font-size:0.75rem;">◂ Module 03: GNC</a>
+    <a href="m05-sensor-fusion.html" class="btn-primary" style="font-size:0.75rem;">Module 05: Sensor Fusion ▸</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Module 04 · GNSS-Denied Navigation ·
+  Bestaoui Sebbane §7 · Halesworth §5 · MDPI Autonomous Control Ch.3</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/viz/gnss-denied.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => { GNSSViz.init('gn-canvas'); });
+
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          buttons[idx]?.classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>

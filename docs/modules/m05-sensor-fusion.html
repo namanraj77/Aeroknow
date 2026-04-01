@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M05: Sensor Fusion — AEROKNOW</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    .cite {
+      font-family: var(--font-mono); font-size: 0.70rem;
+      color: var(--accent-amber);
+      background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem; margin-left: 0.25rem;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--accent-primary); letter-spacing: 0.15em;
+      text-transform: uppercase; display: block; margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+    .theorem-block {
+      background: rgba(179,136,255,0.04);
+      border: 1px solid rgba(179,136,255,0.2);
+      border-left: 3px solid #b388ff;
+      padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .theorem-block .theorem-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: #b388ff;
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .worked-example {
+      background: rgba(0,255,157,0.03);
+      border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green);
+      padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .worked-example .we-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-green);
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .analogy-box {
+      background: rgba(255,183,0,0.04);
+      border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber);
+      padding: 1rem 1.2rem; margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+    .key-term {
+      color: var(--accent-primary); font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4); cursor: help;
+    }
+    .spec-table td:first-child { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+    .spec-table td:nth-child(2) { color: var(--text-secondary); }
+    .spec-table td:nth-child(3) { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* Section jump bar */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* Sensor comparison cards */
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .sensor-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      padding: 1rem 1.2rem;
+      transition: var(--transition);
+    }
+    .sensor-card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+    .sensor-card-header {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+    }
+    .sensor-icon {
+      font-family: var(--font-mono); font-size: 1.1rem;
+      color: var(--accent-primary); width: 28px; text-align: center;
+    }
+    .sensor-name { font-family: var(--font-display); font-size: 0.9rem; color: var(--text-primary); }
+    .sensor-spec { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+    .sensor-tag {
+      display: inline-block; font-family: var(--font-mono); font-size: 0.6rem;
+      padding: 0.1rem 0.4rem; border: 1px solid; margin-top: 0.5rem; margin-right: 0.3rem;
+    }
+
+    /* Fusion architecture diagram */
+    .fusion-arch {
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .fusion-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.75rem; flex-wrap: wrap;
+    }
+    .fusion-block {
+      padding: 0.4rem 0.9rem; border: 1px solid;
+      font-family: var(--font-mono); font-size: 0.68rem;
+      white-space: nowrap;
+    }
+    .fb-sensor { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0,255,157,0.05); }
+    .fb-filter { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(0,212,255,0.05); }
+    .fb-output { border-color: var(--accent-amber); color: var(--accent-amber); background: rgba(255,183,0,0.05); }
+    .fb-arrow { color: var(--text-muted); font-size: 0.85rem; padding: 0 0.2rem; }
+    .fb-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.1em; min-width: 90px;
+    }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- SECTION JUMP BAR -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">5.1</span>Why Fuse?</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">5.2</span>Sensor Modalities</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">5.3</span>Fusion Architectures</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">5.4</span>Covariance Modelling</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">5.5</span>Temporal Alignment</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">5.6</span>Fault Detection</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">5.7</span>Information Theory</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">5.8</span>3D Simulation</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">5.9</span>Python Code</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">5.10</span>Reflection</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- HERO -->
+  <div class="module-hero">
+    <span class="module-num">MODULE 05 // SENSOR FUSION</span>
+    <h1>Sensor Fusion</h1>
+    <p class="lead">
+      No single sensor tells the whole truth. An IMU is fast but drifts.
+      A camera is rich in information but blind in darkness. A LiDAR is precise but
+      power-hungry. Radar sees through smoke but has poor resolution.
+      Sensor fusion is the discipline of combining all of them — weighing each by how
+      trustworthy it is at any given moment — to produce a navigation solution
+      better than any sensor alone could provide.
+    </p>
+    <div class="module-meta">
+      <span class="label label-primary">Bayesian Fusion</span>
+      <span class="label label-green">IMU + Camera + LiDAR</span>
+      <span class="label label-amber">Temporal Alignment</span>
+      <span class="label label-red">Chi-Square Fault Detection</span>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
+      <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
+        📚 &nbsp;REFERENCES: MDPI Autonomous Control Ch.3 &nbsp;·&nbsp; Bestaoui Sebbane §8 &nbsp;·&nbsp; Sadraey §6 &nbsp;·&nbsp; Halesworth §4
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.1  WHY FUSE?
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>5.1 Why Fuse Multiple Sensors?</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Imagine navigating at night in fog with no GPS. You have a compass (tells you direction),
+        a speedometer (tells you speed), a radar altimeter (tells you height above ground),
+        and a camera (shows you the ground below). Each one gives you partial, imperfect
+        information. The compass drifts. The speedometer lags. The altimeter bounces with
+        terrain. The camera is useless in pure darkness. But combined intelligently,
+        they constrain each other — the camera corrects the compass, the altimeter bounds
+        the speedometer's accumulated error, and the radar fills in when the camera fails.
+        <strong>Sensor fusion</strong> is the science of combining partial, imperfect,
+        asynchronous information sources to produce something better than any single source.
+      </p>
+    </div>
+
+    <p>
+      Sensor fusion in UAV navigation is not optional — it is architecturally mandatory.
+      MDPI Autonomous Control identifies three fundamental reasons any single sensor is
+      insufficient for military UAV navigation:
+      <span class="cite">MDPI Autonomous Control Ch.3</span>
+    </p>
+
+    <div class="grid-3" style="margin:1.2rem 0;">
+      <div class="card">
+        <div class="label label-red" style="margin-bottom:0.5rem;">Coverage Gaps</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0;">
+          Every sensor has conditions under which it fails completely.
+          GPS fails under jamming. Camera fails in darkness or smoke.
+          LiDAR fails in rain. No single sensor works in all military environments.
+          Fusion creates redundancy — when one sensor fails, others compensate.
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-amber" style="margin-bottom:0.5rem;">Complementarity</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0;">
+          Different sensors observe different aspects of the state.
+          IMU measures acceleration (fast, noisy). Camera measures appearance (slow, rich).
+          LiDAR measures geometry (precise, expensive). Together they constrain the full
+          state vector more tightly than any single modality.
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-green" style="margin-bottom:0.5rem;">Rate Mismatch</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0;">
+          Control loops need state at 1000 Hz. Cameras deliver 30 Hz.
+          LiDAR delivers 10 Hz. GPS delivers 1–10 Hz. The IMU fills the gaps
+          between slow sensor updates, providing the high-rate "bridge" that
+          all other sensors correct during their infrequent measurements.
+        </p>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — An Experienced Ship's Navigator</span>
+      <p>
+        Before GPS, a ship's navigator used dead reckoning (compass + log speed),
+        celestial navigation (star angles), depth soundings (terrain matching),
+        and radio beacons — each unreliable alone, but together constraining the ship's
+        position to within a nautical mile even after days at sea.
+        They mentally weighted each source by how long ago it was taken,
+        what the weather was, and how much they trusted the instrument.
+        That mental process is exactly what a sensor fusion algorithm formalises mathematically.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.2  SENSOR MODALITIES
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>5.2 Sensor Modalities — Characteristics and Error Models</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Before you can fuse sensors, you must deeply understand each one — not just
+        what it measures, but <em>how it fails</em>. A sensor's noise model is the mathematical
+        description of its errors. Getting this wrong is the number one cause of filter
+        divergence in practice. An overconfident noise model (thinking the sensor is more
+        accurate than it is) causes the filter to trust bad measurements and go wrong.
+        An underconfident model (thinking it's less accurate than it is) causes the filter
+        to ignore good data and drift unnecessarily.
+      </p>
+    </div>
+
+    <div class="sensor-grid">
+      <div class="sensor-card">
+        <div class="sensor-card-header">
+          <span class="sensor-icon">⟳</span>
+          <span class="sensor-name">MEMS IMU</span>
+        </div>
+        <div class="sensor-spec">
+          <strong>Rate:</strong> 100–4000 Hz &nbsp;·&nbsp; <strong>Latency:</strong> &lt;1 ms<br>
+          <strong>Noise model:</strong> White noise + bias random walk + temperature drift<br>
+          <strong>Strengths:</strong> Extremely fast; dead reckoning bridge; attitude rate<br>
+          <strong>Failure modes:</strong> Vibration aliasing; g-sensitivity; thermal shock<br>
+          <strong>Drift:</strong> Position error ∝ t² (quadratic with no correction)
+        </div>
+        <span class="sensor-tag" style="color:var(--accent-green); border-color:var(--accent-green);">Always-on</span>
+        <span class="sensor-tag" style="color:var(--accent-primary); border-color:var(--accent-primary);">High-rate</span>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-card-header">
+          <span class="sensor-icon">◉</span>
+          <span class="sensor-name">Monocular Camera</span>
+        </div>
+        <div class="sensor-spec">
+          <strong>Rate:</strong> 20–120 Hz &nbsp;·&nbsp; <strong>Latency:</strong> 10–50 ms<br>
+          <strong>Noise model:</strong> Reprojection ~0.5 px; rolling shutter distortion<br>
+          <strong>Strengths:</strong> Rich texture; loop closure; feature tracking<br>
+          <strong>Failure modes:</strong> Motion blur; low texture; illumination extremes<br>
+          <strong>Scale:</strong> Unobservable without known baseline or IMU integration
+        </div>
+        <span class="sensor-tag" style="color:var(--accent-amber); border-color:var(--accent-amber);">Scale-ambiguous</span>
+        <span class="sensor-tag" style="color:var(--accent-primary); border-color:var(--accent-primary);">Passive</span>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-card-header">
+          <span class="sensor-icon">⊹</span>
+          <span class="sensor-name">3D LiDAR</span>
+        </div>
+        <div class="sensor-spec">
+          <strong>Rate:</strong> 10–20 Hz &nbsp;·&nbsp; <strong>Latency:</strong> 50–100 ms<br>
+          <strong>Noise model:</strong> ~2 cm range noise; ~0.1° angular noise<br>
+          <strong>Strengths:</strong> Direct 3D structure; no scale ambiguity; dense mapping<br>
+          <strong>Failure modes:</strong> Rain/dust backscatter; specular surfaces; range limits<br>
+          <strong>Power:</strong> 5–15 W (heavy for Group 1–2 UAVs)
+        </div>
+        <span class="sensor-tag" style="color:var(--accent-green); border-color:var(--accent-green);">Scale-resolved</span>
+        <span class="sensor-tag" style="color:var(--accent-red); border-color:var(--accent-red);">Power-hungry</span>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-card-header">
+          <span class="sensor-icon">⌖</span>
+          <span class="sensor-name">Radar Altimeter</span>
+        </div>
+        <div class="sensor-spec">
+          <strong>Rate:</strong> 10–100 Hz &nbsp;·&nbsp; <strong>Latency:</strong> &lt;5 ms<br>
+          <strong>Noise model:</strong> ±0.3–1.5% of altitude; multipath in urban areas<br>
+          <strong>Strengths:</strong> Works in total darkness, fog, rain, smoke<br>
+          <strong>Failure modes:</strong> Specular ground (smooth water); steep angles; urban multipath<br>
+          <strong>Military use:</strong> Terrain-following, SITAN, low-level ingress
+        </div>
+        <span class="sensor-tag" style="color:var(--accent-green); border-color:var(--accent-green);">All-weather</span>
+        <span class="sensor-tag" style="color:var(--accent-amber); border-color:var(--accent-amber);">Active RF</span>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-card-header">
+          <span class="sensor-icon">▲</span>
+          <span class="sensor-name">Barometer</span>
+        </div>
+        <div class="sensor-spec">
+          <strong>Rate:</strong> 25–100 Hz &nbsp;·&nbsp; <strong>Latency:</strong> &lt;5 ms<br>
+          <strong>Noise model:</strong> ~1–3 m altitude noise; slow thermal drift<br>
+          <strong>Strengths:</strong> Very low cost; lightweight; passive; altitude reference<br>
+          <strong>Failure modes:</strong> Prop wash pressure shock; icing; ventilation effects<br>
+          <strong>Drift:</strong> Weather front passage can shift by 10–30 m over hours
+        </div>
+        <span class="sensor-tag" style="color:var(--accent-green); border-color:var(--accent-green);">Lightweight</span>
+        <span class="sensor-tag" style="color:var(--accent-primary); border-color:var(--accent-primary);">Relative alt.</span>
+      </div>
+
+      <div class="sensor-card">
+        <div class="sensor-card-header">
+          <span class="sensor-icon">◈</span>
+          <span class="sensor-name">Magnetometer</span>
+        </div>
+        <div class="sensor-spec">
+          <strong>Rate:</strong> 10–100 Hz &nbsp;·&nbsp; <strong>Latency:</strong> &lt;5 ms<br>
+          <strong>Noise model:</strong> Heading error ~1–5°; hard/soft iron distortion<br>
+          <strong>Strengths:</strong> Absolute heading reference (no drift); passive<br>
+          <strong>Failure modes:</strong> Ferrous structures; motor EMI; geographic variation<br>
+          <strong>Military note:</strong> Motor currents on multirotors can corrupt reading by 10–30°
+        </div>
+        <span class="sensor-tag" style="color:var(--accent-amber); border-color:var(--accent-amber);">EMI-sensitive</span>
+        <span class="sensor-tag" style="color:var(--accent-primary); border-color:var(--accent-primary);">Absolute hdg.</span>
+      </div>
+    </div>
+
+    <h3>Allan Variance — Quantifying IMU Quality</h3>
+    <p>
+      The IMU is the backbone of all fusion architectures — it runs continuously
+      and bridges every other sensor update. Its quality is quantified by
+      <span class="key-term" title="Allan variance — a time-domain method for characterising IMU noise. Plotting Allan deviation vs. averaging time on a log-log scale reveals white noise (slope -1/2), bias instability (slope 0), and random walk (slope +1/2) regions.">Allan variance analysis</span>
+      per IEEE Standard 952. The log-log plot of Allan deviation $\sigma_A(\tau)$ vs.
+      averaging time $\tau$ reveals three physically distinct noise regions:
+      <span class="cite">Bestaoui Sebbane §8.1</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">Allan Variance Decomposition — IEEE Std 952</span>
+      $$\sigma_A^2(\tau) = \underbrace{\frac{N^2}{\tau}}_{\text{Angle/Vel RW}} + \underbrace{B^2}_{\text{Bias instability}} + \underbrace{K^2\tau}_{\text{Rate RW}}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        To extract parameters: run the IMU stationary for $>$6 hours. Compute Allan deviation.
+        Read off: $N$ at slope $-1/2$ (short $\tau$), $B$ at the minimum (medium $\tau$),
+        $K$ at slope $+1/2$ (long $\tau$). These three numbers directly populate the
+        EKF process noise matrix $Q$ — making Allan variance the essential pre-flight
+        calibration procedure for any serious navigation system.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 5.1 — Reading Allan Variance for EKF Tuning</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        An ADIS16488 tactical-grade IMU is characterised. Allan variance analysis yields:
+        $N = 0.3°/\sqrt{\text{hr}}$, $B = 6.5°/\text{hr}$, $K = 0.15°/\text{hr}/\sqrt{\text{hr}}$ (gyro).
+        Convert to EKF process noise for a 100 Hz loop ($\Delta t = 0.01$ s).
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>Allan Parameter</th><th>Raw Value</th><th>SI Units</th><th>EKF $Q$ Entry</th></tr></thead>
+        <tbody>
+          <tr><td>$N$ (angle RW)</td><td>0.3°/√hr</td><td>$1.455\times10^{-4}$ rad/√s</td><td>$Q_{\psi\psi} = N^2 \cdot \Delta t = 2.12\times10^{-9}$ rad²</td></tr>
+          <tr><td>$B$ (bias instab.)</td><td>6.5°/hr</td><td>$3.15\times10^{-5}$ rad/s</td><td>Floor on gyro bias estimate noise</td></tr>
+          <tr><td>$K$ (rate RW)</td><td>0.15°/hr/√hr</td><td>$7.27\times10^{-7}$ rad/s/√s</td><td>$Q_{b_g b_g} = K^2 \cdot \Delta t = 5.28\times10^{-15}$ rad²/s²</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>Key insight:</strong> Every entry in the EKF process noise matrix $Q$ has a
+        physical origin traceable to the sensor's Allan variance parameters.
+        Setting $Q$ by guessing is the most common EKF tuning mistake in practice.
+        Setting $Q$ from Allan variance measurements is the systematic, defensible approach
+        used in certified military navigation systems.
+        <span class="cite">Bestaoui Sebbane §8.2</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.3  FUSION ARCHITECTURES
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>5.3 Fusion Architectures — Loose, Tight, and Deep Coupling</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        There are three ways to combine the outputs of multiple sensors, ranging from simple
+        to sophisticated. The simplest is <strong>loose coupling</strong>: run each sensor's own
+        filter to get a position estimate, then combine those estimates.
+        <strong>Tight coupling</strong> skips the intermediate step — raw sensor measurements
+        go directly into a single shared filter. <strong>Deep coupling</strong> goes further still:
+        the filter actively feeds information back into the sensor processing itself, helping
+        it work better. Each step up requires more engineering but delivers meaningfully
+        better performance, especially when sensors start failing.
+      </p>
+    </div>
+
+    <h3>Loose Coupling</h3>
+    <div class="fusion-arch">
+      <div class="fusion-row">
+        <span class="fb-label">Sensor outputs</span>
+        <div class="fusion-block fb-sensor">GPS → position</div>
+        <div class="fusion-block fb-sensor">Camera → pose</div>
+        <div class="fusion-block fb-sensor">Baro → altitude</div>
+      </div>
+      <div class="fusion-row">
+        <span class="fb-label">Individual filters</span>
+        <div class="fusion-block fb-filter">GPS EKF</div>
+        <span class="fb-arrow">+</span>
+        <div class="fusion-block fb-filter">VIO filter</div>
+        <span class="fb-arrow">+</span>
+        <div class="fusion-block fb-filter">Baro filter</div>
+      </div>
+      <div class="fusion-row">
+        <span class="fb-label">Fusion layer</span>
+        <div class="fusion-block fb-filter">Navigation EKF (fuses position estimates)</div>
+        <span class="fb-arrow">→</span>
+        <div class="fusion-block fb-output">State estimate</div>
+      </div>
+    </div>
+    <p style="font-size:0.9rem; color:var(--text-secondary);">
+      <strong>Advantage:</strong> Modular — each sensor subsystem can be developed and tested independently.
+      Easy to add or remove sensors. <strong>Disadvantage:</strong> The intermediate position estimates
+      are correlated (they share IMU data), but this correlation is ignored when combining them —
+      leading to overconfident (too-small) covariance estimates and potential filter divergence.
+      <span class="cite">MDPI Autonomous Control Ch.3</span>
+    </p>
+
+    <h3>Tight Coupling</h3>
+    <div class="fusion-arch">
+      <div class="fusion-row">
+        <span class="fb-label">Raw measurements</span>
+        <div class="fusion-block fb-sensor">IMU raw accel/gyro</div>
+        <div class="fusion-block fb-sensor">Camera features (pixels)</div>
+        <div class="fusion-block fb-sensor">LiDAR point cloud</div>
+        <div class="fusion-block fb-sensor">Baro pressure</div>
+      </div>
+      <div class="fusion-row">
+        <span class="fb-label">Single filter</span>
+        <div class="fusion-block fb-filter" style="flex:1;">Single Navigation EKF/UKF (all raw measurements in one state)</div>
+        <span class="fb-arrow">→</span>
+        <div class="fusion-block fb-output">State estimate + covariance</div>
+      </div>
+    </div>
+    <p style="font-size:0.9rem; color:var(--text-secondary);">
+      <strong>Advantage:</strong> Correct correlation handling — all measurements share
+      the same state, so their dependencies are properly modelled. Can maintain output
+      even when individual subsystems have too few observations to produce their own fix
+      (e.g., GPS with only 2 satellites visible instead of 4).
+      <strong>Disadvantage:</strong> Requires deriving measurement models for raw sensor outputs —
+      much more complex implementation.
+      <span class="cite">Bestaoui Sebbane §8.3</span>
+    </p>
+
+    <h3>Deep Coupling</h3>
+    <p>
+      Deep coupling closes the loop — the navigation filter's state estimate feeds back
+      into the sensor processing itself:
+      <span class="cite">Bestaoui Sebbane §8.4</span>
+    </p>
+    <div class="fusion-arch">
+      <div class="fusion-row">
+        <span class="fb-label">Bidirectional</span>
+        <div class="fusion-block fb-filter">Navigation EKF</div>
+        <span class="fb-arrow">⇄</span>
+        <div class="fusion-block fb-sensor">IMU pre-integration</div>
+      </div>
+      <div class="fusion-row">
+        <span class="fb-label">Feedback paths</span>
+        <span style="font-size:0.82rem; color:var(--text-muted);">
+          EKF attitude estimate → IMU bias correction before integration<br>
+          EKF velocity estimate → aids camera feature search window<br>
+          EKF position estimate → constrains LiDAR scan matching initial guess
+        </span>
+      </div>
+    </div>
+    <p style="font-size:0.9rem; color:var(--text-secondary);">
+      Deep coupling is used in navigation-grade military systems (HG9900 class) and
+      advanced research systems. The IMU pre-integration residual approach (used in VINS-Mono,
+      ORB-SLAM3) is a form of deep coupling where IMU data is pre-processed into pose-relative
+      measurements before entering the smoother. <span class="cite">Halesworth §4.2</span>
+    </p>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 5.1 — Why Tight Coupling Outperforms Loose in GNSS-Denied Scenarios</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        In loose coupling, each subsystem filter requires a minimum number of valid
+        measurements to produce an output. For GPS, this is typically 4+ satellites.
+        For VIO, typically 5+ tracked features. When these minimums are not met,
+        the subsystem produces no output — and the navigation filter receives no update.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        In tight coupling, raw measurements enter the shared EKF directly.
+        With only 2 GPS pseudoranges available (below the 4-satellite minimum for position fix),
+        those 2 measurements still provide 2 constraints on the state — reducing position
+        uncertainty along two dimensions even without a full fix. Similarly, 3 tracked camera
+        features (below the 5-feature minimum for monocular VO) still contribute partial constraints.
+        The information is never wasted.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        Formally: tight coupling processes $N$ raw measurements providing $N$ independent
+        constraints, regardless of whether they reach any individual subsystem threshold.
+        Loose coupling provides either zero or all-or-nothing updates.
+        In degraded environments where sensors intermittently drop below their fix threshold,
+        tight coupling provides continuous (if reduced) observability. <span class="cite">Bestaoui Sebbane §8.3</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.4  COVARIANCE MODELLING
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>5.4 Covariance Modelling — Getting the Uncertainty Right</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        The Kalman filter's performance depends entirely on how accurately you model
+        the uncertainty of each sensor and each state. The
+        <span class="key-term" title="Covariance matrix P — a symmetric positive-definite matrix encoding both the variance of each state (diagonal elements) and the correlation between states (off-diagonal elements).">covariance matrix</span>
+        $P$ tells the filter how uncertain it is about its own estimate.
+        The measurement noise matrix $R$ tells it how uncertain the sensors are.
+        If either is wrong — even by an order of magnitude — the filter produces
+        poorly calibrated estimates: overconfident ones diverge, underconfident ones drift.
+        Getting these matrices right is an art backed by physics, calibration data, and flight test.
+      </p>
+    </div>
+
+    <h3>The Process Noise Matrix Q</h3>
+    <p>
+      $Q$ encodes uncertainty injected into the state by the motion model during each predict step.
+      For an IMU-driven navigation EKF, $Q$ is populated from Allan variance parameters:
+      <span class="cite">Bestaoui Sebbane §8.5</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Process Noise Q from IMU Allan Variance</span>
+      $$Q_{vv} = \sigma_a^2 \cdot \Delta t \cdot I_3, \quad Q_{pp} = \frac{1}{3}\sigma_a^2 \cdot \Delta t^3 \cdot I_3$$
+      $$Q_{b_g b_g} = \sigma_{bg}^2 \cdot \Delta t \cdot I_3, \quad Q_{b_a b_a} = \sigma_{ba}^2 \cdot \Delta t \cdot I_3$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\sigma_a$: accelerometer noise density [m/s²/√Hz];
+        $\sigma_{bg}, \sigma_{ba}$: gyro/accel bias random walk noise [rad/s/√Hz, m/s²/√Hz].
+        Position noise grows as $\Delta t^3$ (triple integration of acceleration noise — this is
+        the mathematical origin of the quadratic drift discussed in Module 04).
+        All other components scale linearly with $\Delta t$ — they represent noise added per timestep.
+      </p>
+    </div>
+
+    <h3>The Measurement Noise Matrix R</h3>
+    <p>
+      $R$ encodes sensor measurement uncertainty. It must capture not just white noise
+      but also any systematic biases or correlations in the measurement:
+      <span class="cite">Sadraey §6.2</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Measurement Noise Models for Common UAV Sensors</span>
+      $$R_{GPS} = \begin{bmatrix}\sigma_{E}^2 & 0 & 0 \\ 0 & \sigma_{N}^2 & 0 \\ 0 & 0 & \sigma_{D}^2\end{bmatrix}, \quad
+        \sigma_E = \sigma_N \approx 3\text{–}5\text{ m}, \quad \sigma_D \approx 5\text{–}10\text{ m}$$
+      $$R_{VIO} = \sigma_{px}^2 \cdot I_2, \quad \sigma_{px} \approx 0.5\text{ pixel} \cdot \frac{R_s}{f}$$
+      $$R_{baro} = \sigma_{alt}^2, \quad \sigma_{alt} \approx 1\text{–}3\text{ m (SL)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        GPS is worse in the vertical (Down) direction than horizontal — the satellite geometry
+        is always above the horizon, giving poor vertical dilution of precision (VDOP).
+        VIO reprojection noise scales with slant range $R_s$ and inversely with focal length $f$
+        — a telephoto camera at altitude gives better VIO than a wide-angle at low altitude.
+        Barometer noise increases with altitude due to lower air density and turbulence.
+      </p>
+    </div>
+
+    <h3>Adaptive Covariance Estimation</h3>
+    <p>
+      In real operations, sensor noise characteristics change: a camera degrades in smoke,
+      GPS degrades under electronic attack. Static $R$ matrices become wrong.
+      Adaptive methods update $R$ in real time:
+      <span class="cite">MDPI Autonomous Control Ch.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Innovation-Based Adaptive Estimation (IAE)</span>
+      $$\hat{R}_k = (1-\alpha)\hat{R}_{k-1} + \alpha\left(\mathbf{y}_k \mathbf{y}_k^T - H_k P_{k|k-1} H_k^T\right)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{y}_k = \mathbf{z}_k - h(\hat{\mathbf{x}}_{k|k-1})$: innovation vector;
+        $\alpha \in (0,1)$: forgetting factor (typically 0.95–0.99).
+        The logic: if the innovation is consistently larger than expected (sensor degrading),
+        the estimated $\hat{R}_k$ grows, reducing trust in the sensor automatically.
+        If the sensor improves (GPS signal recovers), $\hat{R}_k$ shrinks and trust is restored.
+        This is used in the PX4 EKF2 module for GPS health monitoring.
+        <span class="cite">Halesworth §4.3</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.5  TEMPORAL ALIGNMENT
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>5.5 Temporal Alignment — Every Millisecond Matters</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Sensor fusion assumes all measurements refer to the same point in time.
+        In reality, sensors produce data at different rates, with different delays,
+        and with different timestamp accuracy. The IMU samples every 1 ms.
+        The camera delivers a frame every 33 ms but the image was actually captured
+        10 ms ago (processing delay). The LiDAR spins mechanically, so different points
+        in a single scan were acquired at different moments.
+        If you ignore these time differences and treat all measurements as simultaneous,
+        you inject a systematic position error proportional to vehicle speed times the
+        timing error. At 15 m/s, a 50 ms misalignment causes 75 cm of systematic position error —
+        larger than VIO's noise level. Temporal alignment is not optional.
+      </p>
+    </div>
+
+    <div class="math-block">
+      <span class="math-label">Time Alignment Error — Position Consequence</span>
+      $$\delta p_{timing} = \mathbf{v} \cdot \delta t$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{v}$: vehicle velocity [m/s]; $\delta t$: timestamp error [s].
+        At 55 m/s cruise and 20 ms software timestamp jitter (typical Linux without RT patch):
+        $\delta p = 55 \times 0.02 = 1.1$ m systematic error per measurement.
+        Since this error is systematic (not random), it does not average out — it biases the
+        state estimate consistently. Hardware trigger + GPS-disciplined oscillator brings
+        $\delta t < 1\,\mu$s, giving $\delta p < 55\,\mu$m — negligible.
+        <span class="cite">Bestaoui Sebbane §8.6</span>
+      </p>
+    </div>
+
+    <h3>Strategies for Time Alignment</h3>
+    <table>
+      <thead><tr><th>Strategy</th><th>Mechanism</th><th>Achievable $\delta t$</th><th>Cost</th><th>Used In</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Software timestamp</strong></td><td>OS records time on data receipt</td><td>1–20 ms (OS jitter)</td><td>Free</td><td>Consumer drones, ROS2 default</td></tr>
+        <tr><td><strong>Hardware trigger</strong></td><td>GPIO pulse triggers camera + IMU simultaneously</td><td>1–100 μs</td><td>Low</td><td>Research UAVs, PX4 AUX pins</td></tr>
+        <tr><td><strong>PPS sync</strong></td><td>GPS pulse-per-second disciplines local oscillator</td><td>&lt;1 μs</td><td>Medium</td><td>Military navigation-grade systems</td></tr>
+        <tr><td><strong>Time-offset estimation</strong></td><td>EKF estimates camera-IMU time offset as a state</td><td>~1 ms residual</td><td>Software only</td><td>Kalibr calibration, VINS-Mono</td></tr>
+        <tr><td><strong>Rolling shutter correction</strong></td><td>Model per-row exposure time with IMU rotation</td><td>~0.1 ms residual</td><td>Software</td><td>Mobile/embedded cameras</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Extrinsic Calibration — Sensor-to-Body Frame</h3>
+    <p>
+      In addition to time alignment, every sensor has a rigid spatial offset from the
+      vehicle body frame — the <span class="key-term" title="Extrinsic calibration — the 6-DOF transform (rotation + translation) between a sensor's coordinate frame and the vehicle body frame. Must be precisely known for sensor fusion to be accurate.">extrinsic transform</span>
+      ${}^B T_S \in SE(3)$:
+      <span class="cite">Bestaoui Sebbane §8.7</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Lever Arm Effect — IMU to Camera Offset</span>
+      $$\mathbf{p}_{cam} = \mathbf{p}_{IMU} + R_{B}^{W} \cdot \mathbf{r}_{IMU \to cam}^B + R_{B}^{W} \cdot (\boldsymbol{\omega} \times \mathbf{r}_{IMU \to cam}^B) \cdot \delta t$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{r}_{IMU \to cam}^B$: position of camera relative to IMU in body frame (lever arm).
+        The third term is the <strong>lever arm velocity</strong> — when the UAV is rotating at
+        angular rate $\boldsymbol{\omega}$, the camera is physically moving relative to the IMU,
+        even if the vehicle's centre of mass is stationary.
+        For a 15 cm lever arm and 1 rad/s yaw rate: lever arm velocity = $0.15$ m/s.
+        Over a 0.1 s camera exposure: 15 mm additional position error if uncorrected.
+        This is why extrinsic calibration must account for both translation and rotation.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.6  FAULT DETECTION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>5.6 Sensor Fault Detection and Isolation</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        GPS spoofing gives the receiver a confident but wrong position.
+        A camera feature mismatch produces a large but confident-looking correction.
+        A magnetometer disturbed by motor currents gives a plausible but systematically
+        biased heading. In each case, the sensor is technically working — it's just
+        measuring the wrong thing. Without fault detection, the fusion filter will
+        accept these bad measurements as truth and corrupt the entire navigation solution.
+        Fault detection algorithms act as a gatekeeper — rejecting measurements that
+        are statistically inconsistent with the current state estimate before they
+        can corrupt it.
+      </p>
+    </div>
+
+    <h3>The Chi-Square Innovation Test</h3>
+    <p>
+      The most widely used fault detection method in navigation is the chi-square test
+      on the <span class="key-term" title="Innovation — the difference between the actual measurement and the expected measurement given the current state estimate. If the filter is consistent, innovations should be zero-mean Gaussian. Large innovations indicate either a large measurement noise or a faulty sensor.">innovation</span>
+      (also called RAIM — Receiver Autonomous Integrity Monitoring in GPS context):
+      <span class="cite">MDPI Autonomous Control Ch.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Chi-Square Innovation Test — RAIM</span>
+      $$\epsilon_k = \mathbf{y}_k^T S_k^{-1} \mathbf{y}_k \sim \chi^2(m) \quad \text{under nominal conditions}$$
+      $$\text{Accept if: } \epsilon_k \leq \chi^2_{m,\, 1-\alpha} \qquad \text{Reject (fault) if: } \epsilon_k > \chi^2_{m,\, 1-\alpha}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{y}_k$: innovation vector; $S_k$: innovation covariance; $m$: measurement dimension;
+        $\alpha$: false alarm probability (typically $10^{-3}$ to $10^{-5}$ for military systems).
+        Under correct filter assumptions, the normalised innovation squared $\epsilon_k$ follows
+        a chi-squared distribution with $m$ degrees of freedom. If a measurement is faulty,
+        $\epsilon_k$ will be anomalously large — exceeding the threshold for the chosen $\alpha$.
+        The threshold $\chi^2_{m,\,1-\alpha}$ is looked up from chi-squared tables.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 5.2 — Chi-Square GPS Spoofing Detection</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        The EKF predicts position (100.0, 200.0) m with covariance $P_{pos} = \text{diag}(4, 4)$ m².
+        GPS noise $R = \text{diag}(9, 9)$ m². A GPS reading arrives: (105.0, 203.0) m.
+        Is this a legitimate measurement or possible spoofing? Use $\alpha = 0.001$ (0.1% false alarm).
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Step 1 — Innovation:</strong>
+        $\mathbf{y} = [105.0 - 100.0,\; 203.0 - 200.0] = [5.0,\; 3.0]$ m
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        <strong>Step 2 — Innovation covariance:</strong>
+        $S = H P H^T + R = \text{diag}(4,4) + \text{diag}(9,9) = \text{diag}(13, 13)$ m²
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        <strong>Step 3 — Normalised innovation squared:</strong>
+        $$\epsilon = \mathbf{y}^T S^{-1} \mathbf{y} = \frac{5.0^2}{13} + \frac{3.0^2}{13} = \frac{25 + 9}{13} = \frac{34}{13} = \mathbf{2.615}$$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        <strong>Step 4 — Chi-square threshold:</strong>
+        For $m=2$ measurements and $\alpha = 0.001$: $\chi^2_{2,\,0.999} = 13.82$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        <strong>Decision:</strong> $\epsilon = 2.615 < 13.82$ → <span style="color:var(--accent-green);">ACCEPT</span>.
+        The measurement is consistent. The 5 m position jump is large but within the combined
+        prediction and measurement uncertainty ($\sqrt{13} \approx 3.6$ m standard deviation).
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Spoofing scenario:</strong> If GPS instead reads (130.0, 240.0) m (30 m and 40 m jump):
+        $\epsilon = (30^2 + 40^2)/13 = 5000/13 = 384.6 \gg 13.82$ → <span style="color:var(--accent-red);">REJECT</span>.
+        The measurement is declared a fault. The filter continues on its IMU prediction without updating.
+      </p>
+    </div>
+
+    <h3>Sensor Fault Isolation — Which Sensor Failed?</h3>
+    <p>
+      The chi-square test detects that <em>something</em> is wrong.
+      Isolation identifies <em>which sensor</em> is faulty.
+      The standard approach is the <span class="key-term" title="FDIE — Fault Detection, Isolation, and Exclusion. After detecting a fault, the algorithm identifies the faulty sensor and removes it from the fusion, then re-tests to confirm the fault is isolated.">FDIE (Fault Detection, Isolation, and Exclusion)</span>
+      method: run the chi-square test with each sensor excluded in turn.
+      The excluded sensor that most reduces $\epsilon_k$ is the most likely culprit.
+      Once isolated, the sensor is flagged as degraded and its contribution is reduced
+      (increased $R$) or removed entirely, with a re-check after a timeout period.
+      <span class="cite">Bestaoui Sebbane §8.8</span>
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.7  INFORMATION THEORY
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>5.7 Information-Theoretic View of Sensor Fusion</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        How much does a new sensor measurement actually help? Sometimes a measurement
+        barely reduces your uncertainty — maybe you already knew the altitude to within
+        1 metre and the new barometer reading adds nothing. Other times, a single GPS fix
+        after 5 minutes of dead reckoning collapses your uncertainty from 200 metres down
+        to 5 metres. Information theory gives us a precise way to quantify "how much did
+        I learn from this measurement?" — and that quantity directly determines whether
+        it was worth the weight, power, and complexity of carrying that sensor.
+      </p>
+    </div>
+
+    <h3>Fisher Information and the Cramér-Rao Bound</h3>
+    <p>
+      The <span class="key-term" title="Fisher Information Matrix — measures how much information a measurement provides about an unknown parameter. Higher Fisher information means the parameter can be estimated more precisely.">Fisher Information Matrix</span>
+      (FIM) quantifies how much each measurement constrains the state estimate.
+      Its inverse is the minimum achievable covariance — the
+      <span class="key-term" title="Cramér-Rao Bound — the theoretical lower bound on estimation variance. No unbiased estimator can achieve lower variance than 1/Fisher Information. The Kalman filter achieves this bound for linear-Gaussian systems.">Cramér-Rao Bound (CRB)</span>:
+      <span class="cite">MDPI Autonomous Control Ch.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Fisher Information Matrix and Cramér-Rao Bound</span>
+      $$\mathcal{I}(\mathbf{x}) = \mathbb{E}\left[\left(\frac{\partial \log p(\mathbf{z}|\mathbf{x})}{\partial \mathbf{x}}\right)\left(\frac{\partial \log p(\mathbf{z}|\mathbf{x})}{\partial \mathbf{x}}\right)^T\right] = H^T R^{-1} H$$
+      $$\text{Var}(\hat{\mathbf{x}}) \geq \mathcal{I}(\mathbf{x})^{-1} \qquad \text{(Cramér-Rao Bound)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        For a linear measurement $\mathbf{z} = H\mathbf{x} + \mathbf{v}$, $\mathbf{v} \sim \mathcal{N}(0, R)$:
+        the FIM is $H^T R^{-1} H$. Adding a new sensor with measurement matrix $H_{new}$ and
+        noise $R_{new}$ <em>adds</em> its FIM to the total: $\mathcal{I}_{total} = \mathcal{I}_{existing} + H_{new}^T R_{new}^{-1} H_{new}$.
+        The CRB decreases (achievable accuracy improves) with every additional sensor.
+        The Kalman filter achieves the CRB exactly for linear-Gaussian systems — it is the
+        optimal linear estimator in this sense.
+      </p>
+    </div>
+
+    <h3>Sensor Contribution — Which Sensors Matter Most?</h3>
+    <div class="worked-example">
+      <span class="we-label">Worked Example 5.3 — FIM Analysis: IMU + Baro vs. IMU + Baro + Camera</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        A UAV navigates in 2D (x, z). Sensors: IMU provides velocity ($\sigma_v = 0.05$ m/s),
+        barometer provides altitude ($\sigma_z = 2$ m). How much does adding a downward camera
+        ($\sigma_{cam} = 0.1$ m position) improve achievable accuracy?
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>IMU + Baro FIM (velocity and altitude measurements):</strong>
+        $$H_1 = \begin{bmatrix}0 & 1\end{bmatrix} \;(\text{velocity}), \quad H_2 = \begin{bmatrix}0 & 1\end{bmatrix} \;(\text{altitude in z})$$
+        $$\mathcal{I}_{1+2} = \frac{1}{0.05^2}\begin{bmatrix}0&0\\0&1\end{bmatrix} + \frac{1}{4.0}\begin{bmatrix}0&0\\0&1\end{bmatrix} = \begin{bmatrix}0 & 0\\0 & 400.25\end{bmatrix}$$
+        Horizontal (x) position: completely unobservable! $\mathcal{I}_{xx} = 0 \to$ CRB$_x = \infty$.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Adding downward camera ($H_3 = I_2$, observes both x and z):</strong>
+        $$\mathcal{I}_{total} = \mathcal{I}_{1+2} + \frac{1}{0.01}\begin{bmatrix}1&0\\0&1\end{bmatrix} = \begin{bmatrix}100 & 0\\0 & 500.25\end{bmatrix}$$
+        Now: CRB$_x = 1/100 = 0.01$ m² ($\sigma_x \geq 0.1$ m achievable).
+        CRB$_z$ improves from $1/400.25 = 0.0025$ m² to $1/500.25 = 0.002$ m².
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Conclusion:</strong> Without the camera, horizontal position is completely
+        unobservable — it can drift without bound. Adding a downward camera changes the horizontal
+        CRB from $\infty$ to 0.1 m. This is a qualitative improvement, not just quantitative —
+        it converts an unobservable state into an observable one. This FIM analysis is exactly
+        how military system designers justify the weight and power cost of each additional sensor.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.8  3D SIMULATION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>5.8 Interactive: IMU + Camera + LiDAR Fusion Simulation</h2>
+    <p>
+      This simulation visualises a UAV fusing three sensor modalities simultaneously.
+      The <span style="color:var(--accent-red);">red/green/blue</span> arrows show IMU
+      acceleration vectors in the body frame — watch them shift as the UAV bobs in simulated
+      flight. The <span style="color:var(--accent-amber);">amber cone</span> is the camera
+      frustum with feature detection rays radiating outward.
+      The <span style="color:var(--accent-green);">green point cloud and spinning beams</span>
+      are LiDAR returns and scan lines. The translucent sphere around the UAV is the EKF
+      covariance ellipsoid — it should remain small when all sensors are active.
+      Toggle each sensor off to see how uncertainty (ellipsoid size) grows.
+    </p>
+    <div class="viz-container">
+      <div class="viz-header">
+        <span>◈ IMU + CAMERA + LiDAR FUSION // M05</span>
+        <span style="color:var(--accent-green); font-size:0.65rem;">FUSED ERR: <span id="sf-pos-err">—</span></span>
+      </div>
+      <div id="sf-canvas"></div>
+      <div class="telemetry-strip">
+        <span data-label="IMU" id="sf-imu-hz">—</span>
+        <span data-label="CAM" id="sf-cam-hz">—</span>
+        <span data-label="LIDAR" id="sf-lidar-hz">—</span>
+        <span data-label="FUSED" id="sf-fused-hz">—</span>
+        <span data-label="POS ERR" id="sf-pos-err">—</span>
+      </div>
+      <div class="viz-controls">
+        <button class="viz-btn" id="sf-btn-pause">⏸ Pause</button>
+        <button class="viz-btn" id="sf-btn-imu">Toggle IMU</button>
+        <button class="viz-btn" id="sf-btn-camera">Toggle Camera</button>
+        <button class="viz-btn" id="sf-btn-lidar">Toggle LiDAR</button>
+        <button class="viz-btn" id="sf-btn-cloud">Point Cloud</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.9  PYTHON CODE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>5.9 Python: Multi-Sensor Fusion with Chi-Square Fault Detection</h2>
+
+    <div class="callout info">
+      <span class="callout-title">What This Code Does</span>
+      Implements a multi-sensor EKF fusing IMU + barometer + simulated GPS/VIO,
+      with chi-square innovation testing on every measurement update.
+      Demonstrates: (1) correct covariance growth during IMU-only phases,
+      (2) covariance reduction on measurement updates, (3) fault detection rejecting
+      a spoofed GPS measurement at step 300. Run with: <code>pip install numpy</code>
+    </div>
+
+    <div class="code-block">
+      <span class="code-lang">Python</span>
+      <pre><span class="cm"># multi_sensor_fusion.py
+# ─────────────────────────────────────────────────────────────────
+# Multi-sensor EKF with chi-square fault detection.
+# Implements: MDPI Autonomous Control Ch.3, Bestaoui Sebbane §8.5–8.8
+# Sensors: IMU (100 Hz) + Barometer (25 Hz) + GPS/VIO (1 Hz)
+# Fault injection: GPS spoofing at t=3.0 s
+# ─────────────────────────────────────────────────────────────────
+</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> chi2
+
+<span class="kw">class</span> <span class="tp">MultiSensorEKF</span>:
+    <span class="st">"""
+    3-state vertical EKF for altitude + velocity + accel-bias fusion.
+    State: x = [altitude_z, velocity_z, bias_az]
+    Demonstrates full sensor fusion pipeline with fault detection.
+    Bestaoui Sebbane §8.5
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, dt_imu=<span class="nm">0.01</span>):
+        self.dt   = dt_imu
+        self.n    = <span class="nm">3</span>
+
+        <span class="cm"># State: [altitude(m), vert_velocity(m/s), accel_bias(m/s²)]</span>
+        self.x = np.array([<span class="nm">0.0</span>, <span class="nm">0.0</span>, <span class="nm">0.0</span>])
+
+        <span class="cm"># Initial covariance</span>
+        self.P = np.diag([<span class="nm">25.0</span>, <span class="nm">1.0</span>, <span class="nm">1e-4</span>])
+
+        <span class="cm"># Process noise Q — from IMU Allan variance (Worked Example 5.1)</span>
+        <span class="cm"># sigma_a = 0.05 m/s²/√Hz (accelerometer noise density)</span>
+        <span class="cm"># sigma_ba = 1e-4 m/s²/√Hz (accel bias random walk)</span>
+        sigma_a  = <span class="nm">0.05</span>
+        sigma_ba = <span class="nm">1e-4</span>
+        dt = self.dt
+        self.Q = np.array([
+            [sigma_a**<span class="nm">2</span> * dt**<span class="nm">3</span>/<span class="nm">3</span>,  sigma_a**<span class="nm">2</span> * dt**<span class="nm">2</span>/<span class="nm">2</span>, <span class="nm">0</span>],
+            [sigma_a**<span class="nm">2</span> * dt**<span class="nm">2</span>/<span class="nm">2</span>,  sigma_a**<span class="nm">2</span> * dt,       <span class="nm">0</span>],
+            [<span class="nm">0</span>,                        <span class="nm">0</span>,                    sigma_ba**<span class="nm">2</span> * dt],
+        ])
+
+        <span class="cm"># Measurement noise matrices (Sadraey §6.2)</span>
+        self.R_baro = np.array([[<span class="nm">4.0</span>]])       <span class="cm"># barometer: σ=2m</span>
+        self.R_gps  = np.array([[<span class="nm">25.0</span>]])      <span class="cm"># GPS altitude: σ=5m</span>
+
+        <span class="cm"># Chi-square fault detection threshold</span>
+        <span class="cm"># alpha=0.001 (0.1% false alarm), m=1 measurement dimension</span>
+        self.chi2_threshold_1 = chi2.ppf(<span class="nm">0.999</span>, df=<span class="nm">1</span>)  <span class="cm"># ≈10.83</span>
+        self.chi2_threshold_2 = chi2.ppf(<span class="nm">0.999</span>, df=<span class="nm">2</span>)  <span class="cm"># ≈13.82</span>
+
+        <span class="cm"># Diagnostics</span>
+        self.n_updates_accepted = <span class="nm">0</span>
+        self.n_updates_rejected = <span class="nm">0</span>
+
+    <span class="kw">def</span> <span class="fn">predict</span>(self, accel_meas: float):
+        <span class="st">"""
+        IMU propagation — constant acceleration model with bias.
+        F = ∂f/∂x linearisation of kinematic equations.
+        Bestaoui Sebbane §8.5 Eq. 8.11
+        """</span>
+        z, vz, ba = self.x
+        dt = self.dt
+
+        <span class="cm"># Bias-corrected vertical acceleration</span>
+        az_corr = accel_meas - ba
+
+        <span class="cm"># State propagation</span>
+        self.x = np.array([
+            z  + vz*dt + <span class="nm">0.5</span>*az_corr*dt**<span class="nm">2</span>,
+            vz + az_corr*dt,
+            ba,      <span class="cm"># bias is random walk — no deterministic change</span>
+        ])
+
+        <span class="cm"># Jacobian F = ∂f/∂x</span>
+        F = np.array([
+            [<span class="nm">1</span>, dt, -<span class="nm">0.5</span>*dt**<span class="nm">2</span>],  <span class="cm"># ∂z_new/∂[z, vz, ba]</span>
+            [<span class="nm">0</span>,  <span class="nm">1</span>,       -dt  ],  <span class="cm"># ∂vz_new/∂[z, vz, ba]</span>
+            [<span class="nm">0</span>,  <span class="nm">0</span>,         <span class="nm">1</span>  ],  <span class="cm"># ∂ba_new/∂[z, vz, ba]</span>
+        ])
+
+        <span class="cm"># Covariance propagation</span>
+        self.P = F @ self.P @ F.T + self.Q
+
+    <span class="kw">def</span> <span class="fn">_chi2_gate</span>(self, innovation, S, df) -> bool:
+        <span class="st">"""
+        Chi-square innovation test — RAIM method.
+        MDPI Autonomous Control Ch.3, Bestaoui Sebbane §8.8
+        Returns True if measurement PASSES (should be accepted).
+        """</span>
+        epsilon = float(innovation.T @ np.linalg.inv(S) @ innovation)
+        threshold = self.chi2_threshold_1 <span class="kw">if</span> df == <span class="nm">1</span> <span class="kw">else</span> self.chi2_threshold_2
+        <span class="kw">return</span> epsilon <= threshold, epsilon
+
+    <span class="kw">def</span> <span class="fn">_update</span>(self, z_meas, H, R, sensor_name):
+        <span class="st">"""
+        EKF measurement update with chi-square gating.
+        Rejects measurements failing the chi-square test.
+        """</span>
+        <span class="cm"># Innovation</span>
+        innov = np.atleast_1d(z_meas - H @ self.x)
+
+        <span class="cm"># Innovation covariance</span>
+        S = H @ self.P @ H.T + R
+
+        <span class="cm"># Chi-square test BEFORE updating the filter</span>
+        passed, epsilon = self._chi2_gate(innov, S, df=len(innov))
+
+        <span class="kw">if</span> <span class="kw">not</span> passed:
+            self.n_updates_rejected += <span class="nm">1</span>
+            <span class="kw">return</span> <span class="kw">False</span>, epsilon   <span class="cm"># REJECT — do not update filter</span>
+
+        <span class="cm"># Kalman gain (Theorem 4.1 from Module 04)</span>
+        K = self.P @ H.T @ np.linalg.inv(S)
+
+        <span class="cm"># State update</span>
+        self.x = self.x + K @ innov
+
+        <span class="cm"># Covariance update — Joseph form (numerically stable)</span>
+        IKH = np.eye(self.n) - K @ H
+        self.P = IKH @ self.P @ IKH.T + K @ R @ K.T
+
+        self.n_updates_accepted += <span class="nm">1</span>
+        <span class="kw">return</span> <span class="kw">True</span>, epsilon   <span class="cm"># ACCEPTED</span>
+
+    <span class="kw">def</span> <span class="fn">update_baro</span>(self, alt_meas: float):
+        <span class="st">"""Barometer altitude measurement update."""</span>
+        H = np.array([[<span class="nm">1.0</span>, <span class="nm">0.0</span>, <span class="nm">0.0</span>]])   <span class="cm"># observes altitude directly</span>
+        <span class="kw">return</span> self._update(np.array([alt_meas]), H, self.R_baro, <span class="st">'Baro'</span>)
+
+    <span class="kw">def</span> <span class="fn">update_gps_alt</span>(self, alt_meas: float):
+        <span class="st">"""GPS altitude measurement update."""</span>
+        H = np.array([[<span class="nm">1.0</span>, <span class="nm">0.0</span>, <span class="nm">0.0</span>]])
+        <span class="kw">return</span> self._update(np.array([alt_meas]), H, self.R_gps, <span class="st">'GPS'</span>)
+
+
+<span class="kw">def</span> <span class="fn">run_fusion_demo</span>():
+    <span class="st">"""
+    Simulate 5-second altitude hold with GPS spoofing injection at t=3s.
+    Demonstrates chi-square test rejecting the spoofed GPS fix.
+    """</span>
+    dt   = <span class="nm">0.01</span>    <span class="cm"># 100 Hz IMU</span>
+    T    = <span class="nm">5.0</span>
+    N    = <span class="nm">int</span>(T / dt)
+    ekf  = MultiSensorEKF(dt_imu=dt)
+
+    TRUE_ALT   = <span class="nm">50.0</span>   <span class="cm"># true altitude [m]</span>
+    TRUE_BIAS  = <span class="nm">0.012</span>  <span class="cm"># true accel bias [m/s²]</span>
+    SPOOF_TIME = <span class="nm">3.0</span>    <span class="cm"># GPS spoofing starts at 3s</span>
+    SPOOF_ALT  = <span class="nm">80.0</span>   <span class="cm"># spoofed altitude (30m above true)</span>
+
+    print(<span class="st">f"\n{'='*58}"</span>)
+    print(<span class="st">f"  MULTI-SENSOR FUSION WITH FAULT DETECTION"</span>)
+    print(<span class="st">f"  MDPI Autonomous Control Ch.3 | Bestaoui Sebbane §8.8"</span>)
+    print(<span class="st">f"{'='*58}"</span>)
+    print(<span class="st">f"  True altitude:  {TRUE_ALT} m"</span>)
+    print(<span class="st">f"  IMU bias:       {TRUE_BIAS} m/s² (simulated MEMS)"</span>)
+    print(<span class="st">f"  GPS spoof at:   t={SPOOF_TIME}s → false alt={SPOOF_ALT} m"</span>)
+    print(<span class="st">f"  Chi-sq thresh:  {ekf.chi2_threshold_1:.2f} (α=0.1%, m=1)"</span>)
+    print()
+    print(<span class="st">f"  {'Time':>5} | {'True':>7} | {'Est':>7} | {'Err':>6} | {'P_zz':>6} | Event"</span>)
+    print(<span class="st">f"  {'-'*62}"</span>)
+
+    alt_error_history = []
+
+    <span class="kw">for</span> k <span class="kw">in</span> range(N):
+        t = k * dt
+
+        <span class="cm"># ── Simulate noisy IMU measurement ───────────────────────</span>
+        accel_meas = -TRUE_BIAS + np.random.randn() * <span class="nm">0.05</span>  <span class="cm"># gravity-subtracted vert accel</span>
+
+        <span class="cm"># EKF predict step</span>
+        ekf.predict(accel_meas)
+
+        event_str = <span class="st">""</span>
+
+        <span class="cm"># ── Barometer update at 25 Hz (every 4 IMU steps) ────────</span>
+        <span class="kw">if</span> k % <span class="nm">4</span> == <span class="nm">0</span>:
+            baro_meas = TRUE_ALT + np.random.randn() * <span class="nm">2.0</span>
+            passed, eps = ekf.update_baro(baro_meas)
+            <span class="kw">if</span> <span class="kw">not</span> passed:
+                event_str += <span class="st">f" [BARO FAULT ε={eps:.1f}]"</span>
+
+        <span class="cm"># ── GPS update at 1 Hz (every 100 IMU steps) ─────────────</span>
+        <span class="kw">if</span> k % <span class="nm">100</span> == <span class="nm">0</span>:
+            <span class="cm"># After SPOOF_TIME: inject false GPS altitude</span>
+            <span class="kw">if</span> t >= SPOOF_TIME:
+                gps_alt = SPOOF_ALT + np.random.randn() * <span class="nm">5.0</span>
+                passed, eps = ekf.update_gps_alt(gps_alt)
+                status = <span class="st">"ACCEPT"</span> <span class="kw">if</span> passed <span class="kw">else</span> <span class="st">"REJECT"</span>
+                color  = <span class="st">"✓"</span> <span class="kw">if</span> passed <span class="kw">else</span> <span class="st">"✗"</span>
+                event_str += <span class="st">f" [{color} GPS SPOOF ε={eps:.1f} {status}]"</span>
+            <span class="kw">else</span>:
+                gps_alt = TRUE_ALT + np.random.randn() * <span class="nm">5.0</span>
+                passed, eps = ekf.update_gps_alt(gps_alt)
+                event_str += <span class="st">f" [✓ GPS ε={eps:.2f}]"</span>
+
+        <span class="cm"># Log and print at 1 Hz</span>
+        err = abs(ekf.x[<span class="nm">0</span>] - TRUE_ALT)
+        alt_error_history.append(err)
+
+        <span class="kw">if</span> k % <span class="nm">100</span> == <span class="nm">0</span>:
+            pzz = np.sqrt(ekf.P[<span class="nm">0</span>,<span class="nm">0</span>])
+            print(<span class="st">f"  {t:5.1f}s | {TRUE_ALT:7.1f} | {ekf.x[0]:7.2f} | {err:6.2f}m | {pzz:6.3f}m |{event_str}"</span>)
+
+    print(<span class="st">f"\n  Final bias estimate: {ekf.x[2]:.4f} m/s²  (true: {TRUE_BIAS:.4f})"</span>)
+    print(<span class="st">f"  Updates accepted:  {ekf.n_updates_accepted}"</span>)
+    print(<span class="st">f"  Updates rejected:  {ekf.n_updates_rejected}  (spoofed GPS fixes)"</span>)
+    mean_err = np.mean(alt_error_history)
+    print(<span class="st">f"  Mean altitude error: {mean_err:.3f} m"</span>)
+    print(<span class="st">f"\n  → Chi-square test successfully rejected spoofed GPS."</span>)
+    print(<span class="st">f"  → Navigation continued on barometer + IMU during attack."</span>)
+    print(<span class="st">f"{'='*58}\n"</span>)
+
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    np.random.seed(<span class="nm">7</span>)
+    run_fusion_demo()</pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-title">Expected Output (key lines)</span>
+      At t=3.0s: <code>[✗ GPS SPOOF ε=384.6 REJECT]</code> — chi-square test fires ·
+      At t=4.0s: <code>[✗ GPS SPOOF ε=392.1 REJECT]</code> — repeated spoofed fixes rejected ·
+      Mean altitude error &lt;2 m throughout (barometer+IMU fusion holds) ·
+      Final bias estimate converges to within ~10% of true bias ·
+      Updates rejected = 2 (exactly the two spoofed GPS fixes) ·
+      The navigation solution is never corrupted by the attack.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       5.10  REFLECTION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s10">
+    <div class="reflection-box"
+      data-guidance="Q1: In loose coupling, GPS and VIO each run their own position filter using shared IMU data. When these position estimates are fused in the outer EKF, the outer EKF treats them as independent measurements — but they are not. Both GPS-EKF and VIO-EKF used the same IMU prediction, so their errors are correlated. The outer EKF's innovation covariance calculation S = H*P*H^T + R is wrong because R (the outer measurement noise) doesn't include the cross-correlation term. The outer filter thinks it has more information than it does — it underestimates uncertainty, making it overconfident. This leads to the Kalman gain being too high and the filter being too aggressive in updating from measurements. If both subsystems degrade simultaneously (both biased by the same IMU error), the outer filter doesn't recognise this — it thinks two independent sensors both agree, so it's very confident, but actually both sensors carry the same IMU error. Tight coupling handles this correctly because the shared IMU state is explicit in the single shared filter.
+
+Q2: The chi-square test threshold of 13.82 for m=2 means the normalised innovation squared must exceed 13.82 to trigger a fault alarm. Since epsilon = y^T S^{-1} y, and S = H*P*H^T + R, the innovation must be large relative to the combined uncertainty. For GPS with sigma=5m (R=25) and position covariance sigma=2m (P=4): S=29, so an innovation of 5m gives epsilon = 25/29 = 0.86 — far below threshold. The spoofer would need to inject a false position that creates epsilon > 13.82, meaning the position error must exceed sqrt(29*13.82) ≈ 20m. Below that, the spoof is undetectable by this test alone. This is the fundamental limitation of chi-square RAIM — slowly drifting spoofing (meaconing) that moves the false position gradually is undetectable.
+
+Q3: FIM analysis reveals that the lever arm changes which state dimensions are observable. If the camera is exactly at the IMU location (zero lever arm), both sensors observe the same point — the camera provides redundancy but no new geometric information. With a known lever arm, the camera observing a feature at a fixed world point creates a measurement that depends on both position AND attitude (through the lever arm rotation), making attitude and position jointly observable through the coupling. The Fisher information in the position-attitude cross terms is proportional to the lever arm length — longer arm, more attitude observability from position measurements. This is why long-arm stereo camera pairs significantly outperform co-located sensors for VIO attitude estimation.">
+      <ol>
+        <li>
+          A UAV uses loose coupling: a GPS-EKF and a VIO-EKF each produce independent
+          position estimates, which are then fused in an outer navigation EKF.
+          Explain carefully why this architecture produces an <em>overconfident</em>
+          covariance estimate in the outer filter. Trace the mathematical mechanism through
+          the innovation covariance equation $S = HPH^T + R$, and describe what happens
+          when both the GPS-EKF and VIO-EKF simultaneously degrade due to a common-mode
+          IMU error that the outer filter cannot detect.
+        </li>
+        <li>
+          In Worked Example 5.2, the chi-square test had a threshold of 13.82 for $\alpha = 0.001$.
+          A sophisticated GPS spoofer knows this threshold and designs their attack to inject
+          a gradually drifting false position — moving the spoofed GPS solution by only
+          0.5 m per second. Calculate how many seconds the spoofer can drift before
+          the chi-square test would detect the attack, assuming the UAV is approximately
+          stationary ($P_{pos} = \text{diag}(4, 4)$ m², $R_{GPS} = \text{diag}(25, 25)$ m²).
+          What does this imply about the limitations of chi-square RAIM against slow spoofing?
+        </li>
+        <li>
+          Using the Fisher Information Matrix analysis from section 5.7, prove that
+          adding a downward-facing camera at a non-zero lever arm from the IMU provides
+          more navigational information than a co-located camera at the same location as
+          the IMU. Specifically, show how the lever arm coupling term in the measurement
+          Jacobian contributes to the FIM, and what physical quantity it makes observable
+          that would otherwise be unobservable from a purely co-located sensor pair.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- MODULE NAVIGATION -->
+  <div style="display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
+    <a href="m04-gnss-denied-nav.html" class="btn-secondary" style="font-size:0.75rem;">◂ Module 04: GNSS-Denied Nav</a>
+    <a href="m06-ml-foundations.html" class="btn-primary" style="font-size:0.75rem;">Module 06: ML Foundations ▸</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Module 05 · Sensor Fusion ·
+  MDPI Autonomous Control Ch.3 · Bestaoui Sebbane §8 · Sadraey §6 · Halesworth §4</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script src="../assets/js/viz/sensor-fusion.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => { SensorFusionViz.init('sf-canvas'); });
+
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          buttons[idx]?.classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>

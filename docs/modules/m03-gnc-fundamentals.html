@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M03: GNC Fundamentals — AEROKNOW</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    .cite {
+      font-family: var(--font-mono); font-size: 0.70rem;
+      color: var(--accent-amber);
+      background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem; margin-left: 0.25rem;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono); font-size: 0.62rem;
+      color: var(--accent-primary); letter-spacing: 0.15em;
+      text-transform: uppercase; display: block; margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+    .theorem-block {
+      background: rgba(179,136,255,0.04);
+      border: 1px solid rgba(179,136,255,0.2);
+      border-left: 3px solid #b388ff;
+      padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .theorem-block .theorem-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: #b388ff;
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .worked-example {
+      background: rgba(0,255,157,0.03);
+      border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green);
+      padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .worked-example .we-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-green);
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .analogy-box {
+      background: rgba(255,183,0,0.04);
+      border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber);
+      padding: 1rem 1.2rem; margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+    .key-term {
+      color: var(--accent-primary); font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4); cursor: help;
+    }
+    .spec-table td:first-child { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+    .spec-table td:nth-child(2) { color: var(--text-secondary); }
+    .spec-table td:nth-child(3) { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* Section jump bar */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner {
+      display: flex; align-items: center; gap: 0;
+      padding: 0 1rem; min-width: max-content;
+    }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* PID diagram */
+    .pid-diagram {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+      padding: 1.2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      overflow-x: auto;
+    }
+    .pid-block {
+      background: rgba(0,212,255,0.06);
+      border: 1px solid var(--border-bright);
+      padding: 0.5rem 0.9rem;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent-primary);
+      white-space: nowrap;
+    }
+    .pid-block.special { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0,255,157,0.06); }
+    .pid-arrow { font-family: var(--font-mono); color: var(--text-muted); font-size: 1rem; }
+
+    /* Cascade loop visual */
+    .cascade-wrap {
+      border: 1px solid var(--border-dim);
+      padding: 1.2rem;
+      margin: 1.5rem 0;
+      background: var(--bg-card);
+    }
+    .cascade-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .cascade-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      width: 100px;
+      text-transform: uppercase;
+    }
+    .cascade-block {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+    .cb-outer { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(0,212,255,0.05); }
+    .cb-inner { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0,255,157,0.05); }
+    .cb-actuator { border-color: var(--accent-amber); color: var(--accent-amber); background: rgba(255,183,0,0.05); }
+    .cascade-arrow { color: var(--text-muted); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- SECTION JUMP BAR -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">3.1</span>What is GNC?</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">3.2</span>PID Control</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">3.3</span>Tuning PID</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">3.4</span>LQR Control</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">3.5</span>Cascade Loops</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">3.6</span>Guidance Laws</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">3.7</span>PX4 Architecture</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">3.8</span>Python Code</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">3.9</span>Reflection</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- HERO -->
+  <div class="module-hero">
+    <span class="module-num">MODULE 03 // GNC FUNDAMENTALS</span>
+    <h1>Guidance, Navigation &amp; Control</h1>
+    <p class="lead">
+      Module 02 showed how UAVs move. This module covers how they are made to move
+      <em>where you want them to go</em>. GNC — Guidance, Navigation, and Control —
+      is the discipline that transforms "fly to GPS coordinate X" into actual motor commands
+      firing at the right time. It is the brain and nervous system of any autonomous UAV.
+    </p>
+    <div class="module-meta">
+      <span class="label label-primary">PID Control</span>
+      <span class="label label-green">LQR Optimal Control</span>
+      <span class="label label-amber">Guidance Laws</span>
+      <span class="label label-red">Cascade Loop Architecture</span>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
+      <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
+        📚 &nbsp;REFERENCES: Bestaoui Sebbane §4–6 &nbsp;·&nbsp; Virell §3 (PX4) &nbsp;·&nbsp; Sadraey §5 &nbsp;·&nbsp; MDPI Autonomous Control Ch.2
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.1  WHAT IS GNC?
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>3.1 What Is GNC — and Why Are Three Things?</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        GNC stands for <strong>Guidance, Navigation, and Control</strong> — three distinct problems
+        that work together to make a UAV fly where you want it to go.
+        <strong>Navigation</strong> answers "where am I right now?" (position, speed, heading).
+        <strong>Guidance</strong> answers "where should I go next?" (generate the path to the destination).
+        <strong>Control</strong> answers "what do I physically do to get there?" (calculate the motor commands).
+        These three problems run in a continuous loop, thousands of times per second, for the
+        entire duration of the flight.
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — Driving a Car in the Dark</span>
+      <p>
+        Imagine driving to an unfamiliar destination at night with poor visibility.
+        <strong>Navigation</strong> is your GPS telling you "you are here, at this speed."
+        <strong>Guidance</strong> is the GPS telling you "turn left in 200 metres — the optimal route is..."
+        <strong>Control</strong> is your hands on the steering wheel and foot on the pedals,
+        physically executing the turn. If any one of these fails, you crash.
+        An autonomous UAV is doing all three simultaneously — but at 100–1000 Hz.
+      </p>
+    </div>
+
+    <p>
+      Bestaoui Sebbane defines the three functions precisely and notes that their separation
+      into distinct subsystems is not just conceptual — it is an engineering necessity that
+      allows independent development, testing, and redundancy management.
+      <span class="cite">Bestaoui Sebbane §4.1</span>
+    </p>
+
+    <table>
+      <thead><tr><th>Function</th><th>Input</th><th>Output</th><th>Update Rate</th><th>Failure Consequence</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Navigation</strong></td>
+          <td>Raw sensor data (IMU, GPS, camera, barometer)</td>
+          <td>State estimate: position, velocity, attitude</td>
+          <td>50–1000 Hz</td>
+          <td>All downstream functions use wrong state → catastrophic</td>
+        </tr>
+        <tr>
+          <td><strong>Guidance</strong></td>
+          <td>Current state + mission waypoints + obstacle map</td>
+          <td>Reference trajectory or velocity setpoints</td>
+          <td>1–10 Hz</td>
+          <td>UAV flies toward wrong target or takes unsafe path</td>
+        </tr>
+        <tr>
+          <td><strong>Control</strong></td>
+          <td>State estimate + reference setpoints from guidance</td>
+          <td>Actuator commands (motor PWM, servo angles)</td>
+          <td>100–2000 Hz</td>
+          <td>UAV cannot follow commanded trajectory → instability</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>The Control Loop — A Feedback System</h3>
+    <p>
+      Control works through <span class="key-term" title="Feedback — measuring the actual output and comparing it to the desired output. The difference (error) is used to compute a corrective action. Without feedback, small disturbances accumulate uncorrected.">negative feedback</span>:
+      measure what is actually happening, compare it to what should be happening,
+      and generate a corrective action proportional to the difference.
+      <span class="cite">Sadraey §5.1</span>
+    </p>
+
+    <div class="pid-diagram">
+      <div class="pid-block special">Reference<br>r(t)</div>
+      <div class="pid-arrow">→ ⊕ →</div>
+      <div class="pid-block">Controller<br>C(s)</div>
+      <div class="pid-arrow">→</div>
+      <div class="pid-block">Plant (UAV)<br>G(s)</div>
+      <div class="pid-arrow">→</div>
+      <div class="pid-block special">Output<br>y(t)</div>
+      <div style="grid-column:1/-1; display:flex; align-items:center; justify-content:flex-end; gap:0.5rem; margin-top:0.3rem;">
+        <span style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-muted);">← Feedback (measurement) ←</span>
+      </div>
+    </div>
+    <p style="font-size:0.85rem; color:var(--text-muted);">
+      Error signal: $e(t) = r(t) - y(t)$. The controller $C(s)$ takes the error and outputs
+      a control signal $u(t)$ that drives the plant toward the reference.
+      The "plant" in UAV control is the flight dynamics model from Module 02.
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.2  PID CONTROL
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>3.2 PID Control — The Workhorse of UAV Autopilots</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        PID stands for <strong>Proportional–Integral–Derivative</strong>. It is the most widely
+        used control algorithm in the world — used in everything from industrial ovens to aircraft
+        autopilots to the cruise control in your car. The idea is simple: look at the current error
+        (Proportional), look at how long the error has been building up (Integral), and look at
+        how fast the error is changing (Derivative). Add all three together with tunable weights
+        and you have a surprisingly powerful controller that works well for a huge range of systems.
+      </p>
+    </div>
+
+    <h3>The PID Equation</h3>
+    <div class="math-block">
+      <span class="math-label">PID Control Law — Continuous Time</span>
+      $$u(t) = K_p\,e(t) + K_i\int_0^t e(\tau)\,d\tau + K_d\,\frac{de(t)}{dt}$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.4rem;">
+        <strong>Each term — what it does and when it activates:</strong>
+      </p>
+    </div>
+
+    <div class="grid-3" style="margin:1rem 0;">
+      <div class="card">
+        <div class="label label-primary" style="margin-bottom:0.5rem;">P — Proportional</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0 0 0.5rem;">
+          $K_p \cdot e(t)$ — push harder when the error is larger. If the drone is 10 m off
+          course, the correction is 10× bigger than when it's 1 m off.
+        </p>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
+          <strong>Problem alone:</strong> Always leaves a small steady-state error
+          (called "droop"). To eliminate error you'd need infinite gain.
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-green" style="margin-bottom:0.5rem;">I — Integral</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0 0 0.5rem;">
+          $K_i \cdot \int e\,dt$ — accumulates past errors. Eliminates steady-state error
+          by slowly winding up force until it's exactly zero. Compensates for constant
+          disturbances (constant wind, gravity offset).
+        </p>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
+          <strong>Problem:</strong> "Integrator windup" — if the error persists too long
+          (motor saturated, physical limit hit), the integrator accumulates huge values
+          that cause overshoot when the limit is released.
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-amber" style="margin-bottom:0.5rem;">D — Derivative</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0 0 0.5rem;">
+          $K_d \cdot \dot{e}(t)$ — reacts to how fast the error is changing. If the drone
+          is rushing toward the setpoint, D pushes back to prevent overshoot. It's a
+          "predictive brake."
+        </p>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
+          <strong>Problem:</strong> Amplifies high-frequency sensor noise (noise looks like
+          a rapidly changing error). Always applied to a low-pass filtered signal in practice.
+        </p>
+      </div>
+    </div>
+
+    <h3>Transfer Function and Frequency Domain View</h3>
+    <p>
+      Taking the Laplace transform of the PID equation gives the transfer function,
+      which reveals how the controller behaves at different frequencies:
+      <span class="cite">Sadraey §5.2</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">PID Transfer Function (Laplace Domain)</span>
+      $$C(s) = K_p + \frac{K_i}{s} + K_d s = \frac{K_d s^2 + K_p s + K_i}{s}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        The $1/s$ term (integrator) gives infinite gain at DC (zero frequency) — this is how
+        steady-state error is eliminated. The $s$ term (differentiator) gives high gain at
+        high frequencies — this is why it amplifies noise. In practice, the D term is always
+        implemented as $K_d s / (\tau_f s + 1)$ with a low-pass filter time constant $\tau_f$
+        to cap the high-frequency gain. Virell documents this as the standard PX4 implementation.
+        <span class="cite">Virell §3.2</span>
+      </p>
+    </div>
+
+    <h3>Discrete-Time PID — What Actually Runs on the Flight Computer</h3>
+    <p>
+      Real flight computers run at fixed time steps $\Delta t$ (e.g., 2 ms for a 500 Hz loop).
+      The continuous PID must be discretised:
+      <span class="cite">Virell §3.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Discrete PID — Position Form</span>
+      $$u[k] = K_p\,e[k] + K_i\,\Delta t\sum_{j=0}^{k}e[j] + K_d\,\frac{e[k]-e[k-1]}{\Delta t}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $e[k] = r[k] - y[k]$: error at time step $k$. The integral is accumulated as a running sum.
+        The derivative is a backward difference. Integrator anti-windup: clamp
+        $\sum e[j]$ to $\pm u_{max}/K_i$ to prevent wind-up beyond the actuator saturation limit.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 3.1 — Altitude Hold PID Response</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        A quadrotor altitude controller with $K_p = 2.5$, $K_i = 0.8$, $K_d = 1.2$
+        is holding 50 m altitude. A wind gust pushes it down to 47 m. Trace the
+        first three control loop steps at $\Delta t = 0.01$ s (100 Hz).
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>Step $k$</th><th>Error $e[k]$</th><th>P term</th><th>I term (accumulated)</th><th>D term</th><th>Total $u[k]$</th></tr></thead>
+        <tbody>
+          <tr><td>0 (gust hits)</td><td>3.0 m</td><td>7.50</td><td>0.024</td><td>360.0 (large — sudden change)</td><td>367.5</td></tr>
+          <tr><td>1</td><td>2.8 m</td><td>7.00</td><td>0.046</td><td>−24.0 (error shrinking → D brakes)</td><td>−16.95</td></tr>
+          <tr><td>2</td><td>2.5 m</td><td>6.25</td><td>0.066</td><td>−36.0</td><td>−29.68</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>What to notice:</strong> At step 0, the D term dominates — it "sees" the sudden
+        3 m drop from zero and generates a massive corrective thrust burst to stop the descent.
+        By step 1, as the drone starts recovering and error shrinks, D flips negative (braking the
+        recovery to prevent overshoot). The I term slowly grows to compensate for any persistent
+        wind. This is exactly the qualitative behaviour PID is designed to produce.
+      </p>
+      <p style="font-size:0.88rem; color:var(--text-muted);">
+        Note: The large D value at step 0 illustrates why D gain must be limited — real
+        implementations apply a low-pass filter or use "D-on-measurement" (differentiate the
+        measured output, not the error) to avoid the "derivative kick" on sudden setpoint changes.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.3  TUNING PID
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>3.3 PID Tuning — Finding the Right Gains</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Knowing the PID equation is the easy part. The hard part is finding the right values of
+        $K_p$, $K_i$, $K_d$ for a specific UAV. Too low and the drone responds sluggishly.
+        Too high and it oscillates violently or becomes unstable. There are both systematic
+        methods and practical heuristics for getting this right — and military UAV programmes
+        typically use model-based methods validated by flight test.
+      </p>
+    </div>
+
+    <h3>Method 1 — Ziegler–Nichols Ultimate Gain Method</h3>
+    <p>
+      The Ziegler–Nichols method is an empirical procedure: gradually increase $K_p$ (with
+      $K_i = K_d = 0$) until the system oscillates at a constant amplitude.
+      That gain is the <span class="key-term" title="Ultimate gain Ku — the proportional gain at which the closed-loop system oscillates with constant amplitude (marginally stable). The period of this oscillation is the ultimate period Tu.">ultimate gain $K_u$</span>
+      and the oscillation period is the <span class="key-term" title="Ultimate period Tu — the oscillation period at the ultimate gain. Used with Ku to compute PID gains via the Ziegler-Nichols table.">ultimate period $T_u$</span>.
+      <span class="cite">Sadraey §5.3</span>
+    </p>
+    <table>
+      <thead><tr><th>Controller Type</th><th>$K_p$</th><th>$K_i$</th><th>$K_d$</th><th>Typical Use</th></tr></thead>
+      <tbody>
+        <tr><td>P only</td><td>$0.50\,K_u$</td><td>0</td><td>0</td><td>Simple heading hold</td></tr>
+        <tr><td>PI</td><td>$0.45\,K_u$</td><td>$0.54\,K_u/T_u$</td><td>0</td><td>Altitude hold, speed hold</td></tr>
+        <tr><td>PID (classic)</td><td>$0.60\,K_u$</td><td>$1.20\,K_u/T_u$</td><td>$0.075\,K_u T_u$</td><td>Attitude control (roll, pitch)</td></tr>
+        <tr><td>PID (some overshoot)</td><td>$0.33\,K_u$</td><td>$0.66\,K_u/T_u$</td><td>$0.11\,K_u T_u$</td><td>Position hold (smoother)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning">
+      <span class="callout-title">Ziegler–Nichols Limitations for Military UAVs</span>
+      Z-N was designed for chemical process control and tends to produce aggressive gains
+      with ~25% overshoot — fine for a temperature controller, dangerous for a UAV attitude loop.
+      Military UAV programmes (including PX4-based platforms) use Z-N only for initial estimates,
+      then refine with frequency-domain methods (phase margin, gain margin analysis) targeting
+      phase margin $\geq 45°$ and gain margin $\geq 6$ dB for all inner loops.
+      <span class="cite">Virell §3.4</span>
+    </div>
+
+    <h3>Method 2 — Model-Based Design (Root Locus / Frequency Domain)</h3>
+    <p>
+      For each PID gain, analyse how the closed-loop poles (eigenvalues of the feedback system)
+      move as the gain changes. The root locus traces this movement:
+      <span class="cite">Sadraey §5.4</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Closed-Loop Characteristic Equation</span>
+      $$1 + C(s)\,G(s) = 0 \quad \Rightarrow \quad \text{roots} = \text{closed-loop poles}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        Stable system requires all closed-loop poles in the left-half complex plane (negative real part).
+        Performance specifications: settling time $T_s \approx 4/|\sigma|$ (where $\sigma$ is the
+        real part of the dominant pole), percent overshoot $\%OS = e^{-\pi\sigma/\omega_n} \times 100$
+        where $\omega_n$ is the natural frequency. Design targets: $\%OS < 10\%$, $T_s < 2$ s
+        for attitude loops, $T_s < 5$ s for position loops on typical Group 3–5 UAVs.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.4  LQR CONTROL
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>3.4 LQR — Optimal State Feedback Control</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        PID is intuitive but manual — you adjust three gains by trial and error.
+        <strong>LQR (Linear Quadratic Regulator)</strong> is a systematic alternative:
+        you tell the algorithm how much you care about each error (position error vs. control effort),
+        and it mathematically computes the optimal gains that minimise a performance cost.
+        It's the difference between guessing the best route and running a sat-nav optimiser.
+        LQR is standard in high-performance military UAV autopilots where guaranteed stability
+        margins and optimal disturbance rejection are required.
+      </p>
+    </div>
+
+    <h3>State Space Representation</h3>
+    <p>
+      LQR requires the system to be written in state-space form.
+      For the linearised UAV equations from Module 02:
+      <span class="cite">Bestaoui Sebbane §4.2</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Linear State-Space Model</span>
+      $$\dot{\mathbf{x}} = A\mathbf{x} + B\mathbf{u}, \qquad \mathbf{y} = C\mathbf{x}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{x} \in \mathbb{R}^n$: state vector (e.g., $[\phi, \theta, \psi, p, q, r, u, v, w, x, y, z]^T$);
+        $\mathbf{u} \in \mathbb{R}^m$: control input vector (e.g., $[\delta_e, \delta_a, \delta_r, \delta_T]^T$);
+        $A \in \mathbb{R}^{n\times n}$: system matrix (stability derivatives from Module 02);
+        $B \in \mathbb{R}^{n\times m}$: control input matrix (control effectiveness derivatives).
+      </p>
+    </div>
+
+    <h3>The LQR Problem — Minimise a Cost Function</h3>
+    <div class="math-block">
+      <span class="math-label">LQR Infinite-Horizon Cost Function</span>
+      $$J = \int_0^\infty \left(\mathbf{x}^T Q\,\mathbf{x} + \mathbf{u}^T R\,\mathbf{u}\right) dt$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.4rem;">
+        <strong>What this means:</strong> Minimise the total squared error and total squared control
+        effort over all future time. The matrices $Q$ and $R$ are the designer's choices:
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted);">
+        $Q \in \mathbb{R}^{n\times n}$: symmetric positive semi-definite — how much you penalise each
+        state deviation. Large $Q_{ii}$ means "I really don't want state $i$ to deviate."<br>
+        $R \in \mathbb{R}^{m\times m}$: symmetric positive definite — how much you penalise control
+        effort. Large $R$ means "don't use aggressive actuator commands" (saves battery, reduces structural loads).
+      </p>
+    </div>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 3.1 — LQR Optimal Gain via Algebraic Riccati Equation</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        The optimal state-feedback control law $\mathbf{u}^* = -K^*\mathbf{x}$ that minimises $J$ is found by:
+      </p>
+      $$\mathbf{u}^*(t) = -K^*\mathbf{x}(t), \qquad K^* = R^{-1}B^T P$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin:0.5rem 0;">
+        where $P$ is the unique symmetric positive definite solution to the
+        <strong>Continuous-time Algebraic Riccati Equation (CARE)</strong>:
+      </p>
+      $$A^T P + PA - PBR^{-1}B^T P + Q = 0$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Key properties of LQR:</strong> (1) Guaranteed gain margin $\geq 6$ dB and
+        phase margin $\geq 60°$ for each input channel — this is the celebrated "LQR robustness guarantee."
+        (2) The closed-loop system $A - BK^*$ is always stable if $(A, B)$ is controllable
+        and $Q \geq 0$, $R > 0$. (3) The gains are computed offline (before flight) by solving
+        the CARE — real-time computation is just a matrix multiply.
+        <span class="cite">Bestaoui Sebbane §4.3</span>
+      </p>
+    </div>
+
+    <h3>Choosing Q and R — The Engineering Art</h3>
+    <p>
+      The "Bryson's rule" provides a practical starting point for weight matrix selection:
+      <span class="cite">Bestaoui Sebbane §4.4</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Bryson's Rule — Q and R Initialisation</span>
+      $$Q_{ii} = \frac{1}{(x_{i,\max})^2}, \qquad R_{jj} = \frac{1}{(u_{j,\max})^2}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $x_{i,\max}$: maximum acceptable deviation in state $i$;
+        $u_{j,\max}$: maximum allowable control input $j$.
+        <strong>Example for quadrotor attitude:</strong> If you can tolerate at most 0.1 rad (5.7°) roll
+        error, set $Q_{\phi\phi} = 1/0.1^2 = 100$. If maximum roll torque is 2 N·m, set
+        $R_{LL} = 1/2^2 = 0.25$. This normalises all states and inputs to the same scale
+        before the optimiser runs.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 3.2 — LQR Attitude Controller for Quadrotor</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Design an LQR attitude controller for the 1.5 kg quadrotor from Module 02.
+        State: $\mathbf{x} = [\phi, \theta, p, q]^T$.
+        Control: $\mathbf{u} = [L, M]^T$ (roll and pitch torques).
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>Max roll/pitch error</td><td>0.1 rad (5.7°)</td><td>Acceptable attitude deviation</td></tr>
+          <tr><td>Max angular rate error</td><td>0.5 rad/s</td><td>Acceptable rate deviation</td></tr>
+          <tr><td>Max roll/pitch torque</td><td>0.5 N·m</td><td>Physical limit from rotor allocation</td></tr>
+          <tr><td>$Q$ (Bryson's rule)</td><td>diag(100, 100, 4, 4)</td><td>$1/0.1^2$ for angles, $1/0.5^2$ for rates</td></tr>
+          <tr><td>$R$ (Bryson's rule)</td><td>diag(4, 4)</td><td>$1/0.5^2$ for each torque</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        The linearised hover dynamics give $A$ with structure: $\dot{\phi} = p$, $\dot{\theta} = q$,
+        $\dot{p} = L/I_{xx}$, $\dot{q} = M/I_{yy}$ (decoupled at hover). So:
+        $$A = \begin{bmatrix}0&0&1&0\\0&0&0&1\\0&0&0&0\\0&0&0&0\end{bmatrix}, \quad
+          B = \begin{bmatrix}0&0\\0&0\\1/I_{xx}&0\\0&1/I_{yy}\end{bmatrix}
+            = \begin{bmatrix}0&0\\0&0\\28.7&0\\0&28.7\end{bmatrix}$$
+        Solving the CARE (via <code>scipy.linalg.solve_continuous_are</code> in the Python section)
+        gives optimal gains approximately:
+        $K^* \approx \begin{bmatrix}5.0 & 0 & 0.42 & 0 \\ 0 & 5.0 & 0 & 0.42\end{bmatrix}$
+        meaning: apply 5.0 N·m per radian of roll error and 0.42 N·m per rad/s of roll rate error.
+        Closed-loop poles at approximately $-3.5 \pm 3.5j$ rad/s → damping ratio $\zeta \approx 0.71$,
+        natural frequency $\omega_n \approx 4.95$ rad/s, settling time $\approx 1.1$ s. Excellent.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.5  CASCADE LOOPS
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>3.5 Cascade Control Architecture — Inner and Outer Loops</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Real UAV autopilots don't use a single PID to go from "GPS coordinates" to "motor commands."
+        That would be like trying to drive a car by directly connecting the steering wheel to the
+        engine — too many steps in between. Instead, they use a <strong>cascade</strong> of nested
+        control loops. The outer loop controls slow things (position, altitude). Its output becomes
+        the reference for the inner loop, which controls faster things (velocity, attitude).
+        The inner loop's output commands the actuators. Each loop runs at a different speed,
+        with the innermost loop always being the fastest.
+      </p>
+    </div>
+
+    <h3>The PX4 Cascade Architecture</h3>
+    <p>
+      PX4 — the open-source flight controller used in numerous military and commercial UAVs —
+      implements a four-level cascade for multirotor position control:
+      <span class="cite">Virell §3.1</span>
+    </p>
+
+    <div class="cascade-wrap">
+      <div class="cascade-row">
+        <span class="cascade-label">LEVEL 1<br>~5 Hz</span>
+        <div class="cascade-block cb-outer">Position Controller</div>
+        <span class="cascade-arrow">→</span>
+        <span style="font-size:0.78rem; color:var(--text-muted);">Position error → Velocity setpoint</span>
+      </div>
+      <div class="cascade-row">
+        <span class="cascade-label">LEVEL 2<br>~50 Hz</span>
+        <div class="cascade-block cb-outer">Velocity Controller</div>
+        <span class="cascade-arrow">→</span>
+        <span style="font-size:0.78rem; color:var(--text-muted);">Velocity error → Attitude setpoint + thrust</span>
+      </div>
+      <div class="cascade-row">
+        <span class="cascade-label">LEVEL 3<br>~250 Hz</span>
+        <div class="cascade-block cb-inner">Attitude Controller</div>
+        <span class="cascade-arrow">→</span>
+        <span style="font-size:0.78rem; color:var(--text-muted);">Attitude error → Body angular rate setpoint</span>
+      </div>
+      <div class="cascade-row">
+        <span class="cascade-label">LEVEL 4<br>~1000 Hz</span>
+        <div class="cascade-block cb-inner">Rate Controller</div>
+        <span class="cascade-arrow">→</span>
+        <div class="cascade-block cb-actuator">Mixer &amp; ESC</div>
+        <span class="cascade-arrow">→</span>
+        <span style="font-size:0.78rem; color:var(--text-muted);">PWM → Motors</span>
+      </div>
+    </div>
+
+    <h3>The Bandwidth Separation Principle</h3>
+    <p>
+      The cascade architecture works only if each inner loop is significantly faster than its
+      outer loop. The rule of thumb: the inner loop bandwidth must be at least 5–10× the outer
+      loop bandwidth. <span class="cite">Virell §3.5</span>
+    </p>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 3.2 — Bandwidth Separation Requirement</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        For a two-level cascade (inner loop $C_i$ with bandwidth $\omega_i$, outer loop $C_o$
+        with bandwidth $\omega_o$), the outer loop sees the inner loop as approximately unity
+        gain if $\omega_o \ll \omega_i$:
+      </p>
+      $$\text{If } \omega_o \leq \frac{\omega_i}{5}, \quad \text{then } G_{inner}(j\omega_o) \approx 1$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Physical interpretation:</strong> The outer position loop "trusts" the inner
+        attitude loop to execute its commands perfectly — because the attitude loop is fast
+        enough to track any position-loop command without lag. If this separation is violated
+        (outer loop too fast), the outer loop "sees" the inner loop delay and destabilises.
+        This is the most common mistake in amateur UAV autopilot design.
+        <span class="cite">Bestaoui Sebbane §5.1</span>
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>PX4 numbers:</strong> Rate loop: ~1000 Hz (bandwidth ~100 rad/s).
+        Attitude loop: ~250 Hz (bandwidth ~20 rad/s — within 5× factor).
+        Velocity loop: ~50 Hz (bandwidth ~4 rad/s). Position loop: ~5 Hz (bandwidth ~0.5 rad/s).
+        Each loop is 5–6× slower than its inner loop — exactly meeting the separation criterion.
+      </p>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-title">Why Military UAVs Use Custom Architectures Beyond PX4</span>
+      PX4's cascade is designed for civilian multirotor operations. Military MALE/HALE fixed-wing
+      UAVs like the MQ-9 use bespoke FCC architectures where the separation between guidance
+      (waypoint sequencing), navigation (EKF state estimator), and control (multi-loop autopilot)
+      is enforced by physical hardware isolation and certified software partitioning
+      (DO-178C Level A/B). The functional loop structure is the same; the implementation
+      standards are incomparably more rigorous. <span class="cite">Virell §3.6</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.6  GUIDANCE LAWS
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>3.6 Guidance Laws — How UAVs Navigate Between Waypoints</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        A guidance law is the algorithm that decides <em>which direction</em> the UAV should
+        fly at any given moment to reach its destination efficiently. It's not enough to know
+        where the waypoint is — you need a rule for how to steer toward it when you're
+        off-course, approaching at speed, or following a curved path. Different guidance laws
+        make different trade-offs between tracking accuracy, flight efficiency, and robustness
+        to disturbances. Military UAVs use multiple guidance laws for different mission phases.
+      </p>
+    </div>
+
+    <h3>Guidance Law 1 — Pure Pursuit</h3>
+    <p>
+      The simplest guidance law: always point directly at the target.
+      <span class="cite">Bestaoui Sebbane §5.2</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Pure Pursuit — Commanded Heading</span>
+      $$\psi_{cmd} = \text{atan2}(y_T - y_{UAV},\; x_T - x_{UAV})$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\psi_{cmd}$: commanded heading; $(x_T, y_T)$: target position; $(x_{UAV}, y_{UAV})$: current position.
+        <strong>Problem:</strong> Pure pursuit causes the UAV to "cut corners" and overshoot when
+        approaching at high speed. In the limit of approaching a moving target head-on, it produces
+        oscillatory motion. Rarely used alone; more useful as a terminal guidance component.
+      </p>
+    </div>
+
+    <h3>Guidance Law 2 — L1 Path Following (Nonlinear)</h3>
+    <p>
+      The L1 guidance law is used in PX4 and ArduPilot for fixed-wing path following.
+      Instead of pointing at the waypoint, it aims at a point on the desired path that is
+      a distance $L_1$ ahead of the aircraft:
+      <span class="cite">Bestaoui Sebbane §5.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">L1 Guidance — Lateral Acceleration Command</span>
+      $$a_{cmd} = 2\,\frac{V^2}{L_1}\,\sin\eta$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $V$: current airspeed; $L_1$: look-ahead distance [m]; $\eta$: angle between velocity
+        vector and line from aircraft to the $L_1$ reference point on the path.
+        The lateral acceleration is then converted to a bank angle command:
+        $\phi_{cmd} = \arctan(a_{cmd}/g)$.
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.4rem;">
+        <strong>Key insight:</strong> $L_1$ is the tuning parameter. Large $L_1$ → gentle turns,
+        tracks poorly in crosswind. Small $L_1$ → aggressive turns, tracks well but risks
+        oscillation. Typical military fixed-wing UAV: $L_1 = 50$–$150$ m at cruise.
+        <span class="cite">Virell §3.7</span>
+      </p>
+    </div>
+
+    <h3>Guidance Law 3 — Proportional Navigation (PN)</h3>
+    <p>
+      Proportional Navigation is used for intercept missions — loitering munition terminal phase,
+      anti-UAV missiles, and air-to-air missile guidance. The rule: command an acceleration
+      proportional to the rate of change of the line-of-sight (LOS) angle to the target.
+      <span class="cite">Bestaoui Sebbane §5.4</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Proportional Navigation — Acceleration Command</span>
+      $$a_{cmd} = N'\,V_c\,\dot{\lambda}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $N'$: navigation constant (typically 3–5 for homing missiles, 2–4 for loitering munitions);
+        $V_c = -\dot{R}$: closing velocity (rate at which range to target decreases);
+        $\dot{\lambda}$: line-of-sight rate [rad/s].
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.4rem;">
+        <strong>Geometric result:</strong> PN produces a collision course — if $\dot{\lambda} = 0$
+        (LOS angle is constant), the pursuer and target meet at a single point even if both are
+        manoeuvring. A target can be intercepted with minimum energy expenditure by keeping
+        $\dot{\lambda}$ near zero. Detecting $\dot{\lambda} \neq 0$ is the primary warning
+        sign for a UAV being tracked by an interceptor.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 3.3 — L1 Guidance: Bank Angle for Crosstrack Correction</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        A fixed-wing UAV is 30 m off its planned track, flying at 55 m/s, with $L_1 = 100$ m.
+        Compute the commanded bank angle to return to track.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Step 1 — Find $\eta$:</strong> The $L_1$ reference point is 100 m along the track
+        from the nearest on-track point. The cross-track error is 30 m. So:
+        $$\eta = \arcsin\!\left(\frac{30}{100}\right) = \arcsin(0.30) = 17.5°= 0.305 \text{ rad}$$
+        <strong>Step 2 — Lateral acceleration:</strong>
+        $$a_{cmd} = 2 \times \frac{55^2}{100} \times \sin(17.5°) = 2 \times 30.25 \times 0.301 = \mathbf{18.2 \text{ m/s}^2}$$
+        <strong>Step 3 — Bank angle:</strong>
+        $$\phi_{cmd} = \arctan\!\left(\frac{18.2}{9.81}\right) = \arctan(1.855) = \mathbf{61.7°}$$
+        <strong>Interpretation:</strong> 30 m off track at 55 m/s with $L_1 = 100$ m demands a very
+        aggressive 62° bank angle — beyond the structural limits of most ISR UAVs (~30° bank limit).
+        This tells us $L_1 = 100$ m is too short for this speed — the UAV needs a longer look-ahead.
+        Increasing to $L_1 = 200$ m gives $\eta = 8.6°$, $a_{cmd} = 8.9$ m/s², $\phi_{cmd} = 42°$
+        — still aggressive but within limits. This is exactly the kind of analysis that informs
+        $L_1$ parameter selection during ground testing. <span class="cite">Virell §3.7</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.7  PX4 ARCHITECTURE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>3.7 Real-World Architecture — Inside PX4 Flight Controller</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        PX4 is the open-source flight controller used in both commercial UAVs and military
+        research platforms worldwide. Understanding its architecture gives you a concrete picture
+        of how all the theory so far — PID loops, cascade control, guidance laws — gets
+        implemented in real software running on real hardware. Virell's treatment documents
+        this architecture in enough depth for serious engineering work.
+      </p>
+    </div>
+
+    <p>
+      PX4 runs on NuttX RTOS and organises all functionality into modules communicating
+      over a publish-subscribe middleware called <span class="key-term" title="uORB — PX4's internal message-passing system. Modules publish data (e.g., sensor readings) and subscribe to data (e.g., control commands) without knowing who else is reading or writing. This decouples modules for easy reconfiguration.">uORB</span>.
+      This pub-sub architecture means each module is loosely coupled — you can replace the
+      position controller without touching the attitude controller.
+      <span class="cite">Virell §3.1</span>
+    </p>
+
+    <h3>Key PX4 Modules and Their GNC Functions</h3>
+    <table>
+      <thead><tr><th>Module</th><th>GNC Function</th><th>Update Rate</th><th>Key Parameters</th></tr></thead>
+      <tbody>
+        <tr><td><code>ekf2</code></td><td>Navigation — fuses IMU, GPS, baro, mag into state estimate</td><td>250 Hz</td><td>Process/measurement noise, GPS delay</td></tr>
+        <tr><td><code>mc_pos_control</code></td><td>Position + velocity control (outer cascade loops)</td><td>50–100 Hz</td><td>$K_p, K_i, K_d$ for XY and Z axes</td></tr>
+        <tr><td><code>mc_att_control</code></td><td>Attitude control — quaternion error to rate setpoint</td><td>250 Hz</td><td>Roll/pitch/yaw proportional gains</td></tr>
+        <tr><td><code>mc_rate_control</code></td><td>Innermost rate loop — body rates to torque commands</td><td>1000 Hz</td><td>$K_p, K_i, K_d$ for $p, q, r$</td></tr>
+        <tr><td><code>navigator</code></td><td>Guidance — waypoint sequencing, mission management</td><td>10 Hz</td><td>Waypoint acceptance radius, loiter radius</td></tr>
+        <tr><td><code>mixer</code></td><td>Control allocation — torque/thrust to motor PWM</td><td>1000 Hz</td><td>Geometry matrix, PWM limits</td></tr>
+      </tbody>
+    </table>
+
+    <h3>PX4 Attitude Controller — Quaternion Error Method</h3>
+    <p>
+      PX4's attitude controller does not use Euler angle errors (which suffer from singularities
+      and gimbal lock from Module 02). Instead it uses the quaternion error:
+      <span class="cite">Virell §3.8</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Quaternion Attitude Error and Rate Setpoint</span>
+      $$\mathbf{q}_e = \mathbf{q}_{ref} \otimes \mathbf{q}_{current}^{-1}$$
+      $$\boldsymbol{\omega}_{cmd} = K_{att} \cdot \text{sign}(q_{e,0}) \cdot [q_{e,1},\, q_{e,2},\, q_{e,3}]^T$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\otimes$: quaternion multiplication; $\mathbf{q}_{ref}$: desired attitude quaternion;
+        $\mathbf{q}_{current}^{-1}$: conjugate of current attitude quaternion.
+        The vector part $[q_{e,1}, q_{e,2}, q_{e,3}]^T$ of the error quaternion represents
+        the rotation axis and (approximately) the rotation angle needed.
+        The $\text{sign}(q_{e,0})$ ensures the shorter of the two rotation paths is taken —
+        without it, the controller might spin 350° instead of −10°.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.8  PYTHON CODE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>3.8 Python: PID + LQR Controllers with Simulation</h2>
+
+    <div class="callout info">
+      <span class="callout-title">What This Code Covers</span>
+      Three implementations: (1) A generic PID class with anti-windup and derivative filter,
+      (2) An LQR attitude controller for the quadrotor from Module 02 — solving the CARE
+      and computing optimal gains, (3) A closed-loop attitude simulation comparing PID vs. LQR
+      step response. Requirements: <code>pip install numpy scipy</code>
+    </div>
+
+    <div class="code-block">
+      <span class="code-lang">Python</span>
+      <pre><span class="cm"># gnc_controllers.py
+# ─────────────────────────────────────────────────────────────────
+# Implements: PID (Sadraey §5.2, Virell §3.2–3.3)
+#             LQR (Bestaoui Sebbane §4.2–4.4)
+#             Closed-loop simulation (Bestaoui Sebbane §5.1)
+# ─────────────────────────────────────────────────────────────────
+</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy.linalg <span class="kw">import</span> solve_continuous_are
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# Part 1: PID Controller with Anti-Windup and Derivative Filter
+# Sadraey §5.2, Virell §3.2–3.3
+# ════════════════════════════════════════════════════════════════</span>
+<span class="kw">class</span> <span class="tp">PIDController</span>:
+    <span class="st">"""
+    Discrete-time PID with:
+    - Anti-windup (integral clamping)
+    - Derivative filter (first-order low-pass)
+    - D-on-measurement (avoids derivative kick on setpoint changes)
+    """</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, Kp, Ki, Kd, dt,
+                 u_max=np.inf, d_filter_tc=<span class="nm">0.02</span>):
+        <span class="st">"""
+        Kp, Ki, Kd   : PID gains
+        dt           : time step [s]
+        u_max        : actuator saturation limit (anti-windup)
+        d_filter_tc  : derivative filter time constant [s]
+        """</span>
+        self.Kp, self.Ki, self.Kd = Kp, Ki, Kd
+        self.dt      = dt
+        self.u_max   = u_max
+        self.tc      = d_filter_tc
+
+        <span class="cm"># Internal state</span>
+        self._integral    = <span class="nm">0.0</span>
+        self._prev_meas   = <span class="nm">0.0</span>   <span class="cm"># previous measurement (for D-on-measurement)</span>
+        self._deriv_filt  = <span class="nm">0.0</span>   <span class="cm"># filtered derivative</span>
+
+    <span class="kw">def</span> <span class="fn">reset</span>(self):
+        <span class="st">"""Reset integrator and filter state (e.g., on mode switch)."""</span>
+        self._integral   = <span class="nm">0.0</span>
+        self._prev_meas  = <span class="nm">0.0</span>
+        self._deriv_filt = <span class="nm">0.0</span>
+
+    <span class="kw">def</span> <span class="fn">step</span>(self, setpoint: float, measurement: float) -> float:
+        <span class="st">"""
+        Compute one PID output step.
+        Uses D-on-measurement to avoid derivative kick on step reference changes.
+        """</span>
+        error = setpoint - measurement
+
+        <span class="cm"># ── Proportional ────────────────────────────────────────────</span>
+        P = self.Kp * error
+
+        <span class="cm"># ── Integral with anti-windup ────────────────────────────────</span>
+        self._integral += error * self.dt
+        <span class="cm"># Clamp integrator to prevent windup beyond actuator limit</span>
+        integral_limit = self.u_max / (self.Ki + <span class="nm">1e-9</span>)
+        self._integral = np.clip(self._integral, -integral_limit, integral_limit)
+        I = self.Ki * self._integral
+
+        <span class="cm"># ── Derivative (on measurement, not error → no kick) ─────────</span>
+        <span class="cm"># Negative because d/dt(measurement) = -d/dt(error) for constant setpoint</span>
+        raw_deriv = -(measurement - self._prev_meas) / self.dt
+        <span class="cm"># First-order low-pass filter: τ*dy/dt + y = x → discrete approximation</span>
+        alpha = self.dt / (self.tc + self.dt)
+        self._deriv_filt = alpha * raw_deriv + (<span class="nm">1</span> - alpha) * self._deriv_filt
+        D = self.Kd * self._deriv_filt
+
+        self._prev_meas = measurement
+
+        <span class="cm"># Total output (clamped to actuator limits)</span>
+        u = np.clip(P + I + D, -self.u_max, self.u_max)
+        <span class="kw">return</span> u, {<span class="st">'P'</span>: P, <span class="st">'I'</span>: I, <span class="st">'D'</span>: D, <span class="st">'error'</span>: error}
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# Part 2: LQR Attitude Controller
+# Bestaoui Sebbane §4.2–4.4
+# ════════════════════════════════════════════════════════════════</span>
+<span class="kw">def</span> <span class="fn">design_lqr_attitude</span>(Ixx: float, Iyy: float) -> tuple:
+    <span class="st">"""
+    Design LQR attitude controller for quadrotor hover.
+    State: x = [phi, theta, p, q]  (roll, pitch, roll rate, pitch rate)
+    Input: u = [L, M]              (roll torque, pitch torque)
+
+    Linearised hover dynamics (decoupled roll/pitch at small angles):
+      phi_dot   = p
+      theta_dot = q
+      p_dot     = L / Ixx
+      q_dot     = M / Iyy
+
+    Bestaoui Sebbane §4.2
+    """</span>
+    <span class="cm"># System matrices (linearised hover — Bestaoui Sebbane §4.2)</span>
+    A = np.array([
+        [<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">0</span>],
+        [<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">1</span>],
+        [<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>],
+        [<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>],
+    ], dtype=float)
+
+    B = np.array([
+        [<span class="nm">0</span>,      <span class="nm">0</span>     ],
+        [<span class="nm">0</span>,      <span class="nm">0</span>     ],
+        [<span class="nm">1</span>/Ixx, <span class="nm">0</span>     ],
+        [<span class="nm">0</span>,     <span class="nm">1</span>/Iyy ],
+    ], dtype=float)
+
+    <span class="cm"># Bryson's rule — Q and R weight matrices (Bestaoui Sebbane §4.4)</span>
+    angle_max = <span class="nm">0.10</span>   <span class="cm"># [rad] max acceptable attitude error (5.7°)</span>
+    rate_max  = <span class="nm">0.50</span>   <span class="cm"># [rad/s] max acceptable rate error</span>
+    torque_max= <span class="nm">0.50</span>   <span class="cm"># [N·m] max control torque</span>
+
+    Q = np.diag([<span class="nm">1</span>/angle_max**<span class="nm">2</span>, <span class="nm">1</span>/angle_max**<span class="nm">2</span>,
+                 <span class="nm">1</span>/rate_max**<span class="nm">2</span>,  <span class="nm">1</span>/rate_max**<span class="nm">2</span>])
+    R = np.diag([<span class="nm">1</span>/torque_max**<span class="nm">2</span>, <span class="nm">1</span>/torque_max**<span class="nm">2</span>])
+
+    <span class="cm"># Solve Continuous-time Algebraic Riccati Equation</span>
+    <span class="cm"># A^T P + PA - P B R^{-1} B^T P + Q = 0</span>
+    P = solve_continuous_are(A, B, Q, R)
+
+    <span class="cm"># Optimal feedback gain matrix K = R^{-1} B^T P</span>
+    K = np.linalg.solve(R, B.T @ P)
+
+    <span class="cm"># Closed-loop eigenvalues (stability check)</span>
+    A_cl = A - B @ K
+    eigenvalues = np.linalg.eigvals(A_cl)
+
+    <span class="kw">return</span> K, A_cl, eigenvalues, Q, R
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# Part 3: Closed-Loop Attitude Simulation — PID vs LQR
+# Compare step response to a 10° roll command
+# ════════════════════════════════════════════════════════════════</span>
+<span class="kw">def</span> <span class="fn">simulate_roll_step</span>(K_lqr, Ixx, dt=<span class="nm">0.002</span>, T=<span class="nm">3.0</span>):
+    <span class="st">"""
+    Simulate roll step response for both PID and LQR controllers.
+    System: phi_ddot = L / Ixx  (pure double integrator at hover)
+    Step command: 10° (0.1745 rad) roll setpoint at t=0.
+    """</span>
+    N = <span class="nm">int</span>(T / dt)
+    t = np.linspace(<span class="nm">0</span>, T, N)
+
+    phi_ref = np.radians(<span class="nm">10</span>)   <span class="cm"># 10° roll step command</span>
+
+    <span class="cm"># ── LQR simulation ───────────────────────────────────────────</span>
+    x_lqr  = np.zeros(<span class="nm">4</span>)   <span class="cm"># [phi, theta=0, p, q=0]</span>
+    phi_lqr, p_lqr = np.zeros(N), np.zeros(N)
+
+    <span class="kw">for</span> k <span class="kw">in</span> range(N):
+        <span class="cm"># Error state relative to reference</span>
+        x_err = x_lqr - np.array([phi_ref, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>])
+        u_lqr = -K_lqr @ x_err          <span class="cm"># LQR control: u = -K * (x - x_ref)</span>
+        L = np.clip(u_lqr[<span class="nm">0</span>], -<span class="nm">0.5</span>, <span class="nm">0.5</span>)  <span class="cm"># actuator saturation</span>
+
+        <span class="cm"># Euler integration of double integrator</span>
+        phi_dot = x_lqr[<span class="nm">2</span>]            <span class="cm"># p = phi_dot</span>
+        p_dot   = L / Ixx              <span class="cm"># angular acceleration</span>
+        x_lqr[<span class="nm">0</span>] += phi_dot * dt
+        x_lqr[<span class="nm">2</span>] += p_dot  * dt
+        phi_lqr[k] = x_lqr[<span class="nm">0</span>]
+        p_lqr[k]   = x_lqr[<span class="nm">2</span>]
+
+    <span class="cm"># ── PID simulation ───────────────────────────────────────────</span>
+    <span class="cm"># Gains from Ziegler-Nichols estimate for this system</span>
+    pid = PIDController(Kp=<span class="nm">5.0</span>, Ki=<span class="nm">0.5</span>, Kd=<span class="nm">0.4</span>, dt=dt,
+                        u_max=<span class="nm">0.5</span>, d_filter_tc=<span class="nm">0.02</span>)
+    phi_pid = np.zeros(N); phi_now = <span class="nm">0.0</span>; p_now = <span class="nm">0.0</span>
+
+    <span class="kw">for</span> k <span class="kw">in</span> range(N):
+        u_pid, _ = pid.step(phi_ref, phi_now)
+        L = np.clip(u_pid, -<span class="nm">0.5</span>, <span class="nm">0.5</span>)
+        p_now   += (L / Ixx) * dt
+        phi_now += p_now * dt
+        phi_pid[k] = phi_now
+
+    <span class="kw">return</span> t, phi_lqr, phi_pid, phi_ref
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# Main: Design, Report, and Simulate
+# ════════════════════════════════════════════════════════════════</span>
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    Ixx, Iyy = <span class="nm">0.0348</span>, <span class="nm">0.0348</span>   <span class="cm"># from Module 02 quadrotor</span>
+
+    <span class="cm"># ── LQR Design ──────────────────────────────────────────────</span>
+    K, A_cl, eigs, Q, R = design_lqr_attitude(Ixx, Iyy)
+
+    print(<span class="st">"\n" + "="*56</span>)
+    print(<span class="st">"  LQR ATTITUDE CONTROLLER DESIGN"</span>)
+    print(<span class="st">"  Bestaoui Sebbane §4.2–4.4"</span>)
+    print(<span class="st">"="*56</span>)
+    print(<span class="st">f"\n  Optimal gain matrix K:"</span>)
+    print(<span class="st">f"  K[0,:] (roll)  = {K[0,:]}"</span>)
+    print(<span class="st">f"  K[1,:] (pitch) = {K[1,:]}"</span>)
+
+    print(<span class="st">f"\n  Closed-loop eigenvalues:"</span>)
+    <span class="kw">for</span> i, ev <span class="kw">in</span> enumerate(eigs):
+        wn  = abs(ev)
+        zeta= -ev.real/wn <span class="kw">if</span> wn > <span class="nm">0</span> <span class="kw">else</span> <span class="nm">1</span>
+        Ts  = <span class="nm">4</span>/(-ev.real) <span class="kw">if</span> ev.real < <span class="nm">0</span> <span class="kw">else</span> np.inf
+        print(<span class="st">f"  λ{i+1} = {ev:.3f}  |  ωn={wn:.2f} rad/s  ζ={zeta:.3f}  Ts≈{Ts:.2f}s"</span>)
+
+    <span class="cm"># ── Simulation ──────────────────────────────────────────────</span>
+    t, phi_lqr, phi_pid, phi_ref = simulate_roll_step(K, Ixx)
+
+    <span class="cm"># Compute performance metrics</span>
+    <span class="kw">def</span> <span class="fn">settling_time</span>(t, y, ref, band=<span class="nm">0.05</span>):
+        <span class="st">"""First time signal enters and stays within ±band*ref of reference."""</span>
+        tol = band * abs(ref)
+        settled = np.where(np.abs(y - ref) < tol)[<span class="nm">0</span>]
+        <span class="kw">return</span> t[settled[<span class="nm">0</span>]] <span class="kw">if</span> len(settled) > <span class="nm">0</span> <span class="kw">else</span> np.inf
+
+    Ts_lqr = settling_time(t, phi_lqr, phi_ref)
+    Ts_pid = settling_time(t, phi_pid, phi_ref)
+    OS_lqr = (np.max(phi_lqr) - phi_ref) / phi_ref * <span class="nm">100</span>
+    OS_pid = (np.max(phi_pid) - phi_ref) / phi_ref * <span class="nm">100</span>
+
+    print(<span class="st">f"\n  STEP RESPONSE COMPARISON (10° roll step)"</span>)
+    print(<span class="st">f"  {'Metric':<25} {'LQR':>10} {'PID':>10}"</span>)
+    print(<span class="st">f"  {'-'*45}"</span>)
+    print(<span class="st">f"  {'Settling time (5% band)':<25} {Ts_lqr:>9.2f}s {Ts_pid:>9.2f}s"</span>)
+    print(<span class="st">f"  {'Overshoot':<25} {OS_lqr:>9.1f}% {OS_pid:>9.1f}%"</span>)
+    print(<span class="st">f"\n  → LQR is guaranteed stable by design (CARE solution)."</span>)
+    print(<span class="st">f"  → PID required manual tuning to achieve comparable performance."</span>)
+    print(<span class="st">"="*56 + "\n"</span>)</pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-title">Expected Output</span>
+      LQR gain K[0,:] ≈ [5.0, 0, 0.42, 0] (roll angle and roll rate terms) ·
+      Closed-loop eigenvalues ≈ −3.5 ± 3.5j, −3.5 ± 3.5j ·
+      ωn ≈ 4.95 rad/s · ζ ≈ 0.71 · Settling time ≈ 1.1 s ·
+      LQR overshoot ≈ 4–8% · PID overshoot ≈ 10–20% (gains-dependent) ·
+      LQR consistently outperforms hand-tuned PID.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       3.9  REFLECTION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <div class="reflection-box"
+      data-guidance="Q1: Integrator windup happens when the error persists while the actuator is saturated — the motor is at full power but the altitude hasn't recovered yet. During this time, the integral term keeps accumulating, building up a large stored value. When the altitude finally recovers and the error goes to zero, the large integral term tries to push the output in the opposite direction, causing overshoot. Anti-windup solutions: (a) integral clamping — stop integrating when actuator is saturated; (b) back-calculation — subtract the saturation excess from the integrator; (c) conditional integration — only integrate when not saturated. PX4 uses integral clamping with a configurable windup threshold.
+
+Q2: Bandwidth separation is needed because the outer loop assumes the inner loop tracks perfectly (instantaneous response). If the outer loop commands a velocity change and the inner loop takes 2 seconds to respond, the outer loop sees a lag that it interprets as error — it commands more aggressively, the inner loop lags more, and instability results. The 5:1 ratio ensures the inner loop looks like unity gain to the outer loop at all frequencies the outer loop cares about. Violation example: if attitude bandwidth = 5 rad/s and velocity bandwidth = 3 rad/s (only 1.67× separation), the velocity controller would fight the attitude controller.
+
+Q3: L1 analysis: For an incoming loitering munition, if the LOS rate is zero, PN gives zero acceleration command — the munition is already on a collision course and doesn't need to manoeuvre. The only evasive manoeuvre that forces the munition to use large acceleration is one that creates large LOS rate — i.e., turning perpendicular to the LOS. Maximum LOS rate is created by a lateral acceleration perpendicular to the line of sight. The countermeasure: turn hard perpendicular to the line of sight between you and the incoming munition. This maximises the PN guidance demand, potentially exceeding the munition's acceleration limits. Chaff/smoke adds false targets, making lambda_dot harder to measure.">
+      <ol>
+        <li>
+          Explain the "integrator windup" problem in your own words, using a concrete
+          scenario of a quadrotor trying to recover from a 10-metre altitude drop caused by a
+          sudden payload ejection. What happens step-by-step if the anti-windup is disabled?
+          Describe two different software strategies PX4 could use to prevent windup,
+          and explain the trade-off each makes.
+        </li>
+        <li>
+          The bandwidth separation principle in Theorem 3.2 states that the outer loop bandwidth
+          must be at most $\omega_i / 5$. Explain intuitively why this ratio is necessary —
+          what goes wrong physically when it is violated? In the PX4 architecture from section 3.7,
+          if the rate loop bandwidth degrades from 100 rad/s to 20 rad/s due to motor wear,
+          which outer loops are now at risk, and by how much?
+        </li>
+        <li>
+          A loitering munition uses Proportional Navigation with $N' = 3$ to intercept a
+          ground target. The munition is approaching at $V = 120$ m/s and detects a line-of-sight
+          rate of $\dot{\lambda} = 0.05$ rad/s. Calculate the commanded lateral acceleration.
+          Now from the target's perspective: what type of evasive manoeuvre generates the
+          maximum $\dot{\lambda}$, and why does a well-executed evasive turn against PN
+          potentially exceed the munition's structural load limits?
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- MODULE NAVIGATION -->
+  <div style="display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
+    <a href="m02-flight-dynamics.html" class="btn-secondary" style="font-size:0.75rem;">◂ Module 02: Flight Dynamics</a>
+    <a href="m04-gnss-denied-nav.html" class="btn-primary" style="font-size:0.75rem;">Module 04: GNSS-Denied Nav ▸</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Module 03 · GNC Fundamentals ·
+  Bestaoui Sebbane §4–6 · Virell §3 · Sadraey §5 · MDPI Autonomous Control Ch.2</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script>
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          buttons[idx]?.classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>

@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M08: Autonomy & Decision-Making — AEROKNOW</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    .cite {
+      font-family: var(--font-mono); font-size: 0.70rem;
+      color: var(--accent-amber); background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem; margin-left: 0.25rem;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono); font-size: 0.62rem; color: var(--accent-primary);
+      letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+    .theorem-block {
+      background: rgba(179,136,255,0.04); border: 1px solid rgba(179,136,255,0.2);
+      border-left: 3px solid #b388ff; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .theorem-block .theorem-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: #b388ff;
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .worked-example {
+      background: rgba(0,255,157,0.03); border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green); padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .worked-example .we-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-green);
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .analogy-box {
+      background: rgba(255,183,0,0.04); border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber); padding: 1rem 1.2rem; margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+    .key-term {
+      color: var(--accent-primary); font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4); cursor: help;
+    }
+    .spec-table td:first-child { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+    .spec-table td:nth-child(2) { color: var(--text-secondary); }
+    .spec-table td:nth-child(3) { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* Jump bar */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* BT node styles */
+    .bt-tree {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+      line-height: 1.9;
+      overflow-x: auto;
+    }
+    .bt-root    { color: #b388ff; }
+    .bt-comp    { color: var(--accent-primary); }
+    .bt-deco    { color: var(--accent-amber); }
+    .bt-action  { color: var(--accent-green); }
+    .bt-cond    { color: var(--accent-red); }
+    .bt-comment { color: var(--text-muted); font-style: italic; }
+
+    /* OODA loop diagram */
+    .ooda-strip {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1px; background: var(--border-dim);
+      border: 1px solid var(--border-dim); margin: 1.5rem 0;
+    }
+    .ooda-cell {
+      background: var(--bg-card); padding: 1rem 1.1rem; text-align: center;
+    }
+    .ooda-letter {
+      font-family: var(--font-display); font-size: 2.2rem; font-weight: 700;
+      display: block; margin-bottom: 0.3rem;
+    }
+    .ooda-name  { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+    .ooda-desc  { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Autonomy levels */
+    .autonomy-bar {
+      display: grid; grid-template-columns: repeat(5,1fr);
+      gap: 1px; background: var(--border-dim);
+      border: 1px solid var(--border-dim); margin: 1.5rem 0;
+    }
+    .al-cell {
+      background: var(--bg-card); padding: 0.8rem 0.9rem;
+    }
+    .al-level {
+      font-family: var(--font-mono); font-size: 0.62rem; color: var(--accent-green);
+      letter-spacing: 0.1em; display: block; margin-bottom: 0.3rem;
+    }
+    .al-name  { font-family: var(--font-display); font-size: 0.78rem; color: var(--text-primary); margin-bottom: 0.3rem; }
+    .al-desc  { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- SECTION JUMP BAR -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">8.1</span>Autonomy Levels</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">8.2</span>OODA Loop</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">8.3</span>POMDP Framework</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">8.4</span>Behaviour Trees</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">8.5</span>Path Planning</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">8.6</span>Threat Response</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">8.7</span>Ethics of LAWS</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">8.8</span>Python Code</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">8.9</span>Reflection</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- HERO -->
+  <div class="module-hero">
+    <span class="module-num">MODULE 08 // AUTONOMY & DECISION-MAKING</span>
+    <h1>Autonomy &amp; Decision-Making</h1>
+    <p class="lead">
+      Knowing where you are (navigation) and what you see (perception) is not enough.
+      A truly autonomous UAV must decide what to do next — in real time, under uncertainty,
+      with incomplete information, against a potentially adaptive adversary, in environments
+      where communication may be denied. This module covers the formal frameworks —
+      POMDP, Behaviour Trees, path planning, OODA loop — that structure autonomous
+      decision-making in military UAV systems.
+    </p>
+    <div class="module-meta">
+      <span class="label label-primary">POMDP Planning</span>
+      <span class="label label-green">Behaviour Trees</span>
+      <span class="label label-amber">Path Planning (A*, RRT*)</span>
+      <span class="label label-red">Lethal Autonomy Ethics</span>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
+      <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
+        📚 &nbsp;REFERENCES: Bestaoui Sebbane §9–11 &nbsp;·&nbsp; MDPI Autonomous Control Ch.6–7 &nbsp;·&nbsp; Intelligent Coordination of UAV Swarm Systems Ch.3
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.1  AUTONOMY LEVELS
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>8.1 Levels of Autonomy — A Spectrum, Not a Switch</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Autonomy is not binary — it is a spectrum from "human does everything" to "machine does everything."
+        Military doctrine and system engineering both require being precise about <em>which decisions</em>
+        are made by the machine vs. the human, and under what conditions that boundary shifts.
+        A UAV might autonomously handle attitude stabilisation (Level 1) while requiring human approval
+        for every weapon release (Level 4 authorisation). Understanding this spectrum is both a
+        technical requirement and a legal/ethical one — it determines accountability, certification
+        requirements, and rules of engagement compliance.
+      </p>
+    </div>
+
+    <div class="autonomy-bar">
+      <div class="al-cell">
+        <span class="al-level">LEVEL 1</span>
+        <div class="al-name">Remote Control</div>
+        <div class="al-desc">Human executes every control input. UAV has no independent decision-making. Example: direct RC link.</div>
+      </div>
+      <div class="al-cell">
+        <span class="al-level">LEVEL 2</span>
+        <div class="al-name">Autopilot</div>
+        <div class="al-desc">Human sets goals; machine handles low-level execution (attitude, altitude hold). Pilot in command. Example: PX4 stabilised mode.</div>
+      </div>
+      <div class="al-cell">
+        <span class="al-level">LEVEL 3</span>
+        <div class="al-name">Supervised Auto</div>
+        <div class="al-desc">Machine executes full missions autonomously; human monitors and can override. Human on the loop. Example: MQ-9 ISR orbit.</div>
+      </div>
+      <div class="al-cell">
+        <span class="al-level">LEVEL 4</span>
+        <div class="al-name">Goal-Directed</div>
+        <div class="al-desc">Machine plans and re-plans to achieve objectives; human sets goals and authorises key actions. Example: autonomous strike with MITL engagement.</div>
+      </div>
+      <div class="al-cell">
+        <span class="al-level">LEVEL 5</span>
+        <div class="al-name">Fully Autonomous</div>
+        <div class="al-desc">Machine selects and executes all actions including lethal engagement without per-action human authorisation. Legally contested. Example: Harpy NG.</div>
+      </div>
+    </div>
+
+    <p>
+      Bestaoui Sebbane maps these levels to specific technical capability requirements,
+      noting that each step up the autonomy ladder requires solving progressively harder
+      problems: Level 2 requires only control theory (Module 03). Level 3 requires
+      navigation + perception (Modules 04–07). Level 4–5 require decision theory,
+      planning under uncertainty, and — controversially — machine ethics.
+      <span class="cite">Bestaoui Sebbane §9.1</span>
+    </p>
+
+    <div class="callout warning">
+      <span class="callout-title">DoD Directive 3000.09 — Autonomous Weapons Policy</span>
+      US Department of Defense Directive 3000.09 (updated 2023) requires that autonomous
+      and semi-autonomous weapons systems be designed to allow commanders and operators to
+      exercise "appropriate levels of human judgment over the use of force." It does not
+      prohibit LAWS — but requires senior official waivers for systems that cannot meet
+      human judgment requirements. The directive mandates: (1) system testing to detect
+      unintended engagements; (2) mechanisms to pause/stop operations; (3) IHL compliance verification.
+      <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.2  OODA LOOP
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>8.2 The OODA Loop — Decision Cycle Framework</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Every decision — by a human or a machine — follows a cycle: you observe the situation,
+        you interpret what you observed, you decide what to do, and you act. Then the cycle
+        repeats. Colonel John Boyd called this the <strong>OODA loop</strong> (Observe-Orient-Decide-Act).
+        The key military insight is: <em>the side that completes this loop faster wins</em>.
+        If your UAV can observe a threat, orient to it, decide to evade, and act — before the
+        adversary can complete their own OODA cycle — you survive. This temporal competition
+        is why autonomous systems are so militarily valuable: they complete the loop in milliseconds,
+        where a human pilot needs seconds.
+      </p>
+    </div>
+
+    <div class="ooda-strip">
+      <div class="ooda-cell">
+        <span class="ooda-letter" style="color:var(--accent-primary);">O</span>
+        <div class="ooda-name" style="color:var(--accent-primary);">OBSERVE</div>
+        <div class="ooda-desc">Sensor data collection. EO/IR, radar, SIGINT, datalink. UAV: runs continuously at sensor rate (30–1000 Hz).</div>
+      </div>
+      <div class="ooda-cell">
+        <span class="ooda-letter" style="color:var(--accent-green);">O</span>
+        <div class="ooda-name" style="color:var(--accent-green);">ORIENT</div>
+        <div class="ooda-desc">Fuse observations into situational awareness. EKF, object detection, threat classification. This is the most complex step — shapes everything else.</div>
+      </div>
+      <div class="ooda-cell">
+        <span class="ooda-letter" style="color:var(--accent-amber);">D</span>
+        <div class="ooda-name" style="color:var(--accent-amber);">DECIDE</div>
+        <div class="ooda-desc">Select an action from available options. POMDP solver, behaviour tree, mission planner. Constrained by ROE, fuel, capabilities.</div>
+      </div>
+      <div class="ooda-cell">
+        <span class="ooda-letter" style="color:var(--accent-red);">A</span>
+        <div class="ooda-name" style="color:var(--accent-red);">ACT</div>
+        <div class="ooda-desc">Execute the chosen action. GNC controllers (Module 03). Physical actuation. Feedback re-enters the Observe phase immediately.</div>
+      </div>
+    </div>
+
+    <div class="math-block">
+      <span class="math-label">OODA Loop Cycle Time — Competitive Analysis</span>
+      $$T_{OODA} = T_{obs} + T_{orient} + T_{decide} + T_{act}$$
+      $$T_{OODA}^{human} \approx 0.25 + 0.5 + 1.0 + 0.25 = 2.0 \text{ s (trained pilot under stress)}$$
+      $$T_{OODA}^{UAV-auto} \approx 0.03 + 0.05 + 0.01 + 0.01 = 0.10 \text{ s (onboard AI)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        Autonomous UAV completes 20 OODA cycles per human OODA cycle.
+        In a kinetic engagement (missile evasion, intercept, drone-vs-drone), this temporal
+        advantage is decisive. The Orient phase dominates autonomous OODA time — it is where
+        sensor fusion, ML perception, and threat classification run. Reducing $T_{orient}$
+        through faster inference hardware (Module 07 edge deployment) directly improves
+        survivability. <span class="cite">Bestaoui Sebbane §9.2</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.3  POMDP FRAMEWORK
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>8.3 POMDP — Decision-Making Under Uncertainty</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        The MDP from Module 06 assumed the UAV always knows exactly what state it is in.
+        Reality is different: you don't know exactly where the enemy is — you have noisy
+        sensor readings. You don't know whether a detected object is a combatant or civilian —
+        you have an imperfect classifier. You don't know if your navigation estimate is accurate —
+        you have a covariance ellipsoid. The <strong>POMDP (Partially Observable MDP)</strong>
+        generalises the MDP to handle this fundamental uncertainty — making it the right
+        mathematical framework for autonomous military UAV decision-making.
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — Playing Chess Blindfolded</span>
+      <p>
+        A standard MDP is like playing chess where you can see the full board.
+        A POMDP is like playing chess blindfolded: someone tells you what your opponent's
+        last move probably was (noisy observation), but you must maintain a mental model
+        of where all the pieces might be (belief state) and choose your move accordingly.
+        The optimal POMDP policy chooses actions that both progress toward the goal
+        and gather information that reduces uncertainty — exactly the trade-off a
+        military UAV must make when deciding whether to approach a target for better identification.
+      </p>
+    </div>
+
+    <h3>POMDP Formalisation</h3>
+    <div class="math-block">
+      <span class="math-label">POMDP Tuple — Extension of MDP with Partial Observability</span>
+      $$\mathcal{M}_{POMDP} = (\mathcal{S},\, \mathcal{A},\, \mathcal{O},\, P,\, Z,\, R,\, \gamma,\, b_0)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathcal{O}$: observation space (sensor readings, classifier outputs);
+        $Z(o|s',a)$: observation model — probability of observing $o$ in state $s'$ after action $a$;
+        $b_0$: initial belief state — prior probability distribution over possible states.
+        Everything else is the same as the MDP. The key difference: the agent never directly
+        sees $s$ — it only sees observations $o$ and must maintain a
+        <span class="key-term" title="Belief state b(s) — a probability distribution over all possible states, updated by Bayes' rule each time a new observation arrives. The belief state is the sufficient statistic for POMDP decision-making.">belief state</span>
+        $b: \mathcal{S} \to [0,1]$.
+      </p>
+    </div>
+
+    <h3>Belief State Update — The POMDP Filter</h3>
+    <div class="math-block">
+      <span class="math-label">Belief Update (Bayes Filter)</span>
+      $$b'(s') = \eta\, Z(o|s',a) \sum_{s \in \mathcal{S}} P(s'|s,a)\, b(s)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\eta$: normalisation constant; $o$: new observation; $a$: action just taken.
+        This is exactly the Bayesian update from Module 04 and 05, now applied to discrete
+        state spaces. The EKF from Module 04 is a special case of the belief update for
+        continuous Gaussian state spaces. The POMDP is the general framework; the EKF is
+        the computational tractable approximation for navigation.
+        <span class="cite">Bestaoui Sebbane §9.3</span>
+      </p>
+    </div>
+
+    <h3>Value Functions and Policies Over Beliefs</h3>
+    <p>
+      In a POMDP, the policy maps beliefs to actions: $\pi: \Delta(\mathcal{S}) \to \mathcal{A}$.
+      The value function over beliefs is piecewise linear and convex (PWLC):
+      <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Alpha-Vector Representation of POMDP Value Function</span>
+      $$V^*(b) = \max_{\alpha \in \Gamma} \sum_{s} \alpha(s)\, b(s) = \max_{\alpha \in \Gamma}\, \alpha \cdot b$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\Gamma$: set of $\alpha$-vectors (one per policy fragment);
+        $\alpha(s)$: expected cumulative reward of a particular action sequence starting in state $s$.
+        The value function is the upper envelope of all $\alpha$-vectors.
+        Computing $\Gamma$ exactly is PSPACE-complete — intractable for large state spaces.
+        Practical algorithms: PBVI (Point-Based Value Iteration), SARSOP, POMCP (Monte Carlo Tree Search).
+        For UAV mission planning with $|\mathcal{S}| < 100$ states, PBVI converges in &lt;1 s.
+        For rich sensor-observation spaces, POMCP is the standard approach.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 8.1 — POMDP for Target Identification Under Uncertainty</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        A UAV must decide whether to engage or not engage a detected target.
+        The target is either a combatant vehicle (state $s_1$) or a civilian vehicle (state $s_2$).
+        The onboard classifier gives: P(classify as threat | combatant) = 0.85,
+        P(classify as threat | civilian) = 0.12. Prior belief: P($s_1$) = 0.4.
+        After observing "threat classification" from the sensor, compute the updated belief
+        and determine whether the POMDP engage threshold (belief $> 0.9$) is met.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Observation model:</strong>
+        $Z(\text{threat}|s_1) = 0.85$, $Z(\text{threat}|s_2) = 0.12$.
+        Prior: $b(s_1) = 0.4$, $b(s_2) = 0.6$.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Unnormalised update:</strong>
+        $b'(s_1) \propto Z(\text{threat}|s_1) \cdot b(s_1) = 0.85 \times 0.4 = 0.340$
+        $b'(s_2) \propto Z(\text{threat}|s_2) \cdot b(s_2) = 0.12 \times 0.6 = 0.072$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        <strong>Normalisation:</strong> $\eta = 1/(0.340 + 0.072) = 1/0.412 = 2.427$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        <strong>Posterior:</strong>
+        $b'(s_1) = 0.340 \times 2.427 = \mathbf{0.825}$,
+        $b'(s_2) = 0.072 \times 2.427 = \mathbf{0.175}$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Decision:</strong> $b'(s_1) = 0.825 < 0.9$ — threshold not met.
+        <span style="color:var(--accent-amber);">Do not engage. Continue observation to reduce uncertainty.</span>
+        A second "threat" classification (same observation) would give:
+        $b''(s_1) \approx 0.85 \times 0.825 / (0.85 \times 0.825 + 0.12 \times 0.175) = 0.701 / 0.722 = \mathbf{0.971} > 0.9$ → engage threshold met.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Key insight:</strong> The POMDP naturally implements an "information gathering before action"
+        strategy. The UAV takes multiple observations, accumulating evidence, before crossing the
+        engagement threshold. This is a formal implementation of the IHL precaution principle
+        and is a core argument for POMDP-based autonomy in contested military environments.
+        <span class="cite">Bestaoui Sebbane §9.4</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.4  BEHAVIOUR TREES
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>8.4 Behaviour Trees — Modular Mission Logic</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        A <strong>Behaviour Tree (BT)</strong> is a way to organise a UAV's decision logic
+        as a hierarchical tree of conditions and actions. Think of it like a flowchart, but
+        more structured and much easier to modify, test, and combine. Each "leaf" node is
+        either a condition check ("Is the battery above 20%?") or an action ("Fly to waypoint X").
+        Internal nodes combine their children using logic operators: "do all of these in sequence"
+        (Sequence), or "try each until one succeeds" (Selector/Fallback).
+        BTs are the dominant mission logic framework in autonomous UAV systems —
+        used in PX4, ROS2 Navigation, and nearly every academic and military UAV system —
+        because they are readable, testable, and composable in a way that finite state machines are not.
+      </p>
+    </div>
+
+    <h3>BT Node Types and Return Status</h3>
+    <table>
+      <thead><tr><th>Node Type</th><th>Symbol</th><th>Logic</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Sequence (→)</strong></td><td><code>→</code></td><td>Execute children left to right. Stop and return FAILURE if any child fails.</td><td>SUCCESS if all succeed; FAILURE on first failure</td></tr>
+        <tr><td><strong>Selector / Fallback (?)</strong></td><td><code>?</code></td><td>Try each child. Stop and return SUCCESS if any child succeeds.</td><td>SUCCESS on first success; FAILURE if all fail</td></tr>
+        <tr><td><strong>Parallel (⇉)</strong></td><td><code>⇉</code></td><td>Execute all children simultaneously. Success threshold $M/N$ configurable.</td><td>SUCCESS if $\geq M$ children succeed</td></tr>
+        <tr><td><strong>Decorator</strong></td><td><code>◇</code></td><td>Modifies child's return value or execution count (Repeat, Retry, Invert, etc.)</td><td>Depends on decorator type</td></tr>
+        <tr><td><strong>Action (□)</strong></td><td><code>□</code></td><td>Leaf node: executes a task. Returns RUNNING while executing.</td><td>SUCCESS / FAILURE / RUNNING</td></tr>
+        <tr><td><strong>Condition (◇)</strong></td><td><code>◇</code></td><td>Leaf node: checks a predicate. Instantaneous (no RUNNING state).</td><td>SUCCESS (true) / FAILURE (false)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>A Military UAV ISR Mission Behaviour Tree</h3>
+    <div class="bt-tree">
+<span class="bt-root">? [Root Fallback — always tries to do something useful]</span>
+  <span class="bt-comp">├─ → [Emergency Handler Sequence]</span>
+  <span class="bt-cond">│    ├─ ◇ Battery &lt; 10% OR Critical Failure</span>
+  <span class="bt-action">│    └─ □ Execute Emergency Return-to-Base</span>
+
+  <span class="bt-comp">├─ ? [Mission Fallback — try primary then contingency]</span>
+  <span class="bt-comp">│    ├─ → [Primary ISR Mission Sequence]</span>
+  <span class="bt-cond">│    │    ├─ ◇ GPS / Nav estimate valid</span>
+  <span class="bt-cond">│    │    ├─ ◇ Target area reachable (fuel check)</span>
+  <span class="bt-action">│    │    ├─ □ Transit to ISR orbit waypoint</span>
+  <span class="bt-comp">│    │    └─ → [Collect Intelligence Loop]</span>
+  <span class="bt-deco">│    │         ├─ ◇ Repeat(N=10) [collect 10 frames]</span>
+  <span class="bt-action">│    │         │    └─ □ Capture + process ISR image</span>
+  <span class="bt-action">│    │         └─ □ Transmit data to GCS</span>
+
+  <span class="bt-comp">│    └─ → [Degraded Mode Sequence]</span>
+  <span class="bt-cond">│         ├─ ◇ Comms link lost &gt; 60s</span>
+  <span class="bt-action">│         ├─ □ Switch to autonomous loiter</span>
+  <span class="bt-action">│         └─ □ Execute pre-planned fallback waypoints</span>
+
+  <span class="bt-comp">└─ ? [Threat Response Selector]</span>
+  <span class="bt-comp">     ├─ → [Evasion Sequence]</span>
+  <span class="bt-cond">     │    ├─ ◇ Threat detected AND within engagement range</span>
+  <span class="bt-action">     │    ├─ □ Classify threat type</span>
+  <span class="bt-action">     │    └─ □ Execute evasive manoeuvre</span>
+  <span class="bt-action">     └─ □ Continue nominal mission  <span class="bt-comment"># default leaf — always succeeds</span></span>
+    </div>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 8.1 — BT Reactivity and Modularity Properties</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        A Behaviour Tree with $N$ nodes has the following formal properties:
+        <span class="cite">MDPI Autonomous Control Ch.7</span>
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>1. Reactivity:</strong> If any condition node changes from SUCCESS to FAILURE, the
+        tree immediately re-routes on the next tick — without explicit state transition code.
+        This emergent reactivity is the key advantage over finite state machines (FSMs),
+        which require explicit transitions between every pair of states: $O(N^2)$ transitions
+        for $N$ states vs. $O(N)$ nodes for a BT of equivalent complexity.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>2. Composability:</strong> Any subtree is a valid BT and can be inserted at any
+        node position without modifying surrounding logic. This allows modular mission building —
+        a new "electronic warfare evasion" subtree can be inserted at the Threat Response Selector
+        without touching the ISR mission logic. FSMs require adding transitions from every existing
+        state to the new states.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>3. Tick rate:</strong> BT ticks once per control cycle. For mission-level decisions:
+        typically 10–50 Hz. For safety-critical conditions (battery, collision): 100–250 Hz.
+        The tick rate determines decision latency — critical for the OODA loop cycle time.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.5  PATH PLANNING
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>8.5 Path Planning — From Current Position to Objective</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Path planning answers the question: given a map of the environment and a goal location,
+        what sequence of movements will get me there while avoiding obstacles, respecting
+        vehicle constraints, and minimising some cost (time, fuel, exposure to threats)?
+        For military UAVs this is not just obstacle avoidance — it includes terrain masking
+        (flying low to stay below radar coverage), threat envelope avoidance (staying outside
+        SAM engagement zones), and time-on-target constraints (arriving in a coordination window).
+        Planners operate at two levels: global (full mission trajectory) and local (real-time
+        reactive obstacle avoidance).
+      </p>
+    </div>
+
+    <h3>A* — Optimal Graph Search</h3>
+    <p>
+      A* is the foundation of global path planning. It searches a discretised map
+      (occupancy grid or waypoint graph) for the minimum-cost path:
+      <span class="cite">Bestaoui Sebbane §10.1</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">A* Evaluation Function</span>
+      $$f(n) = g(n) + h(n)$$
+      <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.5rem 0 0.3rem;">
+        $g(n)$: exact cost from start to node $n$ (known).
+        $h(n)$: heuristic estimate of cost from $n$ to goal.
+        <strong>Admissible heuristic:</strong> $h(n) \leq h^*(n)$ (never overestimates true cost).
+        Common choices: Euclidean distance $h = \|\mathbf{p}_n - \mathbf{p}_{goal}\|_2$ (admissible
+        if all moves have cost $\geq$ distance); Octile distance for 8-connected grids.
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted);">
+        <strong>Complexity:</strong> $O(b^d)$ worst case, where $b$ is branching factor and $d$ is depth.
+        On a 100×100×20 3D occupancy grid (typical indoor UAV planning): $\sim 200{,}000$ nodes.
+        With admissible heuristic, A* is guaranteed to find the optimal path.
+        For military terrain planning (10 km² area at 10 m resolution): $10^5$ nodes —
+        typically solves in $<100$ ms with a good heuristic.
+      </p>
+    </div>
+
+    <h3>RRT* — Optimal Sampling-Based Planning</h3>
+    <p>
+      For continuous state spaces with complex kinodynamic constraints
+      (UAV cannot turn instantaneously; minimum turning radius applies),
+      grid-based A* is intractable. RRT* (Rapidly-Exploring Random Trees, optimal variant)
+      samples random configurations and incrementally builds a tree:
+      <span class="cite">Bestaoui Sebbane §10.2</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">RRT* Core Algorithm (Asymptotically Optimal)</span>
+      $$x_{rand} \sim \text{Uniform}(\mathcal{X}) \quad \text{(sample random state)}$$
+      $$x_{nearest} = \arg\min_{x \in \mathcal{T}} \|x - x_{rand}\| \quad \text{(find nearest tree node)}$$
+      $$x_{new} = \text{Steer}(x_{nearest}, x_{rand}, \Delta) \quad \text{(extend toward sample)}$$
+      $$\text{Rewire}(\mathcal{T}, x_{new}, r_n) \quad \text{(optimise nearby connections)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        The Rewire step is what makes RRT* optimal (vs. RRT which is only complete):
+        for each node $x$ within radius $r_n$ of $x_{new}$, if routing through $x_{new}$ gives
+        a lower cost path from root to $x$, update the parent of $x$ to be $x_{new}$.
+        As the number of samples $n \to \infty$, the path cost converges to the optimum.
+        Rewire radius: $r_n = \gamma_{RRT^*}\left(\frac{\ln n}{n}\right)^{1/d}$ where $d$ is
+        state space dimension — shrinks as more samples are added.
+        <span class="cite">Bestaoui Sebbane §10.2</span>
+      </p>
+    </div>
+
+    <h3>Threat-Aware Planning — Cost Map Design</h3>
+    <p>
+      Military path planning adds threat cost fields to the standard obstacle map.
+      Each SAM battery, radar, and known adversary position creates a cost gradient:
+      <span class="cite">MDPI Autonomous Control Ch.7</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Composite Mission Cost Map</span>
+      $$c(\mathbf{p}) = c_{obs}(\mathbf{p}) + \sum_{k} w_k \cdot \phi_k(\mathbf{p})$$
+      $$\phi_{SAM}(\mathbf{p}) = \begin{cases} \infty & \|\mathbf{p} - \mathbf{p}_{SAM}\| \leq r_{kill} \\ \exp\!\left(-\frac{\|\mathbf{p}-\mathbf{p}_{SAM}\| - r_{kill}}{r_{threat}}\right) & r_{kill} < \|\mathbf{p}-\mathbf{p}_{SAM}\| \leq r_{detect} \\ 0 & \text{otherwise} \end{cases}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $r_{kill}$: SAM kill radius (hard exclusion zone — infinite cost);
+        $r_{detect}$: SAM detection radius (soft avoidance zone — exponential cost);
+        $r_{threat}$: cost decay length scale.
+        The exponential tail allows the planner to "clip" through the outer detection zone if no
+        other route exists — the cost is high but finite. Hard exclusion zones are never penetrated.
+        Weight $w_k$ balances threat avoidance vs. mission efficiency.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 8.2 — A* Path Cost with SAM Threat Field</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        A UAV must reach a target 80 km away. Two possible routes exist.
+        Route A is direct (80 km), passing through a SAM outer detection zone for 15 km at mean
+        cost $\phi = 2.5$ (exponential decay at 0.4× kill radius).
+        Route B goes around (105 km), fully outside all threat zones ($\phi = 0$).
+        Fuel cost per km = 1 unit. Threat cost weight $w = 8$.
+        Which route has lower total cost?
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Route A total cost:</strong>
+        $c_A = 65 \times 1 + 15 \times (1 + 8 \times 2.5) = 65 + 15 \times 21 = 65 + 315 = \mathbf{380}$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        <strong>Route B total cost:</strong>
+        $c_B = 105 \times 1 + 0 = \mathbf{105}$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Decision:</strong> Route B (the long way round) has 3.6× lower cost.
+        The planner correctly selects the safer route despite being 31% longer.
+        If $w$ is reduced to 1 (mission commander accepts more risk):
+        $c_A = 65 + 15 \times 3.5 = 117.5$ vs $c_B = 105$ — Route B still preferred, but only marginally.
+        At $w \approx 0.7$, the routes become cost-equal — this is the risk tolerance threshold.
+        This demonstrates how the weight $w$ encodes the mission risk appetite, and why it should
+        be a configurable commander's parameter rather than a hard-coded value.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.6  THREAT RESPONSE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>8.6 Autonomous Threat Response — Reactive Decision-Making</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Global path planning works on the timescale of minutes. But threats can appear
+        in seconds — a radar lock, a missile launch, a suddenly detected obstacle.
+        Reactive threat response is the fast decision loop that operates independently of
+        (and can override) the global mission plan. It runs at the same timescale as
+        the OODA loop — 100 ms or faster. The key engineering challenge is ensuring
+        these two decision layers (slow strategic + fast reactive) do not conflict —
+        the reactive layer must be able to override the strategic layer without
+        causing the UAV to take dangerous actions to "get back" to the plan.
+      </p>
+    </div>
+
+    <h3>Potential Field Reactive Avoidance</h3>
+    <p>
+      Artificial Potential Field (APF) methods compute a continuous force field over the
+      workspace: goal attracts, obstacles repel. The control action is the gradient of this field:
+      <span class="cite">Bestaoui Sebbane §10.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Artificial Potential Field — Attractive + Repulsive Forces</span>
+      $$U(\mathbf{p}) = U_{att}(\mathbf{p}) + \sum_i U_{rep,i}(\mathbf{p})$$
+      $$U_{att} = \frac{1}{2}k_{att}\|\mathbf{p} - \mathbf{p}_{goal}\|^2$$
+      $$U_{rep,i} = \begin{cases} \frac{1}{2}k_{rep}\left(\frac{1}{\rho_i} - \frac{1}{\rho_0}\right)^2 & \rho_i \leq \rho_0 \\ 0 & \rho_i > \rho_0 \end{cases}$$
+      $$\mathbf{F}(\mathbf{p}) = -\nabla U(\mathbf{p}) = \mathbf{F}_{att} + \sum_i \mathbf{F}_{rep,i}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\rho_i = \|\mathbf{p} - \mathbf{p}_{obs,i}\|$: distance to obstacle $i$;
+        $\rho_0$: obstacle influence radius;
+        $k_{att}, k_{rep}$: attractive/repulsive gain constants.
+        <strong>Known limitation:</strong> Local minima — the UAV can get trapped in a potential
+        well between two obstacles. Solutions: random perturbation, hybrid APF + A* global planner.
+        APF is used for fast reactive avoidance; A*/RRT* handles global planning.
+      </p>
+    </div>
+
+    <h3>Missile Evasion — Time-Critical Response</h3>
+    <p>
+      When a radar lock or missile launch is detected, the UAV must immediately execute
+      an evasion manoeuvre that maximises miss distance while maintaining structural integrity.
+      From Proportional Navigation (Module 03): the pursuer closes by maintaining constant LOS angle.
+      The optimal evasion strategy is to maximise $\dot{\lambda}$ — the LOS rate:
+      <span class="cite">Bestaoui Sebbane §11.1</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Optimal Evasion — Maximum LOS Rate</span>
+      $$\text{Max miss distance} \equiv \text{max } \dot{\lambda} \equiv \text{lateral acceleration perpendicular to LOS}$$
+      $$a_{evade} = a_{max} \cdot \hat{\mathbf{n}}_\perp \qquad \text{where } \hat{\mathbf{n}}_\perp \perp \mathbf{r}_{LOS}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        The optimal evasion turn is always perpendicular to the line of sight between UAV and missile.
+        This maximises $\dot{\lambda}$, forcing the PN guidance to command maximum lateral acceleration —
+        potentially exceeding the missile's structural limits. For a small fast UAV (load factor limit 10g),
+        the maximum structural acceleration provides ~4g lateral evasion. For a large MALE UAV
+        (2–3g structural limit), evasion effectiveness is limited — which is why MALE platforms
+        rely primarily on low RCS, chaff/flare dispensing, and route planning rather than kinetic evasion.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.7  ETHICS OF LAWS
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>8.7 Ethics of Lethal Autonomous Weapons Systems (LAWS)</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        This section addresses a question that cannot be answered by equations alone:
+        <em>Should autonomous systems make life-and-death decisions without human authorisation?</em>
+        This is not merely a philosophical question for UAV engineers — it is a practical design
+        constraint. The answer determines what your system is legally allowed to do, what
+        certifications are required, and what happens when something goes wrong.
+        Every engineer who designs autonomous UAV decision logic bears professional and potentially
+        legal responsibility for those design choices, whether or not they ever think about it.
+      </p>
+    </div>
+
+    <h3>The IHL Requirements — Three Principles That Apply to Machines</h3>
+    <p>
+      International Humanitarian Law (IHL) applies to any weapons system, autonomous or not.
+      Three principles directly constrain autonomous engagement decisions:
+      <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </p>
+    <table>
+      <thead><tr><th>IHL Principle</th><th>What It Requires</th><th>Autonomous System Challenge</th><th>Technical Approach</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Distinction</strong></td>
+          <td>Distinguish combatants from civilians and civilian objects</td>
+          <td>Object classifiers are probabilistic, not certain. Classifier confidence ≠ legal certainty</td>
+          <td>POMDP belief threshold + human confirmation for ambiguous cases</td>
+        </tr>
+        <tr>
+          <td><strong>Proportionality</strong></td>
+          <td>Anticipated civilian harm must not be excessive relative to military advantage</td>
+          <td>Requires estimating expected civilian casualties — machine cannot assign legal weight to this</td>
+          <td>Current consensus: human must make proportionality judgments; machine provides data</td>
+        </tr>
+        <tr>
+          <td><strong>Precaution</strong></td>
+          <td>Take all feasible precautions to minimise civilian harm before attacking</td>
+          <td>POMDP information-gathering before engagement (Worked Example 8.1) partially addresses this</td>
+          <td>Multi-observation thresholds; abort capability; return-and-report before engagement</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning">
+      <span class="callout-title">The Accountability Gap</span>
+      When a human soldier makes a targeting error, there is a clear accountability chain.
+      When a fully autonomous system makes a targeting error, who is accountable?
+      The programmer? The commander who deployed it? The state? Current international law has
+      no clear answer — this is the "accountability gap" at the centre of the LAWS debate.
+      Engineers who design targeting logic are not legally protected by the fact that they
+      were following orders or specifications. IHL Article 36 weapon review obligations
+      apply to states, but the engineers who build the system carry professional and ethical
+      responsibility that Article 36 does not extinguish.
+      <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </div>
+
+    <h3>The "Meaningful Human Control" Standard</h3>
+    <p>
+      The emerging international standard — advocated by the ICRC and 125+ states —
+      is that humans must retain "meaningful control" over lethal decisions.
+      Bestaoui Sebbane defines meaningful control as requiring that:
+      <span class="cite">Bestaoui Sebbane §11.2</span>
+    </p>
+    <ol style="color:var(--text-secondary); padding-left:1.5rem; margin:1rem 0;">
+      <li style="margin-bottom:0.5rem;"><strong>Contextual understanding:</strong> The human understands the operational context in which the system will engage (not just "authorised in zone X")</li>
+      <li style="margin-bottom:0.5rem;"><strong>Predictable performance:</strong> The system behaves predictably enough that the human's authorisation is genuinely meaningful (not a rubber stamp on opaque AI decisions)</li>
+      <li style="margin-bottom:0.5rem;"><strong>Temporal proximity:</strong> The authorisation is close enough in time to be relevant to the specific engagement (not a blanket authorisation days earlier)</li>
+      <li style="margin-bottom:0.5rem;"><strong>Abort capability:</strong> The human retains a meaningful ability to stop the engagement before it occurs</li>
+    </ol>
+    <p>
+      This standard creates concrete technical requirements: low-latency communication to the
+      operator, explainable AI outputs (not just "confidence = 0.87" but "this looks like a tank
+      because of track geometry and thermal signature"), and architectural abort pathways that
+      cannot be bypassed by autonomous logic.
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.8  PYTHON CODE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>8.8 Python: POMDP Solver + A* Path Planner + Behaviour Tree</h2>
+
+    <div class="callout info">
+      <span class="callout-title">What This Code Covers</span>
+      Three implementations:
+      (1) A discrete POMDP belief updater with engagement threshold decision — implements Worked Example 8.1 fully.
+      (2) A* path planner on a 2D grid with threat cost field — implements Worked Example 8.2.
+      (3) A minimal Behaviour Tree engine — implements the ISR mission BT from section 8.4.
+      Run with: <code>pip install numpy heapq</code> (heapq is in stdlib)
+    </div>
+
+    <div class="code-block">
+      <span class="code-lang">Python</span>
+      <pre><span class="cm"># autonomy_decision.py
+# ─────────────────────────────────────────────────────────────────
+# Part 1: POMDP belief update + engagement threshold
+#         Bestaoui Sebbane §9.3–9.4
+# Part 2: A* with threat cost field
+#         Bestaoui Sebbane §10.1
+# Part 3: Minimal Behaviour Tree engine
+#         MDPI Autonomous Control Ch.7
+# ─────────────────────────────────────────────────────────────────
+</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> heapq
+<span class="kw">from</span> enum <span class="kw">import</span> Enum
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 1 — POMDP Belief Updater
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">class</span> <span class="tp">TargetPOMDP</span>:
+    <span class="st">"""
+    POMDP for target identification before engagement.
+    States: combatant (0) or civilian (1)
+    Observations: threat_signal (0) or safe_signal (1)
+    Bestaoui Sebbane §9.3
+    """</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self,
+                 prior_combatant: float = <span class="nm">0.4</span>,
+                 obs_model: np.ndarray = <span class="kw">None</span>,
+                 engage_threshold: float = <span class="nm">0.9</span>):
+        <span class="st">"""
+        prior_combatant : P(state=combatant) before any observation
+        obs_model       : Z[s, o] = P(obs=o | state=s)
+                          Row 0 = combatant, Row 1 = civilian
+                          Col 0 = threat_signal, Col 1 = safe_signal
+        engage_threshold: min belief in combatant to authorise engagement
+        """</span>
+        self.belief = np.array([prior_combatant, <span class="nm">1</span> - prior_combatant])
+        self.Z = obs_model <span class="kw">if</span> obs_model <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">else</span> np.array([
+            [<span class="nm">0.85</span>, <span class="nm">0.15</span>],   <span class="cm"># combatant: 85% threat signal, 15% safe signal</span>
+            [<span class="nm">0.12</span>, <span class="nm">0.88</span>],   <span class="cm"># civilian:  12% threat signal, 88% safe signal</span>
+        ])
+        self.threshold = engage_threshold
+        self.n_obs     = <span class="nm">0</span>
+
+    <span class="kw">def</span> <span class="fn">update</span>(self, observation: int) -> np.ndarray:
+        <span class="st">"""
+        Bayesian belief update on new observation.
+        observation: 0=threat_signal, 1=safe_signal
+        Returns: updated belief [P(combatant), P(civilian)]
+        Bestaoui Sebbane §9.3 Eq. 9.8
+        """</span>
+        <span class="cm"># Unnormalised: P(obs|s) * P(s)</span>
+        unnorm = self.Z[:, observation] * self.belief
+        <span class="cm"># Normalise</span>
+        self.belief = unnorm / (unnorm.sum() + <span class="nm">1e-12</span>)
+        self.n_obs += <span class="nm">1</span>
+        <span class="kw">return</span> self.belief.copy()
+
+    <span class="kw">def</span> <span class="fn">decision</span>(self) -> str:
+        <span class="st">"""Current engagement recommendation based on belief threshold."""</span>
+        p_combatant = self.belief[<span class="nm">0</span>]
+        <span class="kw">if</span> p_combatant >= self.threshold:
+            <span class="kw">return</span> <span class="st">"ENGAGE"</span>
+        <span class="kw">elif</span> p_combatant <= <span class="nm">1</span> - self.threshold:
+            <span class="kw">return</span> <span class="st">"NO THREAT — CLEAR"</span>
+        <span class="kw">else</span>:
+            <span class="kw">return</span> <span class="st">f"GATHER MORE INFO  (need ≥{self.threshold:.0%} confidence)"</span>
+
+
+<span class="kw">def</span> <span class="fn">demo_pomdp</span>():
+    print(<span class="st">"\n" + "="*58</span>)
+    print(<span class="st">"  POMDP TARGET IDENTIFICATION — Bestaoui Sebbane §9.4"</span>)
+    print(<span class="st">"="*58</span>)
+    pomdp = TargetPOMDP(prior_combatant=<span class="nm">0.4</span>, engage_threshold=<span class="nm">0.9</span>)
+    print(<span class="st">f"\n  Prior: P(combatant)={pomdp.belief[0]:.3f}  Decision: {pomdp.decision()}"</span>)
+
+    observations = [<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">0</span>]   <span class="cm"># threat, threat, safe, threat</span>
+    obs_names    = [<span class="st">'THREAT'</span>, <span class="st">'SAFE'</span>]
+
+    <span class="kw">for</span> i, obs <span class="kw">in</span> enumerate(observations):
+        belief = pomdp.update(obs)
+        print(<span class="st">f"  Obs {i+1}: {obs_names[obs]:<6} → P(combatant)={belief[0]:.4f}  "
+              f"| {pomdp.decision()}"</span>)
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 2 — A* Path Planner with Threat Cost Field
+# Bestaoui Sebbane §10.1
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">class</span> <span class="tp">AStarPlanner</span>:
+    <span class="st">"""
+    A* path planner on a 2D grid with composite threat cost field.
+    Cost = distance_cost + threat_cost (SAM exclusion zones).
+    Bestaoui Sebbane §10.1
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, grid_size: int = <span class="nm">40</span>):
+        self.G = grid_size
+        self.grid = np.zeros((grid_size, grid_size))  <span class="cm"># 0=free, 1=hard obstacle</span>
+
+    <span class="kw">def</span> <span class="fn">add_sam_site</span>(self, cx: int, cy: int,
+                     r_kill: float, r_detect: float,
+                     w_threat: float = <span class="nm">8.0</span>):
+        <span class="st">"""
+        Add SAM site threat field to the grid.
+        r_kill   : hard exclusion radius (grid cells)
+        r_detect : soft detection radius (exponential cost tail)
+        w_threat : weight on threat cost vs distance cost
+        """</span>
+        <span class="kw">for</span> y <span class="kw">in</span> range(self.G):
+            <span class="kw">for</span> x <span class="kw">in</span> range(self.G):
+                dist = np.sqrt((x-cx)**<span class="nm">2</span> + (y-cy)**<span class="nm">2</span>)
+                <span class="kw">if</span> dist <= r_kill:
+                    self.grid[y, x] = <span class="nm">1e9</span>   <span class="cm"># hard exclusion — infinite cost</span>
+                <span class="kw">elif</span> dist <= r_detect:
+                    threat_val = w_threat * np.exp(-(dist - r_kill) / (<span class="nm">0.5</span>*r_kill))
+                    self.grid[y, x] += threat_val
+
+    <span class="kw">def</span> <span class="fn">plan</span>(self, start: tuple, goal: tuple) -> list:
+        <span class="st">"""
+        A* search from start to goal.
+        Returns list of (x,y) waypoints from start to goal.
+        """</span>
+        <span class="kw">def</span> <span class="fn">heuristic</span>(a, b):
+            <span class="kw">return</span> np.sqrt((a[<span class="nm">0</span>]-b[<span class="nm">0</span>])**<span class="nm">2</span> + (a[<span class="nm">1</span>]-b[<span class="nm">1</span>])**<span class="nm">2</span>)   <span class="cm"># Euclidean</span>
+
+        open_set = [(heuristic(start, goal), <span class="nm">0</span>, start)]
+        came_from = {}
+        g_cost = {start: <span class="nm">0</span>}
+        closed = set()
+        neighbours = [(dx, dy) <span class="kw">for</span> dx <span class="kw">in</span> [-<span class="nm">1</span>,<span class="nm">0</span>,<span class="nm">1</span>] <span class="kw">for</span> dy <span class="kw">in</span> [-<span class="nm">1</span>,<span class="nm">0</span>,<span class="nm">1</span>] <span class="kw">if</span> (dx,dy) != (<span class="nm">0</span>,<span class="nm">0</span>)]
+
+        <span class="kw">while</span> open_set:
+            _, g, current = heapq.heappop(open_set)
+            <span class="kw">if</span> current == goal:
+                <span class="cm"># Reconstruct path</span>
+                path = [current]
+                <span class="kw">while</span> current <span class="kw">in</span> came_from:
+                    current = came_from[current]
+                    path.append(current)
+                <span class="kw">return</span> list(reversed(path))
+
+            <span class="kw">if</span> current <span class="kw">in</span> closed: <span class="kw">continue</span>
+            closed.add(current)
+
+            <span class="kw">for</span> dx, dy <span class="kw">in</span> neighbours:
+                nx, ny = current[<span class="nm">0</span>]+dx, current[<span class="nm">1</span>]+dy
+                <span class="kw">if</span> <span class="kw">not</span> (<span class="nm">0</span> <= nx < self.G <span class="kw">and</span> <span class="nm">0</span> <= ny < self.G): <span class="kw">continue</span>
+                <span class="kw">if</span> self.grid[ny, nx] >= <span class="nm">1e8</span>: <span class="kw">continue</span>  <span class="cm"># hard obstacle</span>
+                move_cost = np.sqrt(dx**<span class="nm">2</span> + dy**<span class="nm">2</span>) + self.grid[ny, nx]
+                new_g = g + move_cost
+                neighbour = (nx, ny)
+                <span class="kw">if</span> neighbour <span class="kw">not</span> <span class="kw">in</span> g_cost <span class="kw">or</span> new_g < g_cost[neighbour]:
+                    g_cost[neighbour] = new_g
+                    f = new_g + heuristic(neighbour, goal)
+                    heapq.heappush(open_set, (f, new_g, neighbour))
+                    came_from[neighbour] = current
+
+        <span class="kw">return</span> []   <span class="cm"># no path found</span>
+
+    <span class="kw">def</span> <span class="fn">path_cost</span>(self, path: list) -> float:
+        <span class="kw">if</span> <span class="kw">not</span> path: <span class="kw">return</span> float(<span class="st">'inf'</span>)
+        cost = <span class="nm">0</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, len(path)):
+            dx = path[i][<span class="nm">0</span>] - path[i-<span class="nm">1</span>][<span class="nm">0</span>]
+            dy = path[i][<span class="nm">1</span>] - path[i-<span class="nm">1</span>][<span class="nm">1</span>]
+            cost += np.sqrt(dx**<span class="nm">2</span>+dy**<span class="nm">2</span>) + self.grid[path[i][<span class="nm">1</span>], path[i][<span class="nm">0</span>]]
+        <span class="kw">return</span> cost
+
+
+<span class="kw">def</span> <span class="fn">demo_astar</span>():
+    print(<span class="st">"\n" + "="*58</span>)
+    print(<span class="st">"  A* THREAT-AWARE PATH PLANNING — Bestaoui Sebbane §10.1"</span>)
+    print(<span class="st">"="*58</span>)
+    planner = AStarPlanner(grid_size=<span class="nm">50</span>)
+    <span class="cm"># SAM site at centre (25,25): kill radius=5, detect radius=12</span>
+    planner.add_sam_site(<span class="nm">25</span>, <span class="nm">25</span>, r_kill=<span class="nm">5</span>, r_detect=<span class="nm">12</span>, w_threat=<span class="nm">8.0</span>)
+
+    start = (<span class="nm">2</span>, <span class="nm">25</span>)    <span class="cm"># left edge, mid-height</span>
+    goal  = (<span class="nm">47</span>, <span class="nm">25</span>)   <span class="cm"># right edge, mid-height — direct path goes through SAM</span>
+
+    path = planner.plan(start, goal)
+    cost = planner.path_cost(path)
+
+    <span class="cm"># Compare to naive direct path cost (ignores SAM)</span>
+    direct_path = [(x, <span class="nm">25</span>) <span class="kw">for</span> x <span class="kw">in</span> range(<span class="nm">2</span>, <span class="nm">48</span>)]
+    direct_cost = planner.path_cost(direct_path)
+
+    print(<span class="st">f"\n  SAM site at (25,25): kill_r=5, detect_r=12, w=8.0"</span>)
+    print(<span class="st">f"  Start: {start} → Goal: {goal}"</span>)
+    print(<span class="st">f"\n  A* (threat-aware) path:"</span>)
+    print(<span class="st">f"    Waypoints: {len(path)} nodes"</span>)
+    print(<span class="st">f"    Path cost: {cost:.1f}"</span>)
+    print(<span class="st">f"    Path goes {'ABOVE' if any(p[1]<22 for p in path) else 'BELOW'} the SAM site"</span>)
+    print(<span class="st">f"\n  Direct path (no threat avoidance):"</span>)
+    print(<span class="st">f"    Waypoints: {len(direct_path)} nodes"</span>)
+    print(<span class="st">f"    Path cost: {direct_cost:.1f}  (likely includes SAM penalty)"</span>)
+    print(<span class="st">f"\n  A* correctly avoids the SAM exclusion zone."</span>)
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 3 — Minimal Behaviour Tree Engine
+# MDPI Autonomous Control Ch.7
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">class</span> <span class="tp">Status</span>(Enum):
+    SUCCESS = <span class="st">"SUCCESS"</span>
+    FAILURE = <span class="st">"FAILURE"</span>
+    RUNNING = <span class="st">"RUNNING"</span>
+
+
+<span class="kw">class</span> <span class="tp">BTNode</span>:
+    <span class="st">"""Base class for all BT nodes."""</span>
+    <span class="kw">def</span> <span class="fn">tick</span>(self, state: dict) -> Status:
+        <span class="kw">raise</span> NotImplementedError
+
+
+<span class="kw">class</span> <span class="tp">Sequence</span>(BTNode):
+    <span class="st">"""Execute children in order; fail on first child failure."""</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, children, name=<span class="st">""</span>):
+        self.children = children; self.name = name
+
+    <span class="kw">def</span> <span class="fn">tick</span>(self, state):
+        <span class="kw">for</span> child <span class="kw">in</span> self.children:
+            result = child.tick(state)
+            <span class="kw">if</span> result != Status.SUCCESS:
+                <span class="kw">return</span> result
+        <span class="kw">return</span> Status.SUCCESS
+
+
+<span class="kw">class</span> <span class="tp">Selector</span>(BTNode):
+    <span class="st">"""Try children in order; succeed on first child success."""</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, children, name=<span class="st">""</span>):
+        self.children = children; self.name = name
+
+    <span class="kw">def</span> <span class="fn">tick</span>(self, state):
+        <span class="kw">for</span> child <span class="kw">in</span> self.children:
+            result = child.tick(state)
+            <span class="kw">if</span> result != Status.FAILURE:
+                <span class="kw">return</span> result
+        <span class="kw">return</span> Status.FAILURE
+
+
+<span class="kw">class</span> <span class="tp">Condition</span>(BTNode):
+    <span class="st">"""Check a predicate on the state dict."""</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, predicate, name=<span class="st">""</span>):
+        self.pred = predicate; self.name = name
+
+    <span class="kw">def</span> <span class="fn">tick</span>(self, state):
+        result = Status.SUCCESS <span class="kw">if</span> self.pred(state) <span class="kw">else</span> Status.FAILURE
+        <span class="kw">return</span> result
+
+
+<span class="kw">class</span> <span class="tp">Action</span>(BTNode):
+    <span class="st">"""Execute a function and return its status."""</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, func, name=<span class="st">""</span>):
+        self.func = func; self.name = name
+
+    <span class="kw">def</span> <span class="fn">tick</span>(self, state):
+        <span class="kw">return</span> self.func(state)
+
+
+<span class="kw">def</span> <span class="fn">build_isr_bt</span>():
+    <span class="st">"""Build the ISR mission behaviour tree from section 8.4."""</span>
+    <span class="cm"># Actions</span>
+    <span class="kw">def</span> <span class="fn">emergency_rtb</span>(s):
+        print(<span class="st">f"    [ACTION] EMERGENCY RTB — battery={s['battery']:.0%}"</span>)
+        <span class="kw">return</span> Status.SUCCESS
+
+    <span class="kw">def</span> <span class="fn">transit_to_isr</span>(s):
+        print(<span class="st">f"    [ACTION] Transiting to ISR orbit"</span>)
+        s[<span class="st">'at_isr_orbit'</span>] = <span class="kw">True</span>
+        <span class="kw">return</span> Status.SUCCESS
+
+    <span class="kw">def</span> <span class="fn">capture_image</span>(s):
+        s[<span class="st">'images_collected'</span>] = s.get(<span class="st">'images_collected'</span>, <span class="nm">0</span>) + <span class="nm">1</span>
+        print(<span class="st">f"    [ACTION] Image captured (total: {s['images_collected']})"</span>)
+        <span class="kw">return</span> Status.SUCCESS
+
+    <span class="kw">def</span> <span class="fn">transmit_data</span>(s):
+        <span class="kw">if</span> <span class="kw">not</span> s.get(<span class="st">'comms_ok'</span>, <span class="kw">True</span>):
+            print(<span class="st">f"    [ACTION] TRANSMIT FAILED — comms down"</span>)
+            <span class="kw">return</span> Status.FAILURE
+        print(<span class="st">f"    [ACTION] Data transmitted to GCS"</span>)
+        <span class="kw">return</span> Status.SUCCESS
+
+    <span class="kw">def</span> <span class="fn">autonomous_loiter</span>(s):
+        print(<span class="st">f"    [ACTION] Switching to autonomous loiter"</span>)
+        <span class="kw">return</span> Status.SUCCESS
+
+    <span class="kw">def</span> <span class="fn">evasive_manoeuvre</span>(s):
+        print(<span class="st">f"    [ACTION] Executing evasive manoeuvre — threat: {s.get('threat_type','unknown')}"</span>)
+        s[<span class="st">'threat_detected'</span>] = <span class="kw">False</span>
+        <span class="kw">return</span> Status.SUCCESS
+
+    <span class="kw">def</span> <span class="fn">continue_nominal</span>(s):
+        print(<span class="st">f"    [ACTION] Continuing nominal mission"</span>)
+        <span class="kw">return</span> Status.SUCCESS
+
+    <span class="cm"># Build tree</span>
+    root = Selector([
+        Sequence([                          <span class="cm"># Emergency handler</span>
+            Condition(<span class="kw">lambda</span> s: s.get(<span class="st">'battery'</span>,<span class="nm">1.0</span>) < <span class="nm">0.10</span>, <span class="st">'LowBattery'</span>),
+            Action(emergency_rtb, <span class="st">'EmergencyRTB'</span>),
+        ], <span class="st">'EmergencySeq'</span>),
+
+        Selector([                          <span class="cm"># Mission fallback</span>
+            Sequence([                      <span class="cm"># Primary mission</span>
+                Condition(<span class="kw">lambda</span> s: s.get(<span class="st">'nav_valid'</span>, <span class="kw">True</span>), <span class="st">'NavValid'</span>),
+                Condition(<span class="kw">lambda</span> s: s.get(<span class="st">'fuel_ok'</span>, <span class="kw">True</span>), <span class="st">'FuelOk'</span>),
+                Action(transit_to_isr, <span class="st">'Transit'</span>),
+                Action(capture_image, <span class="st">'CaptureImage'</span>),
+                Action(transmit_data, <span class="st">'TransmitData'</span>),
+            ], <span class="st">'PrimaryMission'</span>),
+            Sequence([                      <span class="cm"># Degraded mode</span>
+                Condition(<span class="kw">lambda</span> s: <span class="kw">not</span> s.get(<span class="st">'comms_ok'</span>, <span class="kw">True</span>), <span class="st">'CommsLost'</span>),
+                Action(autonomous_loiter, <span class="st">'AutoLoiter'</span>),
+            ], <span class="st">'DegradedMode'</span>),
+        ], <span class="st">'MissionSelector'</span>),
+
+        Selector([                          <span class="cm"># Threat response</span>
+            Sequence([
+                Condition(<span class="kw">lambda</span> s: s.get(<span class="st">'threat_detected'</span>, <span class="kw">False</span>), <span class="st">'ThreatDetected'</span>),
+                Action(evasive_manoeuvre, <span class="st">'Evade'</span>),
+            ], <span class="st">'EvasionSeq'</span>),
+            Action(continue_nominal, <span class="st">'ContinueNominal'</span>),
+        ], <span class="st">'ThreatResponse'</span>),
+    ], <span class="st">'Root'</span>)
+
+    <span class="kw">return</span> root
+
+
+<span class="kw">def</span> <span class="fn">demo_bt</span>():
+    print(<span class="st">"\n" + "="*58</span>)
+    print(<span class="st">"  BEHAVIOUR TREE — ISR MISSION EXECUTION"</span>)
+    print(<span class="st">"  MDPI Autonomous Control Ch.7"</span>)
+    print(<span class="st">"="*58</span>)
+    bt = build_isr_bt()
+
+    scenarios = [
+        (<span class="st">"Nominal flight"</span>,       {<span class="st">'battery'</span>:<span class="nm">0.80</span>, <span class="st">'nav_valid'</span>:<span class="kw">True</span>, <span class="st">'fuel_ok'</span>:<span class="kw">True</span>, <span class="st">'comms_ok'</span>:<span class="kw">True</span>, <span class="st">'threat_detected'</span>:<span class="kw">False</span>}),
+        (<span class="st">"Comms blackout"</span>,      {<span class="st">'battery'</span>:<span class="nm">0.65</span>, <span class="st">'nav_valid'</span>:<span class="kw">True</span>, <span class="st">'fuel_ok'</span>:<span class="kw">True</span>, <span class="st">'comms_ok'</span>:<span class="kw">False</span>, <span class="st">'threat_detected'</span>:<span class="kw">False</span>}),
+        (<span class="st">"Threat detected"</span>,     {<span class="st">'battery'</span>:<span class="nm">0.70</span>, <span class="st">'nav_valid'</span>:<span class="kw">True</span>, <span class="st">'fuel_ok'</span>:<span class="kw">True</span>, <span class="st">'comms_ok'</span>:<span class="kw">True</span>, <span class="st">'threat_detected'</span>:<span class="kw">True</span>, <span class="st">'threat_type'</span>:<span class="st">'MANPAD'</span>}),
+        (<span class="st">"Critical battery"</span>,    {<span class="st">'battery'</span>:<span class="nm">0.08</span>, <span class="st">'nav_valid'</span>:<span class="kw">True</span>, <span class="st">'fuel_ok'</span>:<span class="kw">True</span>, <span class="st">'comms_ok'</span>:<span class="kw">True</span>, <span class="st">'threat_detected'</span>:<span class="kw">False</span>}),
+    ]
+
+    <span class="kw">for</span> name, state <span class="kw">in</span> scenarios:
+        print(<span class="st">f"\n  Scenario: {name}"</span>)
+        result = bt.tick(state)
+        print(<span class="st">f"  BT result: {result.value}"</span>)
+
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    demo_pomdp()
+    demo_astar()
+    demo_bt()</pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-title">Expected Output</span>
+      POMDP: obs1 (THREAT) → P(combatant)=0.825 "GATHER MORE INFO" ·
+      obs2 (THREAT) → P(combatant)=0.971 "ENGAGE" ·
+      obs3 (SAFE) → P(combatant)=0.891 "GATHER MORE INFO" ·
+      obs4 (THREAT) → P(combatant)=0.976 "ENGAGE" ·
+      A*: path routes around SAM site (above or below), lower cost than direct route ·
+      BT: nominal→transit+capture+transmit; comms blackout→auto loiter; threat→evade; critical battery→RTB
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       8.9  REFLECTION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <div class="reflection-box"
+      data-guidance="Q1: The POMDP belief update is exactly Bayes' theorem: P(state|obs) ∝ P(obs|state)*P(state). The EKF from Module 04 is a special case where: the state space is continuous and Gaussian (not discrete), P(state) = N(x_hat, P) is the Gaussian belief, Z(obs|state) = N(H*x, R) is the Gaussian observation model, and the Bayesian update becomes the Kalman update equations (K gain, state update, covariance update). The POMDP framework is the general case; the EKF is the tractable approximation for linear-Gaussian systems. The POMDP alpha-vector representation breaks down at large state spaces because |Gamma| grows exponentially with horizon length — for continuous spaces this is completely intractable without Monte Carlo approximations.
+
+Q2: Local minima occur in APF when the attractive gradient toward the goal is exactly cancelled by repulsive gradients from obstacles. Formally: ∇U_att = k_att*(p - p_goal) points toward goal. ∇U_rep = -k_rep*(1/ρ - 1/ρ_0)*(1/ρ^2) points away from obstacle. At a local minimum, ∇U_att + Σ∇U_rep = 0 at a point that is not the goal. This happens most commonly in 'narrow corridors' between two obstacles symmetrically placed relative to the goal direction. Solutions: (1) random perturbation — add noise to escape the minimum; (2) harmonic potentials — Laplace equation guarantees no local minima in obstacle-free space; (3) APF for local reactive avoidance only, with A*/RRT* handling global planning (the standard hybrid approach). The BT architecture supports this cleanly: global planner runs at low frequency, APF reactive avoidance is a high-frequency condition check in the BT.
+
+Q3: The accountability gap means: no existing legal framework clearly assigns criminal or civil liability when an autonomous weapon system makes a wrongful targeting decision. IHL assigns responsibility to commanders, but the commander authorised the deployment, not the specific engagement. The programmer created the targeting logic, but followed specifications. The manufacturer built the hardware, but to requirements. The state deployed the system, but under ROE. Each party can point to another. The ICRC's position is that this gap itself makes fully autonomous targeting decisions unacceptable — if no human can be held responsible, the system cannot comply with IHL's accountability requirements. From an engineering standpoint, this means: designing an autonomous targeting system without a human-in-the-loop mechanism is not just an ethical choice — it is a choice with potential legal consequences for everyone in the design chain.">
+      <ol>
+        <li>
+          The POMDP belief update equation is structurally identical to the Bayesian update
+          at the core of the EKF from Module 04. Derive the formal relationship: show that
+          the EKF update step (Module 04, Theorem 4.1) is a special case of the POMDP belief
+          update for the case where the state space is continuous and the distributions are Gaussian.
+          Under what conditions does the general POMDP alpha-vector representation become
+          computationally intractable, and what approximation does POMCP use to address this?
+        </li>
+        <li>
+          The Artificial Potential Field method in section 8.6 is known to suffer from local minima.
+          Construct a specific 2D scenario (draw it, or describe it precisely) where the UAV would
+          get trapped in a local minimum that is not the goal. Derive the condition on the gradient
+          vectors $\mathbf{F}_{att}$ and $\mathbf{F}_{rep}$ that creates the local minimum.
+          Describe two algorithmic fixes, and explain how the Behaviour Tree architecture
+          supports integrating a reactive APF layer with a global A* planner.
+        </li>
+        <li>
+          The "accountability gap" in autonomous weapons arises from the diffusion of responsibility
+          across the design, deployment, and command chain. Trace the accountability chain for
+          a specific scenario: a POMDP-based autonomous targeting system with a 0.9 belief
+          threshold engages a civilian vehicle with P(combatant) = 0.91. The belief was elevated
+          by two consecutive "threat" observations from a miscalibrated classifier.
+          Identify every party in the design/deployment chain who made a decision that contributed
+          to this outcome, and for each, identify what engineering safeguard they could have
+          implemented to prevent or detect the failure.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- MODULE NAVIGATION -->
+  <div style="display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
+    <a href="m07-deep-learning-uav.html" class="btn-secondary" style="font-size:0.75rem;">◂ Module 07: Deep Learning</a>
+    <a href="m09-swarm-systems.html"     class="btn-primary"   style="font-size:0.75rem;">Module 09: Swarm Systems ▸</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Module 08 · Autonomy &amp; Decision-Making ·
+  Bestaoui Sebbane §9–11 · MDPI Autonomous Control Ch.6–7 · Intelligent Coordination Ch.3</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script>
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          buttons[idx]?.classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>

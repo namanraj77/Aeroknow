@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M09: Swarm Systems — AEROKNOW</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    .cite {
+      font-family: var(--font-mono); font-size: 0.70rem;
+      color: var(--accent-amber); background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem; margin-left: 0.25rem;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono); font-size: 0.62rem; color: var(--accent-primary);
+      letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+    .theorem-block {
+      background: rgba(179,136,255,0.04); border: 1px solid rgba(179,136,255,0.2);
+      border-left: 3px solid #b388ff; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .theorem-block .theorem-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: #b388ff;
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .worked-example {
+      background: rgba(0,255,157,0.03); border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green); padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .worked-example .we-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-green);
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .analogy-box {
+      background: rgba(255,183,0,0.04); border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber); padding: 1rem 1.2rem; margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+    .key-term {
+      color: var(--accent-primary); font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4); cursor: help;
+    }
+    .spec-table td:first-child { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+    .spec-table td:nth-child(2) { color: var(--text-secondary); }
+    .spec-table td:nth-child(3) { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* Jump bar */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* Graph theory visual */
+    .graph-visual {
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      padding: 1.2rem; margin: 1.5rem 0;
+      display: flex; gap: 2rem; flex-wrap: wrap; align-items: flex-start;
+    }
+    .graph-type { flex: 1; min-width: 200px; }
+    .graph-type-name {
+      font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent-primary);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .graph-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* MARL architecture */
+    .marl-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .marl-card {
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      padding: 1rem 1.1rem; transition: var(--transition);
+    }
+    .marl-card:hover { border-color: var(--border-bright); }
+    .marl-card-name { font-family: var(--font-display); font-size: 0.85rem; color: var(--text-primary); margin-bottom: 0.4rem; }
+    .marl-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- SECTION JUMP BAR -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">9.1</span>Why Swarms?</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">9.2</span>Graph Theory</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">9.3</span>Consensus Algorithms</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">9.4</span>Formation Control</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">9.5</span>Task Allocation</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">9.6</span>MARL for Swarms</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">9.7</span>Mesh Networking</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">9.8</span>Resilience</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">9.9</span>Python Code</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">9.10</span>Reflection</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- HERO -->
+  <div class="module-hero">
+    <span class="module-num">MODULE 09 // SWARM SYSTEMS</span>
+    <h1>UAV Swarm Systems</h1>
+    <p class="lead">
+      A single UAV can be shot down. A swarm of two hundred cannot all be intercepted
+      simultaneously — and that asymmetry is transforming military doctrine.
+      Swarm systems are among the most technically demanding problems in autonomous UAV
+      engineering: coordinating hundreds of agents without a central controller,
+      maintaining formation through communication loss and attrition, and allocating
+      tasks dynamically as the situation evolves.
+    </p>
+    <div class="module-meta">
+      <span class="label label-primary">Algebraic Graph Theory</span>
+      <span class="label label-green">Consensus Algorithms</span>
+      <span class="label label-amber">MARL Coordination</span>
+      <span class="label label-red">Mesh Networking</span>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
+      <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
+        📚 &nbsp;REFERENCES: Intelligent Coordination of UAV Swarm Systems Ch.2–5 &nbsp;·&nbsp; MDPI Autonomous Control Ch.7–8 &nbsp;·&nbsp; Bestaoui Sebbane §11
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.1  WHY SWARMS?
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>9.1 Why Swarms? The Military Logic</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        The defining military advantage of a drone swarm is not any individual capability —
+        it is <strong>mass combined with coordination</strong>. A single MQ-9 Reaper costs
+        $30 million and takes years to build. A single Switchblade 600 costs $70,000.
+        For the cost of one Reaper, you could buy ~430 Switchblades. Even if an adversary's
+        air defence system destroys half of them, 215 still reach their targets.
+        No air defence system can simultaneously engage hundreds of small, fast, independently
+        manoeuvring targets. This is the saturation attack doctrine — and it is why swarms
+        are the most strategically disruptive development in military aviation since precision-guided munitions.
+      </p>
+    </div>
+
+    <p>
+      The <em>Intelligent Coordination of UAV Swarm Systems</em> identifies three distinct
+      military value propositions that swarms offer beyond individual platforms:
+      <span class="cite">Intelligent Coordination Ch.2</span>
+    </p>
+
+    <div class="grid-3" style="margin:1.2rem 0;">
+      <div class="card">
+        <div class="label label-red" style="margin-bottom:0.5rem;">Saturation</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0;">
+          Launch more simultaneous, independently manoeuvring threats than the adversary
+          can intercept. Each interceptor can only engage one target; the swarm sends many more.
+          Even with 50% attrition, mission-critical mass survives. The economics
+          favour the attacker when individual unit cost is low.
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-amber" style="margin-bottom:0.5rem;">Distributed ISR</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0;">
+          A hundred small sensors spread across a battlespace collect more total intelligence
+          than one large sensor with higher individual quality. Swarm ISR is impossible
+          to fully suppress — destroying 30% of nodes still leaves 70% operational.
+          Coverage is persistent and geographically complete.
+        </p>
+      </div>
+      <div class="card">
+        <div class="label label-green" style="margin-bottom:0.5rem;">Cooperative Effect</div>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin:0;">
+          Coordinated swarms achieve effects impossible for any individual: one group
+          suppresses air defences while another strikes the main target; triangulation
+          from multiple bearings provides precise geolocation; relayed communications
+          extend operational range beyond any single platform.
+        </p>
+      </div>
+    </div>
+
+    <h3>Key Real-World Swarm Programmes</h3>
+    <table>
+      <thead><tr><th>Programme</th><th>Nation</th><th>Type</th><th>Scale</th><th>Key Capability</th></tr></thead>
+      <tbody>
+        <tr><td>DARPA OFFSET</td><td>USA</td><td>Urban ISR/strike</td><td>250 agents</td><td>GPS-denied urban swarm coordination</td></tr>
+        <tr><td>DARPA Gremlins</td><td>USA</td><td>Air-launched, recoverable</td><td>4–20 per launch</td><td>Launched from manned aircraft, recovered in flight</td></tr>
+        <tr><td>Perdix</td><td>USA (MIT LL)</td><td>Micro ISR swarm</td><td>103 launched simultaneously</td><td>Collective decision-making; no central controller</td></tr>
+        <tr><td>Shahed-136/191</td><td>Iran/Russia</td><td>Loitering munition wave</td><td>10s–100s per attack</td><td>Mass saturation of air defence; GPS + IR terminal</td></tr>
+        <tr><td>CH-901</td><td>China</td><td>Attritable loitering</td><td>Up to 200</td><td>Coordinated strike, heterogeneous payloads</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <span class="callout-title">The Perdix Demonstration — What Decentralised Swarms Can Do</span>
+      In November 2016, the US DoD demonstrated 103 Perdix micro-drones launched from
+      F/A-18 Super Hornets. The drones collectively decided on formations, adapted when
+      drones were removed, and maintained a persistent ISR orbit — with no pre-programmed
+      routes and no individual pilot. The entire coordination emerged from shared algorithms
+      running on each drone's embedded processor communicating over a mesh network.
+      This demonstration established that swarm coordination at military scale was
+      not theoretical — it was operational. <span class="cite">Intelligent Coordination Ch.2</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.2  GRAPH THEORY FOUNDATION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>9.2 Algebraic Graph Theory — The Mathematical Backbone</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        To reason about how information spreads through a swarm — who can talk to whom,
+        how quickly a command propagates, whether the group will ever reach agreement —
+        you need a mathematical language for describing networks of interconnected agents.
+        That language is <strong>graph theory</strong>. Each drone is a node in a graph;
+        each communication link is an edge. The algebraic properties of this graph
+        (its eigenvalues, connectivity, diameter) directly determine the swarm's
+        coordination capabilities. A swarm with a disconnected communication graph
+        cannot reach consensus — no matter how good its individual algorithms are.
+      </p>
+    </div>
+
+    <h3>Graph Definitions for Swarms</h3>
+    <p>
+      A swarm communication topology is modelled as a directed or undirected graph
+      $\mathcal{G} = (\mathcal{V}, \mathcal{E})$:
+      <span class="cite">Intelligent Coordination Ch.3</span>
+    </p>
+
+    <table>
+      <thead><tr><th>Graph Element</th><th>Swarm Interpretation</th><th>Notation</th></tr></thead>
+      <tbody>
+        <tr><td>Vertex set $\mathcal{V}$</td><td>Set of UAV agents $\{1, 2, \ldots, N\}$</td><td>$|\mathcal{V}| = N$ (swarm size)</td></tr>
+        <tr><td>Edge set $\mathcal{E}$</td><td>Active communication links between UAVs</td><td>$(i,j) \in \mathcal{E}$ if $i$ can receive from $j$</td></tr>
+        <tr><td>Adjacency matrix $A$</td><td>$A_{ij} = 1$ if link $(i,j)$ exists, else 0</td><td>$A \in \{0,1\}^{N\times N}$</td></tr>
+        <tr><td>Degree matrix $D$</td><td>$D_{ii} = \sum_j A_{ij}$ (number of neighbours of $i$)</td><td>$D = \text{diag}(d_1, \ldots, d_N)$</td></tr>
+        <tr><td>Laplacian $L$</td><td>$L = D - A$ — encodes connectivity algebraically</td><td>$L \in \mathbb{R}^{N\times N}$, PSD, $L\mathbf{1} = \mathbf{0}$</td></tr>
+        <tr><td>Neighbourhood $\mathcal{N}_i$</td><td>Set of UAVs within communication range of $i$</td><td>$\mathcal{N}_i = \{j : (i,j) \in \mathcal{E}\}$</td></tr>
+      </tbody>
+    </table>
+
+    <h3>The Graph Laplacian — Spectral Properties</h3>
+    <p>
+      The graph Laplacian $L$ is the central object in swarm coordination theory.
+      Its eigenvalues directly encode the network's coordination capabilities:
+      <span class="cite">Intelligent Coordination Ch.3</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">Graph Laplacian Eigenspectrum</span>
+      $$0 = \lambda_1 \leq \lambda_2 \leq \cdots \leq \lambda_N$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\lambda_1 = 0$ always (corresponding eigenvector $\mathbf{v}_1 = \mathbf{1}/\sqrt{N}$,
+        the uniform consensus state). The graph is <strong>connected</strong> if and only if
+        $\lambda_2 > 0$. The second-smallest eigenvalue $\lambda_2$ — the
+        <span class="key-term" title="Algebraic connectivity / Fiedler value — λ₂ of the graph Laplacian. Measures how 'well-connected' a graph is. Higher λ₂ means faster consensus, more robust to link failures.">algebraic connectivity</span>
+        (Fiedler value) — quantifies how well connected the graph is. Large $\lambda_2$:
+        high connectivity, fast consensus. Small $\lambda_2 \to 0$: near-disconnected, slow or impossible consensus.
+        $\lambda_N / \lambda_2$ (spectral ratio) characterises coordination difficulty.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 9.1 — Laplacian of a 4-UAV Swarm</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Four UAVs form a ring topology: 1↔2↔3↔4↔1.
+        Compute the Laplacian, its eigenvalues, and interpret their operational meaning.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Adjacency matrix (ring):</strong>
+        $$A = \begin{bmatrix}0&1&0&1\\1&0&1&0\\0&1&0&1\\1&0&1&0\end{bmatrix}, \quad
+          D = \text{diag}(2,2,2,2)$$
+        <strong>Laplacian:</strong>
+        $$L = D - A = \begin{bmatrix}2&-1&0&-1\\-1&2&-1&0\\0&-1&2&-1\\-1&0&-1&2\end{bmatrix}$$
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Eigenvalues:</strong> $\lambda = \{0, 2, 2, 4\}$ (computed analytically for cycle graph $C_4$:
+        $\lambda_k = 2 - 2\cos(2\pi k/N)$).
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Interpretation:</strong> $\lambda_2 = 2 > 0$ → graph is connected, consensus is achievable.
+        Convergence rate proportional to $\lambda_2 = 2$.
+        Compare: a path graph (1→2→3→4) has $\lambda_2 \approx 0.586$ — much slower consensus.
+        A fully connected graph ($K_4$) has $\lambda_2 = 4$ — fastest possible consensus.
+        For a military swarm with 200 nodes, the planner must ensure $\lambda_2 > \lambda_{2,min}$
+        at all times — requiring periodic topology updates as UAVs manoeuvre and links drop.
+        <span class="cite">Intelligent Coordination Ch.3</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.3  CONSENSUS ALGORITHMS
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>9.3 Consensus Algorithms — Reaching Agreement Without a Leader</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        <strong>Consensus</strong> is the problem of getting all agents in a swarm to
+        agree on a common value — a heading, a target position, a timing signal —
+        using only local communication between neighbours. No central controller sends
+        the answer to everyone; each agent only talks to a few neighbours, yet through
+        repeated local exchanges, the entire swarm converges on a single agreed value.
+        This is how biological swarms work (bird flocks, fish schools) and how military
+        swarms must work to remain functional when communication infrastructure is destroyed
+        or jammed. The mathematics of when and how fast this convergence happens is
+        exactly the graph Laplacian theory from section 9.2.
+      </p>
+    </div>
+
+    <h3>The Linear Consensus Protocol</h3>
+    <p>
+      The fundamental consensus algorithm for continuous-time multi-agent systems:
+      <span class="cite">Intelligent Coordination Ch.3</span>
+    </p>
+
+    <div class="math-block">
+      <span class="math-label">Continuous-Time Consensus Protocol</span>
+      $$\dot{x}_i(t) = \sum_{j \in \mathcal{N}_i} a_{ij}\left(x_j(t) - x_i(t)\right) = -\sum_{j \in \mathcal{N}_i} a_{ij}\left(x_i(t) - x_j(t)\right)$$
+      $$\dot{\mathbf{x}} = -L\,\mathbf{x}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $x_i \in \mathbb{R}$: state of agent $i$ (e.g., desired heading, altitude setpoint);
+        $a_{ij}$: communication weight on link $(i,j)$.
+        Each agent moves its state toward the average of its neighbours' states.
+        The collective dynamics: $\dot{\mathbf{x}} = -L\mathbf{x}$.
+        Since $L$ is positive semi-definite with $\lambda_1 = 0$, the system is stable
+        and all states converge to the average: $x_i(\infty) = \bar{x} = \frac{1}{N}\sum_j x_j(0)$.
+      </p>
+    </div>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 9.1 — Consensus Convergence Rate</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        For the linear consensus protocol $\dot{\mathbf{x}} = -L\mathbf{x}$ on a connected graph,
+        the disagreement vector $\boldsymbol{\delta}(t) = \mathbf{x}(t) - \bar{x}\mathbf{1}$ converges exponentially:
+      </p>
+      $$\|\boldsymbol{\delta}(t)\| \leq \|\boldsymbol{\delta}(0)\|\, e^{-\lambda_2 t}$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Proof sketch:</strong> Decompose $\mathbf{x}(t) = \bar{x}\mathbf{1} + \boldsymbol{\delta}(t)$.
+        Since $L\mathbf{1} = \mathbf{0}$, only $\boldsymbol{\delta}$ is affected by the dynamics.
+        The solution is $\boldsymbol{\delta}(t) = e^{-Lt}\boldsymbol{\delta}(0)$.
+        The slowest mode decays as $e^{-\lambda_2 t}$ — the Fiedler eigenvalue governs convergence speed.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Consensus time constant:</strong> $\tau = 1/\lambda_2$. To achieve 95% convergence
+        ($\|\boldsymbol{\delta}\| \leq 0.05\|\boldsymbol{\delta}(0)\|$): $t_{95\%} = 3\tau = 3/\lambda_2$.
+        For a 200-drone ring swarm with $\lambda_2 \approx 0.001$ (ring graph, large N):
+        $t_{95\%} \approx 3000$ s — far too slow for tactical operations.
+        Solution: use a better topology (random geometric graph, small-world network)
+        that achieves $\lambda_2 \sim O(\log N / N)$ giving $t_{95\%} \sim O(N/\log N)$.
+        <span class="cite">Intelligent Coordination Ch.3</span>
+      </p>
+    </div>
+
+    <h3>Discrete-Time Consensus — What Runs on Real Hardware</h3>
+    <div class="math-block">
+      <span class="math-label">Discrete-Time Consensus (Update at Rate $h$)</span>
+      $$x_i[k+1] = x_i[k] + \varepsilon \sum_{j \in \mathcal{N}_i} a_{ij}(x_j[k] - x_i[k])$$
+      $$\mathbf{x}[k+1] = W\,\mathbf{x}[k], \qquad W = I - \varepsilon L$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\varepsilon$: step size — must satisfy $\varepsilon < 2/\lambda_N$ for stability
+        (prevents oscillation). Optimal step: $\varepsilon^* = 2/(\lambda_2 + \lambda_N)$,
+        achieving convergence rate $\rho^* = (\lambda_N - \lambda_2)/(\lambda_N + \lambda_2)$
+        (spectral gap — maximised when graph is balanced and well-connected).
+        $W$ is a doubly stochastic matrix if the graph is undirected — this ensures
+        the average is preserved: $\sum_i x_i[k] = \text{const}$ for all $k$.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 9.2 — Consensus Speed: Ring vs. Random Geometric Graph (N=20)</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Compare consensus convergence time for 20 drones in a ring topology vs. a random
+        geometric graph (RGG) where each drone connects to all others within radius $r$.
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>Topology</th><th>$\lambda_2$</th><th>$\lambda_N$</th><th>$t_{95\%} = 3/\lambda_2$ [s]</th><th>Operational Implication</th></tr></thead>
+        <tbody>
+          <tr><td>Ring ($C_{20}$)</td><td>0.098</td><td>3.902</td><td>30.6 s</td><td>Too slow for fast tactical coordination</td></tr>
+          <tr><td>RGG ($r=0.4$, avg deg≈6)</td><td>0.82</td><td>8.3</td><td>3.7 s</td><td>Acceptable for mission-level coordination</td></tr>
+          <tr><td>Complete graph ($K_{20}$)</td><td>20</td><td>20</td><td>0.15 s</td><td>Optimal but requires N² links — impractical</td></tr>
+          <tr><td>Small-world (Watts-Strogatz)</td><td>0.65</td><td>7.8</td><td>4.6 s</td><td>Good balance of local + global connectivity</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        The RGG and small-world topologies are the practical operating points for military
+        swarms: enough connectivity for fast consensus, without requiring every drone to
+        communicate with every other drone (which would saturate available bandwidth).
+        Swarm designers target $\lambda_2 \geq 0.5$ at minimum for tactical coordination.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.4  FORMATION CONTROL
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>9.4 Formation Control — Flying in Coordinated Geometry</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Formation control extends consensus to three dimensions: instead of agreeing on
+        a single value, agents agree on a geometric arrangement — a line, a V-shape,
+        a sphere, a distributed aperture. Each UAV maintains a desired offset from either
+        a virtual leader position or its neighbours. Military formations serve tactical
+        purposes: a V-shape maximises radar coverage area, a tight cluster minimises
+        radar cross section, a dispersed grid maximises ISR coverage.
+        The challenge is maintaining formation when wind disturbs agents, when some
+        agents fail, and when the formation must transition from one geometry to another
+        without collisions during the transition.
+      </p>
+    </div>
+
+    <h3>Leader-Follower Formation</h3>
+    <p>
+      In leader-follower formation, one agent (the leader) follows a mission trajectory;
+      all others maintain prescribed offsets from the leader or from each other in a chain:
+      <span class="cite">Intelligent Coordination Ch.4</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Leader-Follower Control Law</span>
+      $$\dot{\mathbf{p}}_i = \mathbf{v}_{leader} + K_p(\mathbf{p}_{leader} + \mathbf{d}_i - \mathbf{p}_i) + K_d(\mathbf{v}_{leader} - \mathbf{v}_i)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{d}_i$: desired offset of agent $i$ from the leader in leader's body frame;
+        $K_p, K_d$: position and velocity gain matrices.
+        <strong>Vulnerability:</strong> If the leader fails, the entire formation loses its
+        reference. Military implementation: designate a secondary leader that autonomously
+        takes command if the primary exceeds a state-error threshold for more than $\tau_{fail}$ seconds.
+      </p>
+    </div>
+
+    <h3>Virtual Structure Formation — Rigid Body Reference</h3>
+    <p>
+      Instead of designating a real agent as leader, a virtual rigid body moves through
+      space and each agent tracks its assigned point on this virtual structure:
+      <span class="cite">Intelligent Coordination Ch.4</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Virtual Structure Control Law</span>
+      $$\mathbf{p}_i^{desired}(t) = \mathbf{p}_{VS}(t) + R_{VS}(t)\,\mathbf{d}_i^{body}$$
+      $$\mathbf{u}_i = K_p(\mathbf{p}_i^{desired} - \mathbf{p}_i) + K_d(\dot{\mathbf{p}}_i^{desired} - \dot{\mathbf{p}}_i)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $(\mathbf{p}_{VS}, R_{VS})$: position and orientation of the virtual structure (rigid body);
+        $\mathbf{d}_i^{body}$: fixed offset of agent $i$ in the virtual body frame.
+        Advantage: formation geometry is exactly preserved even during manoeuvres.
+        Disadvantage: requires all agents to know the virtual structure state — needs broadcast.
+      </p>
+    </div>
+
+    <h3>Behaviour-Based Formation — Emergent from Local Rules</h3>
+    <p>
+      From Module 01, Reynolds' flocking rules (separation, alignment, cohesion) produce
+      collective formation behaviour from purely local interactions.
+      For precision military formations, these are augmented with formation-specific
+      attraction terms: <span class="cite">Intelligent Coordination Ch.4</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Augmented Flocking with Formation Attraction</span>
+      $$\mathbf{u}_i = w_s\mathbf{f}_{sep} + w_a\mathbf{f}_{align} + w_c\mathbf{f}_{cohesion}
+        + w_f\mathbf{f}_{formation} + w_o\mathbf{f}_{obstacle}$$
+      $$\mathbf{f}_{formation,i} = \sum_{j \in \mathcal{N}_i}
+        \left[(\mathbf{p}_j - \mathbf{p}_i) - (\mathbf{d}_j - \mathbf{d}_i)\right]$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{d}_i, \mathbf{d}_j$: desired positions of agents $i$ and $j$ in formation.
+        The formation term drives each agent to maintain the correct relative offset from
+        its neighbours — without knowing the absolute formation geometry.
+        This is fully decentralised and resilient to leader failure.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.5  TASK ALLOCATION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>9.5 Task Allocation — Who Does What?</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        A swarm of 50 UAVs must cover 20 target locations, 10 communication relay points,
+        and 5 threat suppression tasks — with 50 agents and 35 tasks, how do you decide
+        who does what? This is the <strong>task allocation problem</strong>.
+        A good allocation maximises total mission value (cover the highest priority targets)
+        while respecting each agent's constraints (range, payload, communication range).
+        A bad allocation sends the wrong UAVs to the wrong targets, wastes fuel, and leaves
+        high-priority targets uncovered. In a dynamic battlespace, allocation must be
+        recomputed continuously as UAVs are attrited, targets change, and new tasks emerge.
+      </p>
+    </div>
+
+    <h3>The Assignment Problem — Hungarian Algorithm</h3>
+    <p>
+      For static, one-to-one assignment (one UAV per task, one task per UAV),
+      the assignment problem is solved optimally by the Hungarian algorithm in $O(N^3)$:
+      <span class="cite">Bestaoui Sebbane §11.1</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Binary Integer Programme — Optimal Assignment</span>
+      $$\max \sum_{i=1}^N \sum_{j=1}^M c_{ij} x_{ij}$$
+      $$\text{subject to:} \quad \sum_{j=1}^M x_{ij} \leq 1\; \forall i, \quad \sum_{i=1}^N x_{ij} \leq 1\; \forall j, \quad x_{ij} \in \{0,1\}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $c_{ij}$: reward for assigning UAV $i$ to task $j$ (function of travel time, payload match, priority).
+        $x_{ij}$: binary assignment variable.
+        This is NP-hard in general, but tractable as a linear assignment problem when
+        the constraints are as above. Hungarian algorithm solves it in $O(N^3)$.
+        For $N = 200$ drones: $8\times10^6$ operations — solvable in milliseconds on modern hardware.
+        For dynamic re-allocation (new tasks, attrition), an incremental re-assignment
+        approach re-solves only the affected subproblem.
+      </p>
+    </div>
+
+    <h3>Auction-Based Distributed Task Allocation</h3>
+    <p>
+      For large swarms where centralised assignment is impractical (communication bandwidth,
+      single-point-of-failure), distributed auction algorithms allow each agent to
+      bid on tasks and negotiate assignment through local communication:
+      <span class="cite">Intelligent Coordination Ch.5</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Consensus-Based Bundle Algorithm (CBBA) — Distributed Auction</span>
+      $$y_{ij}(t) = \max_{k \in \mathcal{N}_i \cup \{i\}} c_{kj} \quad \text{(best known bid for task } j \text{)}$$
+      $$z_{ij}(t) = \arg\max_{k} c_{kj} \quad \text{(current winning bidder for task } j \text{)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        Each agent maintains a bundle of tasks it has won and communicates winning bids
+        to neighbours. Through consensus (section 9.3), bid information spreads through
+        the network. A task is assigned to the agent with the highest bid once that bid
+        has propagated to all agents in the swarm (convergence requires at most graph
+        diameter communication rounds). CBBA is asymptotically optimal and provably
+        conflict-free — no two agents will be assigned the same task at convergence.
+        Communication cost: $O(NM \cdot \text{diam}(\mathcal{G}))$ per allocation cycle.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.6  MARL FOR SWARMS
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>9.6 Multi-Agent Reinforcement Learning (MARL)</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Consensus algorithms and formation controllers work for well-defined coordination
+        problems with known structure. But what if the swarm faces novel adversarial
+        environments — an adaptive adversary that learns counter-tactics,
+        a search problem with unknown target distributions, a communication-jammed
+        environment where the network topology is unpredictable?
+        <strong>Multi-Agent Reinforcement Learning (MARL)</strong> allows the swarm to
+        learn collective behaviour through experience, without needing to hand-design
+        every coordination rule. The agents jointly discover strategies that work —
+        including strategies no human designer would have thought to specify.
+      </p>
+    </div>
+
+    <h3>The Decentralised POMDP (Dec-POMDP) Framework</h3>
+    <p>
+      MARL for swarms is formally grounded in the Dec-POMDP —
+      an extension of the single-agent POMDP (Module 08) to $N$ agents:
+      <span class="cite">MDPI Autonomous Control Ch.8</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Dec-POMDP — N-Agent Cooperative Task</span>
+      $$\mathcal{M}_{Dec} = (\mathcal{S},\, \{\mathcal{A}_i\}_{i=1}^N,\, \{\mathcal{O}_i\}_{i=1}^N,\, P,\, \{Z_i\}_{i=1}^N,\, R,\, \gamma)$$
+      $$\mathbf{a} = (a_1, \ldots, a_N) \in \mathcal{A}_1 \times \cdots \times \mathcal{A}_N \quad \text{(joint action)}$$
+      $$\text{Optimal joint policy:} \quad \boldsymbol{\pi}^* = \arg\max_{\boldsymbol{\pi}} \mathbb{E}\!\left[\sum_{t=0}^\infty \gamma^t R(s_t, \mathbf{a}_t)\right]$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        Each agent $i$ has its own local observation $o_i \in \mathcal{O}_i$ and action $a_i \in \mathcal{A}_i$.
+        There is a single shared reward $R$ (cooperative task) — all agents work toward the same objective.
+        The joint policy space is exponential in $N$: $|\boldsymbol{\Pi}| = |\Pi_i|^N$.
+        For $N=10$ agents each with 10 actions: $10^{10}$ joint actions — centralised optimisation is intractable.
+      </p>
+    </div>
+
+    <div class="marl-grid">
+      <div class="marl-card">
+        <div class="label label-green" style="margin-bottom:0.5rem;">CTDE</div>
+        <div class="marl-card-name">Centralised Training, Decentralised Execution</div>
+        <div class="marl-card-desc">
+          During training: central critic sees all agents' observations and actions.
+          During deployment: each agent acts on its local observation only.
+          Key algorithms: MADDPG, QMIX, MAPPO.
+          Dominant paradigm for military swarm RL — centralised training is feasible
+          on ground servers; decentralised execution runs on each UAV's onboard compute.
+        </div>
+      </div>
+      <div class="marl-card">
+        <div class="label label-primary" style="margin-bottom:0.5rem;">Parameter Sharing</div>
+        <div class="marl-card-name">Shared Policy Weights</div>
+        <div class="marl-card-desc">
+          All agents share the same neural network weights.
+          Distinguishes agents via an agent-ID input.
+          Dramatically reduces training complexity ($N \times$ fewer parameters).
+          Handles variable swarm size gracefully — just add/remove agents at execution time.
+          Used in MAPPO, HAPPO for large-scale swarm coordination.
+        </div>
+      </div>
+      <div class="marl-card">
+        <div class="label label-amber" style="margin-bottom:0.5rem;">Communication</div>
+        <div class="marl-card-name">Learned Communication Protocols</div>
+        <div class="marl-card-desc">
+          Rather than hand-designing what agents communicate, let agents learn
+          what messages to send. CommNet, DIAL, TarMAC allow agents to learn
+          compact, task-relevant messages. Critical for bandwidth-constrained military
+          swarms — reduces required communication bandwidth by 3–10× vs. full state sharing.
+        </div>
+      </div>
+      <div class="marl-card">
+        <div class="label label-red" style="margin-bottom:0.5rem;">Credit Assignment</div>
+        <div class="marl-card-name">Individual vs. Team Reward</div>
+        <div class="marl-card-desc">
+          The hardest MARL problem: when the team succeeds, which agents contributed?
+          QMIX uses a monotone mixing network to decompose team reward into
+          individual Q-values while preserving joint optimality.
+          Poor credit assignment → agents free-ride on teammates' effort → coordination fails.
+        </div>
+      </div>
+    </div>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 9.2 — QMIX Monotone Mixing Property</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        QMIX factorises the joint action-value function $Q_{tot}(\mathbf{s}, \mathbf{a})$
+        into individual $Q_i(o_i, a_i)$ through a mixing network with a monotonicity constraint:
+      </p>
+      $$Q_{tot}(\mathbf{s}, \mathbf{a}) = f_{mix}(Q_1, Q_2, \ldots, Q_N \mid \mathbf{s})$$
+      $$\text{subject to:} \quad \frac{\partial Q_{tot}}{\partial Q_i} \geq 0 \quad \forall i$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        The monotonicity constraint ensures that the greedy joint action (argmax over all
+        $a_i$ simultaneously) equals the decentralised greedy action (each agent maximises
+        its own $Q_i$ independently). This is the
+        <span class="key-term" title="IGM — Individual-Global-Max. Condition that individual maximisation is consistent with joint maximisation. Required for CTDE to work correctly.">IGM property</span>
+        (Individual-Global-Max) — necessary for CTDE to function correctly.
+        Without IGM, agents trained centrally would take wrong actions when deployed
+        independently, because their individually optimal actions might not be globally optimal.
+        <span class="cite">MDPI Autonomous Control Ch.8</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.7  MESH NETWORKING
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>9.7 Swarm Mesh Networking</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        A swarm's communication network is as important as its flight capability.
+        Without reliable data exchange between agents, consensus fails, task allocation
+        degrades, and the swarm fragments into isolated individuals.
+        A <strong>mesh network</strong> — where every node can relay messages for every other node —
+        is the only architecture robust enough for military swarm operations.
+        There is no central router that can be destroyed; the network self-heals around
+        lost nodes by discovering alternative routes.
+        The challenge is doing this with minimal bandwidth, minimal latency, and
+        in a spectrum-contested environment where the adversary actively tries to jam it.
+      </p>
+    </div>
+
+    <h3>MANET — Mobile Ad Hoc Network Protocols</h3>
+    <p>
+      Swarms use Mobile Ad Hoc Network (MANET) protocols adapted for highly dynamic,
+      3D mobile topology: <span class="cite">Intelligent Coordination Ch.5</span>
+    </p>
+    <table>
+      <thead><tr><th>Protocol</th><th>Type</th><th>Overhead</th><th>Best For</th><th>Military Limitation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>OLSR</strong></td><td>Proactive (maintains full routes)</td><td>High</td><td>Stable topologies, &lt;50 nodes</td><td>Overhead scales poorly; beacon traffic jams tactical bands</td></tr>
+        <tr><td><strong>AODV</strong></td><td>Reactive (route on demand)</td><td>Low at rest, bursty on demand</td><td>Sparse, &gt;50 nodes</td><td>Route discovery latency — too slow for time-critical coordination</td></tr>
+        <tr><td><strong>BATMAN</strong></td><td>Proactive, distributed</td><td>Medium</td><td>Urban, dense swarms</td><td>No guaranteed delivery; unreliable for safety-critical messages</td></tr>
+        <tr><td><strong>Tactical TDMA</strong></td><td>Scheduled time slots</td><td>Low, deterministic</td><td>Small, structured swarms</td><td>Synchronisation overhead; slot assignment complexity with attrition</td></tr>
+        <tr><td><strong>Gossip / Epidemic</strong></td><td>Probabilistic flooding</td><td>Controllable</td><td>Large swarms, unreliable links</td><td>No delivery guarantee; eventual consistency only</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Link Budget for Swarm Communication</h3>
+    <p>
+      Within a swarm, communication links are short-range (typically 1–10 km between nodes)
+      using licence-exempt bands (900 MHz, 2.4 GHz, 5.8 GHz) or military-specific
+      waveforms (Link 16, TTNT):
+      <span class="cite">Bestaoui Sebbane §11.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Swarm Intra-Link Budget (Short Range)</span>
+      $$P_r = P_t + G_t + G_r - 20\log_{10}\!\left(\frac{4\pi d f}{c}\right) - L_{body}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        At 2.4 GHz, $d = 1$ km, $P_t = +20$ dBm (100 mW), omnidirectional antennas ($G_t = G_r = 0$ dBi),
+        $L_{body} = 3$ dB body shielding: $P_r = 20 + 0 + 0 - 100.0 - 3 = -83$ dBm.
+        Typical 802.11n sensitivity: $-90$ dBm → link margin = 7 dB.
+        At $d = 5$ km: $P_r = -97$ dBm → margin negative → link fails.
+        This gives a swarm spacing constraint: nodes must stay within ~3 km of at least
+        one neighbour for reliable communication. Formation geometry and consensus topology
+        must respect this constraint.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.8  RESILIENCE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>9.8 Swarm Resilience — Functioning Under Attrition</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Military swarms operate in environments where some nodes will be destroyed —
+        either by adversary action or mechanical failure. A swarm that fragments and
+        loses coordination when 20% of its nodes are lost has no military value.
+        Resilience means the swarm degrades gracefully under attrition: losing nodes
+        reduces capability proportionally, but never causes catastrophic failure of
+        the coordination mechanism. This requires both algorithmic resilience (the
+        consensus and allocation algorithms must work on a reduced graph) and
+        topological resilience (the communication graph must stay connected even
+        when nodes are removed).
+      </p>
+    </div>
+
+    <h3>$k$-Connectivity — Topological Resilience Guarantee</h3>
+    <div class="math-block">
+      <span class="math-label">Graph $k$-Connectivity Definition</span>
+      $$\kappa(\mathcal{G}) = k \quad \Leftrightarrow \quad \text{graph remains connected after removing any } k-1 \text{ nodes}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        A swarm with $\kappa(\mathcal{G}) = k$ can tolerate the simultaneous failure of
+        $k-1$ nodes without losing connectivity. For a military swarm expecting 20%
+        attrition in a 200-node swarm (40 nodes lost): design for $\kappa \geq 40$.
+        Practical constraint: $\kappa(\mathcal{G}) \leq \delta(\mathcal{G})$ where $\delta$ is the
+        minimum degree. To achieve $\kappa = 40$, every node must have at least 40 neighbours —
+        a communication range requirement that grows the network overhead.
+        Trade-off: higher $k$ gives more resilience but requires more links and bandwidth.
+        Typical military swarm design target: $k = 2$–$4$ for ISR, $k = 1$ (connectivity only)
+        for attritable strike swarms.
+        <span class="cite">Intelligent Coordination Ch.5</span>
+      </p>
+    </div>
+
+    <h3>Leader Election Under Attrition</h3>
+    <p>
+      When a leader-follower formation loses its leader, a new one must be elected —
+      fast enough that the formation doesn't fragment before re-coordination.
+      Distributed leader election algorithms (based on consensus):
+      <span class="cite">Bestaoui Sebbane §11.4</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Bully-Style Leader Election (Distributed)</span>
+      $$\text{Leader}_k = \arg\max_{i \in \mathcal{V}} \left\{w_i : w_i = \text{priority}(i) + \epsilon_i\right\}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\text{priority}(i)$: static rank of agent $i$ (e.g., fuel remaining, distance to objective);
+        $\epsilon_i \sim \text{Uniform}(0, \delta)$: tie-breaking noise.
+        Each agent broadcasts its priority. After receiving all neighbours' priorities,
+        the agent with the highest priority declares itself leader and broadcasts confirmation.
+        Convergence time: $O(\text{diam}(\mathcal{G}))$ communication rounds.
+        For a 200-node swarm with diameter 6 and 10 Hz communication: election completes in
+        $6 \times 0.1 = 0.6$ s — acceptably fast for formation recovery.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 9.3 — Swarm Resilience Analysis: 200-Node Strike Swarm</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        A 200-drone strike swarm uses a random geometric graph topology with average degree $\bar{d} = 8$.
+        The adversary's C-UAS system can destroy 30 drones before the swarm reaches the target
+        (15% attrition). Analyse whether the swarm maintains connectivity.
+      </p>
+      <table class="spec-table">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Derivation / Source</th></tr></thead>
+        <tbody>
+          <tr><td>Initial nodes $N$</td><td>200</td><td>Swarm design</td></tr>
+          <tr><td>Average degree $\bar{d}$</td><td>8</td><td>From communication range and density</td></tr>
+          <tr><td>$\lambda_2$ initial</td><td>≈ 1.8</td><td>RGG with $N=200$, $\bar{d}=8$</td></tr>
+          <tr><td>Attrition</td><td>30 nodes (15%)</td><td>C-UAS engagement rate</td></tr>
+          <tr><td>$\lambda_2$ after attrition</td><td>≈ 1.4</td><td>Estimated from random node removal theory</td></tr>
+          <tr><td>$k$-connectivity</td><td>$\kappa \approx 3$</td><td>Min degree 8 → $\kappa \leq 8$; typical RGG $\kappa \approx \bar{d}/3$</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>Connectivity after 30-node loss:</strong> With $\kappa = 3$, the swarm guarantees
+        connectivity after losing any $\kappa - 1 = 2$ nodes simultaneously. However, 30 random
+        node removals are unlikely to simultaneously disconnect the graph unless they are
+        targeted (adversary removes strategically placed bridge nodes).
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Consensus time after attrition:</strong> $t_{95\%} = 3/\lambda_2 = 3/1.4 \approx 2.1$ s —
+        slightly degraded from initial 1.7 s but still tactically acceptable.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Worst case — targeted node removal:</strong> An adversary that identifies
+        and preferentially targets the highest-degree nodes (network hubs) can fragment a
+        200-node RGG with as few as 10 hub removals. Counter-measure: topology obfuscation
+        (don't broadcast degree information), LPI/LPD waveforms to prevent adversary mapping
+        the swarm's communication graph.
+        <span class="cite">Intelligent Coordination Ch.5</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.9  PYTHON CODE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>9.9 Python: Swarm Simulation — Consensus, Formation, and Resilience</h2>
+
+    <div class="callout info">
+      <span class="callout-title">What This Code Covers</span>
+      Three simulations:
+      (1) Graph Laplacian construction and eigenvalue analysis for swarm connectivity assessment.
+      (2) Discrete-time consensus simulation on a random geometric graph — measures convergence time.
+      (3) A 2D Reynolds flocking simulation with formation attraction term — 20 agents form a V-shape
+      and maintain it under a disturbance. Run with: <code>pip install numpy scipy</code>
+    </div>
+
+    <div class="code-block">
+      <span class="code-lang">Python</span>
+      <pre><span class="cm"># swarm_systems.py
+# ─────────────────────────────────────────────────────────────────
+# Part 1: Graph Laplacian + eigenvalue analysis
+#         Intelligent Coordination Ch.3
+# Part 2: Discrete-time consensus on random geometric graph
+#         Theorem 9.1
+# Part 3: Reynolds flocking with formation attraction (2D)
+#         Intelligent Coordination Ch.4
+# ─────────────────────────────────────────────────────────────────
+</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span>   scipy.spatial <span class="kw">import</span> distance_matrix
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 1 — Graph Laplacian and Swarm Connectivity
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">def</span> <span class="fn">build_rgg</span>(N: int, radius: float, seed: int = <span class="nm">42</span>):
+    <span class="st">"""
+    Build Random Geometric Graph:
+    N nodes placed uniformly in [0,1]^2.
+    Two nodes are connected if their distance < radius.
+    Returns: positions (N×2), adjacency matrix A (N×N)
+    """</span>
+    np.random.seed(seed)
+    pos = np.random.rand(N, <span class="nm">2</span>)
+    D   = distance_matrix(pos, pos)
+    A   = (D < radius).astype(float)
+    np.fill_diagonal(A, <span class="nm">0</span>)    <span class="cm"># no self-loops</span>
+    <span class="kw">return</span> pos, A
+
+
+<span class="kw">def</span> <span class="fn">graph_laplacian</span>(A: np.ndarray) -> np.ndarray:
+    <span class="st">"""Compute graph Laplacian L = D - A."""</span>
+    D = np.diag(A.sum(axis=<span class="nm">1</span>))
+    <span class="kw">return</span> D - A
+
+
+<span class="kw">def</span> <span class="fn">connectivity_analysis</span>(A: np.ndarray, name: str = <span class="st">""</span>):
+    <span class="st">"""
+    Compute and report graph connectivity metrics.
+    Intelligent Coordination Ch.3
+    """</span>
+    L = graph_laplacian(A)
+    eigvals = np.sort(np.linalg.eigvalsh(L))
+
+    lambda2  = eigvals[<span class="nm">1</span>]         <span class="cm"># algebraic connectivity (Fiedler value)</span>
+    lambdaN  = eigvals[-<span class="nm">1</span>]        <span class="cm"># largest eigenvalue</span>
+    connected = lambda2 > <span class="nm">1e-8</span>    <span class="cm"># connected iff λ₂ > 0</span>
+    t95      = <span class="nm">3.0</span> / lambda2 <span class="kw">if</span> connected <span class="kw">else</span> float(<span class="st">'inf'</span>)
+    min_deg  = int(A.sum(axis=<span class="nm">1</span>).min())
+    mean_deg = A.sum(axis=<span class="nm">1</span>).mean()
+
+    print(<span class="st">f"\n  [{name}]"</span>)
+    print(<span class="st">f"    N={A.shape[0]}  Connected: {connected}"</span>)
+    print(<span class="st">f"    λ₂ (Fiedler):  {lambda2:.4f}  |  λ_N: {lambdaN:.4f}"</span>)
+    print(<span class="st">f"    Mean degree:   {mean_deg:.1f}   |  Min degree: {min_deg}"</span>)
+    print(<span class="st">f"    t_95%:         {t95:.2f} s  (consensus time const)"</span>)
+    <span class="kw">return</span> lambda2, t95
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 2 — Discrete-Time Consensus Simulation
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">def</span> <span class="fn">simulate_consensus</span>(N: int = <span class="nm">20</span>, radius: float = <span class="nm">0.4</span>,
+                        dt: float = <span class="nm">0.1</span>, T: float = <span class="nm">20.0</span>):
+    <span class="st">"""
+    Simulate discrete-time consensus on RGG.
+    Each agent has a scalar state x_i (e.g., desired heading).
+    Convergence to average is monitored.
+    Theorem 9.1 — convergence rate = λ₂
+    """</span>
+    pos, A = build_rgg(N, radius)
+    L      = graph_laplacian(A)
+
+    <span class="cm"># Optimal step size: ε* = 2/(λ₂ + λ_N)</span>
+    eigvals = np.sort(np.linalg.eigvalsh(L))
+    lambda2, lambdaN = eigvals[<span class="nm">1</span>], eigvals[-<span class="nm">1</span>]
+    eps = <span class="nm">2</span> / (lambda2 + lambdaN) <span class="kw">if</span> lambda2 > <span class="nm">1e-8</span> <span class="kw">else</span> <span class="nm">0.1</span>
+
+    <span class="cm"># Initial states: random headings in [0, 2π]</span>
+    x   = np.random.rand(N) * <span class="nm">2</span> * np.pi
+    x_avg = x.mean()          <span class="cm"># target consensus value</span>
+
+    steps = <span class="nm">int</span>(T / dt)
+    W     = np.eye(N) - eps * L   <span class="cm"># consensus weight matrix</span>
+    disagreement = [np.std(x)]
+
+    <span class="kw">for</span> _ <span class="kw">in</span> range(steps):
+        x = W @ x
+        disagreement.append(np.std(x))
+
+    t_conv = next((k*dt <span class="kw">for</span> k, d <span class="kw">in</span> enumerate(disagreement)
+                   <span class="kw">if</span> d < <span class="nm">0.05</span> * disagreement[<span class="nm">0</span>]), T)
+
+    print(<span class="st">f"\n  [Consensus Simulation N={N}, r={radius}]"</span>)
+    print(<span class="st">f"    ε* = {eps:.4f}  |  λ₂ = {lambda2:.4f}"</span>)
+    print(<span class="st">f"    Initial std: {disagreement[0]:.3f} rad"</span>)
+    print(<span class="st">f"    Final std:   {disagreement[-1]:.4f} rad  (converged to avg={x_avg:.3f})"</span>)
+    print(<span class="st">f"    95% convergence time: {t_conv:.1f} s  (theory: {3/lambda2:.1f} s)"</span>)
+    <span class="kw">return</span> disagreement
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 3 — Reynolds Flocking with Formation Attraction
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">def</span> <span class="fn">build_v_formation</span>(N: int, spacing: float = <span class="nm">2.0</span>) -> np.ndarray:
+    <span class="st">"""
+    Create V-shaped formation offsets for N drones.
+    Drones spread symmetrically: left and right arms of the V.
+    """</span>
+    offsets = np.zeros((N, <span class="nm">2</span>))
+    offsets[<span class="nm">0</span>] = [<span class="nm">0</span>, <span class="nm">0</span>]   <span class="cm"># leader at tip</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N):
+        side  = <span class="nm">1</span> <span class="kw">if</span> i % <span class="nm">2</span> == <span class="nm">1</span> <span class="kw">else</span> -<span class="nm">1</span>   <span class="cm"># alternate left/right</span>
+        rank  = (i + <span class="nm">1</span>) // <span class="nm">2</span>              <span class="cm"># position along arm</span>
+        offsets[i] = [-rank * spacing, side * rank * spacing]
+    <span class="kw">return</span> offsets
+
+
+<span class="kw">class</span> <span class="tp">SwarmFlock</span>:
+    <span class="st">"""
+    2D Reynolds flocking with formation attraction.
+    Intelligent Coordination Ch.4
+    """</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, N: int = <span class="nm">20</span>, dt: float = <span class="nm">0.05</span>):
+        self.N  = N
+        self.dt = dt
+        np.random.seed(<span class="nm">99</span>)
+        <span class="cm"># Initialise in loose cluster with random offset from formation</span>
+        self.formation_offsets = build_v_formation(N, spacing=<span class="nm">3.0</span>)
+        self.pos = self.formation_offsets + np.random.randn(N, <span class="nm">2</span>) * <span class="nm">5.0</span>
+        self.vel = np.random.randn(N, <span class="nm">2</span>) * <span class="nm">0.5</span>
+
+        <span class="cm"># Behaviour weights (Intelligent Coordination Ch.4)</span>
+        self.w_sep   = <span class="nm">3.0</span>   <span class="cm"># separation (collision avoidance)</span>
+        self.w_align = <span class="nm">1.5</span>   <span class="cm"># alignment (velocity matching)</span>
+        self.w_coh   = <span class="nm">0.8</span>   <span class="cm"># cohesion (stay together)</span>
+        self.w_form  = <span class="nm">2.5</span>   <span class="cm"># formation attraction</span>
+        self.r_sep   = <span class="nm">2.5</span>   <span class="cm"># separation radius</span>
+        self.r_neigh = <span class="nm">12.0</span>  <span class="cm"># neighbourhood radius</span>
+        self.v_max   = <span class="nm">5.0</span>   <span class="cm"># max speed [m/s]</span>
+
+    <span class="kw">def</span> <span class="fn">step</span>(self, t: float):
+        <span class="st">"""One simulation timestep."""</span>
+        accel = np.zeros((self.N, <span class="nm">2</span>))
+
+        <span class="kw">for</span> i <span class="kw">in</span> range(self.N):
+            sep_f = np.zeros(<span class="nm">2</span>)
+            ali_f = np.zeros(<span class="nm">2</span>)
+            coh_f = np.zeros(<span class="nm">2</span>)
+            frm_f = np.zeros(<span class="nm">2</span>)
+            n_sep = <span class="nm">0</span>; n_nei = <span class="nm">0</span>
+
+            <span class="kw">for</span> j <span class="kw">in</span> range(self.N):
+                <span class="kw">if</span> i == j: <span class="kw">continue</span>
+                diff = self.pos[j] - self.pos[i]
+                dist = np.linalg.norm(diff) + <span class="nm">1e-6</span>
+
+                <span class="cm"># Separation — push away from close neighbours</span>
+                <span class="kw">if</span> dist < self.r_sep:
+                    sep_f -= diff / dist**<span class="nm">2</span>
+                    n_sep += <span class="nm">1</span>
+
+                <span class="cm"># Alignment + cohesion + formation within neighbourhood</span>
+                <span class="kw">if</span> dist < self.r_neigh:
+                    ali_f += self.vel[j]
+                    coh_f += self.pos[j]
+                    <span class="cm"># Formation: drive to correct relative offset</span>
+                    desired_diff = self.formation_offsets[j] - self.formation_offsets[i]
+                    frm_f += (diff - desired_diff)
+                    n_nei += <span class="nm">1</span>
+
+            <span class="kw">if</span> n_sei := n_sep: sep_f /= n_sei      <span class="cm"># normalise</span>
+            <span class="kw">if</span> n_nei:
+                ali_f = ali_f / n_nei - self.vel[i]   <span class="cm"># velocity error</span>
+                coh_f = coh_f / n_nei - self.pos[i]   <span class="cm"># position to centroid</span>
+                frm_f = frm_f / n_nei
+
+            accel[i] = (self.w_sep  * sep_f +
+                        self.w_align* ali_f +
+                        self.w_coh  * coh_f +
+                        self.w_form * frm_f)
+
+        <span class="cm"># Integrate</span>
+        self.vel += accel * self.dt
+        <span class="cm"># Speed limit</span>
+        speeds = np.linalg.norm(self.vel, axis=<span class="nm">1</span>, keepdims=<span class="kw">True</span>)
+        mask   = speeds > self.v_max
+        self.vel[mask[:,<span class="nm">0</span>]] *= (self.v_max / speeds[mask[:,<span class="nm">0</span>]])
+        self.pos += self.vel * self.dt
+
+    <span class="kw">def</span> <span class="fn">formation_error</span>(self) -> float:
+        <span class="st">"""RMS deviation from desired formation geometry."""</span>
+        centroid = self.pos.mean(axis=<span class="nm">0</span>)
+        form_centroid = self.formation_offsets.mean(axis=<span class="nm">0</span>)
+        errors = []
+        <span class="kw">for</span> i <span class="kw">in</span> range(self.N):
+            desired = centroid + (self.formation_offsets[i] - form_centroid)
+            errors.append(np.linalg.norm(self.pos[i] - desired))
+        <span class="kw">return</span> float(np.sqrt(np.mean(np.array(errors)**<span class="nm">2</span>)))
+
+
+<span class="kw">def</span> <span class="fn">simulate_swarm_flock</span>(N: int = <span class="nm">20</span>, T: float = <span class="nm">30.0</span>, dt: float = <span class="nm">0.05</span>):
+    <span class="st">"""Simulate flock formation convergence. Intelligent Coordination Ch.4"""</span>
+    swarm = SwarmFlock(N, dt)
+    steps = <span class="nm">int</span>(T / dt)
+
+    print(<span class="st">f"\n{'='*54}"</span>)
+    print(<span class="st">f"  SWARM FORMATION SIMULATION (N={N} drones)"</span>)
+    print(<span class="st">f"  Intelligent Coordination Ch.4"</span>)
+    print(<span class="st">f"{'='*54}"</span>)
+    print(<span class="st">f"\n  {'Time':>5} | {'Formation Error':>15} | Notes"</span>)
+    print(<span class="st">f"  {'-'*45}"</span>)
+
+    prev_err = swarm.formation_error()
+    print(<span class="st">f"  {0:5.1f}s | {prev_err:15.2f} m | Initial (random positions)"</span>)
+
+    <span class="kw">for</span> k <span class="kw">in</span> range(steps):
+        t = (k+<span class="nm">1</span>) * dt
+
+        <span class="cm"># Inject disturbance at t=15s to test resilience</span>
+        <span class="kw">if</span> abs(t - <span class="nm">15.0</span>) < dt:
+            swarm.pos += np.random.randn(N, <span class="nm">2</span>) * <span class="nm">3.0</span>   <span class="cm"># wind gust disturbance</span>
+            print(<span class="st">f"  {t:5.1f}s | {'--- DISTURBANCE ---':>15}   | Wind gust injected"</span>)
+
+        swarm.step(t)
+
+        <span class="kw">if</span> k % <span class="nm">100</span> == <span class="nm">99</span>:   <span class="cm"># print every 5 seconds</span>
+            err = swarm.formation_error()
+            note = <span class="st">"converged"</span> <span class="kw">if</span> err < <span class="nm">1.5</span> <span class="kw">else</span> <span class="st">"converging"</span>
+            print(<span class="st">f"  {t:5.1f}s | {err:15.2f} m | {note}"</span>)
+
+    final_err = swarm.formation_error()
+    print(<span class="st">f"\n  Final formation error: {final_err:.2f} m"</span>)
+    print(<span class="st">f"  Improvement: {swarm.formation_error()/prev_err*100:.0f}% of initial error remains"</span>)
+    print(<span class="st">f"  → Formation recovered from wind disturbance at t=15s"</span>)
+    print(<span class="st">f"{'='*54}\n"</span>)
+
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    np.random.seed(<span class="nm">42</span>)
+    print(<span class="st">"\n" + "="*54</span>)
+    print(<span class="st">"  GRAPH LAPLACIAN ANALYSIS — Intelligent Coordination Ch.3"</span>)
+    print(<span class="st">"="*54</span>)
+
+    <span class="cm"># Compare topologies</span>
+    _, A_ring  = build_rgg(<span class="nm">20</span>, radius=<span class="nm">0.25</span>)  <span class="cm"># approximately ring-like (sparse)</span>
+    _, A_rgg   = build_rgg(<span class="nm">20</span>, radius=<span class="nm">0.40</span>)  <span class="cm"># moderate density RGG</span>
+    _, A_dense = build_rgg(<span class="nm">20</span>, radius=<span class="nm">0.65</span>)  <span class="cm"># dense RGG</span>
+
+    connectivity_analysis(A_ring,  <span class="st">"Sparse graph (r=0.25)"</span>)
+    connectivity_analysis(A_rgg,   <span class="st">"Moderate RGG (r=0.40)"</span>)
+    connectivity_analysis(A_dense, <span class="st">"Dense RGG (r=0.65)"</span>)
+
+    print(<span class="st">"\n" + "="*54</span>)
+    print(<span class="st">"  CONSENSUS SIMULATION"</span>)
+    print(<span class="st">"="*54</span>)
+    simulate_consensus(N=<span class="nm">20</span>, radius=<span class="nm">0.40</span>, dt=<span class="nm">0.1</span>, T=<span class="nm">30.0</span>)
+
+    simulate_swarm_flock(N=<span class="nm">20</span>, T=<span class="nm">30.0</span>)</pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-title">Expected Output</span>
+      Sparse graph: λ₂ ≈ 0.1–0.4, t₉₅ ≈ 7–30 s (slow consensus) ·
+      Moderate RGG: λ₂ ≈ 0.8–1.5, t₉₅ ≈ 2–4 s (tactical) ·
+      Dense RGG: λ₂ ≈ 3–6, t₉₅ ≈ 0.5–1 s (fast) ·
+      Consensus: heading std drops from ~1.8 rad to ~0.001 rad by convergence time ·
+      Formation: error drops from ~12 m to ~1.5 m within 10 s; recovers after t=15 s disturbance
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       9.10  REFLECTION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s10">
+    <div class="reflection-box"
+      data-guidance="Q1: The Fiedler value λ₂ is the second-smallest eigenvalue of the graph Laplacian. From Theorem 9.1, convergence rate = λ₂ — the larger λ₂, the faster consensus. Adding edges increases connectivity, which increases λ₂. Specifically: adding an edge (i,j) to a graph increases λ₂ by exactly the squared component of the Fiedler vector along the direction (e_i - e_j) / ||e_i - e_j|| — the Fiedler vector tells you which edge additions improve connectivity most. The most impactful edges are those connecting nodes with the most different Fiedler vector components — i.e., nodes in different loosely connected communities. For a swarm designer: identify nodes with extreme Fiedler vector values (network bottlenecks) and ensure those nodes have extra link redundancy.
+
+Q2: The CBBA convergence requires at most diam(G) communication rounds because bid information must propagate across the entire network to resolve conflicts. With diameter d and communication rate h Hz, convergence takes d/h seconds. For diam=6, h=10 Hz: 0.6 s. If during this 0.6 s window two new tasks appear, the algorithm must restart the bundle construction phase — potentially causing oscillation if tasks appear faster than convergence completes. This is the 'churn' problem in dynamic task allocation. Solutions: (1) freeze the task set during allocation (requires a mutex protocol), (2) incremental CBBA that only re-allocates affected agents (partial re-auction), (3) Gibbs sampling approaches that run continuously and never formally 'converge'. For military swarms where targets appear and disappear rapidly, option (3) or a hybrid is typically used.
+
+Q3: The IGM property states that argmax_{a} Q_tot = (argmax_{a1} Q1, argmax_{a2} Q2, ..., argmax_{aN} QN) — individual greedy maximisation is consistent with joint greedy maximisation. QMIX enforces this via the monotonicity constraint dQ_tot/dQ_i ≥ 0. Without IGM: a CTDE-trained agent that maximises Q_i independently might select action a_i that reduces Q_tot even though it increases Q_i — because its Q_i doesn't account for the effect on teammates. The mixing network's weights are state-dependent (produced by a hypernetwork conditioned on the global state during training), so the factorisation is not fixed — it's a different decomposition for each state. This allows QMIX to represent complex non-additive cooperative behaviours that simple additive value decomposition (VDN) cannot.">
+      <ol>
+        <li>
+          The Fiedler value $\lambda_2$ of the graph Laplacian governs consensus convergence rate.
+          From the eigendecomposition of $L$, derive why $\lambda_2$ specifically (and not
+          $\lambda_1$ or $\lambda_3$) determines the slowest convergence mode.
+          For a swarm designer who must improve $\lambda_2$ from 0.5 to 2.0 (4× faster consensus)
+          without changing total number of nodes: what graph-theoretic property of an edge tells
+          you how much adding it will increase $\lambda_2$, and where in the network should new
+          edges be added for maximum impact?
+        </li>
+        <li>
+          The Consensus-Based Bundle Algorithm (CBBA) requires at most
+          $\text{diam}(\mathcal{G})$ communication rounds to converge.
+          For a 200-node swarm with graph diameter 6 and communication rate 10 Hz,
+          calculate the allocation convergence time. Now suppose during this convergence
+          window, 3 new high-priority targets are detected.
+          Describe the race condition this creates in the distributed auction,
+          and propose two architectural solutions used in operational swarm systems.
+        </li>
+        <li>
+          QMIX enforces the IGM property through a monotone mixing network.
+          Explain why IGM is necessary for the CTDE paradigm to produce correct decentralised policies —
+          what goes wrong if IGM is violated? Show with a concrete two-agent example where
+          $Q_1(a_1) > Q_1(a_1')$ and $Q_2(a_2) > Q_2(a_2')$ but the joint policy
+          $(a_1', a_2')$ achieves higher $Q_{tot}$ than $(a_1, a_2)$.
+          Why can QMIX's state-dependent mixing weights represent this case while
+          a fixed additive value decomposition (VDN) cannot?
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- MODULE NAVIGATION -->
+  <div style="display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
+    <a href="m08-autonomy-decision.html" class="btn-secondary" style="font-size:0.75rem;">◂ Module 08: Autonomy</a>
+    <a href="m10-systems-engineering.html" class="btn-primary" style="font-size:0.75rem;">Module 10: Systems Engineering ▸</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Module 09 · Swarm Systems ·
+  Intelligent Coordination Ch.2–5 · MDPI Autonomous Control Ch.7–8 · Bestaoui Sebbane §11</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script>
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          buttons[idx]?.classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>

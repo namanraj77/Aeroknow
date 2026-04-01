@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M10: Systems Engineering & Reliability — AEROKNOW</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    .cite {
+      font-family: var(--font-mono); font-size: 0.70rem;
+      color: var(--accent-amber); background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem; margin-left: 0.25rem;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono); font-size: 0.62rem; color: var(--accent-primary);
+      letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+    .theorem-block {
+      background: rgba(179,136,255,0.04); border: 1px solid rgba(179,136,255,0.2);
+      border-left: 3px solid #b388ff; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .theorem-block .theorem-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: #b388ff;
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .worked-example {
+      background: rgba(0,255,157,0.03); border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green); padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .worked-example .we-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-green);
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .analogy-box {
+      background: rgba(255,183,0,0.04); border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber); padding: 1rem 1.2rem; margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+    .key-term {
+      color: var(--accent-primary); font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4); cursor: help;
+    }
+    .spec-table td:first-child { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+    .spec-table td:nth-child(2) { color: var(--text-secondary); }
+    .spec-table td:nth-child(3) { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* Jump bar */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* V-model diagram */
+    .vmodel {
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto;
+    }
+    .vmodel-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.6rem; flex-wrap: wrap;
+    }
+    .vm-phase {
+      padding: 0.45rem 0.85rem; border: 1px solid;
+      font-family: var(--font-mono); font-size: 0.68rem;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .vm-left  { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(0,212,255,0.05); }
+    .vm-right { border-color: var(--accent-green);   color: var(--accent-green);   background: rgba(0,255,157,0.05); }
+    .vm-arrow { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem; flex-shrink: 0; }
+    .vm-label { font-size: 0.78rem; color: var(--text-muted); }
+
+    /* FMEA table styling */
+    .fmea-severity { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.1rem 0.4rem; border-radius: 2px; }
+    .sev-1 { background: rgba(0,255,157,0.1); color: var(--accent-green); }
+    .sev-2 { background: rgba(255,183,0,0.1); color: var(--accent-amber); }
+    .sev-3 { background: rgba(255,100,0,0.12); color: #ff6400; }
+    .sev-4 { background: rgba(255,58,58,0.12); color: var(--accent-red); }
+
+    /* DO-178C level strip */
+    .dal-strip {
+      display: grid; grid-template-columns: repeat(5,1fr);
+      gap: 1px; background: var(--border-dim);
+      border: 1px solid var(--border-dim); margin: 1.5rem 0;
+    }
+    .dal-cell { background: var(--bg-card); padding: 0.8rem 0.9rem; }
+    .dal-level { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; display: block; margin-bottom: 0.3rem; }
+    .dal-name  { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+    .dal-desc  { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Completion banner */
+    .completion-banner {
+      background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(0,255,157,0.05) 100%);
+      border: 1px solid var(--border-bright);
+      padding: 2rem;
+      margin: 3rem 0 1rem;
+      text-align: center;
+      position: relative;
+    }
+    .completion-banner::before {
+      content: '◈ CURRICULUM COMPLETE ◈';
+      font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.25em;
+      color: var(--accent-green); display: block; margin-bottom: 0.75rem;
+    }
+    .completion-banner h3 {
+      font-family: var(--font-display); font-size: 1.5rem;
+      color: var(--text-primary); margin-bottom: 0.5rem;
+    }
+    .completion-banner p { color: var(--text-secondary); font-size: 0.95rem; margin: 0; }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- SECTION JUMP BAR -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">10.1</span>SE Fundamentals</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">10.2</span>Requirements</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">10.3</span>FMEA</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">10.4</span>Reliability Maths</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">10.5</span>Fault Tolerance</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">10.6</span>DO-178C</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">10.7</span>MIL-STD-882</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">10.8</span>Safety Cases</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">10.9</span>Python Code</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">10.10</span>Reflection</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- HERO -->
+  <div class="module-hero">
+    <span class="module-num">MODULE 10 // SYSTEMS ENGINEERING & RELIABILITY</span>
+    <h1>Systems Engineering &amp; Reliability</h1>
+    <p class="lead">
+      You can build the most sophisticated perception system, the most elegant consensus
+      algorithm, and the most capable controller — and still kill someone if the systems
+      engineering is wrong. This final module covers the disciplined frameworks that turn
+      capable individual subsystems into a trustworthy, certifiable, deployable military UAV:
+      requirements engineering, FMEA, reliability mathematics, DO-178C software assurance,
+      MIL-STD-882 system safety, and formal safety cases.
+    </p>
+    <div class="module-meta">
+      <span class="label label-primary">MBSE / V-Model</span>
+      <span class="label label-green">FMEA &amp; FTA</span>
+      <span class="label label-amber">DO-178C Software Safety</span>
+      <span class="label label-red">MIL-STD-882 System Safety</span>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
+      <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
+        📚 &nbsp;REFERENCES: Sadraey §10–12 &nbsp;·&nbsp; MDPI Autonomous Control Ch.8 &nbsp;·&nbsp; MIL-STD-882E &nbsp;·&nbsp; DO-178C &nbsp;·&nbsp; Intelligent Coordination Ch.6
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.1  SE FUNDAMENTALS
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>10.1 Systems Engineering Fundamentals</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Systems engineering is the discipline of designing complex systems so that all
+        their parts work correctly together. It is not about designing individual
+        components — that is the job of the component engineer. It is about making sure
+        the EKF integrates correctly with the IMU, the autonomy stack handles edge cases
+        the control system creates, and the communication link doesn't saturate when
+        all sensors report simultaneously. Most UAV failures in the field are not
+        component failures — they are <em>integration failures</em> that systems engineering
+        is specifically designed to prevent.
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — Building a Hospital</span>
+      <p>
+        A hospital has excellent surgeons, excellent nurses, excellent pharmacists —
+        but if the operating theatre has no backup power supply and a blackout occurs
+        mid-surgery, people die. That failure is not the surgeon's fault, or the
+        pharmacist's fault. It is a systems engineering failure: someone was responsible
+        for identifying "what happens if power fails during a critical procedure?" and
+        designing a mitigation. Military UAV systems engineering asks exactly that question
+        — about every subsystem, every interface, every operating mode, including
+        the modes the designers never intended to use.
+      </p>
+    </div>
+
+    <h3>The V-Model — Systems Engineering Process</h3>
+    <p>
+      The V-model is the standard development process for safety-critical UAV systems.
+      The left branch defines and decomposes requirements; the right branch integrates
+      and verifies them: <span class="cite">Sadraey §10.1</span>
+    </p>
+
+    <div class="vmodel">
+      <div class="vmodel-row">
+        <div class="vm-phase vm-left">Mission Requirements</div>
+        <div class="vm-arrow">────────────────────────────────────────────────────▶</div>
+        <div class="vm-phase vm-right">Operational Validation</div>
+      </div>
+      <div class="vmodel-row" style="padding-left:1.5rem;">
+        <div class="vm-phase vm-left">System Requirements</div>
+        <div class="vm-arrow">──────────────────────────────────────────────▶</div>
+        <div class="vm-phase vm-right">System Integration Test</div>
+      </div>
+      <div class="vmodel-row" style="padding-left:3rem;">
+        <div class="vm-phase vm-left">Subsystem Requirements</div>
+        <div class="vm-arrow">──────────────────────────────────────────▶</div>
+        <div class="vm-phase vm-right">Subsystem Integration</div>
+      </div>
+      <div class="vmodel-row" style="padding-left:4.5rem;">
+        <div class="vm-phase vm-left">Component Specification</div>
+        <div class="vm-arrow">────────────────────────────────────────▶</div>
+        <div class="vm-phase vm-right">Component Verification</div>
+      </div>
+      <div class="vmodel-row" style="padding-left:6.5rem;">
+        <div class="vm-phase vm-left" style="border-color:var(--accent-amber); color:var(--accent-amber); background:rgba(255,183,0,0.05);">Implementation (Code / Hardware)</div>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.75rem;">
+        Each left-branch phase generates test criteria for its corresponding right-branch phase.
+        Requirements flow down; verification evidence flows up.
+        Every arrow represents a formal review gate — changes cannot proceed without sign-off.
+        For military UAVs: system requirements review (SRR), preliminary design review (PDR),
+        critical design review (CDR), and test readiness review (TRR) are contractually mandated.
+      </p>
+    </div>
+
+    <h3>Model-Based Systems Engineering (MBSE)</h3>
+    <p>
+      Traditional systems engineering uses documents — Word files, spreadsheets, PDFs.
+      MBSE replaces documents with a living model of the system in a formal modelling language
+      (SysML): <span class="cite">Sadraey §10.2</span>
+    </p>
+    <table>
+      <thead><tr><th>SysML Diagram Type</th><th>What It Models</th><th>UAV Use Case</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Block Definition Diagram (BDD)</strong></td><td>System hierarchy — parts and their types</td><td>UAV system decomposed into avionics, propulsion, payload, comms</td></tr>
+        <tr><td><strong>Internal Block Diagram (IBD)</strong></td><td>Interfaces between blocks (data, power, mechanical)</td><td>IMU → EKF data interface (rate, format, latency)</td></tr>
+        <tr><td><strong>Requirements Diagram</strong></td><td>Requirements and their allocation to blocks</td><td>Navigation accuracy req. allocated to EKF + IMU + GPS blocks</td></tr>
+        <tr><td><strong>Activity Diagram</strong></td><td>Operational flows and behaviours</td><td>Mission execution flow: takeoff → transit → loiter → RTB</td></tr>
+        <tr><td><strong>Sequence Diagram</strong></td><td>Time-ordered message exchanges</td><td>EKF predict → update → control output sequence</td></tr>
+        <tr><td><strong>State Machine</strong></td><td>System modes and transitions</td><td>Flight modes: armed → takeoff → fly → land → disarmed</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <span class="callout-title">Why MBSE Matters for Autonomous UAVs</span>
+      Classical document-based SE breaks down when systems are highly interconnected
+      and change frequently. A requirement change propagates through dozens of Word documents
+      that must all be manually updated and cross-checked. In an MBSE model, a requirement
+      change automatically flags all affected downstream elements.
+      For autonomous UAV systems — where the ML perception system, EKF navigator,
+      behaviour tree, and GNC controllers are tightly interdependent — MBSE is the only
+      practical way to manage interface complexity at scale.
+      <span class="cite">Sadraey §10.2</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.2  REQUIREMENTS ENGINEERING
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>10.2 Requirements Engineering — Translating "What" to "How Well"</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        A requirement is a statement of what a system must do or must not do.
+        "The UAV shall navigate accurately" is not a requirement — it is a wish.
+        "The UAV shall maintain position within 2 metres (CEP) of a commanded waypoint
+        in GNSS-denied conditions, with 95% probability, in winds up to 15 m/s" —
+        that is a requirement. Every word in that sentence carries engineering weight:
+        it determines what sensors you need, what algorithms you run, and how you test
+        whether the system actually meets the standard. Bad requirements are the single
+        largest cause of programme failure in defence procurement.
+      </p>
+    </div>
+
+    <h3>Requirement Properties — The SMART Framework</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Definition</th><th>Bad Example</th><th>Good Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Specific</strong></td><td>Unambiguous — only one interpretation</td><td>"Good navigation"</td><td>"Position error ≤ 2 m CEP"</td></tr>
+        <tr><td><strong>Measurable</strong></td><td>Can be tested with defined pass/fail criteria</td><td>"Reliable communication"</td><td>"Link availability ≥ 99.5% over 4h mission"</td></tr>
+        <tr><td><strong>Achievable</strong></td><td>Technically and physically possible</td><td>"Zero collision probability"</td><td>"Collision probability ≤ 10⁻⁷ per flight hour"</td></tr>
+        <tr><td><strong>Relevant</strong></td><td>Directly linked to operational need</td><td>"Detect all aircraft within 100 km"</td><td>"Detect threats within 10 km with P_D ≥ 0.95"</td></tr>
+        <tr><td><strong>Traceable</strong></td><td>Derives from a higher-level requirement</td><td>Requirements appear from nowhere</td><td>Each req. tagged with parent req. ID</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Requirements Hierarchy — Decomposition</h3>
+    <p>
+      Requirements cascade from mission level down to component level.
+      Each level adds specificity while remaining fully consistent with the level above:
+      <span class="cite">Sadraey §10.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Navigation Requirements Decomposition Chain</span>
+      $$\underbrace{\text{Mission: Conduct ISR in GNSS-denied airspace}}_{\text{Operational Need}}$$
+      $$\Downarrow$$
+      $$\underbrace{\text{System: Position error} \leq 2\,\text{m CEP, 95\%, GNSS-denied, 15 m/s wind}}_{\text{System Requirement SR-NAV-001}}$$
+      $$\Downarrow$$
+      $$\underbrace{\text{Subsystem: EKF shall maintain}\, \sigma_p \leq 0.5\,\text{m after 300s GNSS-denied}}_{\text{Subsystem Req. SSR-NAV-003}}$$
+      $$\Downarrow$$
+      $$\underbrace{\text{Component: IMU bias}\, b_a \leq 0.01\,\text{m/s}^2,\,\text{Allan} \sigma(1s) \leq 5\times10^{-4}\,\text{m/s}^2/\sqrt{\text{Hz}}}_{\text{Component Req. CR-IMU-007}}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        Each level is verifiable at its own testing stage.
+        The IMU is tested on a vibration table (component verification).
+        The EKF is tested in simulation with recorded flight data (subsystem verification).
+        The full system is tested in flight test in a jammed environment (system verification).
+        Every requirement must be traceable upward to a mission need — orphaned requirements
+        (with no parent) indicate scope creep and are a red flag in any review.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.3  FMEA
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>10.3 FMEA — Failure Mode and Effects Analysis</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        FMEA asks a systematic question about every component in the system:
+        "What happens to the mission — and to anyone on the ground — if this component fails?"
+        It forces engineers to think about failure before it happens,
+        rather than after an accident. For every component, you identify all the ways it could fail,
+        how likely each failure mode is, how severe the consequences are, and how easy it is to
+        detect before it causes harm. Components whose failures are both likely and catastrophic
+        get the most engineering attention — redundancy, monitoring, fail-safe mechanisms.
+      </p>
+    </div>
+
+    <h3>The FMEA Worksheet — Risk Priority Number</h3>
+    <p>
+      FMEA quantifies risk through the <span class="key-term" title="Risk Priority Number (RPN) = Severity × Occurrence × Detectability. Guides engineering effort toward the highest-risk failure modes.">Risk Priority Number (RPN)</span>:
+      <span class="cite">Sadraey §11.1</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Risk Priority Number — FMEA Risk Quantification</span>
+      $$\text{RPN} = S \times O \times D$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $S$: Severity (1–10, consequence of the failure reaching the user/environment).
+        $O$: Occurrence (1–10, likelihood of the failure mode occurring).
+        $D$: Detectability (1=easily detected before harm, 10=completely undetectable).
+        $\text{RPN}_{\max} = 1000$. Mitigation required when RPN $> 100$ (typical threshold).
+        MIL-STD-882E uses a categorical risk matrix instead of RPN — but the logic is identical.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 10.1 — FMEA for UAV Navigation Subsystem</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Perform FMEA on the navigation subsystem of a Group 3 military UAV.
+        Four failure modes are analysed. Ratings 1–10 per FMEA convention.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Failure Mode</th>
+            <th>Effect on Mission</th>
+            <th>S</th><th>O</th><th>D</th><th>RPN</th>
+            <th>Mitigation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GPS Receiver</td>
+            <td>Signal loss (jamming)</td>
+            <td>Navigation reverts to IMU — position drift begins</td>
+            <td>7</td><td>6</td><td>2</td>
+            <td><span class="fmea-severity sev-2">84</span></td>
+            <td>EKF fuses baro + VIO; terrain nav backup</td>
+          </tr>
+          <tr>
+            <td>GPS Receiver</td>
+            <td>Spoofed position fix</td>
+            <td>UAV navigates to wrong location confidently</td>
+            <td>9</td><td>4</td><td>8</td>
+            <td><span class="fmea-severity sev-4">288</span></td>
+            <td>Chi-square RAIM; IMU consistency check; M-code</td>
+          </tr>
+          <tr>
+            <td>IMU (MEMS)</td>
+            <td>Accelerometer bias spike</td>
+            <td>EKF position estimate corrupted; divergence</td>
+            <td>7</td><td>3</td><td>5</td>
+            <td><span class="fmea-severity sev-2">105</span></td>
+            <td>Innovation monitoring; dual-IMU cross-check</td>
+          </tr>
+          <tr>
+            <td>EKF Software</td>
+            <td>Numerical divergence (matrix not PD)</td>
+            <td>Navigation solution invalid; autopilot loses reference</td>
+            <td>9</td><td>2</td><td>6</td>
+            <td><span class="fmea-severity sev-3">108</span></td>
+            <td>Joseph form update; covariance health monitor; RTB trigger</td>
+          </tr>
+          <tr>
+            <td>VIO Camera</td>
+            <td>Motion blur / feature dropout</td>
+            <td>Visual update lost; IMU drift begins</td>
+            <td>5</td><td>5</td><td>3</td>
+            <td><span class="fmea-severity sev-1">75</span></td>
+            <td>High-shutter camera; IMU-aided feature predict; fallback to baro</td>
+          </tr>
+          <tr>
+            <td>Barometer</td>
+            <td>Propwash pressure shock</td>
+            <td>Altitude estimate spike → incorrect altitude hold</td>
+            <td>6</td><td>4</td><td>3</td>
+            <td><span class="fmea-severity sev-1">72</span></td>
+            <td>Vented enclosure; low-pass filter; dual baro</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>Priority actions:</strong> GPS spoofing has the highest RPN (288) — driven by
+        high severity (9) and very poor detectability (8). This single entry justifies the entire
+        chi-square RAIM system (Module 05), M-code GPS receiver, and IMU cross-check — each
+        targeting detectability $D$ directly. Bringing $D$ from 8 to 3 drops RPN from 288 to 108.
+        <span class="cite">Sadraey §11.1</span>
+      </p>
+    </div>
+
+    <h3>Fault Tree Analysis (FTA) — Top-Down Complementary Method</h3>
+    <p>
+      FMEA works bottom-up (component → system effect). FTA works top-down:
+      start with an undesired top-level event ("UAV crashes in civilian area") and
+      decompose it into combinations of contributing causes using Boolean logic gates:
+      <span class="cite">Sadraey §11.2</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">FTA Probability Calculation — AND / OR Gates</span>
+      $$P(\text{AND gate}) = \prod_{i} P(E_i) \qquad \text{(all events must occur)}$$
+      $$P(\text{OR gate})  = 1 - \prod_{i}(1-P(E_i)) \approx \sum_{i} P(E_i) \quad \text{(for small } P \text{)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        A crash requires: navigation failure AND control failure (AND gate).
+        Navigation failure can be caused by: GPS failure OR IMU failure OR EKF software crash (OR gate).
+        If $P(\text{GPS fail}) = 10^{-4}$, $P(\text{IMU fail}) = 10^{-5}$, $P(\text{EKF crash}) = 10^{-6}$:
+        $P(\text{nav fail}) \approx 10^{-4} + 10^{-5} + 10^{-6} \approx 1.11\times10^{-4}$.
+        If $P(\text{control fail}) = 10^{-4}$:
+        $P(\text{crash}) = 1.11\times10^{-4} \times 10^{-4} = 1.11\times10^{-8}$ per flight hour.
+        MIL-STD-882E catastrophic hazard target: $< 10^{-7}$ per flight hour.
+        This analysis passes — but only just. Reducing EKF software failure rate with more
+        rigorous DO-178C compliance (section 10.6) could give a 10× additional margin.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.4  RELIABILITY MATHEMATICS
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>10.4 Reliability Mathematics — Quantifying How Long It Lasts</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Reliability is the probability that a system performs its required function for
+        a specified time under specified conditions. It is expressed as a number between 0 and 1,
+        derived from the failure rate of components, their arrangement (series, parallel),
+        and the operating environment. Understanding reliability mathematics lets you answer
+        questions like: "If we use two GPS receivers instead of one, how much does the navigation
+        system reliability improve?" or "How many flight hours can we expect before the first
+        avionics failure?" These are not academic questions — they determine maintenance schedules,
+        mission planning, and procurement decisions.
+      </p>
+    </div>
+
+    <h3>Exponential Reliability Model</h3>
+    <p>
+      For electronic components in steady-state operation, the failure rate $\lambda$
+      (failures per hour) is approximately constant, giving the exponential reliability model:
+      <span class="cite">Sadraey §11.3</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Exponential Reliability — Constant Failure Rate</span>
+      $$R(t) = e^{-\lambda t}, \qquad \text{MTBF} = \frac{1}{\lambda}$$
+      $$\lambda = \frac{1}{\text{MTBF}}, \qquad \text{Failure density: } f(t) = \lambda e^{-\lambda t}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $R(t)$: probability of surviving to time $t$ with no failure.
+        MTBF: Mean Time Between Failures.
+        At $t = \text{MTBF}$: $R = e^{-1} \approx 0.368$ — only 37% of units survive to their rated MTBF.
+        This surprises many engineers. MTBF is not a "safe operating life" — it is the mean of an
+        exponential distribution. 63% of units will have failed by their MTBF.
+        For a 27-hour mission with MTBF = 500 h: $R(27) = e^{-27/500} = 0.947$ — 94.7% probability
+        of completing the mission without avionics failure.
+      </p>
+    </div>
+
+    <h3>Series and Parallel Configurations</h3>
+    <div class="math-block">
+      <span class="math-label">System Reliability — Series vs. Parallel</span>
+      $$R_{series}(t) = \prod_{i=1}^N R_i(t) = e^{-(\lambda_1+\lambda_2+\cdots+\lambda_N)t}$$
+      $$R_{parallel}(t) = 1 - \prod_{i=1}^N (1-R_i(t)) \quad \text{(redundant systems)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        <strong>Series:</strong> All components must work — system reliability is product of individual.
+        Adding components always decreases reliability. Each added sensor in a navigation fusion pipeline
+        adds a series failure mode.
+        <strong>Parallel (redundancy):</strong> System fails only if all redundant units fail simultaneously.
+        Adding redundancy always increases reliability — but at cost, weight, and complexity.
+        The trade-off between series reliability penalty and redundancy benefit is the central
+        reliability engineering decision in UAV avionics design.
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 10.2 — Dual vs. Triple Redundant FCC Reliability</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        An FCC (Flight Control Computer) has MTBF = 2,000 flight hours ($\lambda = 5\times10^{-4}$/hr).
+        Mission duration: 8 hours. Compare reliability of: single FCC, dual redundant, triple redundant.
+        Assume perfect voting logic (2-of-3 majority vote for triple).
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        Single unit: $R_1(8) = e^{-5\times10^{-4}\times8} = e^{-0.004} = \mathbf{0.9960}$ (99.60%)
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        Dual (active-standby): $R_{dual}(8) = 1-(1-R_1)^2 = 1-(0.004)^2 \approx \mathbf{0.999984}$ (99.9984%)
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.4rem;">
+        Triple (2-of-3 vote): System survives if $\geq 2$ of 3 units work.
+        $$R_{triple}(8) = \binom{3}{3}R_1^3 + \binom{3}{2}R_1^2(1-R_1) = R_1^3 + 3R_1^2(1-R_1)$$
+        $$= 0.9960^3 + 3\times0.9960^2\times0.0040 = 0.9881 + 0.0119 = \mathbf{0.99999}$$ (99.999%)
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Summary table:</strong>
+      </p>
+      <table class="spec-table" style="margin:0.5rem 0;">
+        <thead><tr><th>Configuration</th><th>$R(8h)$</th><th>Failure prob.</th><th>Weight penalty</th><th>Certification level</th></tr></thead>
+        <tbody>
+          <tr><td>Single FCC</td><td>0.9960</td><td>0.40%</td><td>1×</td><td>DAL B achievable</td></tr>
+          <tr><td>Dual FCC</td><td>0.999984</td><td>0.0016%</td><td>2×</td><td>DAL A achievable</td></tr>
+          <tr><td>Triple FCC</td><td>0.99999</td><td>0.001%</td><td>3×</td><td>DAL A (highest integrity)</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        Triple redundancy achieves 400× reliability improvement over single FCC — but at 3× weight
+        and the additional complexity of implementing and certifying correct voting logic.
+        For a Group 5 HALE platform, the weight is acceptable. For a Group 1 micro-UAV, it is not.
+        Platform class dictates the feasible redundancy architecture. <span class="cite">Sadraey §11.3</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.5  FAULT TOLERANCE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>10.5 Fault Tolerance — Continuing to Function When Things Go Wrong</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Reliability tells you how often components fail. Fault tolerance is what happens
+        <em>when they do</em>. A fault-tolerant system detects failures, isolates them
+        from spreading, and continues operating in a degraded but safe mode.
+        The goal is graceful degradation: losing one sensor reduces capability but does
+        not cause the mission to catastrophically fail or the vehicle to crash.
+        This requires thinking about failure at design time — not debugging it in
+        the field after an accident.
+      </p>
+    </div>
+
+    <h3>Fault Detection, Isolation, and Recovery (FDIR)</h3>
+    <p>
+      The FDIR framework defines the full response cycle to a detected fault:
+      <span class="cite">MDPI Autonomous Control Ch.8</span>
+    </p>
+    <table>
+      <thead><tr><th>Phase</th><th>What Happens</th><th>UAV Implementation</th><th>Timing</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Detect</strong></td>
+          <td>Identify that a fault has occurred</td>
+          <td>Chi-square RAIM (sensor), watchdog timer (software), current monitor (hardware)</td>
+          <td>&lt;10 ms</td>
+        </tr>
+        <tr>
+          <td><strong>Isolate</strong></td>
+          <td>Identify which component failed and prevent propagation</td>
+          <td>FDIE algorithm (Module 05); sensor bus isolation; software module quarantine</td>
+          <td>10–100 ms</td>
+        </tr>
+        <tr>
+          <td><strong>Reconfigure</strong></td>
+          <td>Switch to backup system or degraded mode</td>
+          <td>Activate redundant FCC; switch from GPS to VIO; raise MTBF-aware alert to GCS</td>
+          <td>100–500 ms</td>
+        </tr>
+        <tr>
+          <td><strong>Recover</strong></td>
+          <td>Return to full operational capability if possible</td>
+          <td>Re-integrate repaired sensor (online); clear watchdog; re-sync EKF</td>
+          <td>0.5–60 s</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 10.1 — Safe State Reachability (Safety Architecture Requirement)</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        For any reachable system state $s \in \mathcal{S}$, there must exist a sequence of
+        actions $a_1, a_2, \ldots, a_k$ that transitions the system to a safe state
+        $s_{safe}$ (typically: controlled landing or orbit hold) within maximum response time $T_{safe}$:
+      </p>
+      $$\forall s \in \mathcal{S}_{\text{reachable}}: \exists \{a_i\}_{i=1}^k \text{ s.t. } s_k = s_{safe}, \quad \sum_{i=1}^k \Delta t_i \leq T_{safe}$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        This requirement is not automatically satisfied. Classic unsafe scenario: the primary
+        FCC fails, the backup FCC starts, but its initialisation takes 3 seconds during which
+        the aircraft is in an uncontrolled state. If $T_{safe} = 1$ s (fast-moving aircraft near terrain),
+        the 3 s transition time violates safety reachability — the aircraft may crash before the
+        backup takes control. Solution: cold standby startup must be precomputed and cached;
+        or warm standby (backup runs continuously, takes over in &lt;50 ms).
+        <span class="cite">MDPI Autonomous Control Ch.8</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.6  DO-178C
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>10.6 DO-178C — Software Considerations in Airborne Systems</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        DO-178C is the standard that governs how software in aircraft is developed, verified,
+        and certified. It does not specify what algorithms to use — it specifies the
+        <em>process</em> by which software is created and how rigorously it must be tested.
+        The standard assigns a Development Assurance Level (DAL) from A to E based on
+        how catastrophic a software failure would be. A DAL A failure causes a catastrophic
+        accident; DAL E has no safety effect. Higher DAL requires more rigorous process,
+        more testing, and more documentation — and therefore costs more and takes longer.
+        For military UAVs operating in controlled airspace, DO-178C compliance is increasingly
+        a legal and contractual requirement, not just a best practice.
+      </p>
+    </div>
+
+    <h3>Development Assurance Levels (DAL)</h3>
+    <div class="dal-strip">
+      <div class="dal-cell">
+        <span class="dal-level" style="color:var(--accent-red);">A</span>
+        <div class="dal-name" style="color:var(--accent-red);">CATASTROPHIC</div>
+        <div class="dal-desc">Failure may cause crash with multiple fatalities. FCC attitude control, primary navigation. MC/DC coverage required. ~70% of programme cost.</div>
+      </div>
+      <div class="dal-cell">
+        <span class="dal-level" style="color:#ff6400;">B</span>
+        <div class="dal-name" style="color:#ff6400;">HAZARDOUS</div>
+        <div class="dal-desc">Severe injury / hull loss. Secondary navigation, autopilot modes. Decision coverage required. ~50% of programme cost.</div>
+      </div>
+      <div class="dal-cell">
+        <span class="dal-level" style="color:var(--accent-amber);">C</span>
+        <div class="dal-name" style="color:var(--accent-amber);">MAJOR</div>
+        <div class="dal-desc">Significant safety effect. Mission computer, datalink processing. Statement coverage. ~30% of cost.</div>
+      </div>
+      <div class="dal-cell">
+        <span class="dal-level" style="color:var(--accent-primary);">D</span>
+        <div class="dal-name" style="color:var(--accent-primary);">MINOR</div>
+        <div class="dal-desc">Minor safety effect. Ground station software, payload processing. Minimal coverage required.</div>
+      </div>
+      <div class="dal-cell">
+        <span class="dal-level" style="color:var(--text-muted);">E</span>
+        <div class="dal-name" style="color:var(--text-muted);">NO EFFECT</div>
+        <div class="dal-desc">No safety impact. In-flight entertainment analogy for UAVs: mission logging, telemetry visualisation.</div>
+      </div>
+    </div>
+
+    <h3>Modified Condition/Decision Coverage (MC/DC) — DAL A Requirement</h3>
+    <p>
+      DAL A software must achieve
+      <span class="key-term" title="MC/DC — Modified Condition/Decision Coverage. Requires that every condition in every decision statement independently affects the outcome. Strongest practical coverage criterion. Required for DAL A by DO-178C.">MC/DC (Modified Condition/Decision Coverage)</span>
+      — the most rigorous structural coverage criterion required by DO-178C:
+      <span class="cite">MDPI Autonomous Control Ch.8</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">MC/DC Coverage Requirements (DO-178C DAL A)</span>
+      $$\text{For every boolean expression } (C_1 \wedge C_2) \text{ or } (C_1 \vee C_2):$$
+      $$\exists \text{ test cases where changing } C_i \text{ alone changes the decision outcome, } \forall i$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        For a navigation fault condition: <code>if (GPS_valid AND altitude_valid AND nav_healthy)</code>:
+        MC/DC requires test cases that individually toggle each condition while holding others fixed,
+        verifying each independently affects the branch outcome.
+        Minimum: $N+1$ test cases for $N$ conditions (vs $2^N$ for full branch coverage).
+        For an EKF health monitor with 8 boolean conditions: MC/DC requires 9 tests vs 256 for full coverage.
+        Still extremely expensive — DAL A software costs $\sim$\$1,000–\$10,000 per source line
+        when fully certified. This is why flight-critical ML models cannot currently be
+        DAL A certified: their decision boundaries are not expressible as finite boolean conditions
+        testable with MC/DC.
+      </p>
+    </div>
+
+    <div class="callout warning">
+      <span class="callout-title">Why ML Cannot Currently Be Certified to DAL A</span>
+      DO-178C requires requirements-based testing: for every software requirement,
+      there must be a test that verifies it and a traceability record linking them.
+      A neural network's decision boundaries are not requirements — they are learned from data.
+      There is no finite set of test cases that can verify a trained network meets all operational
+      requirements, because the network's behaviour in novel inputs is statistically characterised,
+      not formally specified. EASA and FAA have issued guidance (EASA Concept Paper, 2021)
+      allowing ML for DAL C/D applications with augmented assurance methods
+      (operational monitoring, data quality assurance, boundary analysis) — but DAL A ML
+      is not currently permissible. This is the fundamental barrier to fully autonomous
+      certified flight control using deep learning.
+      <span class="cite">MDPI Autonomous Control Ch.8</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.7  MIL-STD-882
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>10.7 MIL-STD-882E — System Safety for Military UAVs</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        MIL-STD-882E is the US military standard for system safety — the disciplined
+        approach to identifying, evaluating, and controlling hazards throughout a system's
+        lifecycle. Where DO-178C focuses specifically on software, MIL-STD-882 covers the
+        entire system: hardware, software, human factors, procedures, and the interaction
+        between all of them. For military UAVs, it is the primary safety standard —
+        compliance is a contract requirement for any DoD-funded UAV programme.
+        The standard does not prescribe specific technical solutions; it requires a
+        documented, disciplined process of hazard identification and control.
+      </p>
+    </div>
+
+    <h3>MIL-STD-882E Hazard Risk Index</h3>
+    <p>
+      The standard defines risk as the combination of
+      <span class="key-term" title="Severity — consequences of the hazard occurring: Catastrophic (I), Critical (II), Marginal (III), Negligible (IV)">Severity</span>
+      and
+      <span class="key-term" title="Probability — likelihood of the hazard occurring: Frequent (A), Probable (B), Occasional (C), Remote (D), Improbable (E)">Probability</span>
+      in a risk matrix: <span class="cite">MIL-STD-882E §3.3</span>
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Severity ↓ / Probability →</th>
+          <th>A Frequent</th><th>B Probable</th><th>C Occasional</th>
+          <th>D Remote</th><th>E Improbable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>I Catastrophic</strong> (death, system loss)</td>
+          <td style="background:rgba(255,58,58,0.15); color:var(--accent-red); font-weight:600;">1A HIGH</td>
+          <td style="background:rgba(255,58,58,0.15); color:var(--accent-red);">1B HIGH</td>
+          <td style="background:rgba(255,58,58,0.12); color:var(--accent-red);">2C HIGH</td>
+          <td style="background:rgba(255,100,0,0.1); color:#ff6400;">3D MED</td>
+          <td style="background:rgba(255,183,0,0.1); color:var(--accent-amber);">4E LOW</td>
+        </tr>
+        <tr>
+          <td><strong>II Critical</strong> (severe injury, major loss)</td>
+          <td style="background:rgba(255,58,58,0.12); color:var(--accent-red);">2A HIGH</td>
+          <td style="background:rgba(255,100,0,0.1); color:#ff6400;">2B MED</td>
+          <td style="background:rgba(255,100,0,0.1); color:#ff6400;">3C MED</td>
+          <td style="background:rgba(255,183,0,0.1); color:var(--accent-amber);">4D LOW</td>
+          <td style="background:rgba(0,255,157,0.06); color:var(--accent-green);">5E LOW</td>
+        </tr>
+        <tr>
+          <td><strong>III Marginal</strong> (minor injury, partial loss)</td>
+          <td style="background:rgba(255,100,0,0.1); color:#ff6400;">3A MED</td>
+          <td style="background:rgba(255,183,0,0.1); color:var(--accent-amber);">4B LOW</td>
+          <td style="background:rgba(255,183,0,0.1); color:var(--accent-amber);">5C LOW</td>
+          <td style="background:rgba(0,255,157,0.06); color:var(--accent-green);">5D LOW</td>
+          <td style="background:rgba(0,255,157,0.06); color:var(--accent-green);">6E LOW</td>
+        </tr>
+        <tr>
+          <td><strong>IV Negligible</strong> (no injury, no loss)</td>
+          <td style="background:rgba(255,183,0,0.1); color:var(--accent-amber);">4A LOW</td>
+          <td style="background:rgba(0,255,157,0.06); color:var(--accent-green);">5B LOW</td>
+          <td style="background:rgba(0,255,157,0.06); color:var(--accent-green);">6C LOW</td>
+          <td style="background:rgba(0,255,157,0.06); color:var(--accent-green);">6D LOW</td>
+          <td style="background:rgba(0,255,157,0.06); color:var(--accent-green);">6E LOW</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+      HIGH risk: unacceptable — must reduce risk before fielding (redesign, add controls).
+      MEDIUM risk: undesirable — requires programme manager acceptance with justification.
+      LOW risk: acceptable with review. All residual risks must be formally accepted by
+      the Authorised Accepting Official (AAO) — typically the programme manager.
+      "Residual risk" is risk remaining after all planned mitigations have been applied.
+    </p>
+
+    <h3>Safety Requirements — From Hazard to Control</h3>
+    <p>
+      For every HIGH and MEDIUM hazard identified in the Preliminary Hazard Analysis (PHA),
+      MIL-STD-882 requires formal safety requirements with measurable acceptance criteria:
+      <span class="cite">MIL-STD-882E §4.2</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Safety Requirement Derivation from FTA</span>
+      $$P(\text{catastrophic hazard}) \leq P_{threshold} \quad (P_{thresh} = 10^{-7}/\text{fh for Cat I})$$
+      $$\Rightarrow P(\text{FCC loss}) \leq P_{thresh} / P(\text{other contributors})$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        This flow-down arithmetic allocates failure probability budgets to each subsystem.
+        If the total catastrophic hazard budget is $10^{-7}/\text{fh}$ and the FTA has
+        three AND-gated contributors, each can have $\sqrt[3]{10^{-7}} \approx 4.6\times10^{-3}/\text{fh}$
+        (for equal budget split). This FCC failure probability requirement then flows into
+        the reliability analysis (section 10.4) and ultimately into hardware MTBF specifications
+        and DO-178C DAL assignments. The entire process is mathematically consistent.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.8  SAFETY CASES
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>10.8 Safety Cases — Formal Argument That the System Is Safe</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        A safety case is a structured, documented argument that a system is safe enough
+        for a specific operational use. It is not enough to say "we followed the process"
+        or "the tests passed." A safety case makes an explicit claim — "This UAV is acceptably
+        safe to fly in controlled airspace below 500 ft AGL" — and then provides an argument
+        supported by evidence that the claim is true. If the argument has logical gaps,
+        or the evidence does not support the argument, the safety case fails.
+        Safety cases are now required for civilian UAV BVLOS operations in most jurisdictions,
+        and for military programmes under DoD Directive 3000.09 (Module 08).
+      </p>
+    </div>
+
+    <h3>The GSN Structure — Goal Structuring Notation</h3>
+    <p>
+      GSN is the standard language for expressing safety arguments. It has six element types:
+      <span class="cite">MDPI Autonomous Control Ch.8</span>
+    </p>
+    <table>
+      <thead><tr><th>GSN Element</th><th>Symbol</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Goal (G)</strong></td><td>Rectangle</td><td>A claim to be argued</td><td>G1: UAV is acceptably safe in operational area X</td></tr>
+        <tr><td><strong>Strategy (S)</strong></td><td>Parallelogram</td><td>How the goal will be argued</td><td>S1: Argue over each identified hazard class</td></tr>
+        <tr><td><strong>Solution (Sn)</strong></td><td>Circle</td><td>Leaf evidence supporting a goal</td><td>Sn1: FMEA report Rev C, Section 3.4</td></tr>
+        <tr><td><strong>Context (C)</strong></td><td>Rounded rect</td><td>Conditions under which goal applies</td><td>C1: Day VMC, winds &lt;15 m/s, away from populated areas</td></tr>
+        <tr><td><strong>Assumption (A)</strong></td><td>Ellipse, dashed</td><td>Assumptions required for argument validity</td><td>A1: Maintenance per schedule has been performed</td></tr>
+        <tr><td><strong>Justification (J)</strong></td><td>Ellipse</td><td>Rationale for a strategy or claim</td><td>J1: Exponential distribution is appropriate for electronic components</td></tr>
+      </tbody>
+    </table>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 10.3 — Safety Case Fragment for GNSS-Denied Navigation</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        Construct a safety case argument fragment for the claim: "The navigation system
+        provides position accuracy within 5 m CEP in GNSS-denied conditions sufficient
+        for safe obstacle avoidance." This is a real sub-argument that would appear
+        in a BVLOS safety case under the UK CAA / FAA BVLOS framework.
+      </p>
+      <div style="background:var(--bg-card); border:1px solid var(--border-dim); padding:1.2rem; font-family:var(--font-mono); font-size:0.75rem; line-height:1.9;">
+        <span style="color:#b388ff;">G1:</span> Navigation provides ≤5m CEP in GNSS-denied conditions<br>
+        <span style="color:var(--text-muted);">│</span><br>
+        <span style="color:var(--text-muted);">├──</span> <span style="color:var(--accent-amber);">C1:</span> Context: 150m AGL, urban environment, VIO camera operational<br>
+        <span style="color:var(--text-muted);">├──</span> <span style="color:var(--accent-amber);">C2:</span> Context: IMU spec ADIS16488, calibrated per ICD-NAV-001<br>
+        <span style="color:var(--text-muted);">│</span><br>
+        <span style="color:var(--text-muted);">├──</span> <span style="color:var(--accent-primary);">S1:</span> Strategy: Argue by analysis + flight test evidence<br>
+        <span style="color:var(--text-muted);">│    │</span><br>
+        <span style="color:var(--text-muted);">│    ├──</span> <span style="color:#b388ff;">G2:</span> EKF provides ≤0.5m/s velocity accuracy<br>
+        <span style="color:var(--text-muted);">│    │    └──</span> <span style="color:var(--accent-green);">Sn1:</span> EKF simulation report SIM-NAV-003 (Module 04 analysis)<br>
+        <span style="color:var(--text-muted);">│    │</span><br>
+        <span style="color:var(--text-muted);">│    ├──</span> <span style="color:#b388ff;">G3:</span> VIO provides ≤0.08m position update accuracy<br>
+        <span style="color:var(--text-muted);">│    │    └──</span> <span style="color:var(--accent-green);">Sn2:</span> OpenVINS flight test report FT-VIO-007, 50 runs<br>
+        <span style="color:var(--text-muted);">│    │</span><br>
+        <span style="color:var(--text-muted);">│    ├──</span> <span style="color:#b388ff;">G4:</span> Combined EKF+VIO achieves ≤2m CEP in 300s GNSS-denied segment<br>
+        <span style="color:var(--text-muted);">│    │    └──</span> <span style="color:var(--accent-green);">Sn3:</span> Monte Carlo sim MC-NAV-012: 1000 runs, 97.3% within 2m<br>
+        <span style="color:var(--text-muted);">│    │</span><br>
+        <span style="color:var(--text-muted);">│    └──</span> <span style="color:#b388ff;">G5:</span> Position drift does not exceed 5m in max GNSS-denied segment (300s)<br>
+        <span style="color:var(--text-muted);">│         └──</span> <span style="color:var(--accent-green);">Sn4:</span> Flight test report FT-NAV-015, 20 GNSS-denied test runs<br>
+        <span style="color:var(--text-muted);">│</span><br>
+        <span style="color:var(--text-muted);">└──</span> <span style="color:var(--accent-primary);">A1:</span> Assumption: VIO camera unobstructed; sufficient scene texture available
+      </div>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <strong>Why this structure matters:</strong> The assumption A1 makes the safety case
+        conditional — it is only valid when the camera is operational and the scene has texture.
+        A regulator reviewing this safety case would immediately ask: "What happens when A1 is
+        violated?" The answer must appear elsewhere in the full safety case — the FMEA entry
+        for VIO failure (Worked Example 10.1) must have a mitigated RPN that is acceptable,
+        and there must be a detectability mechanism for VIO failure.
+        Every assumption is a gap that must be closed by additional argument or evidence.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.9  PYTHON CODE
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>10.9 Python: FMEA Calculator + Reliability Analysis + FTA</h2>
+
+    <div class="callout info">
+      <span class="callout-title">What This Code Covers</span>
+      Three tools:
+      (1) FMEA worksheet calculator — computes RPN, ranks failure modes, and suggests
+      mitigation priorities based on MIL-STD-882 severity thresholds.
+      (2) Reliability calculator for series, parallel, and k-of-n configurations.
+      (3) A simple Fault Tree Analysis engine using AND/OR gates to compute top-level
+      failure probability from component failure rates.
+      Run with: <code>pip install numpy</code>
+    </div>
+
+    <div class="code-block">
+      <span class="code-lang">Python</span>
+      <pre><span class="cm"># systems_engineering.py
+# ─────────────────────────────────────────────────────────────────
+# Part 1: FMEA calculator — Sadraey §11.1
+# Part 2: Reliability models (series/parallel/k-of-n) — Sadraey §11.3
+# Part 3: Fault Tree Analysis engine — Sadraey §11.2
+# ─────────────────────────────────────────────────────────────────
+</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> List
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 1 — FMEA Calculator
+# Sadraey §11.1, MIL-STD-882E
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="tp">FailureMode</span>:
+    <span class="st">"""Single FMEA entry."""</span>
+    component:  str
+    failure_mode: str
+    effect:     str
+    severity:   int    <span class="cm"># S: 1 (negligible) – 10 (catastrophic)</span>
+    occurrence: int    <span class="cm"># O: 1 (rare) – 10 (frequent)</span>
+    detectability: int <span class="cm"># D: 1 (easy to detect) – 10 (undetectable)</span>
+    mitigation: str = <span class="st">""</span>
+
+    @property
+    <span class="kw">def</span> <span class="fn">rpn</span>(self) -> int:
+        <span class="kw">return</span> self.severity * self.occurrence * self.detectability
+
+    @property
+    <span class="kw">def</span> <span class="fn">risk_level</span>(self) -> str:
+        <span class="kw">if</span> self.rpn >= <span class="nm">200</span> <span class="kw">or</span> self.severity >= <span class="nm">9</span>:
+            <span class="kw">return</span> <span class="st">"HIGH"</span>
+        <span class="kw">elif</span> self.rpn >= <span class="nm">100</span>:
+            <span class="kw">return</span> <span class="st">"MEDIUM"</span>
+        <span class="kw">else</span>:
+            <span class="kw">return</span> <span class="st">"LOW"</span>
+
+
+<span class="kw">def</span> <span class="fn">run_fmea</span>(failure_modes: List[FailureMode]):
+    <span class="st">"""
+    Run FMEA analysis, rank by RPN, flag items needing mitigation.
+    Sadraey §11.1
+    """</span>
+    ranked = sorted(failure_modes, key=<span class="kw">lambda</span> fm: fm.rpn, reverse=<span class="kw">True</span>)
+
+    print(<span class="st">f"\n{'='*72}"</span>)
+    print(<span class="st">f"  FAILURE MODE AND EFFECTS ANALYSIS (FMEA)"</span>)
+    print(<span class="st">f"  Sadraey §11.1 | MIL-STD-882E Risk Matrix"</span>)
+    print(<span class="st">f"{'='*72}"</span>)
+    print(<span class="st">f"\n  {'Component':<18} {'Failure Mode':<22} {'S':>2} {'O':>2} {'D':>2} {'RPN':>4} {'Risk':<7} {'Action'}"</span>)
+    print(<span class="st">f"  {'-'*70}"</span>)
+
+    <span class="kw">for</span> fm <span class="kw">in</span> ranked:
+        action = <span class="st">"▲ MITIGATE"</span> <span class="kw">if</span> fm.risk_level == <span class="st">"HIGH"</span> <span class="kw">else</span> \
+                 <span class="st">"● REVIEW"</span>  <span class="kw">if</span> fm.risk_level == <span class="st">"MEDIUM"</span> <span class="kw">else</span> <span class="st">"✓ ACCEPT"</span>
+        print(<span class="st">f"  {fm.component:<18} {fm.failure_mode:<22} "
+              f"{fm.severity:>2} {fm.occurrence:>2} {fm.detectability:>2} "
+              f"{fm.rpn:>4} {fm.risk_level:<7} {action}"</span>)
+        <span class="kw">if</span> fm.mitigation <span class="kw">and</span> fm.risk_level <span class="kw">in</span> (<span class="st">"HIGH"</span>, <span class="st">"MEDIUM"</span>):
+            print(<span class="st">f"{'':>50} Mitigation: {fm.mitigation}"</span>)
+
+    high = [fm <span class="kw">for</span> fm <span class="kw">in</span> ranked <span class="kw">if</span> fm.risk_level == <span class="st">"HIGH"</span>]
+    med  = [fm <span class="kw">for</span> fm <span class="kw">in</span> ranked <span class="kw">if</span> fm.risk_level == <span class="st">"MEDIUM"</span>]
+    print(<span class="st">f"\n  Summary: {len(high)} HIGH risk items (must mitigate before fielding)"</span>)
+    print(<span class="st">f"           {len(med)} MEDIUM risk items (require programme manager acceptance)"</span>)
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 2 — Reliability Models
+# Sadraey §11.3
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">class</span> <span class="tp">ReliabilityAnalyser</span>:
+    <span class="st">"""
+    Compute system reliability for common configurations.
+    All input failure rates λ in [failures/hour].
+    Sadraey §11.3
+    """</span>
+
+    @staticmethod
+    <span class="kw">def</span> <span class="fn">single</span>(lam: float, t: float) -> float:
+        <span class="st">"""Single component: R(t) = exp(-λt)"""</span>
+        <span class="kw">return</span> np.exp(-lam * t)
+
+    @staticmethod
+    <span class="kw">def</span> <span class="fn">series</span>(lambdas: List[float], t: float) -> float:
+        <span class="st">"""Series system: all must work. R = prod(exp(-λi*t)) = exp(-Σλi*t)"""</span>
+        <span class="kw">return</span> np.exp(-np.sum(lambdas) * t)
+
+    @staticmethod
+    <span class="kw">def</span> <span class="fn">parallel</span>(lambdas: List[float], t: float) -> float:
+        <span class="st">"""Active parallel: system fails only if all units fail."""</span>
+        Rs = [np.exp(-lam * t) <span class="kw">for</span> lam <span class="kw">in</span> lambdas]
+        <span class="kw">return</span> <span class="nm">1</span> - np.prod([<span class="nm">1</span> - R <span class="kw">for</span> R <span class="kw">in</span> Rs])
+
+    @staticmethod
+    <span class="kw">def</span> <span class="fn">k_of_n</span>(lam: float, t: float, k: int, n: int) -> float:
+        <span class="st">"""
+        k-of-n redundancy: system works if at least k of n identical units work.
+        Binomial reliability model.
+        """</span>
+        R1  = np.exp(-lam * t)
+        F1  = <span class="nm">1</span> - R1
+        R_total = <span class="nm">0</span>
+        <span class="kw">for</span> m <span class="kw">in</span> range(k, n+<span class="nm">1</span>):   <span class="cm"># sum over m=k to n working units</span>
+            binom = np.math.comb(n, m)
+            R_total += binom * (R1**m) * (F1**(n-m))
+        <span class="kw">return</span> R_total
+
+    @staticmethod
+    <span class="kw">def</span> <span class="fn">mtbf</span>(lam: float) -> float:
+        <span class="kw">return</span> <span class="nm">1.0</span> / lam
+
+
+<span class="kw">def</span> <span class="fn">demo_reliability</span>():
+    print(<span class="st">f"\n{'='*58}"</span>)
+    print(<span class="st">f"  RELIABILITY ANALYSIS — Sadraey §11.3"</span>)
+    print(<span class="st">f"{'='*58}"</span>)
+
+    ra  = ReliabilityAnalyser()
+    t   = <span class="nm">8.0</span>    <span class="cm"># mission duration [hours]</span>
+    lam = <span class="nm">5e-4</span>  <span class="cm"># FCC failure rate: MTBF = 2000 h</span>
+
+    print(<span class="st">f"\n  FCC MTBF = {ra.mtbf(lam):.0f} h  |  Mission = {t} h"</span>)
+    print(<span class="st">f"\n  Configuration          Reliability    Failure Prob"</span>)
+    print(<span class="st">f"  {'-'*48}"</span>)
+
+    configs = [
+        (<span class="st">"Single FCC"</span>,       ra.single(lam, t)),
+        (<span class="st">"Dual FCC (parallel)"</span>, ra.parallel([lam,lam], t)),
+        (<span class="st">"Triple (2-of-3)"</span>,   ra.k_of_n(lam, t, k=<span class="nm">2</span>, n=<span class="nm">3</span>)),
+        (<span class="st">"Quad (3-of-4)"</span>,     ra.k_of_n(lam, t, k=<span class="nm">3</span>, n=<span class="nm">4</span>)),
+    ]
+    <span class="kw">for</span> name, R <span class="kw">in</span> configs:
+        print(<span class="st">f"  {name:<24} {R:.8f}   {(1-R)*100:.6f}%"</span>)
+
+    <span class="cm"># Navigation system series chain example</span>
+    print(<span class="st">f"\n  NAVIGATION SYSTEM (Series Chain)"</span>)
+    nav_components = {
+        <span class="st">'IMU'</span>:         <span class="nm">1e-4</span>,   <span class="cm"># MTBF = 10,000 h</span>
+        <span class="st">'EKF Software'</span>: <span class="nm">5e-5</span>,  <span class="cm"># MTBF = 20,000 h</span>
+        <span class="st">'VIO Camera'</span>:   <span class="nm">2e-4</span>,  <span class="cm"># MTBF = 5,000 h</span>
+        <span class="st">'Barometer'</span>:    <span class="nm">5e-5</span>,  <span class="cm"># MTBF = 20,000 h</span>
+    }
+    R_nav = ra.series(list(nav_components.values()), t)
+    print(<span class="st">f"  {'Component':<18} {'MTBF':>8} {'R(8h)':>10}"</span>)
+    <span class="kw">for</span> name, lam_c <span class="kw">in</span> nav_components.items():
+        R_c = ra.single(lam_c, t)
+        print(<span class="st">f"  {name:<18} {1/lam_c:>8.0f}h {R_c:>10.6f}"</span>)
+    print(<span class="st">f"  {'SYSTEM (series)':<18} {'—':>8} {R_nav:>10.6f}"</span>)
+    print(<span class="st">f"  System failure probability: {(1-R_nav)*100:.4f}%"</span>)
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 3 — Fault Tree Analysis Engine
+# Sadraey §11.2
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">class</span> <span class="tp">FTANode</span>:
+    <span class="st">"""Base class for FTA nodes."""</span>
+    <span class="kw">def</span> <span class="fn">probability</span>(self) -> float:
+        <span class="kw">raise</span> NotImplementedError
+
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="tp">BasicEvent</span>(FTANode):
+    <span class="st">"""Leaf node — basic failure event with known probability."""</span>
+    name: str
+    prob: float   <span class="cm"># probability per flight hour</span>
+
+    <span class="kw">def</span> <span class="fn">probability</span>(self) -> float:
+        <span class="kw">return</span> self.prob
+
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="tp">ANDGate</span>(FTANode):
+    <span class="st">"""AND gate: all children must fail for this gate to fail."""</span>
+    name: str
+    children: List[FTANode]
+
+    <span class="kw">def</span> <span class="fn">probability</span>(self) -> float:
+        <span class="kw">return</span> np.prod([c.probability() <span class="kw">for</span> c <span class="kw">in</span> self.children])
+
+
+<span class="kw">@dataclass</span>
+<span class="kw">class</span> <span class="tp">ORGate</span>(FTANode):
+    <span class="st">"""OR gate: any child failure causes this gate to fail."""</span>
+    name: str
+    children: List[FTANode]
+
+    <span class="kw">def</span> <span class="fn">probability</span>(self) -> float:
+        <span class="kw">return</span> <span class="nm">1</span> - np.prod([<span class="nm">1</span> - c.probability() <span class="kw">for</span> c <span class="kw">in</span> self.children])
+
+
+<span class="kw">def</span> <span class="fn">print_fta</span>(node: FTANode, indent: int = <span class="nm">0</span>):
+    <span class="st">"""Recursively print fault tree with probabilities."""</span>
+    prefix = <span class="st">"  "</span> * indent
+    kind   = node.__class__.__name__
+    p      = node.probability()
+    <span class="kw">if</span> isinstance(node, BasicEvent):
+        print(<span class="st">f"{prefix}◉ {node.name:<30} P = {p:.2e}"</span>)
+    <span class="kw">else</span>:
+        gate   = <span class="st">"AND"</span> <span class="kw">if</span> isinstance(node, ANDGate) <span class="kw">else</span> <span class="st">"OR"</span>
+        print(<span class="st">f"{prefix}[{gate}] {node.name:<28} P = {p:.2e}"</span>)
+        <span class="kw">for</span> child <span class="kw">in</span> node.children:
+            print_fta(child, indent+<span class="nm">1</span>)
+
+
+<span class="kw">def</span> <span class="fn">demo_fta</span>():
+    <span class="st">"""
+    FTA for 'UAV navigation-induced crash' top-level event.
+    Sadraey §11.2
+    """</span>
+    <span class="cm"># Basic failure events (per flight hour probabilities)</span>
+    gps_jam      = BasicEvent(<span class="st">"GPS jamming"</span>,           <span class="nm">1e-3</span>)
+    gps_spoof    = BasicEvent(<span class="st">"GPS spoofing"</span>,          <span class="nm">5e-4</span>)
+    imu_fail     = BasicEvent(<span class="st">"IMU hardware failure"</span>,  <span class="nm">1e-5</span>)
+    ekf_crash    = BasicEvent(<span class="st">"EKF software crash"</span>,    <span class="nm">1e-6</span>)
+    vio_fail     = BasicEvent(<span class="st">"VIO camera failure"</span>,    <span class="nm">2e-4</span>)
+    raim_fail    = BasicEvent(<span class="st">"RAIM detection failure"</span>, <span class="nm">5e-2</span>)  <span class="cm"># probability RAIM misses spoof</span>
+    fcc_fail     = BasicEvent(<span class="st">"FCC control failure"</span>,   <span class="nm">5e-4</span>)
+
+    <span class="cm"># Navigation failure tree</span>
+    <span class="cm"># GPS loss path: jamming OR (spoofing AND RAIM misses it)</span>
+    gps_loss     = ORGate(<span class="st">"GPS position loss"</span>, [
+        gps_jam,
+        ANDGate(<span class="st">"Undetected spoof"</span>, [gps_spoof, raim_fail]),
+    ])
+    <span class="cm"># Navigation failure: GPS lost AND IMU fails AND VIO fails AND EKF crashes</span>
+    <span class="cm"># (need multiple failures simultaneously for nav loss)</span>
+    nav_fail     = ANDGate(<span class="st">"Navigation system failure"</span>, [
+        ORGate(<span class="st">"Position sensor loss"</span>, [gps_loss, vio_fail]),
+        ORGate(<span class="st">"INS failure"</span>, [imu_fail, ekf_crash]),
+    ])
+
+    <span class="cm"># Top event: crash = navigation failure AND flight control failure</span>
+    top_event    = ANDGate(<span class="st">"UAV navigation-induced crash"</span>, [nav_fail, fcc_fail])
+
+    print(<span class="st">f"\n{'='*62}"</span>)
+    print(<span class="st">f"  FAULT TREE ANALYSIS — Sadraey §11.2"</span>)
+    print(<span class="st">f"  Top Event: UAV Navigation-Induced Crash"</span>)
+    print(<span class="st">f"{'='*62}\n"</span>)
+    print_fta(top_event)
+
+    p_top = top_event.probability()
+    mil_threshold = <span class="nm">1e-7</span>  <span class="cm"># MIL-STD-882E Category I threshold</span>
+    status = <span class="st">"✓ PASS"</span> <span class="kw">if</span> p_top <= mil_threshold <span class="kw">else</span> <span class="st">"✗ FAIL"</span>
+    print(<span class="st">f"\n  Top event probability: {p_top:.2e} /flight-hour"</span>)
+    print(<span class="st">f"  MIL-STD-882E CAT I threshold: {mil_threshold:.0e} /flight-hour"</span>)
+    print(<span class="st">f"  Compliance: {status}"</span>)
+    <span class="kw">if</span> p_top > mil_threshold:
+        print(<span class="st">f"\n  → RAIM detection probability (P={raim_fail.prob}) is the dominant risk driver."</span>)
+        print(<span class="st">f"  → Improving RAIM from P_miss=0.05 to P_miss=0.001 reduces top event by 50×."</span>)
+
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    <span class="cm"># Part 1: FMEA</span>
+    failures = [
+        FailureMode(<span class="st">"GPS Receiver"</span>,  <span class="st">"Signal loss (jamming)"</span>,         <span class="st">"Nav reverts to IMU"</span>,            <span class="nm">7</span>, <span class="nm">6</span>, <span class="nm">2</span>, <span class="st">"EKF+VIO+TAN backup"</span>),
+        FailureMode(<span class="st">"GPS Receiver"</span>,  <span class="st">"Spoofed position fix"</span>,          <span class="st">"Wrong navigation"</span>,              <span class="nm">9</span>, <span class="nm">4</span>, <span class="nm">8</span>, <span class="st">"Chi-sq RAIM; M-code"</span>),
+        FailureMode(<span class="st">"IMU (MEMS)"</span>,    <span class="st">"Accelerometer bias spike"</span>,      <span class="st">"EKF divergence"</span>,                <span class="nm">7</span>, <span class="nm">3</span>, <span class="nm">5</span>, <span class="st">"Dual-IMU cross-check"</span>),
+        FailureMode(<span class="st">"EKF Software"</span>,  <span class="st">"Numerical divergence"</span>,          <span class="st">"Nav invalid; RTB trigger"</span>,      <span class="nm">9</span>, <span class="nm">2</span>, <span class="nm">6</span>, <span class="st">"Joseph form; health mon."</span>),
+        FailureMode(<span class="st">"VIO Camera"</span>,    <span class="st">"Motion blur/feature dropout"</span>,   <span class="st">"Visual update lost"</span>,            <span class="nm">5</span>, <span class="nm">5</span>, <span class="nm">3</span>, <span class="st">"High-shutter cam; baro fb"</span>),
+        FailureMode(<span class="st">"Barometer"</span>,     <span class="st">"Propwash pressure shock"</span>,       <span class="st">"Alt spike"</span>,                     <span class="nm">6</span>, <span class="nm">4</span>, <span class="nm">3</span>, <span class="st">"Vented enclosure; LPF"</span>),
+        FailureMode(<span class="st">"FCC Software"</span>,  <span class="st">"Watchdog timeout"</span>,             <span class="st">"Control loss; backup FCC"</span>,      <span class="nm">8</span>, <span class="nm">2</span>, <span class="nm">4</span>, <span class="st">"Warm standby FCC"</span>),
+        FailureMode(<span class="st">"Power Supply"</span>,  <span class="st">"Primary bus failure"</span>,          <span class="st">"All avionics lose power"</span>,       <span class="nm">10</span>, <span class="nm">1</span>, <span class="nm">3</span>, <span class="st">"Dual bus + UPS"</span>),
+    ]
+    run_fmea(failures)
+
+    <span class="cm"># Part 2: Reliability</span>
+    demo_reliability()
+
+    <span class="cm"># Part 3: FTA</span>
+    demo_fta()</pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-title">Expected Output</span>
+      FMEA: GPS spoofing RPN=288 (HIGH) tops the list → mitigation required before fielding ·
+      Power bus failure RPN=30 but severity=10 → flagged as HIGH regardless ·
+      Reliability: Single FCC 99.60%, Dual 99.9984%, Triple 99.999% over 8h ·
+      Nav series system failure probability ~0.032% per 8h mission ·
+      FTA: Top event P ≈ 2–5×10⁻⁷/fh — borderline MIL-STD-882 compliance.
+      RAIM miss rate identified as dominant risk driver: improving P_miss 0.05→0.001 fixes compliance.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       10.10  REFLECTION
+       ═══════════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s10">
+    <div class="reflection-box"
+      data-guidance="Q1: At t=MTBF, R(MTBF) = exp(-λ*MTBF) = exp(-1) ≈ 0.368. This means 63.2% of units will have failed before their rated MTBF. MTBF is the mean of an exponential distribution — by definition, 1/e ≈ 37% of the distribution lies above the mean for exponential. This is counter-intuitive because MTBF sounds like a 'life expectancy' but it isn't — the median of the exponential distribution is MTBF*ln(2) ≈ 0.693*MTBF. For the FCC with MTBF=2000h: median failure time = 1386h, not 2000h. For a 10h mission: R(10) = exp(-10/2000) = 0.995, 99.5% of FCCs survive. For a 500h deployment: R(500) = exp(-500/2000) = 0.779 — only 77.9% survive. The reliability collapses much faster than intuition suggests for long deployments.
+
+Q2: RAIM is the dominant risk driver because it appears in the undetected spoof path: P(undetected spoof) = P(spoof) × P(RAIM miss) = 5e-4 × 0.05 = 2.5e-5. This is much larger than the IMU failure path (1e-5). The top event: P_crash ≈ P(nav_fail) × P(FCC_fail). P(position loss) ≈ P(GPS loss) + P(VIO fail) - P(GPS loss × VIO fail) ≈ 2.5e-5 + 1e-3 + 2e-4 ≈ 1.23e-3 (OR of all position loss paths). P(INS fail) ≈ 1e-5 + 1e-6 ≈ 1.1e-5. P(nav fail) ≈ 1.23e-3 × 1.1e-5 ≈ 1.35e-8. P(crash) ≈ 1.35e-8 × 5e-4 ≈ 6.75e-12 — well within 1e-7 threshold. However this assumes VIO and GPS fail independently — in a contested EME environment they may be correlated (same jammer affects both). That assumption is an FMEA gap.
+
+Q3: DO-178C MC/DC cannot be applied to ML models because: (1) the 'conditions' in an ML decision are continuous-valued activations across thousands of neurons, not finite boolean variables; (2) there is no finite set of inputs that exercises all conditions independently — the input space is infinite; (3) the 'requirements' that drive test case selection are the training data distribution, not formal specifications. The EASA Concept Paper solution: use operational monitoring (collect real-world performance data), define operational design domain (ODD) boundaries, perform boundary analysis at ODD edges, and demonstrate statistical performance rather than structural coverage. This is analogous to performance-based requirements replacing design-based requirements — you prove the outcome (P_detection ≥ 0.95) rather than proving the implementation (MC/DC coverage). DAL C/D is currently achievable with this approach; DAL A requires additional theoretical development in neural network verification.">
+      <ol>
+        <li>
+          The exponential reliability model gives $R(\text{MTBF}) = e^{-1} \approx 0.368$.
+          Explain in plain engineering terms why this means 63% of units fail before their
+          rated MTBF — and why this is counter-intuitive to most engineers who interpret
+          MTBF as a "safe operating lifetime." For an FCC with MTBF = 2,000 hours:
+          compute the probability of surviving a 10-hour mission, a 500-hour deployment,
+          and a 2,000-hour full life. What does this progression tell you about
+          scheduled maintenance intervals?
+        </li>
+        <li>
+          Using the FTA from section 10.9, identify which basic event has the largest
+          single-event contribution to the top-level crash probability and explain why
+          mathematically. The RAIM miss probability is currently 0.05 — what value would
+          it need to be reduced to in order to bring the top event probability below
+          $10^{-7}$/fh? What engineering investment (specific algorithms from Module 05)
+          enables that reduction, and what assumption in the FTA is most likely to be
+          invalidated in a real contested electromagnetic environment?
+        </li>
+        <li>
+          DO-178C MC/DC coverage requires that each condition in a boolean decision
+          independently affects the outcome. Explain precisely why this criterion cannot
+          be applied to a trained neural network (e.g., the threat classifier from Module 06).
+          What does the EASA Concept Paper (2021) propose as an alternative assurance framework
+          for ML in aviation, and what does "operational design domain" mean in this context?
+          For what DAL levels is ML currently permissible under this framework,
+          and what technical gap prevents it from reaching DAL A?
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- CURRICULUM COMPLETE BANNER -->
+  <div class="completion-banner">
+    <h3>Curriculum Complete</h3>
+    <p>
+      You have covered all 10 modules of the AEROKNOW UAV Systems curriculum —
+      from platform taxonomy through flight dynamics, GNC, GNSS-denied navigation,
+      sensor fusion, machine learning, deep learning, autonomy, swarm coordination,
+      and systems engineering. The full arc from physical principles to deployable, certifiable systems.
+    </p>
+  </div>
+
+  <!-- MODULE NAVIGATION -->
+  <div style="display:flex; justify-content:space-between; margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
+    <a href="m09-swarm-systems.html" class="btn-secondary" style="font-size:0.75rem;">◂ Module 09: Swarm Systems</a>
+    <a href="../index.html"          class="btn-primary"   style="font-size:0.75rem;">↩ Return to Home</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Module 10 · Systems Engineering &amp; Reliability ·
+  Sadraey §10–12 · MIL-STD-882E · DO-178C · MDPI Autonomous Control Ch.8</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script>
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          buttons[idx]?.classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>
