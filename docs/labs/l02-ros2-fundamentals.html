@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L02: ROS2 Fundamentals — AEROKNOW Labs</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+
+    /* ── Lab accent override: green ── */
+    :root {
+      --lab-accent:      #00ff9d;
+      --lab-accent-dim:  rgba(0, 255, 157, 0.08);
+      --lab-accent-glow: 0 0 20px rgba(0, 255, 157, 0.3);
+      --lab-border:      rgba(0, 255, 157, 0.35);
+      --lab-border-dim:  rgba(0, 255, 157, 0.12);
+    }
+
+    /* ── Section jump bar ── */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.97); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--lab-border-dim);
+      padding: 0; overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner {
+      display: flex; align-items: center; gap: 0;
+      padding: 0 1rem; min-width: max-content;
+    }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--lab-border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--lab-border); }
+    .jump-btn.active { color: var(--lab-accent); border-bottom-color: var(--lab-accent); }
+    .jump-btn .jb-num { color: var(--lab-accent); margin-right: 0.3rem; font-size: 0.58rem; }
+
+    /* ── Lab page layout ── */
+    .lab-page { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+
+    /* ── Lab hero ── */
+    .lab-hero {
+      padding: 3rem 0 2rem; border-bottom: 1px solid var(--lab-border-dim);
+      margin-bottom: 3rem; position: relative;
+    }
+    .lab-track-label {
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--lab-accent);
+      letter-spacing: 0.25em; text-transform: uppercase;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .lab-track-label::before {
+      content: ''; width: 30px; height: 1px;
+      background: var(--lab-accent); box-shadow: var(--lab-accent-glow);
+    }
+    .lab-hero h1 { color: var(--text-primary); text-shadow: 0 0 40px rgba(0,255,157,0.15); margin-bottom: 1rem; }
+    .lab-hero p.lead { font-size: 1.1rem; color: var(--text-secondary); max-width: 680px; margin-bottom: 1.5rem; line-height: 1.75; }
+    .lab-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
+    .lab-meta-item { display: flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); }
+    .lab-meta-item strong { color: var(--lab-accent); }
+
+    /* ── Lab section ── */
+    .lab-section { margin-bottom: 4rem; scroll-margin-top: 105px; }
+    .lab-section h2 {
+      color: var(--lab-accent); margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem; border-bottom: 1px solid var(--lab-border-dim);
+      display: flex; align-items: center; gap: 0.75rem;
+      font-size: clamp(1.1rem, 2vw, 1.6rem);
+    }
+    .lab-section h2::before {
+      content: '//'; font-family: var(--font-mono); color: var(--lab-accent);
+      font-size: 0.9rem; opacity: 0.6;
+    }
+    .lab-section h3 { color: var(--text-primary); margin: 2rem 0 0.8rem; font-size: 1.1rem; }
+    .lab-section p { font-size: 1rem; line-height: 1.75; }
+    .lab-section ul, .lab-section ol { padding-left: 1.5rem; margin-bottom: 1.2rem; }
+    .lab-section li { margin-bottom: 0.5rem; color: var(--text-secondary); line-height: 1.65; }
+    .lab-section li strong { color: var(--text-primary); }
+
+    /* ── Lab Step block ── */
+    .lab-step {
+      border: 1px solid var(--lab-border-dim); border-left: 3px solid var(--lab-accent);
+      background: rgba(0,255,157,0.025); margin: 2rem 0; position: relative;
+    }
+    .lab-step-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--lab-border-dim);
+    }
+    .step-num {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--lab-accent);
+      background: rgba(0,255,157,0.08); border: 1px solid var(--lab-border);
+      padding: 0.2rem 0.5rem; letter-spacing: 0.1em; white-space: nowrap;
+    }
+    .step-title { font-family: var(--font-ui); font-size: 1rem; font-weight: 600; color: var(--text-primary); letter-spacing: 0.03em; }
+    .lab-step-body { padding: 1.2rem 1.5rem; }
+
+    /* ── WHY box ── */
+    .why-box {
+      background: rgba(0,212,255,0.03); border-left: 3px solid var(--accent-primary);
+      padding: 0.9rem 1.1rem; margin-bottom: 1.2rem; border-radius: 0 3px 3px 0;
+    }
+    .why-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-primary);
+      letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.35rem;
+    }
+    .why-box p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+
+    /* ── Code block with copy button ── */
+    .code-block {
+      background: #020c14; border: 1px solid var(--border-dim);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1.2rem 1.5rem; overflow-x: auto;
+      position: relative; margin: 1rem 0;
+    }
+    .code-block.bash { border-left-color: var(--lab-accent); }
+    .code-block.python { border-left-color: var(--accent-primary); }
+    .code-lang {
+      position: absolute; top: 0.4rem; right: 3.5rem;
+      font-family: var(--font-mono); font-size: 0.6rem;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .copy-btn {
+      position: absolute; top: 0.35rem; right: 0.5rem;
+      background: rgba(0,255,157,0.07); border: 1px solid var(--lab-border-dim);
+      color: var(--lab-accent); font-family: var(--font-mono);
+      font-size: 0.58rem; letter-spacing: 0.08em;
+      padding: 0.2rem 0.5rem; cursor: pointer;
+      text-transform: uppercase; transition: var(--transition);
+    }
+    .copy-btn:hover { background: rgba(0,255,157,0.14); border-color: var(--lab-border); }
+    .copy-btn.copied { color: var(--accent-primary); border-color: var(--accent-primary); }
+    .code-block pre {
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.7;
+      color: #c8e6f0; white-space: pre; tab-size: 4;
+    }
+    .code-block .cm  { color: #4a7a8a; font-style: italic; }
+    .code-block .kw  { color: #00d4ff; }
+    .code-block .fn  { color: #00ff9d; }
+    .code-block .st  { color: #ffd580; }
+    .code-block .nm  { color: #ff9d6f; }
+    .code-block .tp  { color: #b388ff; }
+    .code-block .prompt { color: var(--lab-accent); user-select: none; }
+
+    /* ── Terminal output block ── */
+    .terminal-output {
+      background: #010a0f; border: 1px solid rgba(0,255,157,0.1);
+      border-left: 3px solid rgba(0,255,157,0.4);
+      padding: 1rem 1.5rem; margin: 0.75rem 0 1.2rem; position: relative;
+    }
+    .terminal-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--lab-accent);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      display: block; margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .terminal-output pre {
+      font-family: var(--font-mono); font-size: 0.8rem; color: #7dbf9e;
+      line-height: 1.65; white-space: pre-wrap; word-break: break-all;
+    }
+    .terminal-output pre .t-dim  { color: #3d6650; }
+    .terminal-output pre .t-ok   { color: #00ff9d; }
+    .terminal-output pre .t-warn { color: #ffb700; }
+    .terminal-output pre .t-err  { color: #ff3a3a; }
+    .terminal-output pre .t-cyan { color: #00d4ff; }
+    .terminal-output pre .t-pub  { color: #b388ff; }
+
+    /* ── Error documentation block ── */
+    .error-doc {
+      background: rgba(255,58,58,0.03); border: 1px solid rgba(255,58,58,0.15);
+      border-left: 3px solid var(--accent-red); padding: 1rem 1.2rem; margin: 1rem 0;
+    }
+    .error-doc-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-red);
+      letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.5rem;
+    }
+    .error-doc .error-msg {
+      font-family: var(--font-mono); font-size: 0.82rem;
+      color: #ff8080; margin-bottom: 0.6rem; display: block;
+    }
+    .error-doc .error-fix { font-size: 0.92rem; color: var(--text-secondary); margin: 0; }
+    .error-doc .error-fix strong { color: var(--text-primary); }
+
+    /* ── Prereq checklist ── */
+    .prereq-check { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+    .prereq-item {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.65rem 1rem; background: var(--bg-card);
+      border: 1px solid var(--border-dim); font-size: 0.9rem;
+    }
+    .prereq-icon { font-family: var(--font-mono); font-size: 0.75rem; color: var(--lab-accent); margin-top: 0.05rem; flex-shrink: 0; }
+    .prereq-item p { margin: 0; color: var(--text-secondary); line-height: 1.5; font-size: 0.9rem; }
+    .prereq-item code { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+
+    /* ── Theory link panel ── */
+    .theory-link {
+      background: rgba(255,183,0,0.03); border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber);
+      padding: 1rem 1.2rem; margin: 1.5rem 0;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .theory-link-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber);
+      letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap;
+    }
+    .theory-link p { margin: 0; color: var(--text-secondary); font-size: 0.92rem; flex: 1; min-width: 200px; }
+    .theory-link a { color: var(--accent-amber); text-decoration: underline; }
+
+    /* ── Concept card grid ── */
+    .concept-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .concept-card {
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      border-top: 2px solid var(--lab-accent);
+      padding: 1.1rem 1.2rem;
+    }
+    .concept-card-title {
+      font-family: var(--font-mono); font-size: 0.78rem; color: var(--lab-accent);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .concept-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+    .concept-card code { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-primary); }
+
+    /* ── Topic table ── */
+    .topic-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    .topic-table th {
+      font-family: var(--font-mono); font-size: 0.68rem; color: var(--lab-accent);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--lab-border-dim);
+      text-align: left;
+    }
+    .topic-table td {
+      padding: 0.55rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.88rem; color: var(--text-secondary); vertical-align: top;
+    }
+    .topic-table td:first-child { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-primary); }
+    .topic-table td:nth-child(2) { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* ── Architecture diagram ── */
+    .arch-diagram {
+      margin: 2rem 0; background: rgba(0,255,157,0.015);
+      border: 1px solid var(--lab-border-dim); padding: 1.5rem; overflow-x: auto;
+    }
+    .arch-diagram svg { display: block; margin: 0 auto; }
+
+    /* ── File tree ── */
+    .file-tree {
+      background: #020c14; border: 1px solid var(--border-dim);
+      border-left: 3px solid var(--lab-accent);
+      padding: 1.2rem 1.5rem; font-family: var(--font-mono);
+      font-size: 0.83rem; line-height: 1.9; margin: 1rem 0;
+    }
+    .ft-dir  { color: var(--lab-accent); }
+    .ft-file { color: #c8e6f0; }
+    .ft-note { color: #3d6b7a; font-style: italic; }
+    .ft-new  { color: var(--accent-amber); }
+
+    /* ── Callout overrides ── */
+    .callout.lab-note { border-color: var(--lab-accent); background: rgba(0,255,157,0.04); }
+    .callout.lab-note .callout-title { color: var(--lab-accent); }
+
+    /* ── Extension challenges ── */
+    .extension-box {
+      background: rgba(0,255,157,0.025); border: 1px solid var(--lab-border-dim);
+      padding: 1.5rem; margin-top: 1.5rem;
+    }
+    .extension-box::before {
+      content: '◈ EXTENSION CHALLENGES'; font-family: var(--font-mono);
+      font-size: 0.65rem; color: var(--lab-accent); letter-spacing: 0.15em;
+      display: block; margin-bottom: 1rem;
+    }
+    .extension-box ol { padding-left: 1.5rem; }
+    .extension-box li { margin-bottom: 0.75rem; font-size: 0.97rem; color: var(--text-secondary); line-height: 1.65; }
+    .extension-box li a { color: var(--lab-accent); }
+
+    /* ── Lab nav ── */
+    .lab-nav {
+      display: flex; justify-content: space-between;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--lab-border-dim);
+    }
+    .btn-lab {
+      background: transparent; border: 1px solid var(--lab-accent);
+      color: var(--lab-accent); font-family: var(--font-mono);
+      font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.8rem 1.8rem; text-decoration: none;
+      display: inline-block; transition: var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .btn-lab::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--lab-accent); transform: scaleX(0);
+      transform-origin: left; transition: var(--transition); z-index: -1;
+    }
+    .btn-lab:hover { color: var(--bg-void); box-shadow: var(--lab-accent-glow); text-shadow: none; }
+    .btn-lab:hover::before { transform: scaleX(1); }
+    .btn-lab.prev::before { transform-origin: right; }
+
+    @media (max-width: 768px) { .lab-page { padding: 1rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- ── SECTION JUMP BAR ── -->
+<div class="section-jump">
+  <div class="jump-inner">
+    <span class="jump-label">L02 · JUMP TO</span>
+    <button class="jump-btn active" onclick="jumpTo('s-overview')"><span class="jb-num">00</span>Overview</button>
+    <button class="jump-btn" onclick="jumpTo('s-prereqs')"><span class="jb-num">01</span>Prerequisites</button>
+    <button class="jump-btn" onclick="jumpTo('s-concepts')"><span class="jb-num">02</span>ROS2 Concepts</button>
+    <button class="jump-btn" onclick="jumpTo('s-package')"><span class="jb-num">03</span>Package Setup</button>
+    <button class="jump-btn" onclick="jumpTo('s-telemetry')"><span class="jb-num">04</span>Telemetry Node</button>
+    <button class="jump-btn" onclick="jumpTo('s-service')"><span class="jb-num">05</span>Health Service</button>
+    <button class="jump-btn" onclick="jumpTo('s-action')"><span class="jb-num">06</span>Mission Action</button>
+    <button class="jump-btn" onclick="jumpTo('s-launch')"><span class="jb-num">07</span>Launch File</button>
+    <button class="jump-btn" onclick="jumpTo('s-qos')"><span class="jb-num">08</span>QoS Profiles</button>
+    <button class="jump-btn" onclick="jumpTo('s-rqt')"><span class="jb-num">09</span>rqt_graph</button>
+    <button class="jump-btn" onclick="jumpTo('s-errors')"><span class="jb-num">ERR</span>Common Errors</button>
+    <button class="jump-btn" onclick="jumpTo('s-extend')"><span class="jb-num">+</span>Extend</button>
+  </div>
+</div>
+
+<div class="lab-page">
+
+  <!-- ══════════════════════════════════════════
+       HERO
+       ══════════════════════════════════════════ -->
+  <div class="lab-hero" id="s-overview">
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner br"></div>
+
+    <span class="lab-track-label">Practical Track · Lab 02 of 08</span>
+    <h1>ROS2 Fundamentals for UAV</h1>
+    <p class="lead">
+      L01 got the stack running. L02 teaches you how to speak its language.
+      You will write four UAV-specific ROS2 components from scratch —
+      a telemetry listener, a health service, a mission action server, and a launch file
+      that ties them together. By the end, you understand nodes, topics, services,
+      and actions well enough to build anything else in the Practical Track.
+    </p>
+
+    <div class="lab-meta">
+      <div class="lab-meta-item">⏱ <strong>~3–4 hours</strong>&nbsp;wall clock</div>
+      <div class="lab-meta-item">📋 <strong>7 steps</strong></div>
+      <div class="lab-meta-item">🔧 <strong>Builds on</strong>&nbsp;L01 workspace</div>
+      <div class="lab-meta-item">📦 <strong>New package:</strong>&nbsp;aeroknow_bringup</div>
+      <span class="label label-green">ROS2 Humble</span>
+      <span class="label label-primary">rclpy</span>
+      <span class="label label-amber">MAVROS2</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       WHAT YOU ARE BUILDING
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-arch">
+    <h2>What You Are Building</h2>
+    <p>
+      Four ROS2 components, all in the new <code>aeroknow_bringup</code> package.
+      Each one demonstrates a different ROS2 communication pattern.
+      Together they form the communication backbone that every later lab will build on top of.
+    </p>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 860 360" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:860px; min-width:480px;">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="rgba(0,255,157,0.5)"/>
+          </marker>
+          <marker id="arr-cyan" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="rgba(0,212,255,0.5)"/>
+          </marker>
+          <marker id="arr-amber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="rgba(255,183,0,0.5)"/>
+          </marker>
+          <marker id="arr-purple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="rgba(179,136,255,0.5)"/>
+          </marker>
+        </defs>
+
+        <!-- MAVROS2 (source) -->
+        <rect x="20" y="140" width="150" height="80" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.35)" stroke-width="1.2"/>
+        <text x="95" y="165" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00d4ff" letter-spacing="1">MAVROS2</text>
+        <text x="95" y="181" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">publishes sensor</text>
+        <text x="95" y="196" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">+ state topics</text>
+
+        <!-- Topic bus strip -->
+        <rect x="200" y="10" width="1" height="340" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="204" y="20" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,212,255,0.4)" letter-spacing="1">TOPIC BUS</text>
+
+        <!-- telemetry_listener -->
+        <rect x="240" y="20" width="175" height="75" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.35)" stroke-width="1.2"/>
+        <text x="327" y="44" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d" letter-spacing="0.5">telemetry_listener</text>
+        <text x="327" y="60" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">subscribes: imu, gps</text>
+        <text x="327" y="75" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">battery, state, alt</text>
+        <text x="327" y="88" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.5)">Step 04 — you build this</text>
+
+        <!-- heartbeat_service -->
+        <rect x="240" y="120" width="175" height="75" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.35)" stroke-width="1.2"/>
+        <text x="327" y="144" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00d4ff" letter-spacing="0.5">heartbeat_service</text>
+        <text x="327" y="160" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">srv: GetSystemHealth</text>
+        <text x="327" y="175" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">request → health report</text>
+        <text x="327" y="188" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,212,255,0.5)">Step 05 — you build this</text>
+
+        <!-- mission_action_server -->
+        <rect x="240" y="220" width="175" height="75" rx="2" fill="#050d14" stroke="rgba(255,183,0,0.35)" stroke-width="1.2"/>
+        <text x="327" y="244" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#ffb700" letter-spacing="0.5">mission_action_server</text>
+        <text x="327" y="260" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">action: FlyToWaypoint</text>
+        <text x="327" y="275" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">feedback: distance_to_wp</text>
+        <text x="327" y="288" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(255,183,0,0.5)">Step 06 — you build this</text>
+
+        <!-- Arrows from MAVROS2 -->
+        <line x1="170" y1="162" x2="238" y2="55" stroke="rgba(0,255,157,0.4)" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="170" y1="175" x2="238" y2="158" stroke="rgba(0,212,255,0.4)" stroke-width="1.2" marker-end="url(#arr-cyan)"/>
+        <line x1="170" y1="190" x2="238" y2="255" stroke="rgba(255,183,0,0.35)" stroke-width="1.2" marker-end="url(#arr-amber)"/>
+
+        <!-- bringup_launch.py -->
+        <rect x="480" y="140" width="170" height="80" rx="2" fill="#050d14" stroke="rgba(179,136,255,0.35)" stroke-width="1.2"/>
+        <text x="565" y="165" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#b388ff" letter-spacing="0.5">bringup_launch.py</text>
+        <text x="565" y="181" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">starts all 3 nodes</text>
+        <text x="565" y="196" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">sets params, namespaces</text>
+        <text x="565" y="211" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(179,136,255,0.5)">Step 07 — you build this</text>
+
+        <!-- Arrows to launch -->
+        <line x1="415" y1="55" x2="478" y2="165" stroke="rgba(179,136,255,0.3)" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arr-purple)"/>
+        <line x1="415" y1="158" x2="478" y2="178" stroke="rgba(179,136,255,0.3)" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arr-purple)"/>
+        <line x1="415" y1="258" x2="478" y2="195" stroke="rgba(179,136,255,0.3)" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arr-purple)"/>
+
+        <!-- Communication pattern labels -->
+        <text x="660" y="40" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,255,157,0.7)">● Topic (pub/sub)</text>
+        <text x="660" y="58" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.7)">● Service (req/res)</text>
+        <text x="660" y="76" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(255,183,0,0.7)">● Action (goal/feedback)</text>
+        <text x="660" y="94" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(179,136,255,0.7)">● Launch (orchestrate)</text>
+        <rect x="650" y="22" width="195" height="82" rx="2" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+        <!-- Package label -->
+        <rect x="228" y="4" width="410" height="305" rx="2" fill="none" stroke="rgba(0,255,157,0.06)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="433" y="325" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.35)" letter-spacing="1">aeroknow_bringup · package you build in L02</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PREREQUISITES
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-prereqs">
+    <h2>Prerequisites</h2>
+    <p>Verify L01 is fully working before continuing. Run each check command — all must pass.</p>
+
+    <div class="prereq-check">
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L01 complete.</strong> PX4 SITL, Gazebo, and MAVROS2 all started successfully at least once.
+        <code>ros2 run aeroknow_utils sanity_check</code> shows <code>STATUS: STACK OK</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>Workspace sourced in every terminal.</strong> Run <code>echo $AMENT_PREFIX_PATH</code> —
+        it should include <code>/opt/ros/humble</code> and <code>~/aeroknow_ws/install</code>.
+        If blank, run <code>source /opt/ros/humble/setup.bash &amp;&amp; source ~/aeroknow_ws/install/setup.bash</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>Stack running in background.</strong> L02 nodes need live MAVROS2 topics to subscribe to.
+        Open Terminal 1: <code>cd ~/PX4-Autopilot &amp;&amp; make px4_sitl gz_x500</code>.
+        Open Terminal 2: <code>ros2 launch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557"</code>.
+        Wait for <code>FCU: Connected</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>rqt tools available.</strong> Confirm with <code>ros2 run rqt_graph rqt_graph --help</code>.
+        If missing: <code>sudo apt install ros-humble-rqt ros-humble-rqt-graph</code>.</p>
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <span class="theory-link-label">⟐ Theory Link</span>
+      <p>
+        The cascade loop architecture covered in
+        <a href="../modules/m03-gnc-fundamentals.html">Module 03 — GNC Fundamentals</a>
+        shows where these ROS2 nodes sit: the telemetry listener and mission action server
+        operate at the outer (guidance) loop level; MAVROS2 interfaces the inner control loops.
+        Understanding the cascade helps you understand <em>why</em> specific topics have
+        the rates and formats they do.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       ROS2 CONCEPTS
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-concepts">
+    <h2>ROS2 Core Concepts — The Mental Model</h2>
+    <p>
+      Before writing any code, you need a clear mental model of how ROS2 works.
+      This section covers exactly as much theory as you need — no more.
+      Every concept here will be directly used in a step below.
+    </p>
+
+    <h3>The Four Communication Patterns</h3>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-card-title">Topic (Publish / Subscribe)</div>
+        <p>
+          One-way data stream. A <strong>publisher</strong> node sends messages continuously;
+          any number of <strong>subscriber</strong> nodes receive them independently.
+          Neither side knows about the other — they only know the topic name.
+          <br><br>
+          <strong>When to use:</strong> Continuous sensor data. IMU readings at 100 Hz,
+          GPS at 5 Hz, battery at 1 Hz — all topics.
+          <br><br>
+          <code>/mavros/imu/data</code> is a topic. MAVROS2 publishes; your node subscribes.
+        </p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-card-title">Service (Request / Response)</div>
+        <p>
+          Two-way synchronous call. A <strong>client</strong> sends a request and blocks
+          until the <strong>server</strong> responds. Like a function call across the network.
+          <br><br>
+          <strong>When to use:</strong> One-shot queries that need a definite answer.
+          "What is the current system health?" — ask once, get an answer.
+          <br><br>
+          <code>/mavros/cmd/arming</code> is a service. You call it to arm the drone.
+        </p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-card-title">Action (Goal / Feedback / Result)</div>
+        <p>
+          Like a service, but for <strong>long-running tasks</strong> that take seconds
+          or minutes. The client sends a goal; the server sends periodic feedback while
+          executing; finally sends a result. The client can also cancel mid-execution.
+          <br><br>
+          <strong>When to use:</strong> "Fly to this waypoint" — takes 30 seconds, you want
+          distance-remaining feedback, you want to be able to abort.
+        </p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-card-title">Parameter</div>
+        <p>
+          Named configuration values attached to a node. Can be set at launch time
+          or changed at runtime without restarting the node. Not a communication
+          pattern between nodes — a configuration mechanism for a single node.
+          <br><br>
+          <strong>When to use:</strong> Anything you'd put in a config file: waypoint
+          acceptance radius, PID gains, topic names.
+          <br><br>
+          <code>ros2 param set /my_node max_altitude 120.0</code>
+        </p>
+      </div>
+    </div>
+
+    <h3>Key ROS2 Terminology</h3>
+    <table class="topic-table">
+      <thead>
+        <tr><th>Term</th><th>What It Is</th><th>UAV Example</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Node</td>
+          <td>A single executable process. One node per responsibility.</td>
+          <td><code>telemetry_listener</code>, <code>mavros</code></td>
+        </tr>
+        <tr>
+          <td>Message (msg)</td>
+          <td>Typed data structure sent over a topic. Defined in <code>.msg</code> files.</td>
+          <td><code>sensor_msgs/Imu</code>, <code>geometry_msgs/PoseStamped</code></td>
+        </tr>
+        <tr>
+          <td>Service type (srv)</td>
+          <td>Request + Response pair defined in a <code>.srv</code> file.</td>
+          <td><code>mavros_msgs/CommandBool</code> (arm/disarm)</td>
+        </tr>
+        <tr>
+          <td>Action type (action)</td>
+          <td>Goal + Feedback + Result triple defined in a <code>.action</code> file.</td>
+          <td>Your custom <code>FlyToWaypoint.action</code></td>
+        </tr>
+        <tr>
+          <td>Package</td>
+          <td>A directory containing nodes, launch files, and message definitions. The unit of compilation.</td>
+          <td><code>aeroknow_bringup</code>, <code>mavros</code></td>
+        </tr>
+        <tr>
+          <td>Workspace</td>
+          <td>A directory containing one or more packages. Built with <code>colcon</code>.</td>
+          <td><code>~/aeroknow_ws/</code></td>
+        </tr>
+        <tr>
+          <td>Executor</td>
+          <td>The mechanism that schedules callbacks. <code>rclpy.spin()</code> uses a single-threaded executor by default.</td>
+          <td>Needs <code>MultiThreadedExecutor</code> for action servers (blocking callbacks)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>The Node Execution Model — Why Callbacks Matter</h3>
+    <p>
+      This is the single most important concept to get right as a beginner.
+      Every ROS2 node works through <strong>callbacks</strong>: functions you register
+      that ROS2 calls for you when something happens.
+    </p>
+    <div class="callout lab-note">
+      <span class="callout-title">The Callback Mental Model</span>
+      Think of your node as a building with multiple doors. You tell ROS2: "when a message
+      arrives at <code>/mavros/imu/data</code>, open door A and run <code>imu_callback</code>."
+      <code>rclpy.spin(node)</code> is the guard who stands at all doors and triggers the right
+      callback whenever something knocks. Your code does not loop — it waits. The callbacks are
+      where your logic lives. If a callback blocks (e.g., a <code>time.sleep(5)</code>),
+      all other callbacks are frozen until it returns. This is why long-running tasks need Actions
+      and <code>MultiThreadedExecutor</code>.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 01 — PACKAGE SETUP
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-package">
+    <h2>Step 01–03: Package Setup</h2>
+
+    <!-- STEP 01 -->
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 01</span>
+        <span class="step-title">Create the aeroknow_bringup package</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this step exists</span>
+          <p>
+            In ROS2, every node must live inside a <strong>package</strong>. A package is just a
+            directory with two required files: <code>package.xml</code> (declares name, version,
+            and dependencies) and <code>setup.py</code> (tells Python how to install the scripts
+            as executable entry points). The <code>ros2 pkg create</code> command scaffolds these
+            files so you don't write boilerplate from scratch.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 (new terminal)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws/src
+<span class="prompt">$ </span>ros2 pkg create aeroknow_bringup \
+    --build-type ament_python \
+    --dependencies rclpy mavros_msgs sensor_msgs \
+                   geometry_msgs std_msgs action_msgs</pre>
+        </div>
+
+        <p>This creates the following structure:</p>
+        <div class="file-tree">
+<span class="ft-dir">aeroknow_bringup/</span>
+├── <span class="ft-file">package.xml</span>           <span class="ft-note"># package metadata and dependencies</span>
+├── <span class="ft-file">setup.py</span>              <span class="ft-note"># Python install config, entry points</span>
+├── <span class="ft-file">setup.cfg</span>
+├── <span class="ft-file">resource/</span>
+│   └── <span class="ft-file">aeroknow_bringup</span>   <span class="ft-note"># marker file (do not delete)</span>
+└── <span class="ft-dir">aeroknow_bringup/</span>
+    └── <span class="ft-file">__init__.py</span>       <span class="ft-note"># makes this directory a Python module</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 02 -->
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 02</span>
+        <span class="step-title">Create the custom action type: FlyToWaypoint</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this step exists</span>
+          <p>
+            ROS2 does not ship with a "fly to waypoint" action type — you define it yourself.
+            An <code>.action</code> file has three sections separated by <code>---</code>:
+            the <strong>Goal</strong> (what you're asking the server to do),
+            the <strong>Result</strong> (what it sends back when done), and
+            the <strong>Feedback</strong> (what it sends periodically while doing it).
+            This is different from a service (<code>.srv</code>) which only has Request and Response — no feedback.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_bringup/action
+<span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/action/FlyToWaypoint.action</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">action · FlyToWaypoint.action</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># ── GOAL ── (client sends this to start the action)</span>
+<span class="tp">float64</span> target_lat        <span class="cm"># target latitude  [degrees]</span>
+<span class="tp">float64</span> target_lon        <span class="cm"># target longitude [degrees]</span>
+<span class="tp">float64</span> target_alt        <span class="cm"># target altitude AGL [metres]</span>
+<span class="tp">float64</span> acceptance_radius <span class="cm"># how close is "arrived" [metres]</span>
+---
+<span class="cm"># ── RESULT ── (server sends this when the action finishes)</span>
+<span class="tp">bool</span>    success
+<span class="tp">string</span>  message           <span class="cm"># "arrived" | "aborted" | "timeout"</span>
+<span class="tp">float64</span> final_distance    <span class="cm"># distance to target when action ended [m]</span>
+---
+<span class="cm"># ── FEEDBACK ── (server sends this periodically while flying)</span>
+<span class="tp">float64</span> distance_to_wp    <span class="cm"># current distance to waypoint [metres]</span>
+<span class="tp">float64</span> estimated_time_s  <span class="cm"># rough ETA [seconds]</span>
+<span class="tp">string</span>  phase             <span class="cm"># "climbing" | "en_route" | "descending"</span></pre>
+        </div>
+
+        <p>Now register the action in <code>CMakeLists.txt</code> — but since we're using <code>ament_python</code>,
+        action generation requires a small addition to <code>package.xml</code>:</p>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/package.xml</pre>
+        </div>
+
+        <p>Add these lines inside the <code>&lt;package&gt;</code> tag, after the existing dependencies:</p>
+        <div class="code-block python">
+          <span class="code-lang">xml · package.xml additions</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">&lt;!-- action interface generation --&gt;</span>
+&lt;buildtool_depend&gt;rosidl_default_generators&lt;/buildtool_depend&gt;
+&lt;exec_depend&gt;rosidl_default_runtime&lt;/exec_depend&gt;
+&lt;member_of_group&gt;rosidl_interface_packages&lt;/member_of_group&gt;
+&lt;depend&gt;action_msgs&lt;/depend&gt;</pre>
+        </div>
+
+        <p>Now replace the <strong>entire</strong> <code>setup.py</code> with a version that registers
+        the action interface and entry points:</p>
+
+        <div class="code-block python">
+          <span class="code-lang">python · setup.py (full file — replace entirely)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="kw">from</span> setuptools <span class="kw">import</span> setup, find_packages
+<span class="kw">import</span> os
+<span class="kw">from</span> glob <span class="kw">import</span> glob
+
+package_name = <span class="st">'aeroknow_bringup'</span>
+
+setup(
+    name=package_name,
+    version=<span class="st">'0.1.0'</span>,
+    packages=find_packages(exclude=[<span class="st">'test'</span>]),
+    data_files=[
+        (<span class="st">'share/ament_index/resource_index/packages'</span>,
+            [<span class="st">'resource/'</span> + package_name]),
+        (<span class="st">'share/'</span> + package_name, [<span class="st">'package.xml'</span>]),
+        <span class="cm"># Install launch files</span>
+        (os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'launch'</span>),
+            glob(<span class="st">'launch/*.py'</span>)),
+        <span class="cm"># Install action definitions</span>
+        (os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'action'</span>),
+            glob(<span class="st">'action/*.action'</span>)),
+    ],
+    install_requires=[<span class="st">'setuptools'</span>],
+    zip_safe=<span class="kw">True</span>,
+    maintainer=<span class="st">'aeroknow'</span>,
+    maintainer_email=<span class="st">'aeroknow@example.com'</span>,
+    description=<span class="st">'AEROKNOW UAV bringup and communication nodes'</span>,
+    license=<span class="st">'MIT'</span>,
+    entry_points={
+        <span class="st">'console_scripts'</span>: [
+            <span class="cm"># Entry points added as you build each node below</span>
+            <span class="st">'telemetry_listener   = aeroknow_bringup.telemetry_listener:main'</span>,
+            <span class="st">'heartbeat_service    = aeroknow_bringup.heartbeat_service:main'</span>,
+            <span class="st">'mission_action_server= aeroknow_bringup.mission_action_server:main'</span>,
+        ],
+    },
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 03 -->
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 03</span>
+        <span class="step-title">Create the launch directory and do an initial build</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this step exists</span>
+          <p>
+            ROS2 build happens with <code>colcon</code> — it compiles every package in
+            <code>src/</code> and places results in <code>install/</code>. We build now
+            to catch any <code>package.xml</code> or <code>setup.py</code> errors before
+            writing any node code, so you're not debugging two things at once.
+            <code>--symlink-install</code> means Python script changes take effect immediately
+            without rebuilding — critical for fast iteration.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_bringup/launch
+<span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_bringup
+<span class="prompt">$ </span>source install/setup.bash</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-dim">Starting >>> aeroknow_bringup</span>
+<span class="t-ok">Finished <<< aeroknow_bringup [2.1s]</span>
+<span class="t-dim">
+Summary: 1 packages finished [2.3s]</span></pre>
+        </div>
+
+        <p>After building, confirm the package is visible to ROS2:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 pkg list | grep aeroknow</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-ok">aeroknow_bringup</span>
+<span class="t-ok">aeroknow_utils</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 04 — TELEMETRY LISTENER NODE
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-telemetry">
+    <h2>Step 04: The Telemetry Listener Node</h2>
+    <p>
+      Your first real UAV node. It subscribes to five MAVROS2 topics simultaneously,
+      formats the data, and prints a live summary to the terminal.
+      This pattern — subscribing to multiple sensor topics and acting on their combined data —
+      is the foundation of every subsequent node you'll write.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 04</span>
+        <span class="step-title">Write telemetry_listener.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this code is structured this way</span>
+          <p>
+            We use a class (not bare functions) because the callbacks need to share state —
+            the last GPS reading is needed to display alongside the current battery reading.
+            A class bundles all the subscriptions and their shared state in one place.
+            The <code>timer_callback</code> runs at 2 Hz and prints a consolidated summary —
+            reading 5 sensors at their native rates (100 Hz IMU, 5 Hz GPS, etc.) and printing
+            every callback would flood the terminal. The timer decouples display rate from sensor rate.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/telemetry_listener.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · telemetry_listener.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+telemetry_listener.py
+─────────────────────
+Subscribes to five MAVROS2 topics and prints a live telemetry
+summary at 2 Hz. Demonstrates ROS2 pub/sub with multiple
+simultaneous subscriptions sharing state via class members.
+
+Topics subscribed:
+  /mavros/imu/data               → sensor_msgs/Imu
+  /mavros/global_position/global → sensor_msgs/NavSatFix
+  /mavros/global_position/rel_alt→ std_msgs/Float64
+  /mavros/state                  → mavros_msgs/State
+  /mavros/battery                → sensor_msgs/BatteryState
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> Imu, NavSatFix, BatteryState
+<span class="kw">from</span> mavros_msgs.msg <span class="kw">import</span> State
+<span class="kw">from</span> std_msgs.msg   <span class="kw">import</span> Float64
+
+<span class="kw">import</span> math
+
+
+<span class="kw">class</span> <span class="tp">TelemetryListener</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        <span class="cm"># Every node has a unique name — used in rqt_graph and for logging</span>
+        super().__init__(<span class="st">'telemetry_listener'</span>)
+
+        <span class="cm"># ── Shared state ────────────────────────────────────────────
+        # These are updated by callbacks and read by the display timer.
+        # None means "not yet received" — we display --- until data arrives.</span>
+        self.lat        = <span class="kw">None</span>
+        self.lon        = <span class="kw">None</span>
+        self.alt_rel    = <span class="kw">None</span>   <span class="cm"># altitude above home [m]</span>
+        self.roll_deg   = <span class="kw">None</span>
+        self.pitch_deg  = <span class="kw">None</span>
+        self.battery_v  = <span class="kw">None</span>
+        self.battery_pct= <span class="kw">None</span>
+        self.mode       = <span class="st">'—'</span>
+        self.armed      = <span class="kw">False</span>
+        self.connected  = <span class="kw">False</span>
+
+        <span class="cm"># ── QoS profiles ────────────────────────────────────────────
+        # MAVROS2 sensor topics use BEST_EFFORT (fastest, may drop packets).
+        # State topics use RELIABLE (guaranteed delivery, slightly slower).
+        # Using the wrong profile causes "no subscribers / no publishers" warnings
+        # even though the topic exists. This is the most common L02 mistake.</span>
+        sensor_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=<span class="nm">1</span>,
+        )
+        reliable_qos = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=<span class="nm">10</span>,
+        )
+
+        <span class="cm"># ── Subscriptions ───────────────────────────────────────────
+        # Each create_subscription call registers a callback.
+        # ROS2 calls the callback whenever a message arrives on that topic.
+        # The '1' / '10' at the end is the queue depth — how many unprocessed
+        # messages to buffer before dropping. For display purposes, 1 is fine.</span>
+        self.create_subscription(Imu, <span class="st">'/mavros/imu/data'</span>,
+                                 self.<span class="fn">imu_callback</span>, sensor_qos)
+
+        self.create_subscription(NavSatFix, <span class="st">'/mavros/global_position/global'</span>,
+                                 self.<span class="fn">gps_callback</span>, sensor_qos)
+
+        self.create_subscription(Float64, <span class="st">'/mavros/global_position/rel_alt'</span>,
+                                 self.<span class="fn">alt_callback</span>, sensor_qos)
+
+        self.create_subscription(State, <span class="st">'/mavros/state'</span>,
+                                 self.<span class="fn">state_callback</span>, reliable_qos)
+
+        self.create_subscription(BatteryState, <span class="st">'/mavros/battery'</span>,
+                                 self.<span class="fn">battery_callback</span>, sensor_qos)
+
+        <span class="cm"># ── Display timer ───────────────────────────────────────────
+        # Fires self.display_callback every 0.5 seconds (2 Hz).
+        # Completely independent of the sensor callbacks — decouples
+        # display rate from sensor rate. IMU comes in at 100 Hz;
+        # we only print 2 times per second.</span>
+        self.create_timer(<span class="nm">0.5</span>, self.<span class="fn">display_callback</span>)
+
+        self.get_logger().info(<span class="st">'TelemetryListener started — waiting for MAVROS2 data...'</span>)
+
+    <span class="cm"># ── Callbacks ───────────────────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">imu_callback</span>(self, msg: Imu):
+        <span class="cm"># Convert quaternion → Euler angles (roll, pitch only — yaw needs magnetometer)
+        # Formula: roll = atan2(2*(qw*qx + qy*qz), 1 - 2*(qx² + qy²))</span>
+        q = msg.orientation
+        sinr_cosp = <span class="nm">2.0</span> * (q.w * q.x + q.y * q.z)
+        cosr_cosp = <span class="nm">1.0</span> - <span class="nm">2.0</span> * (q.x * q.x + q.y * q.y)
+        self.roll_deg = math.degrees(math.atan2(sinr_cosp, cosr_cosp))
+
+        sinp = <span class="nm">2.0</span> * (q.w * q.y - q.z * q.x)
+        sinp = max(-<span class="nm">1.0</span>, min(<span class="nm">1.0</span>, sinp))   <span class="cm"># clamp to [-1, 1] for asin</span>
+        self.pitch_deg = math.degrees(math.asin(sinp))
+
+    <span class="kw">def</span> <span class="fn">gps_callback</span>(self, msg: NavSatFix):
+        self.lat = msg.latitude
+        self.lon = msg.longitude
+
+    <span class="kw">def</span> <span class="fn">alt_callback</span>(self, msg: Float64):
+        self.alt_rel = msg.data
+
+    <span class="kw">def</span> <span class="fn">state_callback</span>(self, msg: State):
+        self.connected = msg.connected
+        self.armed     = msg.armed
+        self.mode      = msg.mode
+
+    <span class="kw">def</span> <span class="fn">battery_callback</span>(self, msg: BatteryState):
+        self.battery_v   = msg.voltage
+        self.battery_pct = msg.percentage * <span class="nm">100.0</span>   <span class="cm"># MAVROS2 sends 0.0–1.0</span>
+
+    <span class="kw">def</span> <span class="fn">display_callback</span>(self):
+        <span class="cm"># Format values — show "---" if data not yet received</span>
+        <span class="kw">def</span> <span class="fn">fmt</span>(v, fmt_str=<span class="st">'{:.2f}'</span>):
+            <span class="kw">return</span> fmt_str.format(v) <span class="kw">if</span> v <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">else</span> <span class="st">'---'</span>
+
+        arm_str  = <span class="st">'\033[92mARMED  \033[0m'</span> <span class="kw">if</span> self.armed <span class="kw">else</span> <span class="st">'\033[90mDISARMED\033[0m'</span>
+        conn_str = <span class="st">'\033[92m●\033[0m'</span>         <span class="kw">if</span> self.connected <span class="kw">else</span> <span class="st">'\033[91m●\033[0m'</span>
+
+        print(<span class="st">f'\033[2J\033[H'</span>, end=<span class="st">''</span>)   <span class="cm"># clear terminal</span>
+        print(<span class="st">f'┌─────────────────────────────────────────┐'</span>)
+        print(<span class="st">f'│  AEROKNOW · TELEMETRY LISTENER · L02   │'</span>)
+        print(<span class="st">f'├─────────────────────────────────────────┤'</span>)
+        print(<span class="st">f'│  FCU  {conn_str} {self.mode:<16} {arm_str} │'</span>)
+        print(<span class="st">f'├─────────────────────────────────────────┤'</span>)
+        print(<span class="st">f'│  GPS   lat: {fmt(self.lat, "{:>10.6f}")}  lon: {fmt(self.lon, "{:>11.6f}")} │'</span>)
+        print(<span class="st">f'│  ALT   {fmt(self.alt_rel, "{:>7.2f}")} m above home               │'</span>)
+        print(<span class="st">f'├─────────────────────────────────────────┤'</span>)
+        print(<span class="st">f'│  ROLL  {fmt(self.roll_deg,  "{:>+7.2f}")} deg                        │'</span>)
+        print(<span class="st">f'│  PITCH {fmt(self.pitch_deg, "{:>+7.2f}")} deg                        │'</span>)
+        print(<span class="st">f'├─────────────────────────────────────────┤'</span>)
+        print(<span class="st">f'│  BATT  {fmt(self.battery_v, "{:>5.2f}")} V  {fmt(self.battery_pct, "{:>5.1f}")} %              │'</span>)
+        print(<span class="st">f'└─────────────────────────────────────────┘'</span>)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = TelemetryListener()
+    <span class="kw">try</span>:
+        rclpy.spin(node)     <span class="cm"># blocks here, running callbacks until Ctrl+C</span>
+    <span class="kw">except</span> KeyboardInterrupt:
+        <span class="kw">pass</span>
+    <span class="kw">finally</span>:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>:
+    main()</pre>
+        </div>
+
+        <p>Build and run:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws &amp;&amp; colcon build --symlink-install --packages-select aeroknow_bringup
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_bringup telemetry_listener</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output — updates every 0.5 s</span>
+          <pre>┌─────────────────────────────────────────┐
+│  AEROKNOW · TELEMETRY LISTENER · L02   │
+├─────────────────────────────────────────┤
+│  FCU  <span class="t-ok">●</span> OFFBOARD         <span class="t-ok">ARMED  </span>        │
+├─────────────────────────────────────────┤
+│  GPS   lat:  47.397742  lon:   8.545594 │
+│  ALT      5.23 m above home             │
+├─────────────────────────────────────────┤
+│  ROLL    +0.31 deg                      │
+│  PITCH   -0.12 deg                      │
+├─────────────────────────────────────────┤
+│  BATT  12.40 V   82.1 %                 │
+└─────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 05 — HEARTBEAT SERVICE
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-service">
+    <h2>Step 05: The Health Check Service</h2>
+    <p>
+      A service is different from a topic: nothing happens until a client explicitly asks.
+      The health service listens for requests and responds with the current system health status.
+      The GCS in L07 will call this service to populate its health panel.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 05</span>
+        <span class="step-title">Write heartbeat_service.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this code is structured this way</span>
+          <p>
+            This node does two things simultaneously: it subscribes to sensor topics
+            (to track their health) and it serves requests (to report that health).
+            These happen on different threads — a <code>MultiThreadedExecutor</code>
+            is used so the service can respond even while subscription callbacks are running.
+            Without it, a blocking service response would prevent sensor callbacks from firing
+            and the health data would go stale while the service was occupied.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/heartbeat_service.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · heartbeat_service.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+heartbeat_service.py
+────────────────────
+Service server that returns system health on request.
+Uses the built-in std_srvs/Trigger service type:
+  Request:  (empty)
+  Response: bool success, string message
+
+Called by: GCS in L07, pre-flight checks in L03.
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node          <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.executors     <span class="kw">import</span> MultiThreadedExecutor
+<span class="kw">from</span> rclpy.callback_group <span class="kw">import</span> ReentrantCallbackGroup
+<span class="kw">from</span> rclpy.qos           <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> std_srvs.srv   <span class="kw">import</span> Trigger
+<span class="kw">from</span> mavros_msgs.msg <span class="kw">import</span> State
+<span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> NavSatFix, BatteryState
+
+<span class="kw">import</span> time
+
+
+<span class="kw">class</span> <span class="tp">HeartbeatService</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'heartbeat_service'</span>)
+
+        <span class="cm"># ReentrantCallbackGroup allows multiple callbacks to run concurrently.
+        # Without this, the service callback would block all subscriptions.</span>
+        cb_group = ReentrantCallbackGroup()
+
+        sensor_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>
+        )
+        reliable_qos = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>
+        )
+
+        <span class="cm"># ── Health tracking state ────────────────────────────────────</span>
+        self.fcu_connected = <span class="kw">False</span>
+        self.armed         = <span class="kw">False</span>
+        self.mode          = <span class="st">'UNKNOWN'</span>
+        self.gps_fix       = <span class="nm">0</span>   <span class="cm"># NavSatFix.status: 0=no fix, 1=fix, 2=SBAS</span>
+        self.battery_pct   = <span class="nm">0.0</span>
+        self.last_imu_t    = <span class="nm">0.0</span>   <span class="cm"># epoch time of last IMU message</span>
+
+        <span class="cm"># ── Subscriptions (monitoring sensor health) ─────────────────</span>
+        self.create_subscription(State, <span class="st">'/mavros/state'</span>,
+            self.<span class="fn">state_cb</span>, reliable_qos, callback_group=cb_group)
+
+        self.create_subscription(NavSatFix, <span class="st">'/mavros/global_position/global'</span>,
+            self.<span class="fn">gps_cb</span>, sensor_qos, callback_group=cb_group)
+
+        self.create_subscription(BatteryState, <span class="st">'/mavros/battery'</span>,
+            self.<span class="fn">battery_cb</span>, sensor_qos, callback_group=cb_group)
+
+        <span class="cm"># Track IMU freshness: subscribe but only record timestamp</span>
+        <span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> Imu
+        self.create_subscription(Imu, <span class="st">'/mavros/imu/data'</span>,
+            <span class="kw">lambda</span> _: setattr(self, <span class="st">'last_imu_t'</span>, time.time()),
+            sensor_qos, callback_group=cb_group)
+
+        <span class="cm"># ── Service server ───────────────────────────────────────────
+        # 'get_system_health' is the service name; clients call it with:
+        #   ros2 service call /get_system_health std_srvs/srv/Trigger
+        # or programmatically from the GCS in L07.</span>
+        self.create_service(Trigger, <span class="st">'get_system_health'</span>,
+            self.<span class="fn">health_callback</span>, callback_group=cb_group)
+
+        self.get_logger().info(<span class="st">'HeartbeatService ready at /get_system_health'</span>)
+
+    <span class="cm"># ── Subscription callbacks ───────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">state_cb</span>(self, msg: State):
+        self.fcu_connected = msg.connected
+        self.armed         = msg.armed
+        self.mode          = msg.mode
+
+    <span class="kw">def</span> <span class="fn">gps_cb</span>(self, msg: NavSatFix):
+        self.gps_fix = msg.status.status   <span class="cm"># -1=no fix, 0=fix, 1=SBAS fix</span>
+
+    <span class="kw">def</span> <span class="fn">battery_cb</span>(self, msg: BatteryState):
+        self.battery_pct = msg.percentage * <span class="nm">100.0</span>
+
+    <span class="cm"># ── Service callback ─────────────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">health_callback</span>(self, request, response):
+        <span class="cm">"""
+        Called each time a client calls /get_system_health.
+        Builds a human-readable health report and returns it.
+        The Trigger service type is the simplest possible:
+        - request:  empty (client just knocks on the door)
+        - response: bool success + string message
+        """</span>
+        issues = []
+
+        <span class="kw">if</span> <span class="kw">not</span> self.fcu_connected:
+            issues.append(<span class="st">'FCU not connected'</span>)
+        <span class="kw">if</span> self.gps_fix < <span class="nm">0</span>:
+            issues.append(<span class="st">'No GPS fix'</span>)
+        <span class="kw">if</span> self.battery_pct < <span class="nm">20.0</span>:
+            issues.append(<span class="st">f'Low battery: {self.battery_pct:.1f}%'</span>)
+        <span class="kw">if</span> time.time() - self.last_imu_t > <span class="nm">1.0</span>:
+            issues.append(<span class="st">'IMU stale (>1s since last message)'</span>)
+
+        <span class="kw">if</span> issues:
+            response.success = <span class="kw">False</span>
+            response.message = <span class="st">'DEGRADED | '</span> + <span class="st">' | '</span>.join(issues)
+        <span class="kw">else</span>:
+            response.success = <span class="kw">True</span>
+            response.message = (
+                <span class="st">f'OK | FCU connected | GPS fix={self.gps_fix} | '</span>
+                <span class="st">f'Battery {self.battery_pct:.1f}% | '</span>
+                <span class="st">f'Mode {self.mode} | Armed={self.armed}'</span>
+            )
+
+        <span class="cm"># Log every request so we have an audit trail</span>
+        self.get_logger().info(<span class="st">f'Health request → {response.message}'</span>)
+        <span class="kw">return</span> response
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = HeartbeatService()
+
+    <span class="cm"># MultiThreadedExecutor: allows service + subscriptions to run concurrently</span>
+    executor = MultiThreadedExecutor(num_threads=<span class="nm">4</span>)
+    executor.add_node(node)
+    <span class="kw">try</span>:
+        executor.spin()
+    <span class="kw">except</span> KeyboardInterrupt:
+        <span class="kw">pass</span>
+    <span class="kw">finally</span>:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>:
+    main()</pre>
+        </div>
+
+        <p>Run and test the service from a separate terminal:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 run aeroknow_bringup heartbeat_service</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4 (new terminal)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 service call /get_system_health std_srvs/srv/Trigger</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected response — healthy stack</span>
+          <pre>requester: making request: std_srvs.srv.Trigger_Request()
+
+response:
+  std_srvs.srv.Trigger_Response(<span class="t-ok">success=True</span>,
+  message=<span class="t-ok">'OK | FCU connected | GPS fix=0 | Battery 82.1% | Mode OFFBOARD | Armed=False'</span>)</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 06 — MISSION ACTION SERVER
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-action">
+    <h2>Step 06: The Mission Action Server</h2>
+    <p>
+      Actions are the right tool for anything that takes more than a fraction of a second to complete.
+      "Fly to this waypoint" is the canonical UAV action — it takes 10–60 seconds, you want progress
+      feedback while it's running, and you want to be able to cancel it if the situation changes.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 06</span>
+        <span class="step-title">Write mission_action_server.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this code is structured this way</span>
+          <p>
+            The action server has three callbacks instead of one: <code>goal_callback</code>
+            (should I accept this goal?), <code>cancel_callback</code> (should I accept a cancellation?),
+            and <code>execute_callback</code> (actually do the work). The execute callback is the
+            long-running one — it loops, publishes setpoints to MAVROS2, checks distance,
+            sends feedback, and eventually returns a result. We must use
+            <code>MultiThreadedExecutor</code> here too because <code>execute_callback</code>
+            blocks while it's running the mission, and we still need the subscription callbacks
+            (to read position) to fire concurrently.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/mission_action_server.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · mission_action_server.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+mission_action_server.py
+────────────────────────
+Action server that flies the drone to a GPS waypoint.
+Action type: FlyToWaypoint (defined in action/FlyToWaypoint.action)
+
+Goal:     target_lat, target_lon, target_alt, acceptance_radius
+Feedback: distance_to_wp, estimated_time_s, phase
+Result:   success, message, final_distance
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node          <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.action        <span class="kw">import</span> ActionServer, CancelResponse, GoalResponse
+<span class="kw">from</span> rclpy.executors     <span class="kw">import</span> MultiThreadedExecutor
+<span class="kw">from</span> rclpy.callback_group <span class="kw">import</span> ReentrantCallbackGroup
+<span class="kw">from</span> rclpy.qos           <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> mavros_msgs.msg <span class="kw">import</span> State
+<span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> NavSatFix
+<span class="kw">from</span> geographic_msgs.msg <span class="kw">import</span> GeoPoseStamped
+
+<span class="cm"># Note: this import works after colcon build generates the Python bindings
+# from our FlyToWaypoint.action definition file.</span>
+<span class="kw">from</span> aeroknow_bringup.action <span class="kw">import</span> FlyToWaypoint
+
+<span class="kw">import</span> math
+<span class="kw">import</span> time
+
+
+<span class="kw">def</span> <span class="fn">haversine_m</span>(lat1, lon1, lat2, lon2) -> float:
+    <span class="st">"""Haversine formula — great-circle distance in metres."""</span>
+    R = <span class="nm">6_371_000</span>   <span class="cm"># Earth radius [m]</span>
+    φ1, φ2 = math.radians(lat1), math.radians(lat2)
+    Δφ = math.radians(lat2 - lat1)
+    Δλ = math.radians(lon2 - lon1)
+    a = (math.sin(Δφ/<span class="nm">2</span>)**<span class="nm">2</span>
+         + math.cos(φ1) * math.cos(φ2) * math.sin(Δλ/<span class="nm">2</span>)**<span class="nm">2</span>)
+    <span class="kw">return</span> R * <span class="nm">2</span> * math.atan2(math.sqrt(a), math.sqrt(<span class="nm">1</span>-a))
+
+
+<span class="kw">class</span> <span class="tp">MissionActionServer</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'mission_action_server'</span>)
+
+        cb_group = ReentrantCallbackGroup()
+
+        sensor_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>
+        )
+
+        <span class="cm"># ── State tracking ───────────────────────────────────────────</span>
+        self.current_lat  = <span class="kw">None</span>
+        self.current_lon  = <span class="kw">None</span>
+        self.current_alt  = <span class="kw">None</span>
+        self.armed        = <span class="kw">False</span>
+        self.mode         = <span class="st">'UNKNOWN'</span>
+
+        self.create_subscription(NavSatFix, <span class="st">'/mavros/global_position/global'</span>,
+            self.<span class="fn">gps_cb</span>, sensor_qos, callback_group=cb_group)
+
+        self.create_subscription(State, <span class="st">'/mavros/state'</span>,
+            self.<span class="fn">state_cb</span>,
+            QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                       history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>),
+            callback_group=cb_group)
+
+        <span class="cm"># ── Publisher: send global waypoint setpoints to MAVROS2 ──────
+        # /mavros/setpoint_position/global sends the drone to a GPS coordinate
+        # in AUTO.MISSION-compatible format. MAVROS2 handles the rest.</span>
+        self.wp_pub = self.create_publisher(
+            GeoPoseStamped,
+            <span class="st">'/mavros/setpoint_position/global'</span>,
+            <span class="nm">10</span>
+        )
+
+        <span class="cm"># ── Action server ────────────────────────────────────────────
+        # Three callbacks:
+        #   goal_callback:   called when a client sends a goal — accept or reject
+        #   cancel_callback: called if client cancels — accept or reject cancel
+        #   execute_callback: the actual long-running task</span>
+        self._action_server = ActionServer(
+            self,
+            FlyToWaypoint,
+            <span class="st">'fly_to_waypoint'</span>,
+            goal_callback=self.<span class="fn">goal_callback</span>,
+            cancel_callback=self.<span class="fn">cancel_callback</span>,
+            execute_callback=self.<span class="fn">execute_callback</span>,
+            callback_group=cb_group,
+        )
+
+        self.get_logger().info(<span class="st">'MissionActionServer ready at /fly_to_waypoint'</span>)
+
+    <span class="cm"># ── Subscription callbacks ───────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">gps_cb</span>(self, msg: NavSatFix):
+        self.current_lat = msg.latitude
+        self.current_lon = msg.longitude
+        self.current_alt = msg.altitude
+
+    <span class="kw">def</span> <span class="fn">state_cb</span>(self, msg: State):
+        self.armed = msg.armed
+        self.mode  = msg.mode
+
+    <span class="cm"># ── Action callbacks ─────────────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">goal_callback</span>(self, goal_request):
+        <span class="st">"""Decide whether to accept an incoming goal."""</span>
+        <span class="kw">if</span> <span class="kw">not</span> self.armed:
+            self.get_logger().warn(<span class="st">'Goal rejected: drone not armed'</span>)
+            <span class="kw">return</span> GoalResponse.REJECT
+        <span class="kw">if</span> self.current_lat <span class="kw">is</span> <span class="kw">None</span>:
+            self.get_logger().warn(<span class="st">'Goal rejected: no GPS fix yet'</span>)
+            <span class="kw">return</span> GoalResponse.REJECT
+        self.get_logger().info(
+            <span class="st">f'Goal accepted: fly to ({goal_request.target_lat:.6f}, '</span>
+            <span class="st">f'{goal_request.target_lon:.6f}) at {goal_request.target_alt:.1f}m'</span>
+        )
+        <span class="kw">return</span> GoalResponse.ACCEPT
+
+    <span class="kw">def</span> <span class="fn">cancel_callback</span>(self, goal_handle):
+        <span class="st">"""Always accept cancellation — safe design principle."""</span>
+        self.get_logger().info(<span class="st">'Cancel request received — accepting'</span>)
+        <span class="kw">return</span> CancelResponse.ACCEPT
+
+    <span class="kw">def</span> <span class="fn">execute_callback</span>(self, goal_handle):
+        <span class="st">"""
+        The main execution loop. Runs until:
+        - Drone arrives within acceptance_radius → SUCCESS
+        - Client cancels → CANCELED
+        - Timeout (120s) → ABORTED
+        Sends feedback every 0.5 s.
+        """</span>
+        goal    = goal_handle.request
+        feedback= FlyToWaypoint.Feedback()
+        result  = FlyToWaypoint.Result()
+
+        RATE_HZ = <span class="nm">2.0</span>   <span class="cm"># feedback + setpoint rate</span>
+        TIMEOUT = <span class="nm">120.0</span> <span class="cm"># max seconds to complete</span>
+        t_start = time.time()
+
+        self.get_logger().info(<span class="st">f'Executing: fly to ({goal.target_lat:.6f}, {goal.target_lon:.6f})'</span>)
+
+        <span class="kw">while</span> rclpy.ok():
+            <span class="cm"># ── Check cancellation ──────────────────────────────────</span>
+            <span class="kw">if</span> goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                result.success = <span class="kw">False</span>
+                result.message = <span class="st">'aborted'</span>
+                result.final_distance = <span class="nm">999.0</span>
+                <span class="kw">return</span> result
+
+            <span class="cm"># ── Check timeout ───────────────────────────────────────</span>
+            elapsed = time.time() - t_start
+            <span class="kw">if</span> elapsed > TIMEOUT:
+                goal_handle.abort()
+                result.success = <span class="kw">False</span>
+                result.message = <span class="st">'timeout'</span>
+                result.final_distance = haversine_m(
+                    self.current_lat, self.current_lon,
+                    goal.target_lat, goal.target_lon)
+                <span class="kw">return</span> result
+
+            <span class="cm"># ── Compute distance ────────────────────────────────────</span>
+            <span class="kw">if</span> self.current_lat <span class="kw">is</span> <span class="kw">None</span>:
+                time.sleep(<span class="nm">1.0</span> / RATE_HZ)
+                <span class="kw">continue</span>
+
+            dist = haversine_m(
+                self.current_lat, self.current_lon,
+                goal.target_lat,  goal.target_lon)
+
+            <span class="cm"># ── Check arrival ───────────────────────────────────────</span>
+            <span class="kw">if</span> dist <= goal.acceptance_radius:
+                goal_handle.succeed()
+                result.success        = <span class="kw">True</span>
+                result.message        = <span class="st">'arrived'</span>
+                result.final_distance = dist
+                self.get_logger().info(<span class="st">f'Waypoint reached. Final distance: {dist:.2f}m'</span>)
+                <span class="kw">return</span> result
+
+            <span class="cm"># ── Publish waypoint setpoint ────────────────────────────
+            # Send the target GPS coordinate to MAVROS2 setpoint topic.
+            # MAVROS2 in OFFBOARD mode will route this to PX4's position controller.</span>
+            wp_msg = GeoPoseStamped()
+            wp_msg.header.stamp = self.get_clock().now().to_msg()
+            wp_msg.pose.position.latitude  = goal.target_lat
+            wp_msg.pose.position.longitude = goal.target_lon
+            wp_msg.pose.position.altitude  = goal.target_alt
+            self.wp_pub.publish(wp_msg)
+
+            <span class="cm"># ── Send feedback ───────────────────────────────────────</span>
+            speed_mps = <span class="nm">8.0</span>   <span class="cm"># rough cruise speed for ETA estimate</span>
+            alt_diff  = abs((self.current_alt <span class="kw">or</span> goal.target_alt) - goal.target_alt)
+
+            feedback.distance_to_wp   = dist
+            feedback.estimated_time_s = (dist / speed_mps) + (alt_diff / <span class="nm">2.0</span>)
+            feedback.phase = (
+                <span class="st">'climbing'</span>   <span class="kw">if</span> alt_diff > <span class="nm">5.0</span> <span class="kw">and</span> self.current_alt < goal.target_alt
+                <span class="kw">else</span> <span class="st">'descending'</span> <span class="kw">if</span> alt_diff > <span class="nm">5.0</span>
+                <span class="kw">else</span> <span class="st">'en_route'</span>
+            )
+            goal_handle.publish_feedback(feedback)
+
+            time.sleep(<span class="nm">1.0</span> / RATE_HZ)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = MissionActionServer()
+    executor = MultiThreadedExecutor(num_threads=<span class="nm">4</span>)
+    executor.add_node(node)
+    <span class="kw">try</span>:
+        executor.spin()
+    <span class="kw">except</span> KeyboardInterrupt:
+        <span class="kw">pass</span>
+    <span class="kw">finally</span>:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>:
+    main()</pre>
+        </div>
+
+        <p>Build, run, and send a test goal from the terminal:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws &amp;&amp; colcon build --symlink-install --packages-select aeroknow_bringup
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_bringup mission_action_server</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4 — send a test goal</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 action send_goal /fly_to_waypoint \
+    aeroknow_bringup/action/FlyToWaypoint \
+    "{target_lat: 47.398, target_lon: 8.546, target_alt: 30.0, acceptance_radius: 5.0}" \
+    --feedback</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected feedback stream (drone must be armed for goal to be accepted)</span>
+          <pre><span class="t-dim">Waiting for an action server to become available...</span>
+<span class="t-ok">Goal accepted with ID: a7c2...</span>
+
+<span class="t-cyan">Feedback:</span>
+    distance_to_wp: 124.3
+    estimated_time_s: 15.5
+    phase: climbing
+
+<span class="t-cyan">Feedback:</span>
+    distance_to_wp: 98.7
+    estimated_time_s: 12.3
+    phase: en_route
+
+<span class="t-ok">Result: success=True  message='arrived'  final_distance=3.2</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 07 — LAUNCH FILE
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-launch">
+    <h2>Step 07: The Launch File</h2>
+    <p>
+      Starting three nodes manually in three terminals is fine for development.
+      A launch file starts all of them with one command, sets parameters,
+      and handles dependencies between them. From L03 onwards, you will always
+      start the full stack via a single launch command.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07</span>
+        <span class="step-title">Write bringup_launch.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this code is structured this way</span>
+          <p>
+            ROS2 launch files are Python scripts — not XML (that was ROS1). They define a list of
+            <code>Node</code> and <code>DeclareLaunchArgument</code> objects returned from
+            <code>generate_launch_description()</code>. The <code>LaunchDescription</code> is
+            the recipe; <code>ros2 launch</code> is the chef that executes it. Parameters are
+            declared as launch arguments so they can be overridden from the command line
+            without editing the file — critical for switching between simulation and real hardware.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/launch/bringup_launch.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · bringup_launch.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+bringup_launch.py
+─────────────────
+Launches all three L02 nodes in a single command.
+Usage:
+  ros2 launch aeroknow_bringup bringup_launch.py
+  ros2 launch aeroknow_bringup bringup_launch.py vehicle_id:=2
+"""</span>
+
+<span class="kw">from</span> launch <span class="kw">import</span> LaunchDescription
+<span class="kw">from</span> launch.actions <span class="kw">import</span> DeclareLaunchArgument, LogInfo
+<span class="kw">from</span> launch.substitutions <span class="kw">import</span> LaunchConfiguration
+<span class="kw">from</span> launch_ros.actions <span class="kw">import</span> Node
+
+
+<span class="kw">def</span> <span class="fn">generate_launch_description</span>():
+    <span class="cm"># ── Declare configurable arguments ──────────────────────────────
+    # These can be overridden on the command line:
+    #   ros2 launch ... vehicle_id:=2
+    # Without override, the default values below are used.</span>
+    vehicle_id_arg = DeclareLaunchArgument(
+        <span class="st">'vehicle_id'</span>,
+        default_value=<span class="st">'1'</span>,
+        description=<span class="st">'Vehicle ID for multi-drone namespacing (L08)'</span>
+    )
+
+    mavros_ns_arg = DeclareLaunchArgument(
+        <span class="st">'mavros_ns'</span>,
+        default_value=<span class="st">''</span>,
+        description=<span class="st">'MAVROS2 namespace prefix (empty for single drone)'</span>
+    )
+
+    <span class="cm"># ── Telemetry listener node ──────────────────────────────────────</span>
+    telemetry_node = Node(
+        package=<span class="st">'aeroknow_bringup'</span>,
+        executable=<span class="st">'telemetry_listener'</span>,
+        name=<span class="st">'telemetry_listener'</span>,
+        output=<span class="st">'screen'</span>,
+        parameters=[{
+            <span class="st">'display_rate_hz'</span>: <span class="nm">2.0</span>,
+            <span class="st">'vehicle_id'</span>: LaunchConfiguration(<span class="st">'vehicle_id'</span>),
+        }],
+        remappings=[
+            <span class="cm"># Remappings allow the same node to work in different namespaces.
+            # In L08, these will be prefixed with /drone_1/, /drone_2/, etc.</span>
+        ],
+    )
+
+    <span class="cm"># ── Heartbeat service node ───────────────────────────────────────</span>
+    heartbeat_node = Node(
+        package=<span class="st">'aeroknow_bringup'</span>,
+        executable=<span class="st">'heartbeat_service'</span>,
+        name=<span class="st">'heartbeat_service'</span>,
+        output=<span class="st">'log'</span>,   <span class="cm"># log output only — no terminal spam</span>
+        parameters=[{
+            <span class="st">'battery_warn_pct'</span>: <span class="nm">20.0</span>,
+            <span class="st">'imu_stale_sec'</span>: <span class="nm">1.0</span>,
+        }],
+    )
+
+    <span class="cm"># ── Mission action server node ───────────────────────────────────</span>
+    mission_node = Node(
+        package=<span class="st">'aeroknow_bringup'</span>,
+        executable=<span class="st">'mission_action_server'</span>,
+        name=<span class="st">'mission_action_server'</span>,
+        output=<span class="st">'screen'</span>,
+        parameters=[{
+            <span class="st">'cruise_speed_mps'</span>: <span class="nm">8.0</span>,
+            <span class="st">'mission_timeout_s'</span>: <span class="nm">120.0</span>,
+        }],
+    )
+
+    <span class="kw">return</span> LaunchDescription([
+        <span class="cm"># Arguments first</span>
+        vehicle_id_arg,
+        mavros_ns_arg,
+        <span class="cm"># Info log so launch output is clear</span>
+        LogInfo(msg=<span class="st">'[AEROKNOW] Starting bringup: telemetry + health + mission nodes'</span>),
+        <span class="cm"># Nodes</span>
+        telemetry_node,
+        heartbeat_node,
+        mission_node,
+    ])</pre>
+        </div>
+
+        <p>Build and launch everything with a single command:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws &amp;&amp; colcon build --symlink-install --packages-select aeroknow_bringup
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 launch aeroknow_bringup bringup_launch.py</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected launch output</span>
+          <pre><span class="t-ok">[INFO] [launch]: All log files can be found below /home/user/.ros/log/</span>
+<span class="t-ok">[INFO] [launch]: Default logging verbosity is set to INFO</span>
+<span class="t-cyan">[INFO] [AEROKNOW] Starting bringup: telemetry + health + mission nodes</span>
+<span class="t-ok">[INFO] [telemetry_listener-1]: process started with pid [12847]</span>
+<span class="t-ok">[INFO] [heartbeat_service-2]:  process started with pid [12848]</span>
+<span class="t-ok">[INFO] [mission_action_server-3]: process started with pid [12849]</span>
+<span class="t-dim">[telemetry_listener-1] [INFO] TelemetryListener started — waiting for MAVROS2 data...</span>
+<span class="t-dim">[heartbeat_service-2]  [INFO] HeartbeatService ready at /get_system_health</span>
+<span class="t-dim">[mission_action_server-3] [INFO] MissionActionServer ready at /fly_to_waypoint</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 08 — QOS DEEP DIVE
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-qos">
+    <h2>Step 08: QoS Profiles — Why They Matter for UAV Code</h2>
+    <p>
+      Quality of Service (QoS) profiles are the most overlooked source of silent failures in ROS2 UAV code.
+      If a publisher and subscriber have incompatible QoS profiles, no error is thrown —
+      the subscriber simply never receives any messages. The node runs, the topic exists,
+      but the data never flows. This looks identical to "the sensor is not publishing."
+    </p>
+
+    <h3>The Two Profiles You Must Know</h3>
+    <table class="topic-table">
+      <thead>
+        <tr><th>Profile</th><th>Reliability</th><th>When to Use</th><th>MAVROS2 Topics</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>BEST_EFFORT</code></td>
+          <td>May drop messages. Fast. Lower CPU.</td>
+          <td>High-rate sensor data where a missed sample is fine (IMU at 100 Hz — missing one is harmless)</td>
+          <td><code>/mavros/imu/data</code>, <code>/mavros/battery</code>, <code>/mavros/global_position/global</code></td>
+        </tr>
+        <tr>
+          <td><code>RELIABLE</code></td>
+          <td>Guaranteed delivery. Retransmits on loss.</td>
+          <td>Low-rate, safety-critical data where missing a message is dangerous (mode changes, arm commands)</td>
+          <td><code>/mavros/state</code>, <code>/mavros/set_mode</code>, <code>/mavros/cmd/arming</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      The rule: <strong>your subscriber QoS must match or be less strict than the publisher QoS.</strong>
+      MAVROS2 publishes sensor topics with <code>BEST_EFFORT</code>. If you subscribe with
+      <code>RELIABLE</code>, ROS2 sees an incompatible pair and connects nothing — silently.
+      You can check what profile a topic is actually using:
+    </p>
+
+    <div class="code-block bash">
+      <span class="code-lang">bash</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><span class="prompt">$ </span>ros2 topic info /mavros/imu/data --verbose</pre>
+    </div>
+
+    <div class="terminal-output">
+      <span class="terminal-label">Output — note the QoS settings</span>
+      <pre>Type: sensor_msgs/msg/Imu
+
+<span class="t-cyan">Publisher count: 1</span>
+
+Node name: /mavros
+  Reliability: <span class="t-warn">BEST_EFFORT</span>   <span class="t-dim">&lt;-- must match this in your subscriber</span>
+  Durability: VOLATILE
+  Deadline: infinite
+  Lifespan: infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease: infinite
+
+<span class="t-cyan">Subscription count: 1</span>
+
+Node name: /telemetry_listener
+  Reliability: <span class="t-ok">BEST_EFFORT</span>   <span class="t-dim">&lt;-- correctly matched</span></pre>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 09 — RQT GRAPH
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-rqt">
+    <h2>Step 09: Visualising the Node Graph with rqt_graph</h2>
+    <p>
+      With PX4 SITL, MAVROS2, and all three L02 nodes running,
+      open <code>rqt_graph</code> to see the complete system as a visual graph.
+      This is your primary debugging tool for "why isn't my node receiving data?"
+    </p>
+
+    <div class="code-block bash">
+      <span class="code-lang">bash · Terminal 4</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><span class="prompt">$ </span>ros2 run rqt_graph rqt_graph</pre>
+    </div>
+
+    <p>
+      Set the dropdown to <strong>Nodes/Topics (all)</strong> to see every node and every topic
+      edge between them. You should see:
+    </p>
+
+    <ul>
+      <li><strong><code>/mavros</code></strong> — the MAVROS2 node, with output arrows to sensor topics</li>
+      <li><strong><code>/telemetry_listener</code></strong> — connected to five incoming topic arrows from <code>/mavros</code></li>
+      <li><strong><code>/heartbeat_service</code></strong> — connected to three incoming topic arrows</li>
+      <li><strong><code>/mission_action_server</code></strong> — connected to two incoming topics and one outgoing setpoint topic</li>
+    </ul>
+
+    <p>
+      If a node is not connected to a topic you expect, the cause is almost always one of:
+      QoS mismatch (step 08), wrong topic name (check with <code>ros2 topic list</code>),
+      or the node has not started subscribing yet (did colcon build succeed?).
+    </p>
+
+    <div class="callout lab-note">
+      <span class="callout-title">Useful Diagnostic Commands</span>
+      <code>ros2 node list</code> — all running nodes ·
+      <code>ros2 topic list</code> — all active topics ·
+      <code>ros2 topic echo /mavros/state</code> — print live messages ·
+      <code>ros2 topic hz /mavros/imu/data</code> — measure publish rate ·
+      <code>ros2 service list</code> — all active services ·
+      <code>ros2 action list</code> — all active action servers
+    </div>
+
+    <h3>Final Workspace State After L02</h3>
+    <div class="file-tree">
+<span class="ft-dir">aeroknow_ws/src/</span>
+├── <span class="ft-dir">aeroknow_utils/</span>          <span class="ft-note"># from L01 — sanity_check</span>
+│   └── <span class="ft-dir">aeroknow_utils/</span>
+│       └── <span class="ft-file">sanity_check.py</span>
+└── <span class="ft-dir">aeroknow_bringup/</span>         <span class="ft-new"># new in L02</span>
+    ├── <span class="ft-file">package.xml</span>
+    ├── <span class="ft-file">setup.py</span>
+    ├── <span class="ft-dir">action/</span>
+    │   └── <span class="ft-new">FlyToWaypoint.action</span>
+    ├── <span class="ft-dir">launch/</span>
+    │   └── <span class="ft-new">bringup_launch.py</span>
+    └── <span class="ft-dir">aeroknow_bringup/</span>
+        ├── <span class="ft-file">__init__.py</span>
+        ├── <span class="ft-new">telemetry_listener.py</span>
+        ├── <span class="ft-new">heartbeat_service.py</span>
+        └── <span class="ft-new">mission_action_server.py</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COMMON ERRORS
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-errors">
+    <h2>Common Errors &amp; Fixes</h2>
+    <p>
+      These are the errors that reliably appear in L02 — documented here
+      so you spend minutes, not hours, recovering from them.
+    </p>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 01 — Node receives no data despite topic existing</span>
+      <code class="error-msg">No messages on /mavros/imu/data (subscriber running but nothing arrives)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> QoS mismatch. Your subscriber profile does not match the publisher.
+        This is a silent failure — no warning, no error, just empty callbacks.
+        <strong>Fix:</strong> Run <code>ros2 topic info /mavros/imu/data --verbose</code> and
+        match the <code>Reliability</code> field exactly in your subscriber.
+        MAVROS2 sensor topics are <code>BEST_EFFORT</code>; state topics are <code>RELIABLE</code>.
+        Copy the QoS definitions from Step 04 exactly as written.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 02 — ModuleNotFoundError: aeroknow_bringup.action</span>
+      <code class="error-msg">ModuleNotFoundError: No module named 'aeroknow_bringup.action'</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The action Python bindings were not generated because the package
+        wasn't rebuilt after adding the <code>action/</code> directory and the <code>rosidl</code>
+        buildtool dependency.
+        <strong>Fix:</strong> (1) Confirm <code>package.xml</code> has the <code>rosidl_default_generators</code>
+        buildtool dependency. (2) Run <code>colcon build --symlink-install --packages-select aeroknow_bringup</code>
+        from <code>~/aeroknow_ws</code>. (3) Run <code>source install/setup.bash</code> in the same terminal
+        before running the node.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 03 — Action goal rejected immediately</span>
+      <code class="error-msg">Goal rejected: drone not armed</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The <code>goal_callback</code> in <code>mission_action_server.py</code>
+        checks that the drone is armed before accepting. In SITL, the drone starts disarmed.
+        <strong>Fix:</strong> Arm the drone first from the PX4 shell: type <code>commander arm</code>
+        in Terminal 1 (the PX4 shell). Then re-send the action goal.
+        In L03 you will write proper arm/takeoff logic that handles this automatically.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 04 — colcon build error: "No package 'geographic_msgs'"</span>
+      <code class="error-msg">ModuleNotFoundError: No module named 'geographic_msgs'</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> <code>geographic_msgs</code> is not installed by default with ROS2 Humble.
+        <strong>Fix:</strong>
+        <code>sudo apt install ros-humble-geographic-msgs</code>, then rebuild.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 05 — Launch file exits immediately with no error</span>
+      <code class="error-msg">[launch]: process has finished cleanly (no output)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> A syntax error in <code>bringup_launch.py</code> causes the
+        launch system to fail silently. Python launch files are not compiled —
+        errors only appear at run time.
+        <strong>Fix:</strong> Test the launch file directly with Python to see the traceback:
+        <code>python3 ~/aeroknow_ws/src/aeroknow_bringup/launch/bringup_launch.py</code>.
+        The real error will be printed, usually a missing import or indentation issue.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       EXTENSION CHALLENGES
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-extend">
+    <h2>Extension Challenges</h2>
+    <p>You have four ROS2 components running. Here are three harder things to try before L03.</p>
+
+    <div class="extension-box">
+      <ol>
+        <li>
+          <strong>Add a velocity subscriber to telemetry_listener.</strong>
+          Subscribe to <code>/mavros/local_position/velocity_local</code>
+          (type <code>geometry_msgs/TwistStamped</code>) and add a speed display
+          row to the terminal output. The topic name is <code>BEST_EFFORT</code>.
+          Use <code>math.sqrt(vx² + vy²)</code> for horizontal groundspeed.
+          This is the first data the GCS in L07 needs beyond what you already have.
+        </li>
+        <li>
+          <strong>Extend heartbeat_service with a latency check.</strong>
+          Add a fourth health criterion: the IMU must be publishing at ≥ 50 Hz.
+          Store the last 10 IMU timestamps and compute the rolling average rate.
+          Report "IMU degraded (rate: X Hz)" if it drops below 50 Hz.
+          This matters in L05 when the EKF depends on consistent IMU timing.
+        </li>
+        <li>
+          <strong>Write a mission action client.</strong>
+          Create a new script <code>mission_client.py</code> that programmatically
+          sends a goal to <code>/fly_to_waypoint</code>, prints feedback messages,
+          and prints the final result. Use <code>rclpy.action.ActionClient</code>.
+          This exact client pattern is used in L03 to chain multiple waypoints into
+          a full mission. Hint: look up <code>send_goal_async</code> and how to attach
+          a <code>feedback_callback</code> to it.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ── LAB NAV ── -->
+  <div class="lab-nav">
+    <a href="l01-environment-setup.html" class="btn-lab prev">◂ Lab 01: Setup</a>
+    <a href="l03-px4-mavros2.html"       class="btn-lab">Lab 03: PX4 + MAVROS2 ▸</a>
+  </div>
+
+</div><!-- end lab-page -->
+
+<footer>
+  <p>AEROKNOW · Practical Track · Lab 02 · ROS2 Fundamentals ·
+  ROS2 Humble · rclpy · MAVROS2</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    let text = pre.innerText
+      .split('\n')
+      .map(line => line.replace(/^\$\s*/, '').replace(/^pxh>\s*/, ''))
+      .join('\n')
+      .trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  function jumpTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  const sections = ['s-overview','s-prereqs','s-concepts','s-package','s-telemetry',
+                    's-service','s-action','s-launch','s-qos','s-rqt','s-errors','s-extend'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          if (buttons[idx]) buttons[idx].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+</script>
+</body>
+</html>
