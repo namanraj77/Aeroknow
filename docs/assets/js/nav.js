@@ -4,26 +4,38 @@
   'use strict';
 
   const MODULES = [
-    { num: '01', title: 'UAV Systems Overview',       href: '../modules/m01-uav-systems.html' },
-    { num: '02', title: 'Flight Dynamics',            href: '../modules/m02-flight-dynamics.html' },
-    { num: '03', title: 'GNC Fundamentals',           href: '../modules/m03-gnc-fundamentals.html' },
-    { num: '04', title: 'GNSS-Denied Navigation',     href: '../modules/m04-gnss-denied-nav.html' },
-    { num: '05', title: 'Sensor Fusion',              href: '../modules/m05-sensor-fusion.html' },
-    { num: '06', title: 'ML Foundations for UAV',     href: '../modules/m06-ml-foundations.html' },
-    { num: '07', title: 'Deep Learning & Perception', href: '../modules/m07-deep-learning-uav.html' },
-    { num: '08', title: 'Autonomy & Decision-Making', href: '../modules/m08-autonomy-decision.html' },
-    { num: '09', title: 'Swarm Systems',              href: '../modules/m09-swarm-systems.html' },
-    { num: '10', title: 'Systems Engineering',        href: '../modules/m10-systems-engineering.html' },
+    { num: '01', title: 'UAV Systems Overview',       href: 'modules/m01-uav-systems.html' },
+    { num: '02', title: 'Flight Dynamics',            href: 'modules/m02-flight-dynamics.html' },
+    { num: '03', title: 'GNC Fundamentals',           href: 'modules/m03-gnc-fundamentals.html' },
+    { num: '04', title: 'GNSS-Denied Navigation',     href: 'modules/m04-gnss-denied-nav.html' },
+    { num: '05', title: 'Sensor Fusion',              href: 'modules/m05-sensor-fusion.html' },
+    { num: '06', title: 'ML Foundations for UAV',     href: 'modules/m06-ml-foundations.html' },
+    { num: '07', title: 'Deep Learning & Perception', href: 'modules/m07-deep-learning-uav.html' },
+    { num: '08', title: 'Autonomy & Decision-Making', href: 'modules/m08-autonomy-decision.html' },
+    { num: '09', title: 'Swarm Systems',              href: 'modules/m09-swarm-systems.html' },
+    { num: '10', title: 'Systems Engineering',        href: 'modules/m10-systems-engineering.html' },
+  ];
+
+  const LABS = [
+    { num: 'L01', title: 'Environment Setup',        href: 'labs/l01-environment-setup.html', done: true  },
+    { num: 'L02', title: 'ROS2 Fundamentals',        href: 'labs/l02-ros2-fundamentals.html', done: false },
+    { num: 'L03', title: 'PX4 + MAVROS2',            href: 'labs/l03-px4-mavros2.html',        done: false },
+    { num: 'L04', title: 'Gazebo Simulation',        href: 'labs/l04-gazebo-simulation.html',  done: false },
+    { num: 'L05', title: 'GNSS-Denied Navigation',   href: 'labs/l05-gnss-denied-nav.html',    done: false },
+    { num: 'L06', title: 'Computer Vision Pipeline', href: 'labs/l06-computer-vision.html',    done: false },
+    { num: 'L07', title: 'Custom GCS',               href: 'labs/l07-custom-gcs.html',         done: false },
+    { num: 'L08', title: 'Swarm Simulation',         href: 'labs/l08-swarm-simulation.html',   done: false },
   ];
 
   function buildNav(basePath) {
     const bar = document.getElementById('main-nav');
     if (!bar) return;
 
+    // Logo
     const logo = document.createElement('a');
     logo.className = 'nav-logo';
     logo.href = basePath + 'index.html';
-    logo.innerHTML = 'AERO<span>KNOW</span>';
+    logo.innerHTML = 'AEROKNOW';
     bar.appendChild(logo);
 
     const ul = document.createElement('ul');
@@ -35,38 +47,50 @@
     ul.appendChild(homeLi);
 
     // Modules dropdown
-    const dropLi = document.createElement('li');
-    dropLi.className = 'nav-dropdown';
-    const dropA = document.createElement('a');
-    dropA.href = '#';
-    dropA.textContent = 'Modules ▾';
-    dropLi.appendChild(dropA);
-
-    const dropMenu = document.createElement('ul');
-    dropMenu.className = 'nav-dropdown-menu';
-
+    const modDrop = document.createElement('li');
+    modDrop.className = 'nav-dropdown';
+    modDrop.innerHTML = `<a href="#">Modules ▾</a>`;
+    const modMenu = document.createElement('ul');
+    modMenu.className = 'nav-dropdown-menu';
     MODULES.forEach(m => {
       const li = document.createElement('li');
-      li.innerHTML = `<a href="${basePath}${m.href.replace('../','')}">
-        <span class="nav-module-num">M${m.num}</span>${m.title}
+      li.innerHTML = `<a href="${basePath}${m.href}">
+        M${m.num} ${m.title}
       </a>`;
-      dropMenu.appendChild(li);
+      modMenu.appendChild(li);
     });
+    modDrop.appendChild(modMenu);
+    ul.appendChild(modDrop);
 
-    dropLi.appendChild(dropMenu);
-    ul.appendChild(dropLi);
+    // Labs dropdown
+    const labDrop = document.createElement('li');
+    labDrop.className = 'nav-dropdown';
+    labDrop.innerHTML = `<a href="#">Labs ▾</a>`;
+    const labMenu = document.createElement('ul');
+    labMenu.className = 'nav-dropdown-menu';
+    LABS.forEach(l => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="${basePath}${l.href}">
+        ${l.num} ${l.title} ${!l.done ? 'SOON' : ''}
+      </a>`;
+      labMenu.appendChild(li);
+    });
+    labDrop.appendChild(labMenu);
+    ul.appendChild(labDrop);
 
-    // Status
+    // Status indicator
     const statusDiv = document.createElement('div');
     statusDiv.className = 'nav-status';
     statusDiv.textContent = 'SIM ACTIVE';
+
     bar.appendChild(ul);
     bar.appendChild(statusDiv);
 
-    // Highlight active
+    // Highlight active link
     const currentPath = window.location.pathname;
-    bar.querySelectorAll('a').forEach(link => {
-      if (link.href && currentPath.endsWith(link.getAttribute('href').split('/').pop())) {
+    bar.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && href !== '#' && currentPath.endsWith(href.split('/').pop())) {
         link.classList.add('active');
       }
     });
@@ -90,9 +114,10 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Detect base path: are we in /modules/ or root?
-    const inModule = window.location.pathname.includes('/modules/');
-    const basePath = inModule ? '../' : '';
+    // Detect base path: modules/, labs/, or root
+    const path = window.location.pathname;
+    const inSubdir = path.includes('/modules/') || path.includes('/labs/');
+    const basePath = inSubdir ? '../' : '';
     buildNav(basePath);
     buildProgressBar();
   });

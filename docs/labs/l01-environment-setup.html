@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L01: Environment Setup — AEROKNOW Labs</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+
+    /* ── Lab accent override: green ── */
+    :root {
+      --lab-accent:      #00ff9d;
+      --lab-accent-dim:  rgba(0, 255, 157, 0.08);
+      --lab-accent-glow: 0 0 20px rgba(0, 255, 157, 0.3);
+      --lab-border:      rgba(0, 255, 157, 0.35);
+      --lab-border-dim:  rgba(0, 255, 157, 0.12);
+    }
+
+    /* ── Section jump bar ── */
+    .section-jump {
+      position: sticky;
+      top: 60px;
+      z-index: 100;
+      background: rgba(2,4,8,0.97);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--lab-border-dim);
+      padding: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 1rem;
+      min-width: max-content;
+    }
+    .jump-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0 0.75rem 0 0;
+      border-right: 1px solid var(--lab-border-dim);
+      margin-right: 0.25rem;
+      white-space: nowrap;
+      line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      padding: 0 0.85rem;
+      height: 42px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--lab-border); }
+    .jump-btn.active { color: var(--lab-accent); border-bottom-color: var(--lab-accent); }
+    .jump-btn .jb-num { color: var(--lab-accent); margin-right: 0.3rem; font-size: 0.58rem; }
+
+    /* ── Lab page layout ── */
+    .lab-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 2rem 5rem;
+    }
+
+    /* ── Lab hero ── */
+    .lab-hero {
+      padding: 3rem 0 2rem;
+      border-bottom: 1px solid var(--lab-border-dim);
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .lab-track-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--lab-accent);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .lab-track-label::before {
+      content: '';
+      width: 30px; height: 1px;
+      background: var(--lab-accent);
+      box-shadow: var(--lab-accent-glow);
+    }
+    .lab-hero h1 {
+      color: var(--text-primary);
+      text-shadow: 0 0 40px rgba(0,255,157,0.15);
+      margin-bottom: 1rem;
+    }
+    .lab-hero p.lead {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin-bottom: 1.5rem;
+      line-height: 1.75;
+    }
+    .lab-meta {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .lab-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    .lab-meta-item strong { color: var(--lab-accent); }
+
+    /* ── Lab section ── */
+    .lab-section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 105px;
+    }
+    .lab-section h2 {
+      color: var(--lab-accent);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--lab-border-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: clamp(1.1rem, 2vw, 1.6rem);
+    }
+    .lab-section h2::before {
+      content: '//';
+      font-family: var(--font-mono);
+      color: var(--lab-accent);
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+    .lab-section h3 {
+      color: var(--text-primary);
+      margin: 2rem 0 0.8rem;
+      font-size: 1.1rem;
+    }
+    .lab-section p { font-size: 1rem; line-height: 1.75; }
+    .lab-section ul, .lab-section ol { padding-left: 1.5rem; margin-bottom: 1.2rem; }
+    .lab-section li { margin-bottom: 0.5rem; color: var(--text-secondary); line-height: 1.65; }
+    .lab-section li strong { color: var(--text-primary); }
+
+    /* ── Lab Step block ── */
+    .lab-step {
+      border: 1px solid var(--lab-border-dim);
+      border-left: 3px solid var(--lab-accent);
+      background: rgba(0,255,157,0.025);
+      margin: 2rem 0;
+      position: relative;
+    }
+    .lab-step-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid var(--lab-border-dim);
+    }
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--lab-accent);
+      background: rgba(0,255,157,0.08);
+      border: 1px solid var(--lab-border);
+      padding: 0.2rem 0.5rem;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+    .step-title {
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.03em;
+    }
+    .lab-step-body { padding: 1.2rem 1.5rem; }
+
+    /* ── WHY box ── */
+    .why-box {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 1.2rem;
+      border-radius: 0 3px 3px 0;
+    }
+    .why-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+    .why-box p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+
+    /* ── Code block with copy button ── */
+    .code-block {
+      background: #020c14;
+      border: 1px solid var(--border-dim);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1.2rem 1.5rem;
+      overflow-x: auto;
+      position: relative;
+      margin: 1rem 0;
+    }
+    .code-block.bash { border-left-color: var(--lab-accent); }
+    .code-block.python { border-left-color: var(--accent-primary); }
+
+    .code-lang {
+      position: absolute;
+      top: 0.4rem; right: 3.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.35rem; right: 0.5rem;
+      background: rgba(0,255,157,0.07);
+      border: 1px solid var(--lab-border-dim);
+      color: var(--lab-accent);
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.5rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: var(--transition);
+    }
+    .copy-btn:hover { background: rgba(0,255,157,0.14); border-color: var(--lab-border); }
+    .copy-btn.copied { color: var(--accent-primary); border-color: var(--accent-primary); }
+
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: #c8e6f0;
+      white-space: pre;
+      tab-size: 4;
+    }
+    .code-block .cm  { color: #4a7a8a; font-style: italic; }
+    .code-block .kw  { color: #00d4ff; }
+    .code-block .fn  { color: #00ff9d; }
+    .code-block .st  { color: #ffd580; }
+    .code-block .nm  { color: #ff9d6f; }
+    .code-block .prompt { color: var(--lab-accent); user-select: none; }
+
+    /* ── Terminal output block ── */
+    .terminal-output {
+      background: #010a0f;
+      border: 1px solid rgba(0,255,157,0.1);
+      border-left: 3px solid rgba(0,255,157,0.4);
+      padding: 1rem 1.5rem;
+      margin: 0.75rem 0 1.2rem;
+      position: relative;
+    }
+    .terminal-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--lab-accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.6rem;
+      opacity: 0.7;
+    }
+    .terminal-output pre {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #7dbf9e;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .terminal-output pre .t-dim  { color: #3d6650; }
+    .terminal-output pre .t-ok   { color: #00ff9d; }
+    .terminal-output pre .t-warn { color: #ffb700; }
+    .terminal-output pre .t-err  { color: #ff3a3a; }
+
+    /* ── Error documentation block ── */
+    .error-doc {
+      background: rgba(255,58,58,0.03);
+      border: 1px solid rgba(255,58,58,0.15);
+      border-left: 3px solid var(--accent-red);
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+    .error-doc-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-red);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .error-doc .error-msg {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #ff8080;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+    .error-doc .error-fix { font-size: 0.92rem; color: var(--text-secondary); margin: 0; }
+    .error-doc .error-fix strong { color: var(--text-primary); }
+
+    /* ── Prereq checklist ── */
+    .prereq-check {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .prereq-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.65rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      font-size: 0.9rem;
+    }
+    .prereq-icon {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--lab-accent);
+      margin-top: 0.05rem;
+      flex-shrink: 0;
+    }
+    .prereq-item p { margin: 0; color: var(--text-secondary); line-height: 1.5; font-size: 0.9rem; }
+    .prereq-item code { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+
+    /* ── Theory link panel ── */
+    .theory-link {
+      background: rgba(255,183,0,0.03);
+      border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber);
+      padding: 1rem 1.2rem;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .theory-link-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-amber);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .theory-link p { margin: 0; color: var(--text-secondary); font-size: 0.92rem; flex: 1; min-width: 200px; }
+    .theory-link a { color: var(--accent-amber); text-decoration: underline; }
+
+    /* ── Extension challenges ── */
+    .extension-box {
+      background: rgba(0,255,157,0.025);
+      border: 1px solid var(--lab-border-dim);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .extension-box::before {
+      content: '◈ EXTENSION CHALLENGES';
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--lab-accent);
+      letter-spacing: 0.15em;
+      display: block;
+      margin-bottom: 1rem;
+    }
+    .extension-box ol { padding-left: 1.5rem; }
+    .extension-box li {
+      margin-bottom: 0.75rem;
+      font-size: 0.97rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+    .extension-box li a { color: var(--lab-accent); }
+
+    /* ── Lab nav bar (prev / next) ── */
+    .lab-nav {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--lab-border-dim);
+    }
+    .btn-lab {
+      background: transparent;
+      border: 1px solid var(--lab-accent);
+      color: var(--lab-accent);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.8rem 1.8rem;
+      text-decoration: none;
+      display: inline-block;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-lab::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--lab-accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: var(--transition);
+      z-index: -1;
+    }
+    .btn-lab:hover { color: var(--bg-void); box-shadow: var(--lab-accent-glow); text-shadow: none; }
+    .btn-lab:hover::before { transform: scaleX(1); }
+
+    /* ── SVG architecture diagram ── */
+    .arch-diagram {
+      margin: 2rem 0;
+      background: rgba(0,255,157,0.015);
+      border: 1px solid var(--lab-border-dim);
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+    .arch-diagram svg { display: block; margin: 0 auto; }
+
+    /* ── Callout overrides for lab pages ── */
+    .callout.lab-note {
+      border-color: var(--lab-accent);
+      background: rgba(0,255,157,0.04);
+    }
+    .callout.lab-note .callout-title { color: var(--lab-accent); }
+
+    @media (max-width: 768px) {
+      .lab-page { padding: 1rem 1rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- ── SECTION JUMP BAR ── -->
+<div class="section-jump">
+  <div class="jump-inner">
+    <span class="jump-label">L01 · JUMP TO</span>
+    <button class="jump-btn active" onclick="jumpTo('s-overview')"><span class="jb-num">00</span>Overview</button>
+    <button class="jump-btn" onclick="jumpTo('s-prereqs')"><span class="jb-num">01</span>Prerequisites</button>
+    <button class="jump-btn" onclick="jumpTo('s-ros2')"><span class="jb-num">02</span>ROS2 Humble</button>
+    <button class="jump-btn" onclick="jumpTo('s-px4')"><span class="jb-num">03</span>PX4 SITL</button>
+    <button class="jump-btn" onclick="jumpTo('s-gazebo')"><span class="jb-num">04</span>Gazebo Garden</button>
+    <button class="jump-btn" onclick="jumpTo('s-mavros')"><span class="jb-num">05</span>MAVROS2</button>
+    <button class="jump-btn" onclick="jumpTo('s-python')"><span class="jb-num">06</span>Python Deps</button>
+    <button class="jump-btn" onclick="jumpTo('s-workspace')"><span class="jb-num">07</span>Workspace</button>
+    <button class="jump-btn" onclick="jumpTo('s-first-flight')"><span class="jb-num">08</span>First Flight</button>
+    <button class="jump-btn" onclick="jumpTo('s-verify')"><span class="jb-num">09</span>Verify</button>
+    <button class="jump-btn" onclick="jumpTo('s-errors')"><span class="jb-num">ERR</span>Common Errors</button>
+    <button class="jump-btn" onclick="jumpTo('s-extend')"><span class="jb-num">+</span>Extend</button>
+  </div>
+</div>
+
+<div class="lab-page">
+
+  <!-- ══════════════════════════════════════════
+       HERO
+       ══════════════════════════════════════════ -->
+  <div class="lab-hero" id="s-overview">
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner br"></div>
+
+    <span class="lab-track-label">Practical Track · Lab 01 of 08</span>
+    <h1>Environment Setup &amp; First Flight</h1>
+    <p class="lead">
+      Install the complete AEROKNOW simulation stack on Ubuntu 22.04 — ROS2 Humble,
+      PX4 v1.14 SITL, Gazebo Garden, and MAVROS2. By the end of this lab, a simulated
+      drone is hovering in Gazebo and every topic in the stack is verified alive.
+      This is the foundation everything else depends on.
+    </p>
+
+    <div class="lab-meta">
+      <div class="lab-meta-item">⏱ <strong>~2–3 hours</strong>&nbsp;wall clock</div>
+      <div class="lab-meta-item">📋 <strong>9 steps</strong></div>
+      <div class="lab-meta-item">💻 <strong>Ubuntu 22.04</strong>&nbsp;required (bare metal or VM)</div>
+      <div class="lab-meta-item">🔧 <strong>No hardware</strong>&nbsp;required</div>
+      <span class="label label-green">ROS2 Humble</span>
+      <span class="label label-primary">PX4 v1.14</span>
+      <span class="label label-amber">Gazebo Garden</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       ARCHITECTURE DIAGRAM
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-arch">
+    <h2>What You Are Building</h2>
+    <p>
+      By the end of L01, this is the complete system running on your machine.
+      Every box is a separate process. Every arrow is a communication channel.
+      Later labs add nodes on top of this stack — nothing here gets replaced.
+    </p>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:820px; min-width:480px;">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="rgba(0,255,157,0.5)"/>
+          </marker>
+          <marker id="arr-dim" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="rgba(0,212,255,0.4)"/>
+          </marker>
+        </defs>
+
+        <!-- PX4 SITL -->
+        <rect x="20" y="130" width="160" height="70" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.35)" stroke-width="1.2"/>
+        <text x="100" y="152" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d" letter-spacing="1">PX4 SITL v1.14</text>
+        <text x="100" y="168" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#3d6b7a">Flight Controller</text>
+        <text x="100" y="184" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#3d6b7a">UDP :14550 / :14540</text>
+
+        <!-- Gazebo Garden -->
+        <rect x="20" y="240" width="160" height="70" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.35)" stroke-width="1.2"/>
+        <text x="100" y="262" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d" letter-spacing="1">Gazebo Garden</text>
+        <text x="100" y="278" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#3d6b7a">Physics Simulator</text>
+        <text x="100" y="294" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#3d6b7a">Sensor Plugins</text>
+
+        <!-- Arrow PX4 <-> Gazebo -->
+        <line x1="100" y1="200" x2="100" y2="240" stroke="rgba(0,255,157,0.3)" stroke-width="1.2" marker-end="url(#arr)" stroke-dasharray="4,2"/>
+        <line x1="110" y1="240" x2="110" y2="200" stroke="rgba(0,255,157,0.3)" stroke-width="1.2" marker-end="url(#arr)" stroke-dasharray="4,2"/>
+        <text x="116" y="223" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">gz-bridge</text>
+
+        <!-- MAVROS2 -->
+        <rect x="320" y="130" width="180" height="70" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.35)" stroke-width="1.2"/>
+        <text x="410" y="152" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00d4ff" letter-spacing="1">MAVROS2 Node</text>
+        <text x="410" y="168" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#3d6b7a">MAVLink ↔ ROS2</text>
+        <text x="410" y="184" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#3d6b7a">Bridge / Translator</text>
+
+        <!-- Arrow PX4 <-> MAVROS2 -->
+        <line x1="180" y1="160" x2="320" y2="160" stroke="rgba(0,255,157,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="320" y1="172" x2="180" y2="172" stroke="rgba(0,255,157,0.4)" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="220" y="155" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">MAVLink UDP</text>
+
+        <!-- ROS2 Topic Bus -->
+        <rect x="580" y="20" width="220" height="290" rx="2" fill="rgba(0,212,255,0.02)" stroke="rgba(0,212,255,0.12)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="690" y="42" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="rgba(0,212,255,0.5)" letter-spacing="1">ROS2 TOPIC BUS</text>
+
+        <!-- Topic rows -->
+        <text x="596" y="68" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/mavros/imu/data</text>
+        <text x="596" y="86" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/mavros/global_position/global</text>
+        <text x="596" y="104" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/mavros/state</text>
+        <text x="596" y="122" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/mavros/battery</text>
+        <text x="596" y="140" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.4)">/mavros/setpoint_position/local</text>
+        <text x="596" y="158" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.4)">/mavros/cmd/arming</text>
+        <text x="596" y="176" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.4)">/mavros/set_mode</text>
+        <line x1="590" y1="185" x2="790" y2="185" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+        <text x="596" y="202" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,212,255,0.3)">+ camera, lidar added in L04</text>
+
+        <!-- Arrow MAVROS2 -> ROS2 bus -->
+        <line x1="500" y1="155" x2="578" y2="120" stroke="rgba(0,212,255,0.35)" stroke-width="1.2" marker-end="url(#arr-dim)"/>
+        <text x="510" y="135" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">publishes</text>
+
+        <!-- sanity_check node -->
+        <rect x="320" y="240" width="180" height="70" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.2)" stroke-width="1"/>
+        <text x="410" y="262" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d" letter-spacing="1">sanity_check.py</text>
+        <text x="410" y="278" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#3d6b7a">You build this · L01</text>
+        <text x="410" y="294" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#3d6b7a">Verifies all topics alive</text>
+
+        <!-- Arrow MAVROS2 -> sanity check -->
+        <line x1="410" y1="200" x2="410" y2="240" stroke="rgba(0,255,157,0.25)" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arr)"/>
+
+        <!-- Workspace label -->
+        <text x="100" y="18" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.35)" letter-spacing="1">aeroknow_ws / SIMULATION LAYER</text>
+        <rect x="8" y="8" width="290" height="315" rx="2" fill="none" stroke="rgba(0,255,157,0.08)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="170" y="18" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.35)" letter-spacing="1">ROS2 LAYER</text>
+        <rect x="308" y="8" width="260" height="315" rx="2" fill="none" stroke="rgba(0,212,255,0.06)" stroke-width="1" stroke-dasharray="5,3"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       THEORY LINK
+       ══════════════════════════════════════════ -->
+  <div class="theory-link">
+    <span class="theory-link-label">Theory Link</span>
+    <p>
+      This lab implements the C2 architecture described in
+      <a href="../modules/m01-uav-systems.html">Module 01 — UAV Systems Overview</a>.
+      The GCS → MAVROS2 → PX4 chain you are installing is exactly the command-and-control
+      pipeline covered in §1.4. If the acronyms feel unfamiliar, read M01 §1.1–1.4 first.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 1 — PREREQUISITES
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-prereqs">
+    <h2>Step 1 — Prerequisites</h2>
+    <p>
+      Before installing anything, verify your machine meets every requirement below.
+      Skipping this check is the single most common reason a setup fails three hours in.
+    </p>
+
+    <div class="prereq-check">
+      <div class="prereq-item">
+        <span class="prereq-icon">▸</span>
+        <p><strong>Ubuntu 22.04 LTS (Jammy)</strong> — bare metal or VMware/VirtualBox with hardware virtualisation enabled.
+        WSL2 is not supported — Gazebo requires a real GPU/display stack.
+        Check: <code>lsb_release -a</code> must show <code>22.04</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">▸</span>
+        <p><strong>8 GB RAM minimum, 16 GB recommended.</strong>
+        PX4 SITL + Gazebo Garden + ROS2 together consume ~4–6 GB at runtime.
+        Check: <code>free -h</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">▸</span>
+        <p><strong>30 GB free disk space.</strong>
+        PX4 source tree is ~3 GB, Gazebo models cache grows over time.
+        Check: <code>df -h ~</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">▸</span>
+        <p><strong>Internet connection.</strong>
+        All packages are pulled from apt, pip, and GitHub. A slow connection adds
+        time but not failure risk — the installs are resumable.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">▸</span>
+        <p><strong>sudo access.</strong>
+        Several steps require root. Check: <code>sudo whoami</code> must print <code>root</code>.</p>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-title">VM note</span>
+      If running in VirtualBox: set Video Memory to 128 MB, enable 3D Acceleration,
+      and allocate at least 4 CPU cores. Gazebo Garden will refuse to launch with
+      less than 256 MB video memory if software rendering fallback is disabled.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 2 — ROS2 HUMBLE
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-ros2">
+    <h2>Step 2 — Install ROS2 Humble</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 02.1</span>
+        <span class="step-title">Add the ROS2 apt repository</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why</span>
+          <p>ROS2 Humble is not in Ubuntu's default apt sources. We add the official OSRF
+          repository and its GPG key so apt can find and verify every ROS2 package.
+          This is a one-time setup — once the source is added, all future <code>apt install ros-humble-*</code>
+          commands work without repeating this.</p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sudo apt update &amp;&amp; sudo apt install -y curl gnupg lsb-release
+<span class="prompt">$ </span>sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+    -o /usr/share/keyrings/ros-archive-keyring.gpg
+<span class="prompt">$ </span>echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] \
+    http://packages.ros.org/ros2/ubuntu $(. /etc/os-release &amp;&amp; echo $UBUNTU_CODENAME) main" \
+    | sudo tee /etc/apt/sources.list.d/ros2.list &gt; /dev/null
+<span class="prompt">$ </span>sudo apt update</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 02.2</span>
+        <span class="step-title">Install ROS2 Humble Desktop + colcon</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why</span>
+          <p><code>ros-humble-desktop</code> is the full install — it includes rviz2, rqt, and all
+          core libraries. We need the desktop variant (not base) because L02 uses rqt_graph
+          to visualise the node network. <code>colcon</code> is the ROS2 build system that compiles
+          our aeroknow_ws workspace in later labs.</p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sudo apt install -y ros-humble-desktop python3-colcon-common-extensions
+<span class="prompt">$ </span>echo "source /opt/ros/humble/setup.bash" &gt;&gt; ~/.bashrc
+<span class="prompt">$ </span>source ~/.bashrc</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-dim">Reading package lists... Done</span>
+<span class="t-dim">Building dependency tree... Done</span>
+<span class="t-ok">Setting up ros-humble-desktop (0.10.0-1jammy.20240101) ...</span>
+<span class="t-ok">Setting up python3-colcon-common-extensions ...</span></pre>
+        </div>
+
+        <p>Verify the install worked:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 --version</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-ok">ros2, version 0.18.x</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 3 — PX4 SITL
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-px4">
+    <h2>Step 3 — Install PX4 Autopilot v1.14 SITL</h2>
+
+    <p>
+      SITL stands for Software In The Loop. PX4 compiles to a native Linux binary
+      that runs the exact same flight control code as real hardware — but instead of
+      reading physical IMU sensors, it reads simulated sensor data from Gazebo.
+      The MAVLink UDP ports it opens are identical to a real vehicle.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 03.1</span>
+        <span class="step-title">Clone and run the PX4 setup script</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why v1.14 specifically</span>
+          <p>PX4 v1.14 is the latest LTS-equivalent release that is known to work with
+          Gazebo Garden and the ROS2 Humble MAVROS2 bridge. v1.15 introduced breaking
+          changes to the uXRCE-DDS interface that are not yet stable. We version-lock
+          everything in AEROKNOW Labs to eliminate setup divergence.</p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~
+<span class="prompt">$ </span>git clone https://github.com/PX4/PX4-Autopilot.git --recursive --branch v1.14.0
+<span class="prompt">$ </span>cd PX4-Autopilot
+<span class="prompt">$ </span>bash ./Tools/setup/ubuntu.sh</pre>
+        </div>
+
+        <div class="callout warning">
+          <span class="callout-title">Time warning</span>
+          The <code>ubuntu.sh</code> script installs ~200 packages including GCC arm cross-compiler toolchains,
+          Python build tools, and Gazebo dependencies. On a typical broadband connection
+          this takes 15–25 minutes. Do not interrupt it.
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected final lines of ubuntu.sh</span>
+          <pre><span class="t-dim">-- Installing: /usr/local/bin/px4-alias.sh</span>
+<span class="t-ok">PX4 development environment setup complete.</span>
+<span class="t-ok">Please log out and back in, or run: source ~/.bashrc</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 03.2</span>
+        <span class="step-title">Build PX4 SITL</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why</span>
+          <p>This compiles PX4 for the <code>gz_x500</code> target — a simulated X500 quadrotor
+          with Gazebo Garden as the physics backend. The first build takes 5–10 minutes
+          and produces the <code>px4</code> binary in <code>build/px4_sitl_default/</code>.
+          Subsequent builds are incremental and fast.</p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/PX4-Autopilot
+<span class="prompt">$ </span>make px4_sitl gz_x500</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected final lines — Gazebo should open automatically</span>
+          <pre><span class="t-dim">INFO  [px4] Startup script returned successfully</span>
+<span class="t-ok">INFO  [commander] Ready for takeoff!</span>
+<span class="t-dim">pxh&gt; </span></pre>
+        </div>
+
+        <p>
+          Gazebo Garden will launch and show the X500 quadrotor sitting on the ground.
+          You now have a working PX4 SITL instance. Close Gazebo and the PX4 shell
+          with <code>Ctrl+C</code> — we will launch them properly in Step 8.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 4 — GAZEBO GARDEN
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-gazebo">
+    <h2>Step 4 — Verify Gazebo Garden</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 04.1</span>
+        <span class="step-title">Install the ROS2–Gazebo bridge</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why</span>
+          <p>Gazebo Garden uses a completely separate topic system from ROS2. The
+          <code>ros_gz_bridge</code> package translates between them — a Gazebo camera image
+          becomes a ROS2 <code>sensor_msgs/Image</code>, a Gazebo IMU becomes a ROS2
+          <code>sensor_msgs/Imu</code>. Without the bridge, your ROS2 nodes cannot
+          see any sensor data from the simulation.</p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sudo apt install -y ros-humble-ros-gz-bridge ros-humble-ros-gz-sim \
+    ros-humble-ros-gz-interfaces gz-garden</pre>
+        </div>
+
+        <p>Verify Gazebo is accessible from the command line:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>gz sim --version</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-ok">Gazebo Sim, version 7.x.x</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 5 — MAVROS2
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-mavros">
+    <h2>Step 5 — Install MAVROS2</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 05.1</span>
+        <span class="step-title">Install MAVROS2 and its GeographicLib datasets</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why MAVROS2 exists</span>
+          <p>MAVLink is the binary protocol PX4 uses to communicate — it is compact and
+          efficient but not natively readable by ROS2 nodes. MAVROS2 is a bridge:
+          it speaks MAVLink to PX4 over UDP and re-publishes everything as standard
+          ROS2 topics. Your Python nodes never touch raw MAVLink — they just subscribe
+          to <code>/mavros/imu/data</code> and publish to <code>/mavros/setpoint_position/local</code>.</p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sudo apt install -y ros-humble-mavros ros-humble-mavros-extras
+<span class="prompt">$ </span>ros2 run mavros install_geographiclib_datasets.sh</pre>
+        </div>
+
+        <div class="callout warning">
+          <span class="callout-title">GeographicLib is mandatory</span>
+          The <code>install_geographiclib_datasets.sh</code> script downloads ~65 MB of
+          magnetic field and geoid model data. MAVROS2 will crash at startup without it
+          with a cryptic "geoid file not found" error. Always run this after installing mavros.
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-dim">Downloading geoid dataset (egm96-5)...</span>
+<span class="t-ok">Done: /usr/share/GeographicLib/geoids/egm96-5.pgm</span>
+<span class="t-dim">Downloading gravity dataset (egm96)...</span>
+<span class="t-ok">Done: /usr/share/GeographicLib/gravity/egm96.egm</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 6 — PYTHON DEPENDENCIES
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-python">
+    <h2>Step 6 — Python Dependencies</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 06.1</span>
+        <span class="step-title">Install Python packages used across all labs</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why install everything now</span>
+          <p>Installing all Python dependencies in L01 means L02–L08 never start with a
+          missing package. Each package is used as follows: <code>numpy</code> — all matrix math;
+          <code>opencv-python</code> — camera frame processing in L06; <code>ultralytics</code> — YOLOv8n
+          in L06; <code>PyQt5</code> — GCS window in L07; <code>folium</code> — map widget in L07.</p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>pip3 install --upgrade pip
+<span class="prompt">$ </span>pip3 install numpy opencv-python ultralytics PyQt5 folium</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected final lines</span>
+          <pre><span class="t-ok">Successfully installed numpy-1.26.x opencv-python-4.9.x</span>
+<span class="t-ok">Successfully installed ultralytics-8.x.x</span>
+<span class="t-ok">Successfully installed PyQt5-5.15.x folium-0.16.x</span></pre>
+        </div>
+
+        <p>Verify the most critical import — YOLOv8n downloads its model weights on first use:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>python3 -c "from ultralytics import YOLO; print('YOLOv8 OK')"</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-ok">YOLOv8 OK</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 7 — WORKSPACE
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-workspace">
+    <h2>Step 7 — Create the aeroknow_ws Workspace</h2>
+
+    <p>
+      All lab code lives in one unified ROS2 workspace — <code>aeroknow_ws/</code>.
+      You will add new packages to this workspace in every subsequent lab.
+      Creating it now means L02 can start immediately.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07.1</span>
+        <span class="step-title">Create workspace structure and first package</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this structure</span>
+          <p>A ROS2 workspace has a <code>src/</code> directory for source packages and a
+          <code>install/</code> directory (created by colcon) for built artefacts. The
+          <code>aeroknow_utils</code> package created here is a shared utilities package — it will
+          hold common helper functions used by the nodes built in later labs, avoiding
+          code duplication across packages.</p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src
+<span class="prompt">$ </span>cd ~/aeroknow_ws/src
+<span class="prompt">$ </span>ros2 pkg create --build-type ament_python aeroknow_utils \
+    --dependencies rclpy std_msgs sensor_msgs geometry_msgs mavros_msgs</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-ok">going to create a new package</span>
+<span class="t-ok">package name: aeroknow_utils</span>
+<span class="t-ok">destination directory: /home/user/aeroknow_ws/src</span>
+<span class="t-ok">build type: ament_python</span>
+<span class="t-ok">dependencies: ['rclpy', 'std_msgs', 'sensor_msgs', 'geometry_msgs', 'mavros_msgs']</span>
+<span class="t-ok">creating folder ./aeroknow_utils</span>
+<span class="t-ok">creating ./aeroknow_utils/package.xml</span>
+<span class="t-ok">creating ./aeroknow_utils/setup.py</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07.2</span>
+        <span class="step-title">Build the workspace</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install
+<span class="prompt">$ </span>echo "source ~/aeroknow_ws/install/setup.bash" &gt;&gt; ~/.bashrc
+<span class="prompt">$ </span>source ~/.bashrc</pre>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-title">--symlink-install</span>
+          This flag means Python source files are symlinked into the install directory
+          rather than copied. You can edit <code>.py</code> files in <code>src/</code> and the changes
+          take effect immediately without re-running <code>colcon build</code>. Always use this
+          flag during development.
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-dim">Starting >>> aeroknow_utils</span>
+<span class="t-ok">Finished <<< aeroknow_utils [1.2s]</span>
+<span class="t-ok">Summary: 1 package finished [1.5s]</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 8 — FIRST FLIGHT
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-first-flight">
+    <h2>Step 8 — First Flight</h2>
+
+    <p>
+      This is the payoff step. We launch PX4 SITL with Gazebo, connect MAVROS2,
+      and command a takeoff — all from separate terminals.
+      You need <strong>three terminal windows</strong> open simultaneously.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 08.1</span>
+        <span class="step-title">Terminal 1 — Launch PX4 SITL + Gazebo</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 1</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/PX4-Autopilot
+<span class="prompt">$ </span>make px4_sitl gz_x500</pre>
+        </div>
+        <p>Wait until you see <code>INFO [commander] Ready for takeoff!</code> and the Gazebo window shows the drone.</p>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 08.2</span>
+        <span class="step-title">Terminal 2 — Launch MAVROS2</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why</span>
+          <p>MAVROS2 connects to PX4 on UDP port 14550 (the GCS port) and begins translating
+          MAVLink messages into ROS2 topics. The <code>fcu_url</code> parameter tells it where PX4 is.
+          The <code>gcs_url</code> parameter would forward telemetry to a GCS like QGroundControl —
+          we leave it empty for now.</p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 2</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source /opt/ros/humble/setup.bash
+<span class="prompt">$ </span>ros2 launch mavros px4.launch fcu_url:="udp://:14550@127.0.0.1:14557"</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output — MAVROS2 connected</span>
+          <pre><span class="t-dim">[INFO] [mavros_node]: FCU URL: udp://:14550@127.0.0.1:14557</span>
+<span class="t-ok">[INFO] [mavros_node]: Connected to vehicle</span>
+<span class="t-ok">[INFO] [mavros_node]: GCS bridge started</span>
+<span class="t-dim">[INFO] [mavros_node]: Mode: MANUAL</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 08.3</span>
+        <span class="step-title">Terminal 3 — Command takeoff via PX4 shell</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why the PX4 shell for first takeoff</span>
+          <p>The PX4 shell (pxh&gt;) is a direct interface to the flight controller — no ROS2
+          involved. Commanding takeoff from here proves PX4 and Gazebo are working before
+          we add the MAVROS2 layer. If this doesn't work, the problem is in the simulation,
+          not in our ROS2 code.</p>
+        </div>
+        <div class="callout info">
+          <span class="callout-title">Finding the PX4 shell</span>
+          The PX4 shell is in Terminal 1 — the one where you ran <code>make px4_sitl gz_x500</code>.
+          Look for the <code>pxh&gt;</code> prompt at the bottom.
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">PX4 shell (Terminal 1 · pxh&gt; prompt)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre>pxh&gt; commander takeoff</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected: drone lifts to 2.5m in Gazebo</span>
+          <pre><span class="t-ok">INFO  [commander] Takeoff detected</span>
+<span class="t-ok">INFO  [navigator] Takeoff completed</span></pre>
+        </div>
+        <p>The drone should visibly rise in the Gazebo window and hold altitude.
+        This confirms PX4 SITL + Gazebo Garden is fully functional. 🎉</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 9 — VERIFY ALL TOPICS
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-verify">
+    <h2>Step 9 — Verify All Topics (sanity_check.py)</h2>
+
+    <p>
+      A working Gazebo + PX4 window is not enough. We need to verify that
+      every ROS2 topic we will use in later labs is actually publishing data.
+      This script is the first Python node you build in aeroknow_ws.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 09.1</span>
+        <span class="step-title">Write sanity_check.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">What this node does</span>
+          <p>
+            <code>sanity_check.py</code> subscribes to 5 critical topics simultaneously and waits for
+            at least one message on each within 10 seconds. If any topic is silent, it
+            prints a red error with a diagnostic hint. This catches 90% of broken setups
+            — a MAVROS2 connection issue shows up immediately rather than mysteriously
+            causing failures in L03 flight code.
+          </p>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+# sanity_check.py — L01: verify the full stack is alive
+# Save to: ~/aeroknow_ws/src/aeroknow_utils/aeroknow_utils/sanity_check.py</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> Imu, NavSatFix, BatteryState
+<span class="kw">from</span> mavros_msgs.msg <span class="kw">import</span> State
+<span class="kw">from</span> std_msgs.msg <span class="kw">import</span> Float64
+<span class="kw">import</span> threading, time
+
+<span class="cm"># ── Topics to verify ───────────────────────────────────────────────
+# Each entry: (topic_name, msg_type, description)</span>
+REQUIRED_TOPICS = [
+    (<span class="st">'/mavros/imu/data'</span>,                  Imu,          <span class="st">'IMU (roll/pitch/yaw rates)'</span>),
+    (<span class="st">'/mavros/global_position/global'</span>,    NavSatFix,    <span class="st">'GPS fix'</span>),
+    (<span class="st">'/mavros/state'</span>,                      State,        <span class="st">'Vehicle state (armed, mode)'</span>),
+    (<span class="st">'/mavros/battery'</span>,                    BatteryState, <span class="st">'Battery telemetry'</span>),
+    (<span class="st">'/mavros/global_position/rel_alt'</span>,   Float64,      <span class="st">'Relative altitude'</span>),
+]
+
+<span class="kw">class</span> <span class="fn">SanityCheck</span>(Node):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'sanity_check'</span>)
+        self.received = {t[<span class="nm">0</span>]: <span class="kw">False</span> <span class="kw">for</span> t <span class="kw">in</span> REQUIRED_TOPICS}
+        self.subs = []
+
+        <span class="cm"># Subscribe to all required topics</span>
+        <span class="kw">for</span> topic, msg_type, desc <span class="kw">in</span> REQUIRED_TOPICS:
+            cb = <span class="kw">lambda</span> msg, t=topic: self._mark(t)
+            self.subs.append(self.create_subscription(msg_type, topic, cb, <span class="nm">10</span>))
+
+        self.get_logger().info(<span class="st">'Waiting for topics (10s timeout)...'</span>)
+        self._timer = self.create_timer(<span class="nm">10.0</span>, self._report)
+
+    <span class="kw">def</span> <span class="fn">_mark</span>(self, topic):
+        <span class="kw">if not</span> self.received[topic]:
+            self.received[topic] = <span class="kw">True</span>
+            self.get_logger().info(<span class="st">f'  ✓  {topic}'</span>)
+
+    <span class="kw">def</span> <span class="fn">_report</span>(self):
+        self._timer.cancel()
+        ok = <span class="nm">0</span>
+        <span class="kw">print</span>(<span class="st">'\n──────────────────────────────────'</span>)
+        <span class="kw">print</span>(<span class="st">'  AEROKNOW L01 — STACK VERIFICATION'</span>)
+        <span class="kw">print</span>(<span class="st">'──────────────────────────────────'</span>)
+        <span class="kw">for</span> topic, _, desc <span class="kw">in</span> REQUIRED_TOPICS:
+            status = <span class="st">'✓ OK '</span> <span class="kw">if</span> self.received[topic] <span class="kw">else</span> <span class="st">'✗ FAIL'</span>
+            <span class="kw">if</span> self.received[topic]:
+                ok += <span class="nm">1</span>
+            <span class="kw">print</span>(<span class="st">f'  {status}  {topic}'</span>)
+            <span class="kw">if not</span> self.received[topic]:
+                <span class="kw">print</span>(<span class="st">f'         → Check: is MAVROS2 running? (ros2 node list | grep mavros)'</span>)
+        <span class="kw">print</span>(<span class="st">'──────────────────────────────────'</span>)
+        <span class="kw">print</span>(<span class="st">f'  Result: {ok}/{len(REQUIRED_TOPICS)} topics alive'</span>)
+        <span class="kw">if</span> ok == len(REQUIRED_TOPICS):
+            <span class="kw">print</span>(<span class="st">'  STATUS: STACK OK — ready for L02\n'</span>)
+        <span class="kw">else</span>:
+            <span class="kw">print</span>(<span class="st">'  STATUS: PROBLEMS FOUND — see errors above\n'</span>)
+        rclpy.shutdown()
+
+
+<span class="kw">def</span> <span class="fn">main</span>():
+    rclpy.init()
+    node = SanityCheck()
+    rclpy.spin(node)
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>:
+    main()</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 09.2</span>
+        <span class="step-title">Register sanity_check as a ROS2 entry point and run it</span>
+      </div>
+      <div class="lab-step-body">
+        <p>Add the entry point to <code>setup.py</code> so colcon knows about the script:</p>
+
+        <div class="code-block python">
+          <span class="code-lang">python · setup.py (inside aeroknow_utils/)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># In the entry_points dict, add:</span>
+<span class="st">'console_scripts'</span>: [
+    <span class="st">'sanity_check = aeroknow_utils.sanity_check:main'</span>,
+],</pre>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws &amp;&amp; colcon build --symlink-install
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_utils sanity_check</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output — all topics alive</span>
+          <pre><span class="t-dim">[INFO] Waiting for topics (10s timeout)...</span>
+<span class="t-ok">[INFO]   ✓  /mavros/imu/data</span>
+<span class="t-ok">[INFO]   ✓  /mavros/global_position/global</span>
+<span class="t-ok">[INFO]   ✓  /mavros/state</span>
+<span class="t-ok">[INFO]   ✓  /mavros/battery</span>
+<span class="t-ok">[INFO]   ✓  /mavros/global_position/rel_alt</span>
+
+──────────────────────────────────
+  AEROKNOW L01 — STACK VERIFICATION
+──────────────────────────────────
+<span class="t-ok">  ✓ OK   /mavros/imu/data</span>
+<span class="t-ok">  ✓ OK   /mavros/global_position/global</span>
+<span class="t-ok">  ✓ OK   /mavros/state</span>
+<span class="t-ok">  ✓ OK   /mavros/battery</span>
+<span class="t-ok">  ✓ OK   /mavros/global_position/rel_alt</span>
+──────────────────────────────────
+  Result: 5/5 topics alive
+<span class="t-ok">  STATUS: STACK OK — ready for L02</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COMMON ERRORS
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-errors">
+    <h2>Common Errors &amp; Fixes</h2>
+    <p>
+      These are the errors that reliably appear during L01 setup — documented here
+      so you spend minutes, not hours, recovering from them.
+    </p>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 01 — Gazebo fails to open / black window</span>
+      <code class="error-msg">ERROR [gz]: Unable to initialize rendering engine. Aborting.</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> Gazebo Garden requires OpenGL 3.3+. Inside VirtualBox, 3D Acceleration
+        must be enabled in VM Settings → Display. On bare metal with NVIDIA, make sure
+        the proprietary driver is active (<code>nvidia-smi</code> should print GPU info).
+        <strong>Fix:</strong> <code>sudo ubuntu-drivers autoinstall</code> then reboot.
+        If on VirtualBox, enable "Enable 3D Acceleration" and set video memory ≥ 128 MB.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 02 — MAVROS2 connection timeout</span>
+      <code class="error-msg">FCU: timeout, no heartbeat received in 3 seconds</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> MAVROS2 cannot reach PX4 on UDP port 14550.
+        Either PX4 SITL is not running, or a firewall is blocking local UDP.
+        <strong>Fix:</strong> Confirm PX4 SITL is running and shows <code>Ready for takeoff!</code>
+        in Terminal 1. Then check: <code>sudo ufw status</code> — if UFW is active,
+        run <code>sudo ufw allow from 127.0.0.1</code>.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 03 — colcon build fails with "mavros_msgs not found"</span>
+      <code class="error-msg">CMake Error: Could not find package configuration file for "mavros_msgs"</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> MAVROS2 is installed but not sourced into the current shell.
+        <strong>Fix:</strong> Run <code>source /opt/ros/humble/setup.bash</code> before
+        <code>colcon build</code>, or add it to <code>~/.bashrc</code> if you haven't already.
+        Then re-run <code>colcon build</code>.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 04 — PX4 make fails: "No such file or directory: px4_sitl_default"</span>
+      <code class="error-msg">make: *** [Makefile:232: px4_sitl_default] Error 1</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The PX4 git submodules were not initialised.
+        <strong>Fix:</strong> <code>cd ~/PX4-Autopilot &amp;&amp; git submodule update --init --recursive</code>.
+        This downloads ~500 MB of additional source — use the <code>--recursive</code> flag or
+        nested submodules will also be missing.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 05 — sanity_check shows GPS fail despite everything running</span>
+      <code class="error-msg">✗ FAIL  /mavros/global_position/global</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The simulated GPS takes 10–20 seconds to acquire a 3D fix after
+        PX4 SITL starts. This is intentional — it mirrors real GPS cold-start behaviour.
+        <strong>Fix:</strong> Wait 20 seconds after MAVROS2 connects, then re-run
+        <code>sanity_check</code>. You can watch GPS status with:
+        <code>ros2 topic echo /mavros/state</code> — wait until <code>system_status: 4</code>
+        (MAV_STATE_ACTIVE).
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       EXTENSION CHALLENGES
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-extend">
+    <h2>Extension Challenges</h2>
+    <p>You have a working stack. Here are three harder things to try before moving to L02.</p>
+
+    <div class="extension-box">
+      <ol>
+        <li>
+          <strong>Extend sanity_check with latency measurement.</strong>
+          Record the timestamp of the first message received on each topic and compute
+          the gap between MAVROS2 startup and first valid IMU reading. Is it consistent
+          across restarts? Hint: use <code>self.get_clock().now()</code> and store a
+          startup time in <code>__init__</code>.
+          This skill — measuring topic latency in ROS2 — is used in L05 when we tune
+          the EKF timing.
+        </li>
+        <li>
+          <strong>Watch the rqt_graph.</strong>
+          With PX4, Gazebo, MAVROS2, and sanity_check all running simultaneously,
+          open a fourth terminal and run <code>rqt_graph</code>. You should see the MAVROS2
+          node connected to your sanity_check node via topic edges.
+          This is the exact same graph visualisation used in
+          <a href="l02-ros2-fundamentals.html">L02 — ROS2 Fundamentals</a>
+          to reason about node architecture.
+        </li>
+        <li>
+          <strong>Command a manual land from the PX4 shell.</strong>
+          After the drone is hovering from Step 8, type <code>commander land</code> in the
+          PX4 shell prompt. Observe the landing sequence. Then look at
+          <code>ros2 topic echo /mavros/state</code> and watch the <code>mode</code> field
+          change as PX4 transitions from POSCTL to LAND.
+          Understanding mode transitions is the first concept in
+          <a href="l03-px4-mavros2.html">L03 — PX4 + MAVROS2</a>.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ── LAB NAV ── -->
+  <div class="lab-nav">
+    <a href="l02-ros2-fundamentals.html" class="btn-lab">Lab 02: ROS2 Fundamentals ▸</a>
+  </div>
+
+</div><!-- end lab-page -->
+
+<footer>
+  <p>AEROKNOW · Practical Track · Lab 01 · Environment Setup ·
+  ROS2 Humble · PX4 v1.14 · Gazebo Garden</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script>
+  /* ── Copy button logic ── */
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    // Strip out prompt characters and leading $ for cleaner copy
+    let text = pre.innerText
+      .split('\n')
+      .map(line => line.replace(/^\$\s*/, '').replace(/^pxh>\s*/, ''))
+      .join('\n')
+      .trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('copied');
+      }, 1800);
+    });
+  }
+
+  /* ── Section jump bar ── */
+  function jumpTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  /* ── Highlight active jump button on scroll ── */
+  const sections = ['s-overview','s-prereqs','s-ros2','s-px4','s-gazebo',
+                    's-mavros','s-python','s-workspace','s-first-flight',
+                    's-verify','s-errors','s-extend'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          if (buttons[idx]) buttons[idx].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px', threshold: 0 });
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
