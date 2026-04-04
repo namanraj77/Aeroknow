@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L03: PX4 + MAVROS2 — AEROKNOW Labs</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+
+    /* ── Lab accent override: green ── */
+    :root {
+      --lab-accent:      #00ff9d;
+      --lab-accent-dim:  rgba(0, 255, 157, 0.08);
+      --lab-accent-glow: 0 0 20px rgba(0, 255, 157, 0.3);
+      --lab-border:      rgba(0, 255, 157, 0.35);
+      --lab-border-dim:  rgba(0, 255, 157, 0.12);
+    }
+
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.97); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--lab-border-dim);
+      padding: 0; overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--lab-border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--lab-border); }
+    .jump-btn.active { color: var(--lab-accent); border-bottom-color: var(--lab-accent); }
+    .jump-btn .jb-num { color: var(--lab-accent); margin-right: 0.3rem; font-size: 0.58rem; }
+
+    .lab-page { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+
+    .lab-hero {
+      padding: 3rem 0 2rem; border-bottom: 1px solid var(--lab-border-dim);
+      margin-bottom: 3rem; position: relative;
+    }
+    .lab-track-label {
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--lab-accent);
+      letter-spacing: 0.25em; text-transform: uppercase;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .lab-track-label::before {
+      content: ''; width: 30px; height: 1px;
+      background: var(--lab-accent); box-shadow: var(--lab-accent-glow);
+    }
+    .lab-hero h1 { color: var(--text-primary); text-shadow: 0 0 40px rgba(0,255,157,0.15); margin-bottom: 1rem; }
+    .lab-hero p.lead { font-size: 1.1rem; color: var(--text-secondary); max-width: 680px; margin-bottom: 1.5rem; line-height: 1.75; }
+    .lab-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
+    .lab-meta-item { display: flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); }
+    .lab-meta-item strong { color: var(--lab-accent); }
+
+    .lab-section { margin-bottom: 4rem; scroll-margin-top: 105px; }
+    .lab-section h2 {
+      color: var(--lab-accent); margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem; border-bottom: 1px solid var(--lab-border-dim);
+      display: flex; align-items: center; gap: 0.75rem;
+      font-size: clamp(1.1rem, 2vw, 1.6rem);
+    }
+    .lab-section h2::before { content: '//'; font-family: var(--font-mono); color: var(--lab-accent); font-size: 0.9rem; opacity: 0.6; }
+    .lab-section h3 { color: var(--text-primary); margin: 2rem 0 0.8rem; font-size: 1.1rem; }
+    .lab-section p { font-size: 1rem; line-height: 1.75; }
+    .lab-section ul, .lab-section ol { padding-left: 1.5rem; margin-bottom: 1.2rem; }
+    .lab-section li { margin-bottom: 0.5rem; color: var(--text-secondary); line-height: 1.65; }
+    .lab-section li strong { color: var(--text-primary); }
+
+    .lab-step {
+      border: 1px solid var(--lab-border-dim); border-left: 3px solid var(--lab-accent);
+      background: rgba(0,255,157,0.025); margin: 2rem 0; position: relative;
+    }
+    .lab-step-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--lab-border-dim);
+    }
+    .step-num {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--lab-accent);
+      background: rgba(0,255,157,0.08); border: 1px solid var(--lab-border);
+      padding: 0.2rem 0.5rem; letter-spacing: 0.1em; white-space: nowrap;
+    }
+    .step-title { font-family: var(--font-ui); font-size: 1rem; font-weight: 600; color: var(--text-primary); letter-spacing: 0.03em; }
+    .lab-step-body { padding: 1.2rem 1.5rem; }
+
+    .why-box {
+      background: rgba(0,212,255,0.03); border-left: 3px solid var(--accent-primary);
+      padding: 0.9rem 1.1rem; margin-bottom: 1.2rem; border-radius: 0 3px 3px 0;
+    }
+    .why-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-primary); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.35rem; }
+    .why-box p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+
+    .code-block {
+      background: #020c14; border: 1px solid var(--border-dim);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1.2rem 1.5rem; overflow-x: auto; position: relative; margin: 1rem 0;
+    }
+    .code-block.bash  { border-left-color: var(--lab-accent); }
+    .code-block.python{ border-left-color: var(--accent-primary); }
+    .code-lang { position: absolute; top: 0.4rem; right: 3.5rem; font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .copy-btn {
+      position: absolute; top: 0.35rem; right: 0.5rem;
+      background: rgba(0,255,157,0.07); border: 1px solid var(--lab-border-dim);
+      color: var(--lab-accent); font-family: var(--font-mono); font-size: 0.58rem;
+      letter-spacing: 0.08em; padding: 0.2rem 0.5rem; cursor: pointer;
+      text-transform: uppercase; transition: var(--transition);
+    }
+    .copy-btn:hover { background: rgba(0,255,157,0.14); border-color: var(--lab-border); }
+    .copy-btn.copied { color: var(--accent-primary); border-color: var(--accent-primary); }
+    .code-block pre { font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.7; color: #c8e6f0; white-space: pre; tab-size: 4; }
+    .code-block .cm  { color: #4a7a8a; font-style: italic; }
+    .code-block .kw  { color: #00d4ff; }
+    .code-block .fn  { color: #00ff9d; }
+    .code-block .st  { color: #ffd580; }
+    .code-block .nm  { color: #ff9d6f; }
+    .code-block .tp  { color: #b388ff; }
+    .code-block .prompt { color: var(--lab-accent); user-select: none; }
+    .code-block .pxh   { color: var(--accent-amber); user-select: none; }
+
+    .terminal-output {
+      background: #010a0f; border: 1px solid rgba(0,255,157,0.1);
+      border-left: 3px solid rgba(0,255,157,0.4);
+      padding: 1rem 1.5rem; margin: 0.75rem 0 1.2rem; position: relative;
+    }
+    .terminal-label { font-family: var(--font-mono); font-size: 0.58rem; color: var(--lab-accent); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.6rem; opacity: 0.7; }
+    .terminal-output pre { font-family: var(--font-mono); font-size: 0.8rem; color: #7dbf9e; line-height: 1.65; white-space: pre-wrap; word-break: break-all; }
+    .terminal-output pre .t-dim  { color: #3d6650; }
+    .terminal-output pre .t-ok   { color: #00ff9d; }
+    .terminal-output pre .t-warn { color: #ffb700; }
+    .terminal-output pre .t-err  { color: #ff3a3a; }
+    .terminal-output pre .t-cyan { color: #00d4ff; }
+    .terminal-output pre .t-pub  { color: #b388ff; }
+
+    .error-doc { background: rgba(255,58,58,0.03); border: 1px solid rgba(255,58,58,0.15); border-left: 3px solid var(--accent-red); padding: 1rem 1.2rem; margin: 1rem 0; }
+    .error-doc-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-red); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.5rem; }
+    .error-doc .error-msg { font-family: var(--font-mono); font-size: 0.82rem; color: #ff8080; margin-bottom: 0.6rem; display: block; }
+    .error-doc .error-fix { font-size: 0.92rem; color: var(--text-secondary); margin: 0; }
+    .error-doc .error-fix strong { color: var(--text-primary); }
+
+    .prereq-check { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+    .prereq-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.65rem 1rem; background: var(--bg-card); border: 1px solid var(--border-dim); font-size: 0.9rem; }
+    .prereq-icon { font-family: var(--font-mono); font-size: 0.75rem; color: var(--lab-accent); margin-top: 0.05rem; flex-shrink: 0; }
+    .prereq-item p { margin: 0; color: var(--text-secondary); line-height: 1.5; font-size: 0.9rem; }
+    .prereq-item code { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+
+    .theory-link { background: rgba(255,183,0,0.03); border: 1px solid rgba(255,183,0,0.15); border-left: 3px solid var(--accent-amber); padding: 1rem 1.2rem; margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .theory-link-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber); letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap; }
+    .theory-link p { margin: 0; color: var(--text-secondary); font-size: 0.92rem; flex: 1; min-width: 200px; }
+    .theory-link a { color: var(--accent-amber); text-decoration: underline; }
+
+    /* ── Flight mode table ── */
+    .mode-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    .mode-table th { font-family: var(--font-mono); font-size: 0.68rem; color: var(--lab-accent); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--lab-border-dim); text-align: left; }
+    .mode-table td { padding: 0.55rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.88rem; color: var(--text-secondary); vertical-align: top; }
+    .mode-table td:first-child { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-primary); }
+    .mode-table td code { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-primary); }
+
+    /* ── Architecture diagram ── */
+    .arch-diagram { margin: 2rem 0; background: rgba(0,255,157,0.015); border: 1px solid var(--lab-border-dim); padding: 1.5rem; overflow-x: auto; }
+    .arch-diagram svg { display: block; margin: 0 auto; }
+
+    /* ── File tree ── */
+    .file-tree { background: #020c14; border: 1px solid var(--border-dim); border-left: 3px solid var(--lab-accent); padding: 1.2rem 1.5rem; font-family: var(--font-mono); font-size: 0.83rem; line-height: 1.9; margin: 1rem 0; }
+    .ft-dir  { color: var(--lab-accent); }
+    .ft-file { color: #c8e6f0; }
+    .ft-note { color: #3d6b7a; font-style: italic; }
+    .ft-new  { color: var(--accent-amber); }
+
+    /* ── Flight phase timeline ── */
+    .phase-timeline { display: flex; align-items: stretch; gap: 0; margin: 1.5rem 0; overflow-x: auto; }
+    .phase-block { flex: 1; min-width: 100px; background: var(--bg-card); border: 1px solid var(--border-dim); border-right: none; padding: 0.8rem 0.9rem; }
+    .phase-block:last-child { border-right: 1px solid var(--border-dim); }
+    .phase-block:hover { background: var(--bg-card-hover); }
+    .phase-num { font-family: var(--font-mono); font-size: 0.58rem; color: var(--lab-accent); letter-spacing: 0.15em; display: block; margin-bottom: 0.3rem; }
+    .phase-name { font-family: var(--font-display); font-size: 0.82rem; color: var(--text-primary); margin-bottom: 0.3rem; }
+    .phase-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    .callout.lab-note { border-color: var(--lab-accent); background: rgba(0,255,157,0.04); }
+    .callout.lab-note .callout-title { color: var(--lab-accent); }
+
+    .extension-box { background: rgba(0,255,157,0.025); border: 1px solid var(--lab-border-dim); padding: 1.5rem; margin-top: 1.5rem; }
+    .extension-box::before { content: '◈ EXTENSION CHALLENGES'; font-family: var(--font-mono); font-size: 0.65rem; color: var(--lab-accent); letter-spacing: 0.15em; display: block; margin-bottom: 1rem; }
+    .extension-box ol { padding-left: 1.5rem; }
+    .extension-box li { margin-bottom: 0.75rem; font-size: 0.97rem; color: var(--text-secondary); line-height: 1.65; }
+    .extension-box li a { color: var(--lab-accent); }
+
+    .lab-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--lab-border-dim); }
+    .btn-lab { background: transparent; border: 1px solid var(--lab-accent); color: var(--lab-accent); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.8rem 1.8rem; text-decoration: none; display: inline-block; transition: var(--transition); position: relative; overflow: hidden; }
+    .btn-lab::before { content: ''; position: absolute; inset: 0; background: var(--lab-accent); transform: scaleX(0); transform-origin: left; transition: var(--transition); z-index: -1; }
+    .btn-lab:hover { color: var(--bg-void); box-shadow: var(--lab-accent-glow); text-shadow: none; }
+    .btn-lab:hover::before { transform: scaleX(1); }
+    .btn-lab.prev::before { transform-origin: right; }
+
+    @media (max-width: 768px) { .lab-page { padding: 1rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- ── SECTION JUMP BAR ── -->
+<div class="section-jump">
+  <div class="jump-inner">
+    <span class="jump-label">L03 · JUMP TO</span>
+    <button class="jump-btn active" onclick="jumpTo('s-overview')"><span class="jb-num">00</span>Overview</button>
+    <button class="jump-btn" onclick="jumpTo('s-prereqs')"><span class="jb-num">01</span>Prerequisites</button>
+    <button class="jump-btn" onclick="jumpTo('s-modes')"><span class="jb-num">02</span>Flight Modes</button>
+    <button class="jump-btn" onclick="jumpTo('s-offboard')"><span class="jb-num">03</span>Offboard Control</button>
+    <button class="jump-btn" onclick="jumpTo('s-flight-controller')"><span class="jb-num">04</span>Flight Controller</button>
+    <button class="jump-btn" onclick="jumpTo('s-velocity')"><span class="jb-num">05</span>Velocity Control</button>
+    <button class="jump-btn" onclick="jumpTo('s-mode-manager')"><span class="jb-num">06</span>Mode Manager</button>
+    <button class="jump-btn" onclick="jumpTo('s-estop')"><span class="jb-num">07</span>Emergency Stop</button>
+    <button class="jump-btn" onclick="jumpTo('s-full-mission')"><span class="jb-num">08</span>Full Mission</button>
+    <button class="jump-btn" onclick="jumpTo('s-errors')"><span class="jb-num">ERR</span>Common Errors</button>
+    <button class="jump-btn" onclick="jumpTo('s-extend')"><span class="jb-num">+</span>Extend</button>
+  </div>
+</div>
+
+<div class="lab-page">
+
+  <!-- ══════════════════════════════════════════
+       HERO
+       ══════════════════════════════════════════ -->
+  <div class="lab-hero" id="s-overview">
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner br"></div>
+
+    <span class="lab-track-label">Practical Track · Lab 03 of 08</span>
+    <h1>PX4 + MAVROS2 Flight Control</h1>
+    <p class="lead">
+      L02 taught you how ROS2 nodes communicate. L03 puts that to work —
+      you will arm the drone, take off, fly a waypoint mission, and land, all
+      from Python. You will write a full flight controller, a velocity setpoint
+      node, a mode manager with pre-flight checks, and a hard emergency stop.
+      By the end, you can command a simulated drone to do anything you want from code.
+    </p>
+
+    <div class="lab-meta">
+      <div class="lab-meta-item">⏱ <strong>~3–4 hours</strong>&nbsp;wall clock</div>
+      <div class="lab-meta-item">📋 <strong>5 nodes</strong>&nbsp;built</div>
+      <div class="lab-meta-item">🔧 <strong>Builds on</strong>&nbsp;L02 package</div>
+      <div class="lab-meta-item">✈ <strong>First autonomous flight</strong>&nbsp;this lab</div>
+      <span class="label label-green">PX4 v1.14</span>
+      <span class="label label-primary">MAVROS2</span>
+      <span class="label label-amber">Offboard Mode</span>
+      <span class="label label-red">Emergency Stop</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       ARCHITECTURE
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-arch">
+    <h2>What You Are Building</h2>
+    <p>
+      Five Python nodes that form the complete flight control layer.
+      Everything you write in L03 sits between the mission logic (L07 GCS) and PX4
+      — it translates high-level commands into the exact MAVROS2 calls PX4 needs.
+    </p>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 860 310" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:860px; min-width:480px;">
+        <defs>
+          <marker id="arr"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,255,157,0.55)"/></marker>
+          <marker id="arr-c" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,212,255,0.55)"/></marker>
+          <marker id="arr-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(255,58,58,0.55)"/></marker>
+          <marker id="arr-a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(255,183,0,0.55)"/></marker>
+        </defs>
+
+        <!-- PX4 SITL -->
+        <rect x="10" y="115" width="130" height="70" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.3)" stroke-width="1.2"/>
+        <text x="75" y="137" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d" letter-spacing="1">PX4 SITL</text>
+        <text x="75" y="153" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">MAVLink UDP</text>
+        <text x="75" y="168" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">:14540 / :14557</text>
+
+        <!-- MAVROS2 -->
+        <rect x="175" y="115" width="135" height="70" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.3)" stroke-width="1.2"/>
+        <text x="242" y="137" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00d4ff" letter-spacing="1">MAVROS2</text>
+        <text x="242" y="153" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">MAVLink ↔ ROS2</text>
+        <text x="242" y="168" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">topic bridge</text>
+
+        <!-- Arrow PX4 ↔ MAVROS2 -->
+        <line x1="140" y1="148" x2="173" y2="148" stroke="rgba(0,255,157,0.5)" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="173" y1="158" x2="140" y2="158" stroke="rgba(0,255,157,0.5)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- flight_controller -->
+        <rect x="350" y="15" width="160" height="65" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.35)" stroke-width="1.2"/>
+        <text x="430" y="37" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00ff9d">flight_controller</text>
+        <text x="430" y="53" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">arm → takeoff → waypoints → land</text>
+        <text x="430" y="68" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 04</text>
+
+        <!-- offboard_velocity -->
+        <rect x="350" y="105" width="160" height="65" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.35)" stroke-width="1.2"/>
+        <text x="430" y="127" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00d4ff">offboard_velocity</text>
+        <text x="430" y="143" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">velocity setpoints → square path</text>
+        <text x="430" y="158" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,212,255,0.45)">Step 05</text>
+
+        <!-- mode_manager -->
+        <rect x="350" y="195" width="160" height="65" rx="2" fill="#050d14" stroke="rgba(255,183,0,0.35)" stroke-width="1.2"/>
+        <text x="430" y="217" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#ffb700">mode_manager</text>
+        <text x="430" y="233" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">pre-flight checks + mode switching</text>
+        <text x="430" y="248" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,183,0,0.45)">Step 06</text>
+
+        <!-- Arrows from MAVROS2 to nodes -->
+        <line x1="310" y1="148" x2="348" y2="47" stroke="rgba(0,255,157,0.35)" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arr)"/>
+        <line x1="310" y1="155" x2="348" y2="138" stroke="rgba(0,212,255,0.35)" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arr-c)"/>
+        <line x1="310" y1="162" x2="348" y2="228" stroke="rgba(255,183,0,0.35)" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arr-a)"/>
+
+        <!-- emergency_stop -->
+        <rect x="565" y="105" width="150" height="65" rx="2" fill="#050d14" stroke="rgba(255,58,58,0.4)" stroke-width="1.5"/>
+        <text x="640" y="127" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#ff3a3a">emergency_stop</text>
+        <text x="640" y="143" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">topic → immediate land</text>
+        <text x="640" y="158" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,58,58,0.45)">Step 07</text>
+
+        <!-- Arrow nodes → MAVROS2 setpoints -->
+        <line x1="510" y1="48" x2="560" y2="48" stroke="rgba(0,255,157,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+        <line x1="510" y1="138" x2="563" y2="138" stroke="rgba(255,58,58,0.5)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+        <line x1="510" y1="228" x2="560" y2="180" stroke="rgba(255,183,0,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+
+        <!-- Labels on topic bus vertical -->
+        <rect x="530" y="10" width="1" height="280" fill="rgba(0,212,255,0.1)" stroke="rgba(0,212,255,0.1)" stroke-width="1" stroke-dasharray="3,2"/>
+
+        <!-- mission_runner label -->
+        <rect x="700" y="195" width="150" height="65" rx="2" fill="#050d14" stroke="rgba(179,136,255,0.35)" stroke-width="1.2"/>
+        <text x="775" y="217" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#b388ff">mission_runner</text>
+        <text x="775" y="233" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">3-waypoint demo mission</text>
+        <text x="775" y="248" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(179,136,255,0.45)">Step 08</text>
+        <line x1="640" y1="170" x2="700" y2="212" stroke="rgba(179,136,255,0.35)" stroke-width="1" stroke-dasharray="3,2"/>
+
+        <!-- Package label -->
+        <rect x="338" y="4" width="525" height="296" rx="2" fill="none" stroke="rgba(0,255,157,0.06)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="600" y="295" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.3)" letter-spacing="1">aeroknow_bringup · nodes added in L03</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PREREQUISITES
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-prereqs">
+    <h2>Prerequisites</h2>
+
+    <div class="prereq-check">
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L02 complete.</strong> The <code>aeroknow_bringup</code> package exists and builds.
+        <code>ros2 launch aeroknow_bringup bringup_launch.py</code> starts all three L02 nodes without errors.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>PX4 SITL starts cleanly.</strong> In a fresh terminal:
+        <code>cd ~/PX4-Autopilot &amp;&amp; make px4_sitl gz_x500</code>
+        should reach <code>Ready for takeoff!</code> and show Gazebo with the drone on the ground.
+        Keep this terminal open — it is Terminal 1 for the rest of L03.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>MAVROS2 connects.</strong> In Terminal 2:
+        <code>ros2 launch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557"</code>
+        should print <code>FCU: Connected</code> within 5 seconds.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>Workspace sourced.</strong> In every new terminal you open:
+        <code>source /opt/ros/humble/setup.bash &amp;&amp; source ~/aeroknow_ws/install/setup.bash</code>.
+        Add this to <code>~/.bashrc</code> if you haven't already.</p>
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <span class="theory-link-label">⟐ Theory Link</span>
+      <p>
+        L03 is the practical implementation of the cascade control loop from
+        <a href="../modules/m03-gnc-fundamentals.html">Module 03 — GNC Fundamentals §3.5</a>.
+        The flight controller node operates at the outer (position) loop level;
+        MAVROS2 translates its setpoints to the inner PX4 attitude and rate loops.
+        Understanding the bandwidth separation principle (§3.5) explains why setpoints
+        must be published at a minimum rate — violating it causes Offboard mode rejection.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       FLIGHT MODES
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-modes">
+    <h2>PX4 Flight Modes — What They Are and Why They Matter</h2>
+    <p>
+      PX4 is always in a <strong>flight mode</strong>. The mode determines who is in control
+      and what kind of commands PX4 accepts. Getting the mode wrong is the number one reason
+      Python commands appear to do nothing. You must understand modes before writing any
+      flight code.
+    </p>
+
+    <table class="mode-table">
+      <thead>
+        <tr>
+          <th>Mode</th>
+          <th>Who Controls</th>
+          <th>Accepts From ROS2?</th>
+          <th>Used In</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>MANUAL</td>
+          <td>RC transmitter only</td>
+          <td>No</td>
+          <td>Manual override, emergency</td>
+        </tr>
+        <tr>
+          <td>STABILIZED</td>
+          <td>RC + attitude stabilisation</td>
+          <td>No</td>
+          <td>Manual flying with assist</td>
+        </tr>
+        <tr>
+          <td>POSITION</td>
+          <td>GPS hold + RC</td>
+          <td>No</td>
+          <td>Hover at fixed GPS point</td>
+        </tr>
+        <tr>
+          <td><strong>OFFBOARD</strong></td>
+          <td><strong>External computer (your ROS2 node)</strong></td>
+          <td><strong>Yes — setpoints via MAVROS2 topics</strong></td>
+          <td><strong>All autonomous flight in L03–L08</strong></td>
+        </tr>
+        <tr>
+          <td>AUTO.MISSION</td>
+          <td>PX4 internal mission planner</td>
+          <td>Via mission upload then trigger</td>
+          <td>Pre-uploaded waypoint missions</td>
+        </tr>
+        <tr>
+          <td>AUTO.LAND</td>
+          <td>PX4 automatic landing</td>
+          <td>Triggered via <code>/mavros/cmd/land</code></td>
+          <td>Normal landing, emergency stop</td>
+        </tr>
+        <tr>
+          <td>AUTO.RTL</td>
+          <td>PX4 returns to launch point</td>
+          <td>Triggered via <code>/mavros/cmd/set_home</code></td>
+          <td>RTB on comms loss</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>The Offboard Mode Catch</h3>
+    <p>
+      OFFBOARD mode has one critical rule that catches every beginner:
+    </p>
+
+    <div class="callout warning">
+      <span class="callout-title">Offboard Mode Requires Setpoints Before Mode Switch</span>
+      PX4 will refuse to enter OFFBOARD mode unless it has been receiving valid setpoint
+      messages at <strong>≥ 2 Hz for at least 0.5 seconds</strong> before the mode switch
+      command is sent. If you call <code>set_mode("OFFBOARD")</code> without first streaming
+      setpoints, PX4 silently rejects the mode change and stays in the previous mode —
+      with no error message in the terminal.
+      The fix is always: start the setpoint stream first, wait 1 second, then switch mode.
+      Every node in L03 follows this exact pattern.
+    </div>
+
+    <h3>The Arming Sequence</h3>
+    <p>
+      Even in OFFBOARD mode, the motors won't spin until the drone is <strong>armed</strong>.
+      Arming means "I intend to fly — motors may start." Disarming is the first safety action
+      in any emergency. The sequence for autonomous flight is always:
+    </p>
+
+    <div class="phase-timeline">
+      <div class="phase-block">
+        <span class="phase-num">PHASE 1</span>
+        <div class="phase-name">Stream setpoints</div>
+        <div class="phase-desc">Publish setpoints at 10+ Hz for 1+ seconds before doing anything else</div>
+      </div>
+      <div class="phase-block">
+        <span class="phase-num">PHASE 2</span>
+        <div class="phase-name">Switch to OFFBOARD</div>
+        <div class="phase-desc">Call <code>set_mode("OFFBOARD")</code> via MAVROS2 service</div>
+      </div>
+      <div class="phase-block">
+        <span class="phase-num">PHASE 3</span>
+        <div class="phase-name">Arm motors</div>
+        <div class="phase-desc">Call <code>arming(True)</code> via MAVROS2 service</div>
+      </div>
+      <div class="phase-block">
+        <span class="phase-num">PHASE 4</span>
+        <div class="phase-name">Publish climb setpoint</div>
+        <div class="phase-desc">Publish target altitude; keep streaming at 10+ Hz while drone climbs</div>
+      </div>
+      <div class="phase-block">
+        <span class="phase-num">PHASE 5</span>
+        <div class="phase-name">Execute mission</div>
+        <div class="phase-desc">Publish sequential waypoint setpoints; monitor distance to each</div>
+      </div>
+      <div class="phase-block">
+        <span class="phase-num">PHASE 6</span>
+        <div class="phase-name">Land</div>
+        <div class="phase-desc">Call <code>land()</code> service — PX4 handles the descent and touchdown</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       OFFBOARD CONTROL EXPLAINED
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-offboard">
+    <h2>Offboard Control — The Three Setpoint Types</h2>
+    <p>
+      In OFFBOARD mode, MAVROS2 exposes three ways to command the drone.
+      Each one commands a different level of the PX4 cascade controller.
+      Picking the right one for the task is an engineering decision, not a preference.
+    </p>
+
+    <table class="mode-table">
+      <thead>
+        <tr><th>Setpoint Type</th><th>MAVROS2 Topic</th><th>Message Type</th><th>PX4 Level</th><th>Best For</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Position</strong></td>
+          <td><code>/mavros/setpoint_position/local</code></td>
+          <td><code>geometry_msgs/PoseStamped</code></td>
+          <td>Outer loop (guidance)</td>
+          <td>Waypoint navigation — "go to this exact XYZ coordinate"</td>
+        </tr>
+        <tr>
+          <td><strong>Velocity</strong></td>
+          <td><code>/mavros/setpoint_velocity/cmd_vel_unstamped</code></td>
+          <td><code>geometry_msgs/Twist</code></td>
+          <td>Mid loop (velocity)</td>
+          <td>Following paths, obstacle avoidance — "fly at this speed in this direction"</td>
+        </tr>
+        <tr>
+          <td><strong>Attitude</strong></td>
+          <td><code>/mavros/setpoint_attitude/attitude</code></td>
+          <td><code>geometry_msgs/PoseStamped</code> + thrust</td>
+          <td>Inner loop</td>
+          <td>Aerobatics, precise attitude control — use with extreme care</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      In L03, you will use <strong>position setpoints</strong> for the main mission
+      (go to GPS waypoints) and <strong>velocity setpoints</strong> for the square-path
+      demo (maintain a specific speed and direction). L05 adds a velocity-mode EKF
+      correction layer on top of the same setpoint interface.
+    </p>
+
+    <div class="callout lab-note">
+      <span class="callout-title">Local vs. Global Coordinates</span>
+      MAVROS2 has two position setpoint topics. <code>/mavros/setpoint_position/local</code>
+      takes NED coordinates (North-East-Down) in metres relative to the <em>home position</em>
+      — this is what we use in L03. <code>/mavros/setpoint_position/global</code>
+      takes GPS latitude/longitude/altitude — this is what the L02 action server used.
+      Local coordinates are easier for precise geometric missions (fly a 20m square);
+      global coordinates are needed when working with maps and real-world positions.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 04 — FLIGHT CONTROLLER
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-flight-controller">
+    <h2>Step 04: flight_controller.py</h2>
+    <p>
+      The core node. Arms, takes off, flies to three waypoints in sequence, then lands.
+      This is the first time your code physically moves something in the simulation.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 04</span>
+        <span class="step-title">Write flight_controller.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why this code is structured this way</span>
+          <p>
+            The controller runs as a state machine inside a timer callback — not a
+            <code>while True</code> loop. This matters because a loop would block
+            all ROS2 callbacks (including the position subscriber that tells us when
+            we've arrived at a waypoint). The timer fires every 0.1 s (10 Hz),
+            checks the current state, and publishes the appropriate setpoint.
+            The state advances when the condition for the next state is met —
+            for example, the drone is within 0.5 m of the target altitude before arming
+            transitions to flying.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/flight_controller.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · flight_controller.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+flight_controller.py
+────────────────────
+Autonomous arm → takeoff → 3 waypoints → land mission.
+Uses position setpoints in local NED frame.
+
+State machine:
+  IDLE → STREAMING → OFFBOARD → ARMING → TAKEOFF
+       → WP_0 → WP_1 → WP_2 → LANDING → DONE
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> geometry_msgs.msg  <span class="kw">import</span> PoseStamped
+<span class="kw">from</span> mavros_msgs.msg    <span class="kw">import</span> State
+<span class="kw">from</span> mavros_msgs.srv    <span class="kw">import</span> CommandBool, SetMode
+<span class="kw">from</span> std_srvs.srv       <span class="kw">import</span> Trigger
+
+<span class="kw">import</span> math
+
+
+<span class="cm"># Waypoints: [x_north_m, y_east_m, z_up_m] in local NED
+# NED convention: Z positive = DOWN in raw MAVLink,
+# but MAVROS2 setpoint_position/local uses ENU (Z positive = UP).
+# So z=20 means 20 metres above home. Positive x = North, positive y = East.</span>
+WAYPOINTS = [
+    ( <span class="nm">0.0</span>,   <span class="nm">0.0</span>,  <span class="nm">20.0</span>),   <span class="cm"># WP0: takeoff — hover at 20 m directly above home</span>
+    (<span class="nm">20.0</span>,   <span class="nm">0.0</span>,  <span class="nm">20.0</span>),   <span class="cm"># WP1: fly 20 m north</span>
+    (<span class="nm">20.0</span>,  <span class="nm">20.0</span>,  <span class="nm">20.0</span>),   <span class="cm"># WP2: fly 20 m east</span>
+    ( <span class="nm">0.0</span>,  <span class="nm">20.0</span>,  <span class="nm">20.0</span>),   <span class="cm"># WP3: return north (forms an L-shape)</span>
+]
+
+ACCEPTANCE_RADIUS_M = <span class="nm">1.5</span>   <span class="cm"># within this distance → waypoint reached</span>
+SETPOINT_RATE_HZ    = <span class="nm">10.0</span>  <span class="cm"># must be ≥ 2 Hz for Offboard; 10 Hz is safe</span>
+
+
+<span class="kw">class</span> <span class="tp">FlightController</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'flight_controller'</span>)
+
+        <span class="cm"># ── State machine ────────────────────────────────────────────</span>
+        self.state      = <span class="st">'IDLE'</span>
+        self.wp_index   = <span class="nm">0</span>       <span class="cm"># current waypoint index</span>
+        self.stream_count = <span class="nm">0</span>    <span class="cm"># how many setpoints we've sent before mode switch</span>
+
+        <span class="cm"># ── Current vehicle state (from MAVROS2) ─────────────────────</span>
+        self.fcu_mode   = <span class="st">''</span>
+        self.armed      = <span class="kw">False</span>
+        self.connected  = <span class="kw">False</span>
+        self.local_x    = <span class="nm">0.0</span>
+        self.local_y    = <span class="nm">0.0</span>
+        self.local_z    = <span class="nm">0.0</span>
+
+        <span class="cm"># ── QoS ──────────────────────────────────────────────────────</span>
+        rel_qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+        sen_qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+
+        <span class="cm"># ── Subscribers ──────────────────────────────────────────────</span>
+        self.create_subscription(State, <span class="st">'/mavros/state'</span>,
+            self.<span class="fn">state_cb</span>, rel_qos)
+        self.create_subscription(PoseStamped, <span class="st">'/mavros/local_position/pose'</span>,
+            self.<span class="fn">pose_cb</span>, sen_qos)
+
+        <span class="cm"># ── Publisher: position setpoints ────────────────────────────</span>
+        self.sp_pub = self.create_publisher(
+            PoseStamped, <span class="st">'/mavros/setpoint_position/local'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># ── Service clients ──────────────────────────────────────────
+        # We create these but don't call them until the correct state.
+        # wait_for_service() ensures MAVROS2 is ready before we try.</span>
+        self.set_mode_cli = self.create_client(SetMode, <span class="st">'/mavros/set_mode'</span>)
+        self.arming_cli   = self.create_client(CommandBool, <span class="st">'/mavros/cmd/arming'</span>)
+        self.land_cli     = self.create_client(Trigger, <span class="st">'/mavros/cmd/land'</span>)
+
+        <span class="cm"># ── Main control timer ───────────────────────────────────────
+        # Fires every 0.1 s (10 Hz). All state machine logic lives here.</span>
+        self.create_timer(<span class="nm">1.0</span> / SETPOINT_RATE_HZ, self.<span class="fn">control_loop</span>)
+
+        self.get_logger().info(<span class="st">'FlightController initialised — waiting for FCU connection...'</span>)
+
+    <span class="cm"># ── Callbacks ────────────────────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">state_cb</span>(self, msg: State):
+        self.connected = msg.connected
+        self.armed     = msg.armed
+        self.fcu_mode  = msg.mode
+
+    <span class="kw">def</span> <span class="fn">pose_cb</span>(self, msg: PoseStamped):
+        <span class="cm"># Local position in ENU frame (MAVROS2 converts from NED automatically)</span>
+        self.local_x = msg.pose.position.x
+        self.local_y = msg.pose.position.y
+        self.local_z = msg.pose.position.z
+
+    <span class="cm"># ── Helpers ──────────────────────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">distance_to_wp</span>(self, wp) -> float:
+        <span class="st">"""3D Euclidean distance from current position to a waypoint."""</span>
+        dx = wp[<span class="nm">0</span>] - self.local_x
+        dy = wp[<span class="nm">1</span>] - self.local_y
+        dz = wp[<span class="nm">2</span>] - self.local_z
+        <span class="kw">return</span> math.sqrt(dx*dx + dy*dy + dz*dz)
+
+    <span class="kw">def</span> <span class="fn">publish_setpoint</span>(self, x, y, z):
+        <span class="st">"""Publish a single local position setpoint."""</span>
+        sp = PoseStamped()
+        sp.header.stamp    = self.get_clock().now().to_msg()
+        sp.header.frame_id = <span class="st">'map'</span>
+        sp.pose.position.x = float(x)
+        sp.pose.position.y = float(y)
+        sp.pose.position.z = float(z)
+        <span class="cm"># Orientation: identity quaternion (no yaw command)</span>
+        sp.pose.orientation.w = <span class="nm">1.0</span>
+        self.sp_pub.publish(sp)
+
+    <span class="kw">def</span> <span class="fn">call_set_mode</span>(self, mode: str):
+        <span class="st">"""Send a mode change request. Returns immediately (non-blocking)."""</span>
+        req = SetMode.Request()
+        req.custom_mode = mode
+        future = self.set_mode_cli.call_async(req)
+        <span class="cm"># We don't wait for the future here — the next control loop tick will
+        # check self.fcu_mode to confirm the change took effect.</span>
+        self.get_logger().info(<span class="st">f'Requesting mode: {mode}'</span>)
+
+    <span class="kw">def</span> <span class="fn">call_arming</span>(self, arm: bool):
+        <span class="st">"""Send arm/disarm command."""</span>
+        req = CommandBool.Request()
+        req.value = arm
+        self.arming_cli.call_async(req)
+        self.get_logger().info(<span class="st">f'{"Arming" if arm else "Disarming"} request sent'</span>)
+
+    <span class="kw">def</span> <span class="fn">call_land</span>(self):
+        <span class="st">"""Trigger PX4 autonomous landing."""</span>
+        req = Trigger.Request()
+        self.land_cli.call_async(req)
+        self.get_logger().info(<span class="st">'Land command sent'</span>)
+
+    <span class="cm"># ── State machine ────────────────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">control_loop</span>(self):
+        <span class="st">"""
+        Called at 10 Hz. Drives the state machine.
+        Each state publishes a setpoint and checks the transition condition.
+        """</span>
+        <span class="kw">if</span> <span class="kw">not</span> self.connected:
+            <span class="kw">return</span>   <span class="cm"># FCU not connected yet — do nothing</span>
+
+        wp = WAYPOINTS[min(self.wp_index, len(WAYPOINTS)-<span class="nm">1</span>)]
+
+        <span class="cm"># Always publish the current target setpoint — keeps Offboard mode alive</span>
+        self.publish_setpoint(*wp)
+
+        <span class="cm"># ── IDLE: wait for FCU connection ─────────────────────────────</span>
+        <span class="kw">if</span> self.state == <span class="st">'IDLE'</span>:
+            self.get_logger().info(<span class="st">'FCU connected. Starting setpoint stream...'</span>)
+            self.state = <span class="st">'STREAMING'</span>
+
+        <span class="cm"># ── STREAMING: send ≥10 setpoints before mode switch ─────────</span>
+        <span class="kw">elif</span> self.state == <span class="st">'STREAMING'</span>:
+            self.stream_count += <span class="nm">1</span>
+            <span class="kw">if</span> self.stream_count >= <span class="nm">20</span>:   <span class="cm"># 20 × 0.1s = 2 seconds of streaming</span>
+                self.state = <span class="st">'OFFBOARD'</span>
+                self.call_set_mode(<span class="st">'OFFBOARD'</span>)
+
+        <span class="cm"># ── OFFBOARD: wait for mode confirmation ─────────────────────</span>
+        <span class="kw">elif</span> self.state == <span class="st">'OFFBOARD'</span>:
+            <span class="kw">if</span> self.fcu_mode == <span class="st">'OFFBOARD'</span>:
+                self.get_logger().info(<span class="st">'OFFBOARD mode confirmed. Arming...'</span>)
+                self.state = <span class="st">'ARMING'</span>
+                self.call_arming(<span class="kw">True</span>)
+
+        <span class="cm"># ── ARMING: wait for armed confirmation ───────────────────────</span>
+        <span class="kw">elif</span> self.state == <span class="st">'ARMING'</span>:
+            <span class="kw">if</span> self.armed:
+                self.get_logger().info(<span class="st">'Armed. Taking off to WP0...'</span>)
+                self.state = <span class="st">'FLYING'</span>
+
+        <span class="cm"># ── FLYING: navigate waypoints in sequence ────────────────────</span>
+        <span class="kw">elif</span> self.state == <span class="st">'FLYING'</span>:
+            dist = self.distance_to_wp(wp)
+            self.get_logger().info(
+                <span class="st">f'WP{self.wp_index}: dist={dist:.2f}m | pos=({self.local_x:.1f}, {self.local_y:.1f}, {self.local_z:.1f})'</span>,
+                throttle_duration_sec=<span class="nm">1.0</span>   <span class="cm"># print at most once per second</span>
+            )
+            <span class="kw">if</span> dist < ACCEPTANCE_RADIUS_M:
+                self.wp_index += <span class="nm">1</span>
+                <span class="kw">if</span> self.wp_index >= len(WAYPOINTS):
+                    self.get_logger().info(<span class="st">'All waypoints reached. Landing...'</span>)
+                    self.state = <span class="st">'LANDING'</span>
+                    self.call_land()
+                <span class="kw">else</span>:
+                    self.get_logger().info(<span class="st">f'WP{self.wp_index-1} reached → flying to WP{self.wp_index}'</span>)
+
+        <span class="cm"># ── LANDING: wait for disarm (PX4 disarms after touchdown) ────</span>
+        <span class="kw">elif</span> self.state == <span class="st">'LANDING'</span>:
+            <span class="kw">if</span> <span class="kw">not</span> self.armed:
+                self.get_logger().info(<span class="st">'Landed and disarmed. Mission complete.'</span>)
+                self.state = <span class="st">'DONE'</span>
+
+        <span class="cm"># ── DONE: nothing more to do ──────────────────────────────────</span>
+        <span class="kw">elif</span> self.state == <span class="st">'DONE'</span>:
+            <span class="kw">pass</span>
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = FlightController()
+    <span class="kw">try</span>:
+        rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt:
+        <span class="kw">pass</span>
+    <span class="kw">finally</span>:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>:
+    main()</pre>
+        </div>
+
+        <p>Add the entry point to <code>setup.py</code>, build, and run:</p>
+
+        <div class="code-block python">
+          <span class="code-lang">python · setup.py — add to console_scripts</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="st">'flight_controller      = aeroknow_bringup.flight_controller:main'</span>,</pre>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — build and run</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws &amp;&amp; colcon build --symlink-install --packages-select aeroknow_bringup
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_bringup flight_controller</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output — full mission sequence</span>
+          <pre><span class="t-dim">[INFO] FlightController initialised — waiting for FCU connection...</span>
+<span class="t-ok">[INFO] FCU connected. Starting setpoint stream...</span>
+<span class="t-dim">[INFO] Requesting mode: OFFBOARD</span>
+<span class="t-ok">[INFO] OFFBOARD mode confirmed. Arming...</span>
+<span class="t-ok">[INFO] Armed. Taking off to WP0...</span>
+<span class="t-dim">[INFO] WP0: dist=18.42m | pos=(0.0, 0.0, 1.6)</span>
+<span class="t-dim">[INFO] WP0: dist=6.11m  | pos=(0.0, 0.0, 13.9)</span>
+<span class="t-ok">[INFO] WP0 reached → flying to WP1</span>
+<span class="t-dim">[INFO] WP1: dist=19.87m | pos=(0.4, 0.0, 20.0)</span>
+<span class="t-ok">[INFO] WP1 reached → flying to WP2</span>
+<span class="t-ok">[INFO] WP2 reached → flying to WP3</span>
+<span class="t-ok">[INFO] All waypoints reached. Landing...</span>
+<span class="t-ok">[INFO] Landed and disarmed. Mission complete.</span></pre>
+        </div>
+
+        <p>
+          Watch Gazebo simultaneously — you should see the X500 quadrotor climb to 20 m,
+          fly the L-shaped path, then descend and land. The whole mission takes about 45–90 seconds.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 05 — VELOCITY NODE
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-velocity">
+    <h2>Step 05: offboard_velocity_node.py</h2>
+    <p>
+      Position setpoints tell the drone <em>where</em> to go. Velocity setpoints tell it
+      <em>how fast and in which direction</em>. This is the right interface for path following,
+      obstacle avoidance, and smooth coordinated motion — all of which appear in later labs.
+      This node flies a 20 m square using constant velocity commands.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 05</span>
+        <span class="step-title">Write offboard_velocity_node.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why velocity setpoints instead of position setpoints here</span>
+          <p>
+            Position setpoints delegate path shape to PX4's internal trajectory generator —
+            PX4 decides how fast to fly and how to curve between waypoints.
+            Velocity setpoints give you direct control of speed and direction at every instant.
+            This matters when you need to maintain a specific speed (formation keeping),
+            follow a curved path (orbit), or react to real-time sensor data (obstacle avoidance).
+            L06's vision-guided approach uses velocity setpoints to keep a detected target centred.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/offboard_velocity_node.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · offboard_velocity_node.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+offboard_velocity_node.py
+─────────────────────────
+Flies a 20 m × 20 m square at 3 m/s using velocity setpoints.
+Demonstrates the difference from position setpoints — the drone
+moves at a controlled speed rather than PX4-chosen trajectory.
+
+Setpoint topic: /mavros/setpoint_velocity/cmd_vel_unstamped
+Message type:   geometry_msgs/Twist
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> geometry_msgs.msg <span class="kw">import</span> Twist, PoseStamped
+<span class="kw">from</span> mavros_msgs.msg   <span class="kw">import</span> State
+<span class="kw">from</span> mavros_msgs.srv   <span class="kw">import</span> CommandBool, SetMode
+<span class="kw">from</span> std_srvs.srv      <span class="kw">import</span> Trigger
+
+<span class="kw">import</span> math
+<span class="kw">import</span> time
+
+
+CRUISE_SPEED_MPS  = <span class="nm">3.0</span>   <span class="cm"># side speed [m/s]</span>
+CLIMB_SPEED_MPS   = <span class="nm">2.0</span>   <span class="cm"># takeoff climb speed [m/s]</span>
+TARGET_ALTITUDE_M = <span class="nm">15.0</span>  <span class="cm"># cruise altitude [m]</span>
+SIDE_LENGTH_M     = <span class="nm">20.0</span>  <span class="cm"># square side length [m]</span>
+HOVER_DURATION_S  = <span class="nm">2.0</span>   <span class="cm"># pause at each corner [s]</span>
+RATE_HZ           = <span class="nm">20.0</span>  <span class="cm"># velocity command rate</span>
+
+
+<span class="kw">class</span> <span class="tp">OffboardVelocityNode</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'offboard_velocity_node'</span>)
+
+        self.state      = <span class="st">'IDLE'</span>
+        self.phase      = <span class="nm">0</span>     <span class="cm"># which side of the square (0–3)</span>
+        self.phase_dist = <span class="nm">0.0</span>  <span class="cm"># distance covered in current phase</span>
+        self.hover_t    = <span class="nm">0.0</span>  <span class="cm"># time when hover started</span>
+        self.stream_cnt = <span class="nm">0</span>
+
+        self.connected  = <span class="kw">False</span>
+        self.armed      = <span class="kw">False</span>
+        self.fcu_mode   = <span class="st">''</span>
+        self.local_z    = <span class="nm">0.0</span>
+
+        rel = QoSProfile(reliability=ReliabilityPolicy.RELIABLE, history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+        sen = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT, history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+
+        self.create_subscription(State, <span class="st">'/mavros/state'</span>, self.<span class="fn">state_cb</span>, rel)
+        self.create_subscription(PoseStamped, <span class="st">'/mavros/local_position/pose'</span>, self.<span class="fn">pose_cb</span>, sen)
+
+        <span class="cm"># Velocity publisher — Twist message: linear.x=north, linear.y=east, linear.z=up</span>
+        self.vel_pub = self.create_publisher(Twist, <span class="st">'/mavros/setpoint_velocity/cmd_vel_unstamped'</span>, <span class="nm">10</span>)
+
+        self.set_mode_cli = self.create_client(SetMode, <span class="st">'/mavros/set_mode'</span>)
+        self.arming_cli   = self.create_client(CommandBool, <span class="st">'/mavros/cmd/arming'</span>)
+        self.land_cli     = self.create_client(Trigger, <span class="st">'/mavros/cmd/land'</span>)
+
+        self.create_timer(<span class="nm">1.0</span> / RATE_HZ, self.<span class="fn">control_loop</span>)
+        self.get_logger().info(<span class="st">'OffboardVelocityNode ready'</span>)
+
+    <span class="kw">def</span> <span class="fn">state_cb</span>(self, msg): self.connected, self.armed, self.fcu_mode = msg.connected, msg.armed, msg.mode
+    <span class="kw">def</span> <span class="fn">pose_cb</span>(self, msg): self.local_z = msg.pose.position.z
+
+    <span class="kw">def</span> <span class="fn">publish_vel</span>(self, vx=<span class="nm">0.0</span>, vy=<span class="nm">0.0</span>, vz=<span class="nm">0.0</span>):
+        <span class="st">"""Publish a velocity setpoint. vx=north, vy=east, vz=up (ENU)."""</span>
+        cmd = Twist()
+        cmd.linear.x = float(vx)
+        cmd.linear.y = float(vy)
+        cmd.linear.z = float(vz)
+        self.vel_pub.publish(cmd)
+
+    <span class="kw">def</span> <span class="fn">control_loop</span>(self):
+        <span class="kw">if</span> <span class="kw">not</span> self.connected:
+            <span class="kw">return</span>
+
+        dt = <span class="nm">1.0</span> / RATE_HZ
+
+        <span class="kw">if</span> self.state == <span class="st">'IDLE'</span>:
+            self.publish_vel()   <span class="cm"># zero velocity — still streams to satisfy offboard requirement</span>
+            self.stream_cnt += <span class="nm">1</span>
+            <span class="kw">if</span> self.stream_cnt >= <span class="nm">20</span>:
+                self.state = <span class="st">'OFFBOARD'</span>
+                req = SetMode.Request(); req.custom_mode = <span class="st">'OFFBOARD'</span>
+                self.set_mode_cli.call_async(req)
+
+        <span class="kw">elif</span> self.state == <span class="st">'OFFBOARD'</span>:
+            self.publish_vel()
+            <span class="kw">if</span> self.fcu_mode == <span class="st">'OFFBOARD'</span>:
+                self.state = <span class="st">'ARMING'</span>
+                req = CommandBool.Request(); req.value = <span class="kw">True</span>
+                self.arming_cli.call_async(req)
+
+        <span class="kw">elif</span> self.state == <span class="st">'ARMING'</span>:
+            self.publish_vel()
+            <span class="kw">if</span> self.armed:
+                self.state = <span class="st">'CLIMB'</span>
+                self.get_logger().info(<span class="st">'Armed — climbing...'</span>)
+
+        <span class="kw">elif</span> self.state == <span class="st">'CLIMB'</span>:
+            <span class="cm"># Climb at constant upward velocity until target altitude reached</span>
+            alt_error = TARGET_ALTITUDE_M - self.local_z
+            <span class="kw">if</span> alt_error > <span class="nm">0.5</span>:
+                self.publish_vel(vz=CLIMB_SPEED_MPS)
+            <span class="kw">else</span>:
+                self.get_logger().info(<span class="st">f'At altitude {self.local_z:.1f}m — starting square'</span>)
+                self.state     = <span class="st">'SQUARE'</span>
+                self.phase     = <span class="nm">0</span>
+                self.phase_dist= <span class="nm">0.0</span>
+
+        <span class="kw">elif</span> self.state == <span class="st">'SQUARE'</span>:
+            <span class="cm"># Four sides of the square, each SIDE_LENGTH_M long.
+            # Velocity direction rotates 90° every phase.
+            # Phase 0: north  Phase 1: east  Phase 2: south  Phase 3: west</span>
+            vx_table = [CRUISE_SPEED_MPS, <span class="nm">0.0</span>, -CRUISE_SPEED_MPS, <span class="nm">0.0</span>]
+            vy_table = [<span class="nm">0.0</span>, CRUISE_SPEED_MPS, <span class="nm">0.0</span>, -CRUISE_SPEED_MPS]
+
+            <span class="kw">if</span> self.phase < <span class="nm">4</span>:
+                <span class="cm"># Maintain altitude with a small correction term</span>
+                alt_correction = (TARGET_ALTITUDE_M - self.local_z) * <span class="nm">0.5</span>
+                self.publish_vel(vx=vx_table[self.phase],
+                                 vy=vy_table[self.phase],
+                                 vz=alt_correction)
+                self.phase_dist += CRUISE_SPEED_MPS * dt
+
+                <span class="kw">if</span> self.phase_dist >= SIDE_LENGTH_M:
+                    self.get_logger().info(<span class="st">f'Side {self.phase+1}/4 done — hovering...'</span>)
+                    self.phase      += <span class="nm">1</span>
+                    self.phase_dist  = <span class="nm">0.0</span>
+                    self.hover_t     = time.time()
+                    self.state       = <span class="st">'CORNER_HOVER'</span>
+            <span class="kw">else</span>:
+                self.get_logger().info(<span class="st">'Square complete — landing'</span>)
+                self.state = <span class="st">'LAND'</span>
+
+        <span class="kw">elif</span> self.state == <span class="st">'CORNER_HOVER'</span>:
+            <span class="cm"># Hover at corner for HOVER_DURATION_S seconds, then continue square</span>
+            self.publish_vel(vz=(TARGET_ALTITUDE_M - self.local_z) * <span class="nm">0.5</span>)
+            <span class="kw">if</span> time.time() - self.hover_t >= HOVER_DURATION_S:
+                self.state = <span class="st">'SQUARE'</span>
+
+        <span class="kw">elif</span> self.state == <span class="st">'LAND'</span>:
+            self.publish_vel()
+            req = Trigger.Request()
+            self.land_cli.call_async(req)
+            self.state = <span class="st">'DONE'</span>
+
+        <span class="kw">elif</span> self.state == <span class="st">'DONE'</span>:
+            self.publish_vel()   <span class="cm"># keep streaming zeros</span>
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = OffboardVelocityNode()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+
+        <p>Add to <code>setup.py</code> entry points, build, and run:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · setup.py addition</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="st">'offboard_velocity_node = aeroknow_bringup.offboard_velocity_node:main'</span>,</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws &amp;&amp; colcon build --symlink-install --packages-select aeroknow_bringup
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_bringup offboard_velocity_node</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output</span>
+          <pre><span class="t-ok">[INFO] Armed — climbing...</span>
+<span class="t-ok">[INFO] At altitude 15.0m — starting square</span>
+<span class="t-dim">[INFO] Side 1/4 done — hovering...</span>
+<span class="t-dim">[INFO] Side 2/4 done — hovering...</span>
+<span class="t-dim">[INFO] Side 3/4 done — hovering...</span>
+<span class="t-dim">[INFO] Side 4/4 done — hovering...</span>
+<span class="t-ok">[INFO] Square complete — landing</span></pre>
+        </div>
+
+        <p>
+          In Gazebo, the drone should climb to 15 m then trace a square — 20 m north,
+          pause, 20 m east, pause, 20 m south, pause, 20 m west — then land.
+          Notice the path is sharper than the position-setpoint mission in Step 04
+          because you control speed directly rather than delegating to PX4's planner.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 06 — MODE MANAGER
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-mode-manager">
+    <h2>Step 06: mode_manager.py</h2>
+    <p>
+      The flight controller and velocity node both switch modes internally.
+      In a real system, mode switching must be centralised with pre-flight checks —
+      you should not enter OFFBOARD mode if GPS is unavailable, if battery is critical,
+      or if the FCU is not healthy. The mode manager provides a service interface for
+      safe mode transitions that the GCS (L07) and other nodes can call.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 06</span>
+        <span class="step-title">Write mode_manager.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why a dedicated mode manager?</span>
+          <p>
+            Without a centralised mode manager, any node can switch modes at any time —
+            the velocity node could switch to OFFBOARD while the flight controller is mid-landing,
+            producing dangerous conflicting commands. A mode manager serialises all mode change
+            requests, performs pre-flight checks before allowing dangerous transitions,
+            and logs every transition with a timestamp for post-flight analysis.
+            This is exactly how PX4's own commander module works internally — a single arbitrated
+            state machine that all other components request transitions from.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/mode_manager.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · mode_manager.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+mode_manager.py
+───────────────
+Centralised flight mode arbitration with pre-flight checks.
+Exposes a service: /request_mode (std_srvs/srv/SetBool is too simple;
+we reuse Trigger with the mode encoded in a topic-based request).
+
+For simplicity, clients publish the requested mode string to
+/mode_manager/request (std_msgs/String), and mode_manager evaluates
+whether the transition is safe before calling MAVROS2.
+
+Pre-flight checks performed before OFFBOARD:
+  1. FCU connected
+  2. GPS fix available
+  3. Battery above BATTERY_MIN_PCT
+  4. No recent IMU stale flag
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node          <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.executors     <span class="kw">import</span> MultiThreadedExecutor
+<span class="kw">from</span> rclpy.callback_group <span class="kw">import</span> ReentrantCallbackGroup
+<span class="kw">from</span> rclpy.qos           <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> std_msgs.msg   <span class="kw">import</span> String
+<span class="kw">from</span> std_srvs.srv   <span class="kw">import</span> Trigger
+<span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> NavSatFix, BatteryState
+<span class="kw">from</span> mavros_msgs.msg <span class="kw">import</span> State
+<span class="kw">from</span> mavros_msgs.srv <span class="kw">import</span> SetMode, CommandBool
+
+<span class="kw">import</span> time
+
+BATTERY_MIN_PCT = <span class="nm">20.0</span>   <span class="cm"># minimum battery % to allow OFFBOARD entry</span>
+
+
+<span class="kw">class</span> <span class="tp">ModeManager</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'mode_manager'</span>)
+        cg = ReentrantCallbackGroup()
+
+        rel = QoSProfile(reliability=ReliabilityPolicy.RELIABLE, history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+        sen = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT, history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+
+        <span class="cm"># ── Monitoring state ─────────────────────────────────────────</span>
+        self.fcu_connected  = <span class="kw">False</span>
+        self.fcu_mode       = <span class="st">'UNKNOWN'</span>
+        self.armed          = <span class="kw">False</span>
+        self.gps_fix        = -<span class="nm">1</span>
+        self.battery_pct    = <span class="nm">100.0</span>
+        self.last_imu_t     = time.time()
+        self.mode_history   = []   <span class="cm"># list of (timestamp, from_mode, to_mode, result)</span>
+
+        <span class="cm"># ── Subscriptions ────────────────────────────────────────────</span>
+        self.create_subscription(State, <span class="st">'/mavros/state'</span>,
+            self.<span class="fn">state_cb</span>, rel, callback_group=cg)
+        self.create_subscription(NavSatFix, <span class="st">'/mavros/global_position/global'</span>,
+            self.<span class="fn">gps_cb</span>, sen, callback_group=cg)
+        self.create_subscription(BatteryState, <span class="st">'/mavros/battery'</span>,
+            self.<span class="fn">battery_cb</span>, sen, callback_group=cg)
+
+        <span class="cm"># Listen for mode requests on a topic (String: 'OFFBOARD', 'AUTO.LAND', etc.)</span>
+        self.create_subscription(String, <span class="st">'/mode_manager/request'</span>,
+            self.<span class="fn">mode_request_cb</span>, rel, callback_group=cg)
+
+        <span class="cm"># ── Services: expose pre-flight check and mode history ────────</span>
+        self.create_service(Trigger, <span class="st">'/mode_manager/preflight_check'</span>,
+            self.<span class="fn">preflight_check_srv</span>, callback_group=cg)
+        self.create_service(Trigger, <span class="st">'/mode_manager/get_history'</span>,
+            self.<span class="fn">history_srv</span>, callback_group=cg)
+
+        <span class="cm"># ── MAVROS2 service clients ───────────────────────────────────</span>
+        self.set_mode_cli = self.create_client(SetMode, <span class="st">'/mavros/set_mode'</span>)
+        self.arming_cli   = self.create_client(CommandBool, <span class="st">'/mavros/cmd/arming'</span>)
+
+        self.get_logger().info(<span class="st">'ModeManager ready. Listening on /mode_manager/request'</span>)
+
+    <span class="kw">def</span> <span class="fn">state_cb</span>(self, msg: State):
+        self.fcu_connected = msg.connected
+        self.armed         = msg.armed
+        self.fcu_mode      = msg.mode
+
+    <span class="kw">def</span> <span class="fn">gps_cb</span>(self, msg: NavSatFix):
+        self.gps_fix = msg.status.status
+
+    <span class="kw">def</span> <span class="fn">battery_cb</span>(self, msg: BatteryState):
+        self.battery_pct = msg.percentage * <span class="nm">100.0</span>
+
+    <span class="kw">def</span> <span class="fn">_preflight_ok</span>(self) -> tuple:
+        <span class="st">"""Returns (ok: bool, reason: str)."""</span>
+        <span class="kw">if</span> <span class="kw">not</span> self.fcu_connected:
+            <span class="kw">return</span> <span class="kw">False</span>, <span class="st">'FCU not connected'</span>
+        <span class="kw">if</span> self.gps_fix < <span class="nm">0</span>:
+            <span class="kw">return</span> <span class="kw">False</span>, <span class="st">'No GPS fix'</span>
+        <span class="kw">if</span> self.battery_pct < BATTERY_MIN_PCT:
+            <span class="kw">return</span> <span class="kw">False</span>, <span class="st">f'Battery too low: {self.battery_pct:.1f}%'</span>
+        <span class="kw">if</span> time.time() - self.last_imu_t > <span class="nm">2.0</span>:
+            <span class="kw">return</span> <span class="kw">False</span>, <span class="st">'IMU data stale'</span>
+        <span class="kw">return</span> <span class="kw">True</span>, <span class="st">'All checks passed'</span>
+
+    <span class="kw">def</span> <span class="fn">mode_request_cb</span>(self, msg: String):
+        <span class="st">"""
+        Receives mode change requests. Performs pre-flight checks for
+        safety-critical modes before calling MAVROS2 set_mode.
+        """</span>
+        requested = msg.data.strip().upper()
+        from_mode = self.fcu_mode
+        t_now     = time.strftime(<span class="st">'%H:%M:%S'</span>)
+
+        <span class="cm"># Modes that require pre-flight clearance</span>
+        NEEDS_CHECK = {<span class="st">'OFFBOARD'</span>, <span class="st">'AUTO.MISSION'</span>, <span class="st">'AUTO.TAKEOFF'</span>}
+
+        <span class="kw">if</span> requested <span class="kw">in</span> NEEDS_CHECK:
+            ok, reason = self._preflight_ok()
+            <span class="kw">if</span> <span class="kw">not</span> ok:
+                self.get_logger().warn(
+                    <span class="st">f'[{t_now}] Mode {requested} BLOCKED: {reason}'</span>)
+                self.mode_history.append((t_now, from_mode, requested, <span class="st">f'BLOCKED: {reason}'</span>))
+                <span class="kw">return</span>
+
+        <span class="cm"># Execute the mode change</span>
+        req = SetMode.Request()
+        req.custom_mode = requested
+        self.set_mode_cli.call_async(req)
+        self.get_logger().info(<span class="st">f'[{t_now}] Mode change: {from_mode} → {requested}'</span>)
+        self.mode_history.append((t_now, from_mode, requested, <span class="st">'REQUESTED'</span>))
+
+    <span class="kw">def</span> <span class="fn">preflight_check_srv</span>(self, request, response):
+        ok, reason = self._preflight_ok()
+        response.success = ok
+        response.message = reason
+        <span class="kw">return</span> response
+
+    <span class="kw">def</span> <span class="fn">history_srv</span>(self, request, response):
+        lines = [<span class="st">f'{t} | {fr} → {to} | {res}'</span>
+                 <span class="kw">for</span> t, fr, to, res <span class="kw">in</span> self.mode_history[-<span class="nm">20</span>:]]
+        response.success = <span class="kw">True</span>
+        response.message = <span class="st">'\n'</span>.join(lines) <span class="kw">if</span> lines <span class="kw">else</span> <span class="st">'No mode changes yet'</span>
+        <span class="kw">return</span> response
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = ModeManager()
+    executor = MultiThreadedExecutor(num_threads=<span class="nm">4</span>)
+    executor.add_node(node)
+    <span class="kw">try</span>: executor.spin()
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+
+        <p>Add entry point, build, and test:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · setup.py addition</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="st">'mode_manager = aeroknow_bringup.mode_manager:main'</span>,</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — run mode manager</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 run aeroknow_bringup mode_manager</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4 — test pre-flight check service</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 service call /mode_manager/preflight_check std_srvs/srv/Trigger</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — stack healthy</span>
+          <pre>response: std_srvs.srv.Trigger_Response(<span class="t-ok">success=True</span>,
+  message=<span class="t-ok">'All checks passed'</span>)</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4 — request a blocked mode change</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 topic pub --once /mode_manager/request std_msgs/msg/String "data: 'OFFBOARD'"</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — blocked if not armed/GPS ready</span>
+          <pre><span class="t-warn">[WARN] [12:34:56] Mode OFFBOARD BLOCKED: No GPS fix</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 07 — EMERGENCY STOP
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-estop">
+    <h2>Step 07: emergency_stop.py</h2>
+    <p>
+      The most important node in the system. One topic message triggers an immediate,
+      unconditional land — bypassing all other logic, all other nodes, no questions asked.
+      Every serious autonomous UAV system must have this, and it must be the simplest,
+      most reliable component in the stack.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07</span>
+        <span class="step-title">Write emergency_stop.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Design principle — emergency stops must be simple</span>
+          <p>
+            An emergency stop node should have zero dependencies on the state of other nodes.
+            It should not wait for the health service, not check the mode manager, not look up
+            the GPS fix. It receives one message and does one thing: call the land service.
+            Complexity is the enemy of reliability in safety-critical code. This node is
+            deliberately minimal — 40 lines, one subscription, one service call, no state.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/emergency_stop.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · emergency_stop.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+emergency_stop.py
+─────────────────
+Subscribes to /emergency_stop (std_msgs/Bool).
+On any True message: immediately triggers AUTO.LAND via MAVROS2.
+
+This node is intentionally minimal — no pre-flight checks,
+no state, no dependencies. Simple = reliable.
+
+Trigger from terminal:
+  ros2 topic pub --once /emergency_stop std_msgs/msg/Bool "data: true"
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> std_msgs.msg  <span class="kw">import</span> Bool
+<span class="kw">from</span> std_srvs.srv  <span class="kw">import</span> Trigger
+<span class="kw">from</span> mavros_msgs.srv <span class="kw">import</span> CommandBool
+
+
+<span class="kw">class</span> <span class="tp">EmergencyStop</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'emergency_stop'</span>)
+
+        <span class="cm"># Use RELIABLE QoS — we cannot afford to miss the stop command</span>
+        rel = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=<span class="nm">10</span>
+        )
+
+        self.create_subscription(Bool, <span class="st">'/emergency_stop'</span>,
+                                 self.<span class="fn">estop_cb</span>, rel)
+
+        self.land_cli    = self.create_client(Trigger, <span class="st">'/mavros/cmd/land'</span>)
+        self.disarm_cli  = self.create_client(CommandBool, <span class="st">'/mavros/cmd/arming'</span>)
+
+        self._triggered = <span class="kw">False</span>   <span class="cm"># prevent repeated calls</span>
+
+        self.get_logger().info(
+            <span class="st">'EmergencyStop ACTIVE — listening on /emergency_stop'</span>)
+
+    <span class="kw">def</span> <span class="fn">estop_cb</span>(self, msg: Bool):
+        <span class="kw">if</span> <span class="kw">not</span> msg.data <span class="kw">or</span> self._triggered:
+            <span class="kw">return</span>
+
+        self._triggered = <span class="kw">True</span>
+        self.get_logger().error(
+            <span class="st">'!!! EMERGENCY STOP TRIGGERED !!! Commanding immediate land.'</span>)
+
+        <span class="cm"># Step 1: command land (gentle, controlled descent)</span>
+        land_req = Trigger.Request()
+        self.land_cli.call_async(land_req)
+
+        <span class="cm"># Step 2: schedule disarm 5 s later as a fallback
+        # (if land service fails, disarm cuts motors directly)</span>
+        self.create_timer(<span class="nm">5.0</span>, self.<span class="fn">_fallback_disarm'</span>)
+
+    <span class="kw">def</span> <span class="fn">_fallback_disarm</span>(self):
+        self.get_logger().warn(<span class="st">'Fallback: sending disarm command'</span>)
+        req = CommandBool.Request()
+        req.value = <span class="kw">False</span>   <span class="cm"># disarm</span>
+        self.disarm_cli.call_async(req)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = EmergencyStop()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+
+        <p>Add entry point, build, and test while a mission is running:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · setup.py addition</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="st">'emergency_stop = aeroknow_bringup.emergency_stop:main'</span>,</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — run emergency stop node</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 run aeroknow_bringup emergency_stop</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4 — trigger it while mission_runner is flying</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 topic pub --once /emergency_stop std_msgs/msg/Bool "data: true"</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output in emergency_stop terminal</span>
+          <pre><span class="t-err">[ERROR] !!! EMERGENCY STOP TRIGGERED !!! Commanding immediate land.</span>
+<span class="t-warn">[WARN]  Fallback: sending disarm command</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 08 — FULL MISSION RUNNER
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-full-mission">
+    <h2>Step 08: mission_runner.py — Everything Together</h2>
+    <p>
+      The final node wraps all of L03 into a complete demo that exercises every component:
+      the mode manager does the pre-flight check, the flight controller does the takeoff,
+      the L02 action server handles a waypoint, the emergency stop stays hot throughout.
+      This is the integration test that confirms the whole stack works together.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 08</span>
+        <span class="step-title">Write mission_runner.py and the L03 launch file</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/mission_runner.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · mission_runner.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+mission_runner.py
+─────────────────
+Integration demo: orchestrates pre-flight check → flight controller
+→ L02 action server → land, with emergency stop active throughout.
+
+Run with:
+  ros2 launch aeroknow_bringup l03_launch.py
+  # (which starts mission_runner + mode_manager + emergency_stop + flight_controller)
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node   <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.action <span class="kw">import</span> ActionClient
+
+<span class="kw">from</span> std_msgs.msg  <span class="kw">import</span> String
+<span class="kw">from</span> std_srvs.srv  <span class="kw">import</span> Trigger
+<span class="kw">from</span> aeroknow_bringup.action <span class="kw">import</span> FlyToWaypoint
+
+<span class="kw">import</span> time
+
+
+DEMO_WAYPOINTS = [
+    (<span class="nm">47.3978</span>, <span class="nm">8.5456</span>, <span class="nm">25.0</span>),   <span class="cm"># WP1 — north of SITL default origin</span>
+    (<span class="nm">47.3982</span>, <span class="nm">8.5464</span>, <span class="nm">25.0</span>),   <span class="cm"># WP2 — northeast</span>
+    (<span class="nm">47.3975</span>, <span class="nm">8.5470</span>, <span class="nm">20.0</span>),   <span class="cm"># WP3 — east, descend slightly</span>
+]
+
+
+<span class="kw">class</span> <span class="tp">MissionRunner</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'mission_runner'</span>)
+
+        <span class="cm"># Service clients</span>
+        self.preflight_cli = self.create_client(Trigger, <span class="st">'/mode_manager/preflight_check'</span>)
+        self.mode_req_pub  = self.create_publisher(String, <span class="st">'/mode_manager/request'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># Action client for L02 FlyToWaypoint</span>
+        self._wp_client = ActionClient(self, FlyToWaypoint, <span class="st">'fly_to_waypoint'</span>)
+
+        self.get_logger().info(<span class="st">'MissionRunner starting in 3s...'</span>)
+        self.create_timer(<span class="nm">3.0</span>, self.<span class="fn">_run_once'</span>)   <span class="cm"># delay start to allow other nodes to start</span>
+        self._started = <span class="kw">False</span>
+
+    <span class="kw">def</span> <span class="fn">_run_once</span>(self):
+        <span class="kw">if</span> self._started: <span class="kw">return</span>
+        self._started = <span class="kw">True</span>
+
+        <span class="cm"># Step 1 — Pre-flight check</span>
+        self.get_logger().info(<span class="st">'Running pre-flight check...'</span>)
+        <span class="kw">if</span> <span class="kw">not</span> self.preflight_cli.wait_for_service(timeout_sec=<span class="nm">5.0</span>):
+            self.get_logger().error(<span class="st">'Pre-flight service unavailable'</span>)
+            <span class="kw">return</span>
+
+        future = self.preflight_cli.call_async(Trigger.Request())
+        rclpy.spin_until_future_complete(self, future, timeout_sec=<span class="nm">5.0</span>)
+        result = future.result()
+
+        <span class="kw">if</span> result <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> <span class="kw">not</span> result.success:
+            reason = result.message <span class="kw">if</span> result <span class="kw">else</span> <span class="st">'timeout'</span>
+            self.get_logger().error(<span class="st">f'Pre-flight FAILED: {reason} — mission aborted'</span>)
+            <span class="kw">return</span>
+
+        self.get_logger().info(<span class="st">f'Pre-flight OK: {result.message}'</span>)
+
+        <span class="cm"># Step 2 — Request OFFBOARD mode via mode manager</span>
+        mode_msg = String(); mode_msg.data = <span class="st">'OFFBOARD'</span>
+        self.mode_req_pub.publish(mode_msg)
+        self.get_logger().info(<span class="st">'OFFBOARD mode requested via mode manager'</span>)
+        time.sleep(<span class="nm">1.0</span>)
+
+        <span class="cm"># Step 3 — Fly each waypoint using the L02 action server</span>
+        <span class="kw">if</span> <span class="kw">not</span> self._wp_client.wait_for_server(timeout_sec=<span class="nm">5.0</span>):
+            self.get_logger().error(<span class="st">'FlyToWaypoint action server not available'</span>)
+            <span class="kw">return</span>
+
+        <span class="kw">for</span> i, (lat, lon, alt) <span class="kw">in</span> enumerate(DEMO_WAYPOINTS):
+            self.get_logger().info(<span class="st">f'Sending WP{i+1}: ({lat:.4f}, {lon:.4f}, {alt:.0f}m)'</span>)
+
+            goal = FlyToWaypoint.Goal()
+            goal.target_lat       = lat
+            goal.target_lon       = lon
+            goal.target_alt       = alt
+            goal.acceptance_radius= <span class="nm">5.0</span>
+
+            future = self._wp_client.send_goal_async(
+                goal,
+                feedback_callback=<span class="kw">lambda</span> fb: self.get_logger().info(
+                    <span class="st">f'  WP{i+1} feedback: {fb.feedback.distance_to_wp:.1f}m remaining'</span>,
+                    throttle_duration_sec=<span class="nm">3.0</span>
+                )
+            )
+            rclpy.spin_until_future_complete(self, future, timeout_sec=<span class="nm">5.0</span>)
+            goal_handle = future.result()
+
+            <span class="kw">if</span> <span class="kw">not</span> goal_handle.accepted:
+                self.get_logger().error(<span class="st">f'WP{i+1} rejected'</span>)
+                <span class="kw">continue</span>
+
+            result_future = goal_handle.get_result_async()
+            rclpy.spin_until_future_complete(self, result_future, timeout_sec=<span class="nm">120.0</span>)
+            res = result_future.result().result
+
+            <span class="kw">if</span> res.success:
+                self.get_logger().info(<span class="st">f'WP{i+1} reached (dist={res.final_distance:.1f}m)'</span>)
+            <span class="kw">else</span>:
+                self.get_logger().warn(<span class="st">f'WP{i+1} result: {res.message}'</span>)
+
+        self.get_logger().info(<span class="st">'Mission complete.'</span>)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = MissionRunner()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+
+        <p>Now create the L03 launch file that starts everything at once:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/launch/l03_launch.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · l03_launch.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""L03 complete stack launch file."""</span>
+<span class="kw">from</span> launch <span class="kw">import</span> LaunchDescription
+<span class="kw">from</span> launch.actions <span class="kw">import</span> LogInfo
+<span class="kw">from</span> launch_ros.actions <span class="kw">import</span> Node
+
+<span class="kw">def</span> <span class="fn">generate_launch_description</span>():
+    <span class="kw">return</span> LaunchDescription([
+        LogInfo(msg=<span class="st">'[AEROKNOW L03] Starting full flight stack'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'emergency_stop'</span>,
+             name=<span class="st">'emergency_stop'</span>, output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mode_manager'</span>,
+             name=<span class="st">'mode_manager'</span>,    output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'heartbeat_service'</span>,
+             name=<span class="st">'heartbeat_service'</span>,output=<span class="st">'log'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mission_action_server'</span>,
+             name=<span class="st">'mission_action_server'</span>, output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'flight_controller'</span>,
+             name=<span class="st">'flight_controller'</span>, output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mission_runner'</span>,
+             name=<span class="st">'mission_runner'</span>,   output=<span class="st">'screen'</span>),
+    ])</pre>
+        </div>
+
+        <p>Add the remaining entry points, build, and launch the full stack:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · setup.py — final entry points list</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="st">'console_scripts'</span>: [
+    <span class="st">'telemetry_listener    = aeroknow_bringup.telemetry_listener:main'</span>,
+    <span class="st">'heartbeat_service     = aeroknow_bringup.heartbeat_service:main'</span>,
+    <span class="st">'mission_action_server = aeroknow_bringup.mission_action_server:main'</span>,
+    <span class="st">'flight_controller     = aeroknow_bringup.flight_controller:main'</span>,
+    <span class="st">'offboard_velocity_node= aeroknow_bringup.offboard_velocity_node:main'</span>,
+    <span class="st">'mode_manager          = aeroknow_bringup.mode_manager:main'</span>,
+    <span class="st">'emergency_stop        = aeroknow_bringup.emergency_stop:main'</span>,
+    <span class="st">'mission_runner        = aeroknow_bringup.mission_runner:main'</span>,
+],</pre>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — full stack</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws &amp;&amp; colcon build --symlink-install --packages-select aeroknow_bringup
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 launch aeroknow_bringup l03_launch.py</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — all nodes start, pre-flight passes, mission flies</span>
+          <pre><span class="t-ok">[INFO] [AEROKNOW L03] Starting full flight stack</span>
+<span class="t-ok">[INFO] EmergencyStop ACTIVE — listening on /emergency_stop</span>
+<span class="t-ok">[INFO] ModeManager ready. Listening on /mode_manager/request</span>
+<span class="t-ok">[INFO] MissionActionServer ready at /fly_to_waypoint</span>
+<span class="t-dim">[INFO] MissionRunner starting in 3s...</span>
+<span class="t-ok">[INFO] Pre-flight OK: All checks passed</span>
+<span class="t-ok">[INFO] OFFBOARD mode requested via mode manager</span>
+<span class="t-ok">[INFO] Sending WP1: (47.3978, 8.5456, 25.0m)</span>
+<span class="t-dim">[INFO]   WP1 feedback: 42.3m remaining</span>
+<span class="t-ok">[INFO] WP1 reached (dist=3.8m)</span>
+<span class="t-ok">[INFO] WP2 reached (dist=4.1m)</span>
+<span class="t-ok">[INFO] WP3 reached (dist=2.9m)</span>
+<span class="t-ok">[INFO] Mission complete.</span></pre>
+        </div>
+
+        <h3>Final Workspace State After L03</h3>
+        <div class="file-tree">
+<span class="ft-dir">aeroknow_ws/src/aeroknow_bringup/</span>
+├── <span class="ft-dir">action/</span>
+│   └── <span class="ft-file">FlyToWaypoint.action</span>
+├── <span class="ft-dir">launch/</span>
+│   ├── <span class="ft-file">bringup_launch.py</span>        <span class="ft-note"># L02</span>
+│   └── <span class="ft-new">l03_launch.py</span>             <span class="ft-note"># L03 full stack</span>
+└── <span class="ft-dir">aeroknow_bringup/</span>
+    ├── <span class="ft-file">telemetry_listener.py</span>     <span class="ft-note"># L02</span>
+    ├── <span class="ft-file">heartbeat_service.py</span>      <span class="ft-note"># L02</span>
+    ├── <span class="ft-file">mission_action_server.py</span>  <span class="ft-note"># L02</span>
+    ├── <span class="ft-new">flight_controller.py</span>      <span class="ft-note"># L03</span>
+    ├── <span class="ft-new">offboard_velocity_node.py</span> <span class="ft-note"># L03</span>
+    ├── <span class="ft-new">mode_manager.py</span>           <span class="ft-note"># L03</span>
+    ├── <span class="ft-new">emergency_stop.py</span>         <span class="ft-note"># L03</span>
+    └── <span class="ft-new">mission_runner.py</span>         <span class="ft-note"># L03</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COMMON ERRORS
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-errors">
+    <h2>Common Errors &amp; Fixes</h2>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 01 — Mode never switches to OFFBOARD</span>
+      <code class="error-msg">Requesting mode: OFFBOARD  ← printed, but fcu_mode stays 'POSCTL'</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> Setpoints were not streaming before the mode switch request.
+        PX4 requires at least ~0.5 s of continuous setpoint messages at ≥2 Hz before accepting OFFBOARD.
+        <strong>Fix:</strong> Confirm the <code>STREAMING</code> state in <code>flight_controller.py</code>
+        waits for <code>stream_count &gt;= 20</code> (2 seconds at 10 Hz) before calling <code>call_set_mode</code>.
+        If you modified the code and shortened this wait, put it back.
+        You can verify setpoints are flowing: <code>ros2 topic hz /mavros/setpoint_position/local</code>
+        should show ~10 Hz before mode switch.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 02 — Drone won't arm: "Preflight fail"</span>
+      <code class="error-msg">commander: Preflight Fail: Gyro Sensor 0 uncalibrated</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> SITL occasionally fails IMU calibration on startup.
+        <strong>Fix:</strong> In the PX4 shell (Terminal 1), run:
+        <code>commander calibrate gyro</code> then wait 5 s. If it still fails, restart PX4 SITL entirely:
+        Ctrl+C in Terminal 1, then <code>make px4_sitl gz_x500</code> again.
+        This is a SITL quirk — it does not occur on real hardware with pre-calibrated sensors.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 03 — Drone arms but won't takeoff (stays on ground)</span>
+      <code class="error-msg">[INFO] Armed. Taking off to WP0... (no movement in Gazebo)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The setpoint Z value is in ENU (+Z = up), but a value of 0.0
+        means "hover at ground level" — the drone hovers right where it is.
+        <strong>Fix:</strong> Confirm WAYPOINTS[0] has <code>z = 20.0</code> (or similar positive value),
+        not 0.0. Also check that <code>publish_setpoint</code> is still being called inside
+        the <code>ARMING</code> state — if you accidentally removed the setpoint publish before the
+        state check, Offboard mode times out and PX4 exits back to POSCTL before arming completes.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 04 — mission_runner can't find action server</span>
+      <code class="error-msg">Waiting for FlyToWaypoint action server... (hangs)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> <code>mission_action_server</code> is not running, or it started
+        but failed due to the <code>aeroknow_bringup.action</code> import error (L02 Error 02).
+        <strong>Fix:</strong> In a separate terminal: <code>ros2 action list</code> — if
+        <code>/fly_to_waypoint</code> is not listed, the action server crashed.
+        Check its terminal for errors. Most likely cause: <code>colcon build</code> was not run
+        after adding the action file, or <code>source install/setup.bash</code> was not run
+        in the terminal where the launch file was invoked.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 05 — Emergency stop triggered but drone keeps flying</span>
+      <code class="error-msg">[ERROR] !!! EMERGENCY STOP TRIGGERED !!! ... (drone ignores it)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The <code>/mavros/cmd/land</code> service client was not yet
+        connected when the stop was triggered. This happens if <code>emergency_stop.py</code>
+        receives the stop signal within the first few hundred milliseconds of startup before
+        MAVROS2 has registered the service.
+        <strong>Fix:</strong> Add a <code>self.land_cli.wait_for_service(timeout_sec=3.0)</code>
+        call inside <code>__init__</code> — wait for MAVROS2 services to become available before
+        the node reports ready. The node startup log should show the service is available before
+        <code>ACTIVE</code> is printed.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       EXTENSION CHALLENGES
+       ══════════════════════════════════════════ -->
+  <div class="lab-section" id="s-extend">
+    <h2>Extension Challenges</h2>
+    <p>The full flight stack is running. Here are three harder things to try before L04.</p>
+
+    <div class="extension-box">
+      <ol>
+        <li>
+          <strong>Add a loiter function to flight_controller.py.</strong>
+          After reaching each waypoint, the drone should orbit in a 10 m radius circle
+          for 15 seconds before moving to the next. Use velocity setpoints to hold altitude
+          and command tangential velocity (<code>vx = speed × cos(θ)</code>,
+          <code>vy = speed × sin(θ)</code> where θ advances at a constant rate).
+          This is the foundational building block for ISR orbit patterns used in L06.
+        </li>
+        <li>
+          <strong>Extend mode_manager.py with a transition guard table.</strong>
+          Not all mode transitions should be allowed at all times —
+          for example, switching from AUTO.LAND back to OFFBOARD mid-descent is dangerous.
+          Define a Python dict <code>ALLOWED_TRANSITIONS</code> that maps
+          <code>(from_mode, to_mode) → bool</code>, and check it in <code>mode_request_cb</code>
+          before executing. Log blocked transitions with a clear reason.
+        </li>
+        <li>
+          <strong>Add a Return-to-Base (RTB) command to emergency_stop.py.</strong>
+          Currently the emergency stop commands immediate land — which could be dangerous
+          over water or occupied terrain. Add a second topic <code>/rtb_command</code>
+          (std_msgs/Bool) that instead commands <code>AUTO.RTL</code> (return to launch).
+          RTL uses the home position set at arm time. Test by publishing to <code>/rtb_command</code>
+          while the mission is running in Gazebo — the drone should return to its takeoff
+          position and land there.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ── LAB NAV ── -->
+  <div class="lab-nav">
+    <a href="l02-ros2-fundamentals.html" class="btn-lab prev">◂ Lab 02: ROS2 Fundamentals</a>
+    <a href="l04-gazebo-simulation.html"  class="btn-lab">Lab 04: Gazebo Simulation ▸</a>
+  </div>
+
+</div><!-- end lab-page -->
+
+<footer>
+  <p>AEROKNOW · Practical Track · Lab 03 · PX4 + MAVROS2 ·
+  ROS2 Humble · PX4 v1.14 · MAVROS2</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    let text = pre.innerText
+      .split('\n')
+      .map(line => line.replace(/^\$\s*/, '').replace(/^pxh>\s*/, ''))
+      .join('\n').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  function jumpTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  const sections = ['s-overview','s-prereqs','s-modes','s-offboard',
+                    's-flight-controller','s-velocity','s-mode-manager',
+                    's-estop','s-full-mission','s-errors','s-extend'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          if (buttons[idx]) buttons[idx].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>
