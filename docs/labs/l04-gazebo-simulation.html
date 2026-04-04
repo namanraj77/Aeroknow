@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L04: Gazebo Simulation World — AEROKNOW Labs</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+
+    :root {
+      --lab-accent:      #00ff9d;
+      --lab-accent-dim:  rgba(0, 255, 157, 0.08);
+      --lab-accent-glow: 0 0 20px rgba(0, 255, 157, 0.3);
+      --lab-border:      rgba(0, 255, 157, 0.35);
+      --lab-border-dim:  rgba(0, 255, 157, 0.12);
+    }
+
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.97); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--lab-border-dim);
+      padding: 0; overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--lab-border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--lab-border); }
+    .jump-btn.active { color: var(--lab-accent); border-bottom-color: var(--lab-accent); }
+    .jump-btn .jb-num { color: var(--lab-accent); margin-right: 0.3rem; font-size: 0.58rem; }
+
+    .lab-page { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+
+    .lab-hero {
+      padding: 3rem 0 2rem; border-bottom: 1px solid var(--lab-border-dim);
+      margin-bottom: 3rem; position: relative;
+    }
+    .lab-track-label {
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--lab-accent);
+      letter-spacing: 0.25em; text-transform: uppercase;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .lab-track-label::before { content: ''; width: 30px; height: 1px; background: var(--lab-accent); box-shadow: var(--lab-accent-glow); }
+    .lab-hero h1 { color: var(--text-primary); text-shadow: 0 0 40px rgba(0,255,157,0.15); margin-bottom: 1rem; }
+    .lab-hero p.lead { font-size: 1.1rem; color: var(--text-secondary); max-width: 680px; margin-bottom: 1.5rem; line-height: 1.75; }
+    .lab-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
+    .lab-meta-item { display: flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); }
+    .lab-meta-item strong { color: var(--lab-accent); }
+
+    .lab-section { margin-bottom: 4rem; scroll-margin-top: 105px; }
+    .lab-section h2 {
+      color: var(--lab-accent); margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem; border-bottom: 1px solid var(--lab-border-dim);
+      display: flex; align-items: center; gap: 0.75rem;
+      font-size: clamp(1.1rem, 2vw, 1.6rem);
+    }
+    .lab-section h2::before { content: '//'; font-family: var(--font-mono); color: var(--lab-accent); font-size: 0.9rem; opacity: 0.6; }
+    .lab-section h3 { color: var(--text-primary); margin: 2rem 0 0.8rem; font-size: 1.1rem; }
+    .lab-section p { font-size: 1rem; line-height: 1.75; }
+    .lab-section ul, .lab-section ol { padding-left: 1.5rem; margin-bottom: 1.2rem; }
+    .lab-section li { margin-bottom: 0.5rem; color: var(--text-secondary); line-height: 1.65; }
+    .lab-section li strong { color: var(--text-primary); }
+
+    .lab-step {
+      border: 1px solid var(--lab-border-dim); border-left: 3px solid var(--lab-accent);
+      background: rgba(0,255,157,0.025); margin: 2rem 0; position: relative;
+    }
+    .lab-step-header { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--lab-border-dim); }
+    .step-num { font-family: var(--font-mono); font-size: 0.65rem; color: var(--lab-accent); background: rgba(0,255,157,0.08); border: 1px solid var(--lab-border); padding: 0.2rem 0.5rem; letter-spacing: 0.1em; white-space: nowrap; }
+    .step-title { font-family: var(--font-ui); font-size: 1rem; font-weight: 600; color: var(--text-primary); letter-spacing: 0.03em; }
+    .lab-step-body { padding: 1.2rem 1.5rem; }
+
+    .why-box { background: rgba(0,212,255,0.03); border-left: 3px solid var(--accent-primary); padding: 0.9rem 1.1rem; margin-bottom: 1.2rem; border-radius: 0 3px 3px 0; }
+    .why-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-primary); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.35rem; }
+    .why-box p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+
+    .code-block { background: #020c14; border: 1px solid var(--border-dim); border-left: 3px solid var(--accent-primary); padding: 1.2rem 1.5rem; overflow-x: auto; position: relative; margin: 1rem 0; }
+    .code-block.bash   { border-left-color: var(--lab-accent); }
+    .code-block.python { border-left-color: var(--accent-primary); }
+    .code-block.xml    { border-left-color: var(--accent-amber); }
+    .code-lang { position: absolute; top: 0.4rem; right: 3.5rem; font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .copy-btn { position: absolute; top: 0.35rem; right: 0.5rem; background: rgba(0,255,157,0.07); border: 1px solid var(--lab-border-dim); color: var(--lab-accent); font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.08em; padding: 0.2rem 0.5rem; cursor: pointer; text-transform: uppercase; transition: var(--transition); }
+    .copy-btn:hover  { background: rgba(0,255,157,0.14); border-color: var(--lab-border); }
+    .copy-btn.copied { color: var(--accent-primary); border-color: var(--accent-primary); }
+    .code-block pre { font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.7; color: #c8e6f0; white-space: pre; tab-size: 4; }
+    .code-block .cm   { color: #4a7a8a; font-style: italic; }
+    .code-block .kw   { color: #00d4ff; }
+    .code-block .fn   { color: #00ff9d; }
+    .code-block .st   { color: #ffd580; }
+    .code-block .nm   { color: #ff9d6f; }
+    .code-block .tp   { color: #b388ff; }
+    .code-block .tag  { color: #00d4ff; }
+    .code-block .attr { color: #00ff9d; }
+    .code-block .val  { color: #ffd580; }
+    .code-block .prompt { color: var(--lab-accent); user-select: none; }
+
+    .terminal-output { background: #010a0f; border: 1px solid rgba(0,255,157,0.1); border-left: 3px solid rgba(0,255,157,0.4); padding: 1rem 1.5rem; margin: 0.75rem 0 1.2rem; position: relative; }
+    .terminal-label { font-family: var(--font-mono); font-size: 0.58rem; color: var(--lab-accent); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.6rem; opacity: 0.7; }
+    .terminal-output pre { font-family: var(--font-mono); font-size: 0.8rem; color: #7dbf9e; line-height: 1.65; white-space: pre-wrap; word-break: break-all; }
+    .terminal-output pre .t-dim  { color: #3d6650; }
+    .terminal-output pre .t-ok   { color: #00ff9d; }
+    .terminal-output pre .t-warn { color: #ffb700; }
+    .terminal-output pre .t-err  { color: #ff3a3a; }
+    .terminal-output pre .t-cyan { color: #00d4ff; }
+
+    .error-doc { background: rgba(255,58,58,0.03); border: 1px solid rgba(255,58,58,0.15); border-left: 3px solid var(--accent-red); padding: 1rem 1.2rem; margin: 1rem 0; }
+    .error-doc-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-red); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.5rem; }
+    .error-doc .error-msg { font-family: var(--font-mono); font-size: 0.82rem; color: #ff8080; margin-bottom: 0.6rem; display: block; }
+    .error-doc .error-fix { font-size: 0.92rem; color: var(--text-secondary); margin: 0; }
+    .error-doc .error-fix strong { color: var(--text-primary); }
+
+    .prereq-check { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+    .prereq-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.65rem 1rem; background: var(--bg-card); border: 1px solid var(--border-dim); font-size: 0.9rem; }
+    .prereq-icon { font-family: var(--font-mono); font-size: 0.75rem; color: var(--lab-accent); margin-top: 0.05rem; flex-shrink: 0; }
+    .prereq-item p { margin: 0; color: var(--text-secondary); line-height: 1.5; font-size: 0.9rem; }
+    .prereq-item code { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+
+    .theory-link { background: rgba(255,183,0,0.03); border: 1px solid rgba(255,183,0,0.15); border-left: 3px solid var(--accent-amber); padding: 1rem 1.2rem; margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .theory-link-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber); letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap; }
+    .theory-link p { margin: 0; color: var(--text-secondary); font-size: 0.92rem; flex: 1; min-width: 200px; }
+    .theory-link a { color: var(--accent-amber); text-decoration: underline; }
+
+    /* SDF element explanation cards */
+    .sdf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .sdf-card { background: var(--bg-card); border: 1px solid var(--border-dim); border-top: 2px solid var(--lab-accent); padding: 1rem 1.1rem; }
+    .sdf-card-name { font-family: var(--font-mono); font-size: 0.78rem; color: var(--lab-accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .sdf-card p { font-size: 0.87rem; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+    .sdf-card code { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-primary); }
+
+    /* Sensor table */
+    .sensor-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    .sensor-table th { font-family: var(--font-mono); font-size: 0.68rem; color: var(--lab-accent); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--lab-border-dim); text-align: left; }
+    .sensor-table td { padding: 0.55rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.88rem; color: var(--text-secondary); vertical-align: top; }
+    .sensor-table td:first-child { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-primary); }
+    .sensor-table td code { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-primary); }
+
+    /* Architecture diagram */
+    .arch-diagram { margin: 2rem 0; background: rgba(0,255,157,0.015); border: 1px solid var(--lab-border-dim); padding: 1.5rem; overflow-x: auto; }
+    .arch-diagram svg { display: block; margin: 0 auto; }
+
+    /* File tree */
+    .file-tree { background: #020c14; border: 1px solid var(--border-dim); border-left: 3px solid var(--lab-accent); padding: 1.2rem 1.5rem; font-family: var(--font-mono); font-size: 0.83rem; line-height: 1.9; margin: 1rem 0; }
+    .ft-dir  { color: var(--lab-accent); }
+    .ft-file { color: #c8e6f0; }
+    .ft-note { color: #3d6b7a; font-style: italic; }
+    .ft-new  { color: var(--accent-amber); }
+
+    .callout.lab-note { border-color: var(--lab-accent); background: rgba(0,255,157,0.04); }
+    .callout.lab-note .callout-title { color: var(--lab-accent); }
+
+    .extension-box { background: rgba(0,255,157,0.025); border: 1px solid var(--lab-border-dim); padding: 1.5rem; margin-top: 1.5rem; }
+    .extension-box::before { content: '◈ EXTENSION CHALLENGES'; font-family: var(--font-mono); font-size: 0.65rem; color: var(--lab-accent); letter-spacing: 0.15em; display: block; margin-bottom: 1rem; }
+    .extension-box ol { padding-left: 1.5rem; }
+    .extension-box li { margin-bottom: 0.75rem; font-size: 0.97rem; color: var(--text-secondary); line-height: 1.65; }
+    .extension-box li a { color: var(--lab-accent); }
+
+    .lab-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--lab-border-dim); }
+    .btn-lab { background: transparent; border: 1px solid var(--lab-accent); color: var(--lab-accent); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.8rem 1.8rem; text-decoration: none; display: inline-block; transition: var(--transition); position: relative; overflow: hidden; }
+    .btn-lab::before { content: ''; position: absolute; inset: 0; background: var(--lab-accent); transform: scaleX(0); transform-origin: left; transition: var(--transition); z-index: -1; }
+    .btn-lab:hover { color: var(--bg-void); box-shadow: var(--lab-accent-glow); text-shadow: none; }
+    .btn-lab:hover::before { transform: scaleX(1); }
+    .btn-lab.prev::before { transform-origin: right; }
+
+    @media (max-width: 768px) { .lab-page { padding: 1rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- ── SECTION JUMP BAR ── -->
+<div class="section-jump">
+  <div class="jump-inner">
+    <span class="jump-label">L04 · JUMP TO</span>
+    <button class="jump-btn active" onclick="jumpTo('s-overview')"><span class="jb-num">00</span>Overview</button>
+    <button class="jump-btn" onclick="jumpTo('s-prereqs')"><span class="jb-num">01</span>Prerequisites</button>
+    <button class="jump-btn" onclick="jumpTo('s-sdf')"><span class="jb-num">02</span>SDF Format</button>
+    <button class="jump-btn" onclick="jumpTo('s-world')"><span class="jb-num">03</span>Custom World</button>
+    <button class="jump-btn" onclick="jumpTo('s-sensors')"><span class="jb-num">04</span>Sensor Plugins</button>
+    <button class="jump-btn" onclick="jumpTo('s-wind')"><span class="jb-num">05</span>Wind Plugin</button>
+    <button class="jump-btn" onclick="jumpTo('s-drone-model')"><span class="jb-num">06</span>Drone Model</button>
+    <button class="jump-btn" onclick="jumpTo('s-spawner')"><span class="jb-num">07</span>World Spawner</button>
+    <button class="jump-btn" onclick="jumpTo('s-sensor-check')"><span class="jb-num">08</span>Sensor Checker</button>
+    <button class="jump-btn" onclick="jumpTo('s-launch')"><span class="jb-num">09</span>Launch</button>
+    <button class="jump-btn" onclick="jumpTo('s-errors')"><span class="jb-num">ERR</span>Common Errors</button>
+    <button class="jump-btn" onclick="jumpTo('s-extend')"><span class="jb-num">+</span>Extend</button>
+  </div>
+</div>
+
+<div class="lab-page">
+
+  <!-- HERO -->
+  <div class="lab-hero" id="s-overview">
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner br"></div>
+    <span class="lab-track-label">Practical Track · Lab 04 of 08</span>
+    <h1>Gazebo Simulation World</h1>
+    <p class="lead">
+      L01–L03 used the default flat Gazebo world. L04 replaces it with a mission-realistic
+      environment: five buildings, uneven terrain, a wind disturbance plugin, and three
+      sensor plugins wired into the drone — downward camera, depth camera, and 2D lidar.
+      By the end, all sensor topics are live and verified, and the L03 mission flies through
+      the custom world with wind active.
+    </p>
+    <div class="lab-meta">
+      <div class="lab-meta-item">⏱ <strong>~3 hours</strong>&nbsp;wall clock</div>
+      <div class="lab-meta-item">📋 <strong>4 files built</strong></div>
+      <div class="lab-meta-item">🔧 <strong>Builds on</strong>&nbsp;L03 workspace</div>
+      <div class="lab-meta-item">🌍 <strong>New:</strong>&nbsp;aeroknow_sim package</div>
+      <span class="label label-green">Gazebo Garden</span>
+      <span class="label label-primary">SDF World Format</span>
+      <span class="label label-amber">Sensor Plugins</span>
+      <span class="label label-red">Wind Disturbance</span>
+    </div>
+  </div>
+
+  <!-- WHAT YOU ARE BUILDING -->
+  <div class="lab-section" id="s-arch">
+    <h2>What You Are Building</h2>
+    <p>
+      A new ROS2 package <code>aeroknow_sim</code> containing the world SDF file,
+      a modified drone model with sensors, and two Python nodes.
+      Everything produced here feeds directly into L05 (GNSS-denied nav needs the camera),
+      L06 (vision needs the camera), and L07 (GCS needs all sensor topics).
+    </p>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:860px;min-width:480px;">
+        <defs>
+          <marker id="arr"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,255,157,0.5)"/></marker>
+          <marker id="arr-c" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,212,255,0.5)"/></marker>
+          <marker id="arr-a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(255,183,0,0.5)"/></marker>
+        </defs>
+
+        <!-- Gazebo World -->
+        <rect x="10" y="80" width="175" height="130" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.3)" stroke-width="1.2"/>
+        <text x="97" y="102" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d" letter-spacing="1">aeroknow.world</text>
+        <text x="97" y="118" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">5 buildings + terrain</text>
+        <text x="97" y="132" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">wind plugin</text>
+        <text x="97" y="146" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">lighting + shadows</text>
+        <text x="97" y="162" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 03 — you build this</text>
+        <text x="97" y="178" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.35)">aeroknow.world SDF file</text>
+        <text x="97" y="194" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.35)">worlds/ directory</text>
+
+        <!-- x500 model with sensors -->
+        <rect x="230" y="80" width="175" height="130" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.3)" stroke-width="1.2"/>
+        <text x="317" y="102" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00d4ff" letter-spacing="1">x500_sensors</text>
+        <text x="317" y="118" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">downward RGB camera</text>
+        <text x="317" y="132" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">depth camera (RGBD)</text>
+        <text x="317" y="146" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">2D lidar (360°)</text>
+        <text x="317" y="160" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">IMU (default)</text>
+        <text x="317" y="176" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,212,255,0.45)">Step 06 — you build this</text>
+
+        <!-- GZ bridge -->
+        <rect x="450" y="105" width="130" height="80" rx="2" fill="#050d14" stroke="rgba(255,183,0,0.3)" stroke-width="1.2"/>
+        <text x="515" y="127" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#ffb700">gz_bridge</text>
+        <text x="515" y="143" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Gazebo → ROS2</text>
+        <text x="515" y="157" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">topic translation</text>
+        <text x="515" y="171" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,183,0,0.45)">Step 09 launch file</text>
+
+        <!-- ROS2 topics -->
+        <rect x="625" y="30" width="225" height="225" rx="2" fill="rgba(0,212,255,0.015)" stroke="rgba(0,212,255,0.1)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="737" y="50" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.4)" letter-spacing="1">ROS2 TOPICS (NEW in L04)</text>
+        <text x="637" y="72" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/camera/image_raw</text>
+        <text x="637" y="90" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/depth_camera/depth</text>
+        <text x="637" y="108" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/scan</text>
+        <text x="637" y="126" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/camera/camera_info</text>
+        <text x="637" y="144" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,212,255,0.4)">/world/wind_speed</text>
+        <line x1="633" y1="152" x2="840" y2="152" stroke="rgba(0,212,255,0.07)" stroke-width="1"/>
+        <text x="637" y="168" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,212,255,0.3)">(+ existing MAVROS2 topics)</text>
+
+        <!-- world_spawner + sensor_checker -->
+        <rect x="230" y="232" width="175" height="55" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.2)" stroke-width="1"/>
+        <text x="317" y="252" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00ff9d">world_spawner.py</text>
+        <text x="317" y="268" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">spawn/despawn obstacles</text>
+        <text x="317" y="279" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 07</text>
+
+        <rect x="450" y="232" width="130" height="55" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.2)" stroke-width="1"/>
+        <text x="515" y="252" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00ff9d">sensor_checker.py</text>
+        <text x="515" y="268" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">verify all topics live</text>
+        <text x="515" y="279" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 08</text>
+
+        <!-- Arrows -->
+        <line x1="185" y1="145" x2="228" y2="145" stroke="rgba(0,255,157,0.4)" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="405" y1="145" x2="448" y2="145" stroke="rgba(0,212,255,0.4)" stroke-width="1.2" marker-end="url(#arr-c)"/>
+        <line x1="580" y1="145" x2="623" y2="100" stroke="rgba(0,212,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-c)"/>
+        <line x1="317" y1="210" x2="317" y2="230" stroke="rgba(0,255,157,0.25)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+        <line x1="515" y1="185" x2="515" y2="230" stroke="rgba(0,255,157,0.25)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+
+        <!-- Package label -->
+        <rect x="218" y="20" width="430" height="270" rx="2" fill="none" stroke="rgba(0,255,157,0.06)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="433" y="286" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.3)" letter-spacing="1">aeroknow_sim · new package built in L04</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- PREREQUISITES -->
+  <div class="lab-section" id="s-prereqs">
+    <h2>Prerequisites</h2>
+
+    <div class="prereq-check">
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L03 complete.</strong> <code>ros2 launch aeroknow_bringup l03_launch.py</code>
+        runs without errors and the drone flies the L03 mission in Gazebo.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>ros_gz_bridge installed.</strong> Confirm:
+        <code>ros2 pkg list | grep ros_gz</code> should show <code>ros_gz_bridge</code>
+        and <code>ros_gz_sim</code>. If missing: <code>sudo apt install ros-humble-ros-gz-bridge ros-humble-ros-gz-sim</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>image_transport installed.</strong> Needed for camera topics:
+        <code>sudo apt install ros-humble-image-transport ros-humble-cv-bridge ros-humble-sensor-msgs</code></p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>Gazebo Garden models directory accessible.</strong> Check:
+        <code>ls ~/.gz/models/</code> — if the directory doesn't exist,
+        run Gazebo once: <code>gz sim empty.sdf</code> then close it. It creates the directory.</p>
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <span class="theory-link-label">⟐ Theory Link</span>
+      <p>
+        The sensor plugins added in this lab are the simulation equivalents of the physical sensors
+        covered in <a href="../modules/m05-sensor-fusion.html">Module 05 — Sensor Fusion §5.2</a>.
+        The noise models configured in the SDF files directly correspond to the Allan variance
+        parameters and measurement noise covariances from that module.
+        The wind plugin simulates the aerodynamic disturbances discussed in
+        <a href="../modules/m02-flight-dynamics.html">Module 02 — Flight Dynamics §2.4</a>.
+      </p>
+    </div>
+  </div>
+
+  <!-- SDF FORMAT -->
+  <div class="lab-section" id="s-sdf">
+    <h2>The SDF Format — Gazebo's World Description Language</h2>
+    <p>
+      Every Gazebo world is described in an SDF (Simulation Description Format) file —
+      XML that specifies every object, its physics properties, and its sensor plugins.
+      Before writing any SDF, you need to understand its six key building blocks.
+    </p>
+
+    <div class="sdf-grid">
+      <div class="sdf-card">
+        <div class="sdf-card-name">&lt;world&gt;</div>
+        <p>The root element. Contains global settings: gravity, magnetic field, atmosphere, and the plugin list. Everything else lives inside it. One SDF file = one world.</p>
+      </div>
+      <div class="sdf-card">
+        <div class="sdf-card-name">&lt;model&gt;</div>
+        <p>A rigid body entity — a building, a vehicle, the drone. Has a name, a pose, and one or more <code>&lt;link&gt;</code> elements. Models can be static (fixed) or dynamic (physics-simulated).</p>
+      </div>
+      <div class="sdf-card">
+        <div class="sdf-card-name">&lt;link&gt;</div>
+        <p>The physical part of a model. Defines mass, inertia, collision geometry, and visual geometry. A drone has many links — body, rotors, camera mount.</p>
+      </div>
+      <div class="sdf-card">
+        <div class="sdf-card-name">&lt;sensor&gt;</div>
+        <p>A measurement device attached to a link. Types: <code>camera</code>, <code>depth_camera</code>, <code>gpu_lidar</code>, <code>imu</code>. Each sensor has its own plugin that publishes data to a topic.</p>
+      </div>
+      <div class="sdf-card">
+        <div class="sdf-card-name">&lt;plugin&gt;</div>
+        <p>C++ code that runs inside the simulation. World-level plugins add behaviour (wind, physics, time). Sensor plugins convert simulation data to topics. Model plugins add controller logic.</p>
+      </div>
+      <div class="sdf-card">
+        <div class="sdf-card-name">&lt;pose&gt;</div>
+        <p>Position and orientation: <code>x y z roll pitch yaw</code> in metres and radians. All poses are relative to the parent element unless <code>relative_to</code> is specified. Yaw=0 points along the X axis (East in Gazebo).</p>
+      </div>
+    </div>
+
+    <h3>Gazebo vs. ROS2 Coordinate Frames</h3>
+    <p>
+      This difference causes confusion every time. It is worth knowing before you write a single SDF line.
+    </p>
+    <div class="callout lab-note">
+      <span class="callout-title">Frame Convention Mismatch</span>
+      Gazebo uses <strong>ENU</strong> — X East, Y North, Z Up.
+      PX4 / MAVLink uses <strong>NED</strong> — X North, Y East, Z Down.
+      MAVROS2 automatically converts between them on all topics.
+      Your SDF poses are in Gazebo ENU.
+      Your ROS2 setpoints are in ENU (MAVROS2 local frame).
+      The PX4 shell displays NED internally.
+      When you set a building at Gazebo pose <code>(10 0 0)</code> it is 10 m East,
+      which is <code>Y=10</code> in PX4's NED frame.
+      The <code>sensor_checker.py</code> in Step 08 displays ENU so it matches what you see in Gazebo.
+    </div>
+  </div>
+
+  <!-- STEP 03 — CUSTOM WORLD -->
+  <div class="lab-section" id="s-world">
+    <h2>Step 01–02: Create the aeroknow_sim Package and World File</h2>
+
+    <!-- Step 01 -->
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 01</span>
+        <span class="step-title">Create the aeroknow_sim package</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why a separate package for simulation files</span>
+          <p>
+            Separating simulation assets (world SDF, model SDFs) from flight code
+            (<code>aeroknow_bringup</code>) keeps concerns clean and mirrors real-world
+            practice. The simulation package can be swapped for a different world without
+            touching any of the flight code. It also means L05–L08 can import sim utilities
+            as a ROS2 package dependency rather than hardcoding paths.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws/src
+<span class="prompt">$ </span>ros2 pkg create aeroknow_sim \
+    --build-type ament_python \
+    --dependencies rclpy std_msgs sensor_msgs geometry_msgs
+<span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_sim/worlds
+<span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_sim/models/x500_sensors
+<span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_sim/launch</pre>
+        </div>
+
+        <p>Update <code>setup.py</code> to install the worlds, models, and launch directories:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · aeroknow_sim/setup.py (full file)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="kw">from</span> setuptools <span class="kw">import</span> setup, find_packages
+<span class="kw">import</span> os
+<span class="kw">from</span> glob <span class="kw">import</span> glob
+
+package_name = <span class="st">'aeroknow_sim'</span>
+
+setup(
+    name=package_name,
+    version=<span class="st">'0.1.0'</span>,
+    packages=find_packages(exclude=[<span class="st">'test'</span>]),
+    data_files=[
+        (<span class="st">'share/ament_index/resource_index/packages'</span>,
+            [<span class="st">'resource/'</span> + package_name]),
+        (<span class="st">'share/'</span> + package_name, [<span class="st">'package.xml'</span>]),
+        (os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'worlds'</span>),
+            glob(<span class="st">'worlds/*.sdf'</span>)),
+        (os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'models'</span>, <span class="st">'x500_sensors'</span>),
+            glob(<span class="st">'models/x500_sensors/*'</span>)),
+        (os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'launch'</span>),
+            glob(<span class="st">'launch/*.py'</span>)),
+    ],
+    install_requires=[<span class="st">'setuptools'</span>],
+    zip_safe=<span class="kw">True</span>,
+    maintainer=<span class="st">'aeroknow'</span>,
+    maintainer_email=<span class="st">'aeroknow@example.com'</span>,
+    description=<span class="st">'AEROKNOW Gazebo simulation worlds and models'</span>,
+    license=<span class="st">'MIT'</span>,
+    entry_points={
+        <span class="st">'console_scripts'</span>: [
+            <span class="st">'world_spawner  = aeroknow_sim.world_spawner:main'</span>,
+            <span class="st">'sensor_checker = aeroknow_sim.sensor_checker:main'</span>,
+        ],
+    },
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 02 -->
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 02</span>
+        <span class="step-title">Write aeroknow.world — the custom SDF world file</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">What this world contains and why</span>
+          <p>
+            Five buildings of varying heights create an urban canyon environment — relevant for
+            GNSS-denied scenarios (L05) where buildings block GPS signals and create visual
+            features for VIO. The raised terrain gives the drone meaningful altitude variation
+            to track with the barometer and radar altimeter. The directional sun plugin casts
+            shadows that the camera (L06) will need to handle — uniform flat lighting is not
+            realistic. The wind plugin creates the disturbance that the L05 EKF must reject.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_sim/worlds/aeroknow.world</pre>
+        </div>
+
+        <div class="code-block xml">
+          <span class="code-lang">xml · aeroknow.world</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">&lt;?xml version="1.0" ?&gt;</span>
+<span class="tag">&lt;sdf</span> <span class="attr">version</span>=<span class="val">"1.9"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;world</span> <span class="attr">name</span>=<span class="val">"aeroknow"</span><span class="tag">&gt;</span>
+
+    <span class="cm">&lt;!-- ── Physics: real-time factor 1.0, 250 Hz ── --&gt;</span>
+    <span class="tag">&lt;physics</span> <span class="attr">name</span>=<span class="val">"default"</span> <span class="attr">type</span>=<span class="val">"ode"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;real_time_factor&gt;</span>1.0<span class="tag">&lt;/real_time_factor&gt;</span>
+      <span class="tag">&lt;real_time_update_rate&gt;</span>250<span class="tag">&lt;/real_time_update_rate&gt;</span>
+      <span class="tag">&lt;max_step_size&gt;</span>0.004<span class="tag">&lt;/max_step_size&gt;</span>
+    <span class="tag">&lt;/physics&gt;</span>
+
+    <span class="cm">&lt;!-- ── Standard Gazebo plugins ── --&gt;</span>
+    <span class="tag">&lt;plugin</span> <span class="attr">filename</span>=<span class="val">"gz-sim-physics-system"</span>
+             <span class="attr">name</span>=<span class="val">"gz::sim::systems::Physics"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;plugin</span> <span class="attr">filename</span>=<span class="val">"gz-sim-sensors-system"</span>
+             <span class="attr">name</span>=<span class="val">"gz::sim::systems::Sensors"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;render_engine&gt;</span>ogre2<span class="tag">&lt;/render_engine&gt;</span>
+    <span class="tag">&lt;/plugin&gt;</span>
+    <span class="tag">&lt;plugin</span> <span class="attr">filename</span>=<span class="val">"gz-sim-user-commands-system"</span>
+             <span class="attr">name</span>=<span class="val">"gz::sim::systems::UserCommands"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;plugin</span> <span class="attr">filename</span>=<span class="val">"gz-sim-scene-broadcaster-system"</span>
+             <span class="attr">name</span>=<span class="val">"gz::sim::systems::SceneBroadcaster"</span><span class="tag">/&gt;</span>
+
+    <span class="cm">&lt;!-- ── Wind plugin: 5 m/s sustained from the north with 1 m/s gust ──
+         linear_velocity: mean wind in ENU (x=East, y=North, z=Up)
+         horizontal_gust_magnitude: random gust amplitude
+    --&gt;</span>
+    <span class="tag">&lt;plugin</span> <span class="attr">filename</span>=<span class="val">"gz-sim-wind-effects-system"</span>
+             <span class="attr">name</span>=<span class="val">"gz::sim::systems::WindEffects"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;horizontal_gust_magnitude&gt;</span>1.0<span class="tag">&lt;/horizontal_gust_magnitude&gt;</span>
+      <span class="tag">&lt;horizontal_gust_mean_period&gt;</span>5<span class="tag">&lt;/horizontal_gust_mean_period&gt;</span>
+      <span class="tag">&lt;horizontal_gust_max_amplitude&gt;</span>0.5<span class="tag">&lt;/horizontal_gust_max_amplitude&gt;</span>
+    <span class="tag">&lt;/plugin&gt;</span>
+
+    <span class="cm">&lt;!-- ── Sunlight and sky ── --&gt;</span>
+    <span class="tag">&lt;light</span> <span class="attr">type</span>=<span class="val">"directional"</span> <span class="attr">name</span>=<span class="val">"sun"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>0 0 10 0 0.4 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;diffuse&gt;</span>0.8 0.8 0.8 1<span class="tag">&lt;/diffuse&gt;</span>
+      <span class="tag">&lt;specular&gt;</span>0.2 0.2 0.2 1<span class="tag">&lt;/specular&gt;</span>
+      <span class="tag">&lt;cast_shadows&gt;</span>true<span class="tag">&lt;/cast_shadows&gt;</span>
+    <span class="tag">&lt;/light&gt;</span>
+
+    <span class="cm">&lt;!-- ── Ground plane ── --&gt;</span>
+    <span class="tag">&lt;model</span> <span class="attr">name</span>=<span class="val">"ground_plane"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;static&gt;</span>true<span class="tag">&lt;/static&gt;</span>
+      <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"link"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;collision</span> <span class="attr">name</span>=<span class="val">"collision"</span><span class="tag">&gt;</span>
+          <span class="tag">&lt;geometry&gt;&lt;plane&gt;&lt;normal&gt;</span>0 0 1<span class="tag">&lt;/normal&gt;&lt;size&gt;</span>500 500<span class="tag">&lt;/size&gt;&lt;/plane&gt;&lt;/geometry&gt;</span>
+        <span class="tag">&lt;/collision&gt;</span>
+        <span class="tag">&lt;visual</span> <span class="attr">name</span>=<span class="val">"visual"</span><span class="tag">&gt;</span>
+          <span class="tag">&lt;geometry&gt;&lt;plane&gt;&lt;normal&gt;</span>0 0 1<span class="tag">&lt;/normal&gt;&lt;size&gt;</span>500 500<span class="tag">&lt;/size&gt;&lt;/plane&gt;&lt;/geometry&gt;</span>
+          <span class="tag">&lt;material&gt;&lt;ambient&gt;</span>0.35 0.35 0.30 1<span class="tag">&lt;/ambient&gt;&lt;diffuse&gt;</span>0.45 0.45 0.38 1<span class="tag">&lt;/diffuse&gt;&lt;/material&gt;</span>
+        <span class="tag">&lt;/visual&gt;</span>
+      <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;/model&gt;</span>
+
+    <span class="cm">&lt;!-- ═══════════════════════════════════════════
+         BUILDINGS — 5 structures at varied positions
+         Poses: x(East) y(North) z(half-height) 0 0 0
+         All buildings are static collision objects.
+         ═══════════════════════════════════════════ --&gt;</span>
+
+    <span class="cm">&lt;!-- Building 1: tall tower, northeast quadrant --&gt;</span>
+    <span class="tag">&lt;model</span> <span class="attr">name</span>=<span class="val">"building_1"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;static&gt;</span>true<span class="tag">&lt;/static&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>30 25 10 0 0 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"link"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;collision</span> <span class="attr">name</span>=<span class="val">"col"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>12 10 20<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;&lt;/collision&gt;</span>
+        <span class="tag">&lt;visual</span> <span class="attr">name</span>=<span class="val">"vis"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>12 10 20<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;</span>
+          <span class="tag">&lt;material&gt;&lt;ambient&gt;</span>0.6 0.6 0.65 1<span class="tag">&lt;/ambient&gt;&lt;diffuse&gt;</span>0.7 0.7 0.75 1<span class="tag">&lt;/diffuse&gt;&lt;/material&gt;</span>
+        <span class="tag">&lt;/visual&gt;</span>
+      <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;/model&gt;</span>
+
+    <span class="cm">&lt;!-- Building 2: wide low block, east --&gt;</span>
+    <span class="tag">&lt;model</span> <span class="attr">name</span>=<span class="val">"building_2"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;static&gt;</span>true<span class="tag">&lt;/static&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>45 -10 5 0 0 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"link"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;collision</span> <span class="attr">name</span>=<span class="val">"col"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>20 15 10<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;&lt;/collision&gt;</span>
+        <span class="tag">&lt;visual</span> <span class="attr">name</span>=<span class="val">"vis"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>20 15 10<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;</span>
+          <span class="tag">&lt;material&gt;&lt;ambient&gt;</span>0.65 0.5 0.45 1<span class="tag">&lt;/ambient&gt;&lt;diffuse&gt;</span>0.75 0.6 0.55 1<span class="tag">&lt;/diffuse&gt;&lt;/material&gt;</span>
+        <span class="tag">&lt;/visual&gt;</span>
+      <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;/model&gt;</span>
+
+    <span class="cm">&lt;!-- Building 3: medium height, northwest --&gt;</span>
+    <span class="tag">&lt;model</span> <span class="attr">name</span>=<span class="val">"building_3"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;static&gt;</span>true<span class="tag">&lt;/static&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>-20 30 7 0 0 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"link"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;collision</span> <span class="attr">name</span>=<span class="val">"col"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>14 12 14<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;&lt;/collision&gt;</span>
+        <span class="tag">&lt;visual</span> <span class="attr">name</span>=<span class="val">"vis"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>14 12 14<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;</span>
+          <span class="tag">&lt;material&gt;&lt;ambient&gt;</span>0.4 0.55 0.5 1<span class="tag">&lt;/ambient&gt;&lt;diffuse&gt;</span>0.5 0.65 0.6 1<span class="tag">&lt;/diffuse&gt;&lt;/material&gt;</span>
+        <span class="tag">&lt;/visual&gt;</span>
+      <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;/model&gt;</span>
+
+    <span class="cm">&lt;!-- Building 4: narrow tower, south --&gt;</span>
+    <span class="tag">&lt;model</span> <span class="attr">name</span>=<span class="val">"building_4"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;static&gt;</span>true<span class="tag">&lt;/static&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>10 -35 12 0 0 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"link"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;collision</span> <span class="attr">name</span>=<span class="val">"col"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>8 8 24<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;&lt;/collision&gt;</span>
+        <span class="tag">&lt;visual</span> <span class="attr">name</span>=<span class="val">"vis"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>8 8 24<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;</span>
+          <span class="tag">&lt;material&gt;&lt;ambient&gt;</span>0.7 0.7 0.7 1<span class="tag">&lt;/ambient&gt;&lt;diffuse&gt;</span>0.8 0.8 0.8 1<span class="tag">&lt;/diffuse&gt;&lt;/material&gt;</span>
+        <span class="tag">&lt;/visual&gt;</span>
+      <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;/model&gt;</span>
+
+    <span class="cm">&lt;!-- Building 5: squat warehouse, southwest --&gt;</span>
+    <span class="tag">&lt;model</span> <span class="attr">name</span>=<span class="val">"building_5"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;static&gt;</span>true<span class="tag">&lt;/static&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>-40 -20 3 0 0 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"link"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;collision</span> <span class="attr">name</span>=<span class="val">"col"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>30 20 6<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;&lt;/collision&gt;</span>
+        <span class="tag">&lt;visual</span> <span class="attr">name</span>=<span class="val">"vis"</span><span class="tag">&gt;&lt;geometry&gt;&lt;box&gt;&lt;size&gt;</span>30 20 6<span class="tag">&lt;/size&gt;&lt;/box&gt;&lt;/geometry&gt;</span>
+          <span class="tag">&lt;material&gt;&lt;ambient&gt;</span>0.5 0.45 0.35 1<span class="tag">&lt;/ambient&gt;&lt;diffuse&gt;</span>0.6 0.55 0.45 1<span class="tag">&lt;/diffuse&gt;&lt;/material&gt;</span>
+        <span class="tag">&lt;/visual&gt;</span>
+      <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;/model&gt;</span>
+
+    <span class="cm">&lt;!-- ── Target marker: red barrel (spawned/despawned by world_spawner.py) ── --&gt;</span>
+    <span class="tag">&lt;model</span> <span class="attr">name</span>=<span class="val">"target_barrel"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;static&gt;</span>true<span class="tag">&lt;/static&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>20 15 0.5 0 0 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"link"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;collision</span> <span class="attr">name</span>=<span class="val">"col"</span><span class="tag">&gt;&lt;geometry&gt;&lt;cylinder&gt;&lt;radius&gt;</span>0.3<span class="tag">&lt;/radius&gt;&lt;length&gt;</span>1.0<span class="tag">&lt;/length&gt;&lt;/cylinder&gt;&lt;/geometry&gt;&lt;/collision&gt;</span>
+        <span class="tag">&lt;visual</span> <span class="attr">name</span>=<span class="val">"vis"</span><span class="tag">&gt;&lt;geometry&gt;&lt;cylinder&gt;&lt;radius&gt;</span>0.3<span class="tag">&lt;/radius&gt;&lt;length&gt;</span>1.0<span class="tag">&lt;/length&gt;&lt;/cylinder&gt;&lt;/geometry&gt;</span>
+          <span class="tag">&lt;material&gt;&lt;ambient&gt;</span>0.8 0.1 0.1 1<span class="tag">&lt;/ambient&gt;&lt;diffuse&gt;</span>1.0 0.15 0.15 1<span class="tag">&lt;/diffuse&gt;&lt;/material&gt;</span>
+        <span class="tag">&lt;/visual&gt;</span>
+      <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;/model&gt;</span>
+
+  <span class="tag">&lt;/world&gt;</span>
+<span class="tag">&lt;/sdf&gt;</span></pre>
+        </div>
+
+        <p>Test that Gazebo loads this world before adding sensor plugins:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 1</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>gz sim ~/aeroknow_ws/src/aeroknow_sim/worlds/aeroknow.world</pre>
+        </div>
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — Gazebo opens with 5 buildings visible</span>
+          <pre><span class="t-dim">[Msg] Gazebo Sim, version 7.x.x</span>
+<span class="t-ok">[Msg] Loading world [aeroknow]</span>
+<span class="t-dim">[Msg] Loaded scene [scene]</span>
+<span class="t-ok">[Msg] Simulation running</span></pre>
+        </div>
+        <p>You should see five coloured box buildings and the red target barrel on the ground. Close Gazebo (Ctrl+C) before continuing.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 04 — SENSOR PLUGINS -->
+  <div class="lab-section" id="s-sensors">
+    <h2>Step 03–04: Sensor Plugins — What They Are and How to Configure Them</h2>
+    <p>
+      A <em>sensor plugin</em> is a Gazebo module that reads simulated physics data
+      and publishes it as a Gazebo topic. The <code>ros_gz_bridge</code> then translates
+      those Gazebo topics into ROS2 topics your nodes can subscribe to.
+      The chain is: <strong>physics engine → sensor plugin → Gazebo topic → bridge → ROS2 topic</strong>.
+    </p>
+
+    <table class="sensor-table">
+      <thead>
+        <tr><th>Sensor</th><th>Gazebo Plugin</th><th>Gazebo Topic</th><th>ROS2 Topic (after bridge)</th><th>Used In</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Downward RGB camera</td>
+          <td><code>gz-sim-camera-system</code></td>
+          <td><code>/world/aeroknow/model/x500_sensors/link/camera_link/sensor/downward_cam/image</code></td>
+          <td><code>/camera/image_raw</code></td>
+          <td>L06 YOLOv8 detection</td>
+        </tr>
+        <tr>
+          <td>Depth camera (RGBD)</td>
+          <td><code>gz-sim-depth-camera-system</code></td>
+          <td><code>…/depth_cam/depth_image</code></td>
+          <td><code>/depth_camera/depth</code></td>
+          <td>L05 obstacle distance</td>
+        </tr>
+        <tr>
+          <td>2D lidar</td>
+          <td><code>gz-sim-gpu-lidar-system</code></td>
+          <td><code>…/lidar/scan</code></td>
+          <td><code>/scan</code></td>
+          <td>L05 wall detection</td>
+        </tr>
+        <tr>
+          <td>IMU</td>
+          <td><code>gz-sim-imu-system</code></td>
+          <td><code>…/imu/imu</code></td>
+          <td>via MAVROS2 <code>/mavros/imu/data</code></td>
+          <td>L03–L08 (already working)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 03</span>
+        <span class="step-title">Write the x500_sensors drone model SDF</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why a modified drone model instead of editing the PX4 default</span>
+          <p>
+            PX4's default <code>x500</code> model in <code>~/PX4-Autopilot/Tools/simulation/gz/models/</code>
+            is controlled by PX4 and may be updated by git pull. We create our own model file
+            that <em>inherits</em> the x500 airframe and adds sensor links on top.
+            This is the correct approach: never modify files inside PX4's source tree directly —
+            your changes will be overwritten on the next <code>git pull</code>.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_sim/models/x500_sensors/model.sdf</pre>
+        </div>
+
+        <div class="code-block xml">
+          <span class="code-lang">xml · models/x500_sensors/model.sdf</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">&lt;?xml version="1.0" ?&gt;</span>
+<span class="tag">&lt;sdf</span> <span class="attr">version</span>=<span class="val">"1.9"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;model</span> <span class="attr">name</span>=<span class="val">"x500_sensors"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;self_collide&gt;</span>false<span class="tag">&lt;/self_collide&gt;</span>
+
+    <span class="cm">&lt;!-- Inherit the complete PX4 x500 base model.
+         The &lt;include&gt; tag merges all links, joints, and plugins
+         from the referenced URI into this model. --&gt;</span>
+    <span class="tag">&lt;include</span> <span class="attr">merge</span>=<span class="val">"true"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;uri&gt;</span>model://x500<span class="tag">&lt;/uri&gt;</span>
+    <span class="tag">&lt;/include&gt;</span>
+
+    <span class="cm">&lt;!-- ════════════════════════════════════════════
+         DOWNWARD-FACING RGB CAMERA
+         Mounted below the body centre facing down.
+         Used by L06 YOLOv8 detection pipeline.
+         Pose: 0.05m forward, 0m lateral, 0.06m below CoM
+               pitch 90° to face straight down
+         ════════════════════════════════════════════ --&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"camera_link"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>0.05 0 -0.06 0 1.5708 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;inertial&gt;&lt;mass&gt;</span>0.05<span class="tag">&lt;/mass&gt;</span>
+        <span class="tag">&lt;inertia&gt;&lt;ixx&gt;</span>0.001<span class="tag">&lt;/ixx&gt;&lt;iyy&gt;</span>0.001<span class="tag">&lt;/iyy&gt;&lt;izz&gt;</span>0.001<span class="tag">&lt;/izz&gt;&lt;/inertia&gt;</span>
+      <span class="tag">&lt;/inertial&gt;</span>
+      <span class="tag">&lt;sensor</span> <span class="attr">name</span>=<span class="val">"downward_cam"</span> <span class="attr">type</span>=<span class="val">"camera"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;always_on&gt;</span>1<span class="tag">&lt;/always_on&gt;</span>
+        <span class="tag">&lt;update_rate&gt;</span>30<span class="tag">&lt;/update_rate&gt;</span>
+        <span class="tag">&lt;visualize&gt;</span>false<span class="tag">&lt;/visualize&gt;</span>
+        <span class="tag">&lt;camera&gt;</span>
+          <span class="tag">&lt;horizontal_fov&gt;</span>1.3962634<span class="tag">&lt;/horizontal_fov&gt;</span>  <span class="cm">&lt;!-- 80° FOV --&gt;</span>
+          <span class="tag">&lt;image&gt;&lt;width&gt;</span>640<span class="tag">&lt;/width&gt;&lt;height&gt;</span>480<span class="tag">&lt;/height&gt;&lt;format&gt;</span>R8G8B8<span class="tag">&lt;/format&gt;&lt;/image&gt;</span>
+          <span class="tag">&lt;clip&gt;&lt;near&gt;</span>0.05<span class="tag">&lt;/near&gt;&lt;far&gt;</span>300<span class="tag">&lt;/far&gt;&lt;/clip&gt;</span>
+          <span class="cm">&lt;!-- Gaussian noise simulates real sensor noise per Module 05 --&gt;</span>
+          <span class="tag">&lt;noise&gt;&lt;type&gt;</span>gaussian<span class="tag">&lt;/type&gt;&lt;mean&gt;</span>0.0<span class="tag">&lt;/mean&gt;&lt;stddev&gt;</span>0.007<span class="tag">&lt;/stddev&gt;&lt;/noise&gt;</span>
+        <span class="tag">&lt;/camera&gt;</span>
+        <span class="tag">&lt;plugin</span> <span class="attr">filename</span>=<span class="val">"gz-sim-camera-system"</span>
+                 <span class="attr">name</span>=<span class="val">"gz::sim::systems::Camera"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;topic&gt;</span>camera/image<span class="tag">&lt;/topic&gt;</span>
+      <span class="tag">&lt;/sensor&gt;</span>
+    <span class="tag">&lt;/link&gt;</span>
+
+    <span class="cm">&lt;!-- Fixed joint attaches camera_link to the drone base_link --&gt;</span>
+    <span class="tag">&lt;joint</span> <span class="attr">name</span>=<span class="val">"camera_joint"</span> <span class="attr">type</span>=<span class="val">"fixed"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;parent&gt;</span>base_link<span class="tag">&lt;/parent&gt;</span>
+      <span class="tag">&lt;child&gt;</span>camera_link<span class="tag">&lt;/child&gt;</span>
+    <span class="tag">&lt;/joint&gt;</span>
+
+    <span class="cm">&lt;!-- ════════════════════════════════════════════
+         DEPTH CAMERA (RGBD)
+         Forward-facing, provides obstacle distances.
+         Used by L05 GNSS-denied nav for proximity.
+         ════════════════════════════════════════════ --&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"depth_link"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>0.12 0 0.0 0 0 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;inertial&gt;&lt;mass&gt;</span>0.05<span class="tag">&lt;/mass&gt;</span>
+        <span class="tag">&lt;inertia&gt;&lt;ixx&gt;</span>0.001<span class="tag">&lt;/ixx&gt;&lt;iyy&gt;</span>0.001<span class="tag">&lt;/iyy&gt;&lt;izz&gt;</span>0.001<span class="tag">&lt;/izz&gt;&lt;/inertia&gt;</span>
+      <span class="tag">&lt;/inertial&gt;</span>
+      <span class="tag">&lt;sensor</span> <span class="attr">name</span>=<span class="val">"depth_cam"</span> <span class="attr">type</span>=<span class="val">"depth_camera"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;always_on&gt;</span>1<span class="tag">&lt;/always_on&gt;</span>
+        <span class="tag">&lt;update_rate&gt;</span>15<span class="tag">&lt;/update_rate&gt;</span>
+        <span class="tag">&lt;camera&gt;</span>
+          <span class="tag">&lt;horizontal_fov&gt;</span>1.0472<span class="tag">&lt;/horizontal_fov&gt;</span>  <span class="cm">&lt;!-- 60° FOV --&gt;</span>
+          <span class="tag">&lt;image&gt;&lt;width&gt;</span>320<span class="tag">&lt;/width&gt;&lt;height&gt;</span>240<span class="tag">&lt;/height&gt;&lt;format&gt;</span>R_FLOAT32<span class="tag">&lt;/format&gt;&lt;/image&gt;</span>
+          <span class="tag">&lt;clip&gt;&lt;near&gt;</span>0.1<span class="tag">&lt;/near&gt;&lt;far&gt;</span>20.0<span class="tag">&lt;/far&gt;&lt;/clip&gt;</span>
+          <span class="tag">&lt;noise&gt;&lt;type&gt;</span>gaussian<span class="tag">&lt;/type&gt;&lt;mean&gt;</span>0.0<span class="tag">&lt;/mean&gt;&lt;stddev&gt;</span>0.02<span class="tag">&lt;/stddev&gt;&lt;/noise&gt;</span>
+        <span class="tag">&lt;/camera&gt;</span>
+        <span class="tag">&lt;plugin</span> <span class="attr">filename</span>=<span class="val">"gz-sim-depth-camera-system"</span>
+                 <span class="attr">name</span>=<span class="val">"gz::sim::systems::DepthCamera"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;topic&gt;</span>depth_camera/depth<span class="tag">&lt;/topic&gt;</span>
+      <span class="tag">&lt;/sensor&gt;</span>
+    <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;joint</span> <span class="attr">name</span>=<span class="val">"depth_joint"</span> <span class="attr">type</span>=<span class="val">"fixed"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;parent&gt;</span>base_link<span class="tag">&lt;/parent&gt;</span>
+      <span class="tag">&lt;child&gt;</span>depth_link<span class="tag">&lt;/child&gt;</span>
+    <span class="tag">&lt;/joint&gt;</span>
+
+    <span class="cm">&lt;!-- ════════════════════════════════════════════
+         2D LIDAR (360° horizontal scan)
+         Mounted on top of drone body.
+         Provides wall/obstacle bearing and distance.
+         ════════════════════════════════════════════ --&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">name</span>=<span class="val">"lidar_link"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;pose&gt;</span>0 0 0.1 0 0 0<span class="tag">&lt;/pose&gt;</span>
+      <span class="tag">&lt;inertial&gt;&lt;mass&gt;</span>0.08<span class="tag">&lt;/mass&gt;</span>
+        <span class="tag">&lt;inertia&gt;&lt;ixx&gt;</span>0.001<span class="tag">&lt;/ixx&gt;&lt;iyy&gt;</span>0.001<span class="tag">&lt;/iyy&gt;&lt;izz&gt;</span>0.001<span class="tag">&lt;/izz&gt;&lt;/inertia&gt;</span>
+      <span class="tag">&lt;/inertial&gt;</span>
+      <span class="tag">&lt;sensor</span> <span class="attr">name</span>=<span class="val">"lidar"</span> <span class="attr">type</span>=<span class="val">"gpu_lidar"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;always_on&gt;</span>1<span class="tag">&lt;/always_on&gt;</span>
+        <span class="tag">&lt;update_rate&gt;</span>10<span class="tag">&lt;/update_rate&gt;</span>
+        <span class="tag">&lt;visualize&gt;</span>false<span class="tag">&lt;/visualize&gt;</span>
+        <span class="tag">&lt;lidar&gt;</span>
+          <span class="tag">&lt;scan&gt;</span>
+            <span class="tag">&lt;horizontal&gt;</span>
+              <span class="tag">&lt;samples&gt;</span>360<span class="tag">&lt;/samples&gt;</span>
+              <span class="tag">&lt;resolution&gt;</span>1<span class="tag">&lt;/resolution&gt;</span>
+              <span class="tag">&lt;min_angle&gt;</span>-3.14159<span class="tag">&lt;/min_angle&gt;</span>
+              <span class="tag">&lt;max_angle&gt;</span>3.14159<span class="tag">&lt;/max_angle&gt;</span>
+            <span class="tag">&lt;/horizontal&gt;</span>
+          <span class="tag">&lt;/scan&gt;</span>
+          <span class="tag">&lt;range&gt;</span>
+            <span class="tag">&lt;min&gt;</span>0.1<span class="tag">&lt;/min&gt;&lt;max&gt;</span>30.0<span class="tag">&lt;/max&gt;&lt;resolution&gt;</span>0.01<span class="tag">&lt;/resolution&gt;</span>
+          <span class="tag">&lt;/range&gt;</span>
+          <span class="tag">&lt;noise&gt;&lt;type&gt;</span>gaussian<span class="tag">&lt;/type&gt;&lt;mean&gt;</span>0.0<span class="tag">&lt;/mean&gt;&lt;stddev&gt;</span>0.01<span class="tag">&lt;/stddev&gt;&lt;/noise&gt;</span>
+        <span class="tag">&lt;/lidar&gt;</span>
+        <span class="tag">&lt;plugin</span> <span class="attr">filename</span>=<span class="val">"gz-sim-gpu-lidar-system"</span>
+                 <span class="attr">name</span>=<span class="val">"gz::sim::systems::GpuLidar"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;topic&gt;</span>scan<span class="tag">&lt;/topic&gt;</span>
+      <span class="tag">&lt;/sensor&gt;</span>
+    <span class="tag">&lt;/link&gt;</span>
+    <span class="tag">&lt;joint</span> <span class="attr">name</span>=<span class="val">"lidar_joint"</span> <span class="attr">type</span>=<span class="val">"fixed"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;parent&gt;</span>base_link<span class="tag">&lt;/parent&gt;</span>
+      <span class="tag">&lt;child&gt;</span>lidar_link<span class="tag">&lt;/child&gt;</span>
+    <span class="tag">&lt;/joint&gt;</span>
+
+  <span class="tag">&lt;/model&gt;</span>
+<span class="tag">&lt;/sdf&gt;</span></pre>
+        </div>
+
+        <p>Create the required <code>model.config</code> file alongside the SDF:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_sim/models/x500_sensors/model.config</pre>
+        </div>
+        <div class="code-block xml">
+          <span class="code-lang">xml · model.config</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">&lt;?xml version="1.0"?&gt;</span>
+<span class="tag">&lt;model&gt;</span>
+  <span class="tag">&lt;name&gt;</span>x500_sensors<span class="tag">&lt;/name&gt;</span>
+  <span class="tag">&lt;version&gt;</span>1.0<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;sdf</span> <span class="attr">version</span>=<span class="val">"1.9"</span><span class="tag">&gt;</span>model.sdf<span class="tag">&lt;/sdf&gt;</span>
+  <span class="tag">&lt;author&gt;&lt;name&gt;</span>AEROKNOW<span class="tag">&lt;/name&gt;&lt;/author&gt;</span>
+  <span class="tag">&lt;description&gt;</span>X500 quadrotor with downward camera, depth camera, and 2D lidar<span class="tag">&lt;/description&gt;</span>
+<span class="tag">&lt;/model&gt;</span></pre>
+        </div>
+
+        <p>Register the model path so Gazebo can find it:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>echo 'export GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:~/aeroknow_ws/src/aeroknow_sim/models' >> ~/.bashrc
+<span class="prompt">$ </span>source ~/.bashrc</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 05 — WIND -->
+  <div class="lab-section" id="s-wind">
+    <h2>Step 04: Understanding the Wind Plugin</h2>
+    <p>
+      The wind plugin is already in the world SDF from Step 02. This section explains
+      what it does and how to tune it for different test scenarios.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 04</span>
+        <span class="step-title">Tune wind parameters for your scenario</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">What the wind plugin parameters mean</span>
+          <p>
+            The Gazebo <code>WindEffects</code> plugin applies a stochastic horizontal force
+            to all dynamic bodies in the world. It models a sustained wind component with
+            random gust perturbations layered on top. The parameters in the world file set
+            the gust characteristics; the sustained wind direction is set separately.
+          </p>
+        </div>
+
+        <p>
+          To add a <strong>sustained 5 m/s northward wind</strong> (in addition to gusts), add this
+          inside the <code>&lt;wind&gt;</code> element of the world file. Open <code>aeroknow.world</code>
+          and add this block immediately after the closing <code>&lt;/physics&gt;</code> tag:
+        </p>
+
+        <div class="code-block xml">
+          <span class="code-lang">xml · add to aeroknow.world (after &lt;/physics&gt;)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">&lt;!-- Sustained wind: 5 m/s northward (y=5 in ENU = North) --&gt;</span>
+<span class="tag">&lt;wind&gt;</span>
+  <span class="tag">&lt;linear_velocity&gt;</span>0 5 0<span class="tag">&lt;/linear_velocity&gt;</span>  <span class="cm">&lt;!-- ENU: x=East y=North z=Up --&gt;</span>
+<span class="tag">&lt;/wind&gt;</span></pre>
+        </div>
+
+        <p>
+          Three test configurations for L05 EKF testing — edit the
+          <code>&lt;linear_velocity&gt;</code> values to switch between them:
+        </p>
+
+        <table class="sensor-table">
+          <thead><tr><th>Scenario</th><th>linear_velocity</th><th>gust_magnitude</th><th>Test Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>No wind (baseline)</td><td><code>0 0 0</code></td><td><code>0.0</code></td><td>Verify L03 mission still works</td></tr>
+            <tr><td>Light breeze (L05 dev)</td><td><code>2 1 0</code></td><td><code>0.5</code></td><td>EKF development — small disturbance</td></tr>
+            <tr><td>Strong wind (L05 test)</td><td><code>0 5 0</code></td><td><code>1.5</code></td><td>EKF stress test — 5 m/s sustained</td></tr>
+            <tr><td>Crosswind mission</td><td><code>4 0 0</code></td><td><code>1.0</code></td><td>Tests lateral position hold</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 06 — DRONE MODEL (already written above, add PX4 env var) -->
+  <div class="lab-section" id="s-drone-model">
+    <h2>Step 05–06: Register the Model with PX4 and Gazebo</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 05</span>
+        <span class="step-title">Copy model to Gazebo's model path and update PX4 environment</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why we need two registrations</span>
+          <p>
+            Gazebo finds models by searching directories in <code>GZ_SIM_RESOURCE_PATH</code>
+            — we added our models directory to this in Step 03 via <code>.bashrc</code>.
+            PX4 SITL also needs to know which Gazebo model to spawn — this is controlled by
+            the <code>PX4_GZ_MODEL</code> environment variable when running
+            <code>make px4_sitl</code>. Without both registrations, either Gazebo can't find
+            the model or PX4 spawns the wrong one.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># Symlink our model into Gazebo's default local models directory</span>
+<span class="prompt">$ </span>mkdir -p ~/.gz/models
+<span class="prompt">$ </span>ln -sf ~/aeroknow_ws/src/aeroknow_sim/models/x500_sensors ~/.gz/models/x500_sensors</pre>
+        </div>
+
+        <p>
+          Now launch PX4 SITL with the custom world <em>and</em> custom model. The environment
+          variables tell PX4 which model to spawn inside which world:
+        </p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 1 — launch with custom world</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/PX4-Autopilot
+<span class="prompt">$ </span>PX4_GZ_MODEL=x500_sensors \
+  PX4_GZ_WORLD=~/aeroknow_ws/src/aeroknow_sim/worlds/aeroknow.world \
+  make px4_sitl gz_x500_sensors</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — Gazebo opens with custom world and drone with sensors</span>
+          <pre><span class="t-dim">[Msg] Loading world [aeroknow]</span>
+<span class="t-dim">[Msg] Spawning model [x500_sensors]</span>
+<span class="t-ok">[INFO] [commander] Ready for takeoff!</span>
+<span class="t-dim">pxh&gt; </span></pre>
+        </div>
+
+        <p>
+          The drone appears in the custom world with the five buildings visible around it.
+          The sensors are now physically part of the model — but their topics are not yet bridged
+          to ROS2. That happens in the launch file (Step 09).
+        </p>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 06</span>
+        <span class="step-title">Make the launch command permanent via a shell alias</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why an alias</span>
+          <p>
+            Typing the full PX4 launch command with environment variables every session is
+            error-prone and slow. A shell alias encapsulates it in one memorable command.
+            From L04 onwards, <code>sitl_aeroknow</code> in any terminal starts the correct
+            PX4 SITL instance for AEROKNOW Labs.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>echo 'alias sitl_aeroknow="cd ~/PX4-Autopilot && PX4_GZ_MODEL=x500_sensors PX4_GZ_WORLD=~/aeroknow_ws/src/aeroknow_sim/worlds/aeroknow.world make px4_sitl gz_x500_sensors"' >> ~/.bashrc
+<span class="prompt">$ </span>source ~/.bashrc</pre>
+        </div>
+
+        <p>From now on, start the full simulation with:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 1 — from any directory</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sitl_aeroknow</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 07 — WORLD SPAWNER -->
+  <div class="lab-section" id="s-spawner">
+    <h2>Step 07: world_spawner.py — Dynamic Object Spawning</h2>
+    <p>
+      The world file defines static buildings. But for L06 and L08 testing, you need to
+      spawn and despawn target objects at runtime — without restarting the simulation.
+      The world spawner uses the Gazebo service API via ROS2 to inject new models.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07</span>
+        <span class="step-title">Write world_spawner.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why runtime spawning instead of editing the world file</span>
+          <p>
+            In test missions you want to place targets at specific positions, observe whether
+            the detection pipeline finds them, then move them — without restarting the 2-minute
+            simulation boot sequence each time. The Gazebo <code>/world/aeroknow/create</code>
+            service accepts an SDF string and spawns any model described in it. The
+            <code>/world/aeroknow/remove</code> service despawns by name. Both are
+            accessible from ROS2 via the <code>ros_gz_interfaces</code> package.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sudo apt install -y ros-humble-ros-gz-interfaces
+<span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_sim/aeroknow_sim/world_spawner.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · world_spawner.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+world_spawner.py
+────────────────
+Spawns and despawns objects in the running Gazebo world
+without restarting the simulation.
+
+Subscriptions:
+  /world_spawner/spawn_barrel  (std_msgs/String) — "name x y z"
+  /world_spawner/despawn       (std_msgs/String) — model name
+
+Used in L06 to place detection targets at arbitrary positions.
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> std_msgs.msg     <span class="kw">import</span> String
+<span class="kw">from</span> ros_gz_interfaces.srv <span class="kw">import</span> SpawnEntity, DeleteEntity
+
+
+<span class="cm"># SDF template for a red barrel. {name}, {x}, {y}, {z} are formatted in at spawn time.</span>
+BARREL_SDF_TEMPLATE = <span class="st">"""
+&lt;sdf version='1.9'&gt;
+  &lt;model name='{name}'&gt;
+    &lt;static&gt;true&lt;/static&gt;
+    &lt;pose&gt;{x} {y} {z} 0 0 0&lt;/pose&gt;
+    &lt;link name='link'&gt;
+      &lt;collision name='col'&gt;
+        &lt;geometry&gt;&lt;cylinder&gt;&lt;radius&gt;0.3&lt;/radius&gt;&lt;length&gt;1.0&lt;/length&gt;&lt;/cylinder&gt;&lt;/geometry&gt;
+      &lt;/collision&gt;
+      &lt;visual name='vis'&gt;
+        &lt;geometry&gt;&lt;cylinder&gt;&lt;radius&gt;0.3&lt;/radius&gt;&lt;length&gt;1.0&lt;/length&gt;&lt;/cylinder&gt;&lt;/geometry&gt;
+        &lt;material&gt;&lt;ambient&gt;0.8 0.1 0.1 1&lt;/ambient&gt;&lt;diffuse&gt;1.0 0.15 0.15 1&lt;/diffuse&gt;&lt;/material&gt;
+      &lt;/visual&gt;
+    &lt;/link&gt;
+  &lt;/model&gt;
+&lt;/sdf&gt;"""</span>
+
+
+<span class="kw">class</span> <span class="tp">WorldSpawner</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'world_spawner'</span>)
+
+        rel = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        <span class="cm"># Topic to spawn a barrel: publish "my_barrel 15.0 20.0 0.5"</span>
+        self.create_subscription(String, <span class="st">'/world_spawner/spawn_barrel'</span>,
+                                 self.<span class="fn">spawn_cb</span>, rel)
+
+        <span class="cm"># Topic to despawn any model by name</span>
+        self.create_subscription(String, <span class="st">'/world_spawner/despawn'</span>,
+                                 self.<span class="fn">despawn_cb</span>, rel)
+
+        <span class="cm"># Gazebo world create / delete service clients
+        # These are provided by ros_gz_bridge when it is running.</span>
+        self.spawn_cli   = self.create_client(SpawnEntity,  <span class="st">'/world/aeroknow/create'</span>)
+        self.despawn_cli = self.create_client(DeleteEntity, <span class="st">'/world/aeroknow/remove'</span>)
+
+        self.spawned_models = set()
+        self.get_logger().info(
+            <span class="st">'WorldSpawner ready.\n'</span>
+            <span class="st">'  Spawn: ros2 topic pub --once /world_spawner/spawn_barrel std_msgs/msg/String "data: \'barrel_1 20 15 0.5\'"\n'</span>
+            <span class="st">'  Remove: ros2 topic pub --once /world_spawner/despawn std_msgs/msg/String "data: \'barrel_1\'"'</span>
+        )
+
+    <span class="kw">def</span> <span class="fn">spawn_cb</span>(self, msg: String):
+        <span class="st">"""
+        Parse "name x y z" and spawn a red barrel at that position.
+        """</span>
+        parts = msg.data.strip().split()
+        <span class="kw">if</span> len(parts) != <span class="nm">4</span>:
+            self.get_logger().warn(<span class="st">f'spawn_barrel: expected "name x y z", got: {msg.data}'</span>)
+            <span class="kw">return</span>
+
+        name, x, y, z = parts[<span class="nm">0</span>], float(parts[<span class="nm">1</span>]), float(parts[<span class="nm">2</span>]), float(parts[<span class="nm">3</span>])
+
+        <span class="kw">if</span> <span class="kw">not</span> self.spawn_cli.wait_for_service(timeout_sec=<span class="nm">3.0</span>):
+            self.get_logger().error(<span class="st">'Gazebo spawn service not available — is ros_gz_bridge running?'</span>)
+            <span class="kw">return</span>
+
+        req = SpawnEntity.Request()
+        req.xml  = BARREL_SDF_TEMPLATE.format(name=name, x=x, y=y, z=z)
+        req.name = name
+        self.spawn_cli.call_async(req)
+        self.spawned_models.add(name)
+        self.get_logger().info(<span class="st">f'Spawned barrel "{name}" at ({x}, {y}, {z})'</span>)
+
+    <span class="kw">def</span> <span class="fn">despawn_cb</span>(self, msg: String):
+        <span class="st">"""Remove a model by name."""</span>
+        name = msg.data.strip()
+        <span class="kw">if</span> <span class="kw">not</span> self.despawn_cli.wait_for_service(timeout_sec=<span class="nm">3.0</span>):
+            self.get_logger().error(<span class="st">'Gazebo delete service not available'</span>)
+            <span class="kw">return</span>
+        req = DeleteEntity.Request()
+        req.name = name
+        self.despawn_cli.call_async(req)
+        self.spawned_models.discard(name)
+        self.get_logger().info(<span class="st">f'Despawned "{name}"'</span>)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = WorldSpawner()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 08 — SENSOR CHECKER -->
+  <div class="lab-section" id="s-sensor-check">
+    <h2>Step 08: sensor_checker.py — Verify All Sensor Topics</h2>
+    <p>
+      Before L05 and L06 depend on sensor data, you need a reliable way to confirm
+      every sensor is publishing at the expected rate with valid data.
+      The sensor checker is the L04 equivalent of L01's <code>sanity_check</code> — it
+      verifies the full new sensor stack in a single command.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 08</span>
+        <span class="step-title">Write sensor_checker.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_sim/aeroknow_sim/sensor_checker.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · sensor_checker.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+sensor_checker.py
+─────────────────
+Verifies all L04 sensor topics are alive and publishing at expected rates.
+Runs for 10 seconds, measures each topic's actual publish rate, then
+reports PASS / WARN / FAIL per sensor with a summary.
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> Image, LaserScan, Imu, NavSatFix, BatteryState
+<span class="kw">from</span> mavros_msgs.msg <span class="kw">import</span> State
+
+<span class="kw">import</span> time
+
+
+<span class="cm"># Sensor definitions: (topic, message_type, min_hz, qos_profile_key)
+# min_hz:  minimum acceptable publish rate
+# qos:     'sensor' = BEST_EFFORT, 'reliable' = RELIABLE</span>
+SENSORS = [
+    (<span class="st">'/camera/image_raw'</span>,              Image,       <span class="nm">20</span>,  <span class="st">'sensor'</span>),
+    (<span class="st">'/depth_camera/depth'</span>,             Image,       <span class="nm">10</span>,  <span class="st">'sensor'</span>),
+    (<span class="st">'/scan'</span>,                            LaserScan,   <span class="nm">8</span>,   <span class="st">'sensor'</span>),
+    (<span class="st">'/mavros/imu/data'</span>,                 Imu,         <span class="nm">50</span>,  <span class="st">'sensor'</span>),
+    (<span class="st">'/mavros/global_position/global'</span>,   NavSatFix,   <span class="nm">3</span>,   <span class="st">'sensor'</span>),
+    (<span class="st">'/mavros/battery'</span>,                  BatteryState,<span class="nm">0.5</span>, <span class="st">'sensor'</span>),
+    (<span class="st">'/mavros/state'</span>,                    State,       <span class="nm">0.5</span>, <span class="st">'reliable'</span>),
+]
+
+CHECK_DURATION_S = <span class="nm">10.0</span>
+
+
+<span class="kw">class</span> <span class="tp">SensorChecker</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'sensor_checker'</span>)
+
+        sen_qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+        rel_qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        <span class="cm"># Count messages per topic</span>
+        self.counts = {topic: <span class="nm">0</span> <span class="kw">for</span> topic, _, _, _ <span class="kw">in</span> SENSORS}
+        self.t_start = time.time()
+
+        <span class="kw">for</span> topic, msg_type, _, qos_key <span class="kw">in</span> SENSORS:
+            qos = sen_qos <span class="kw">if</span> qos_key == <span class="st">'sensor'</span> <span class="kw">else</span> rel_qos
+            self.create_subscription(
+                msg_type, topic,
+                <span class="kw">lambda</span> msg, t=topic: self._count(t),
+                qos
+            )
+
+        <span class="cm"># Report after CHECK_DURATION_S seconds</span>
+        self.create_timer(CHECK_DURATION_S, self.<span class="fn">report</span>)
+        print(<span class="st">f'\nChecking sensors for {CHECK_DURATION_S:.0f}s...\n'</span>)
+
+    <span class="kw">def</span> <span class="fn">_count</span>(self, topic: str):
+        self.counts[topic] += <span class="nm">1</span>
+
+    <span class="kw">def</span> <span class="fn">report</span>(self):
+        elapsed = time.time() - self.t_start
+
+        print(<span class="st">'─'</span>*62)
+        print(<span class="st">f'  AEROKNOW L04 — SENSOR STACK VERIFICATION'</span>)
+        print(<span class="st">'─'</span>*62)
+        print(<span class="st">f'  {"Topic":<38} {"Rate":>6} {"Min":>5} {"Status"}'</span>)
+        print(<span class="st">'─'</span>*62)
+
+        all_ok = <span class="kw">True</span>
+        <span class="kw">for</span> topic, _, min_hz, _ <span class="kw">in</span> SENSORS:
+            count = self.counts[topic]
+            hz    = count / elapsed
+            <span class="kw">if</span> hz >= min_hz:
+                status = <span class="st">'\033[92m✓ OK  \033[0m'</span>
+            <span class="kw">elif</span> hz >= min_hz * <span class="nm">0.5</span>:
+                status = <span class="st">'\033[93m⚠ SLOW\033[0m'</span>
+                all_ok = <span class="kw">False</span>
+            <span class="kw">else</span>:
+                status = <span class="st">'\033[91m✗ FAIL\033[0m'</span>
+                all_ok = <span class="kw">False</span>
+            print(<span class="st">f'  {topic:<38} {hz:>5.1f}Hz {min_hz:>4}Hz {status}'</span>)
+
+        print(<span class="st">'─'</span>*62)
+        overall = <span class="st">'\033[92mSENSOR STACK OK — ready for L05\033[0m'</span> <span class="kw">if</span> all_ok \
+                  <span class="kw">else</span> <span class="st">'\033[91mSOME SENSORS FAILED — check ros_gz_bridge is running\033[0m'</span>
+        print(<span class="st">f'  {overall}'</span>)
+        print(<span class="st">'─'</span>*62 + <span class="st">'\n'</span>)
+
+        rclpy.shutdown()
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = SensorChecker()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> (KeyboardInterrupt, Exception): <span class="kw">pass</span>
+    <span class="kw">finally</span>:
+        <span class="kw">if</span> rclpy.ok(): node.destroy_node(); rclpy.shutdown()
+
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 09 — LAUNCH FILE -->
+  <div class="lab-section" id="s-launch">
+    <h2>Step 09: The L04 Launch File — Wiring Everything Together</h2>
+    <p>
+      The launch file does three things: starts MAVROS2, starts the
+      <code>ros_gz_bridge</code> (translating Gazebo sensor topics to ROS2),
+      and starts the world_spawner and sensor_checker nodes.
+      The bridge is the critical new piece — without it, all the sensor SDF work above
+      produces Gazebo-internal topics that your ROS2 nodes cannot see.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 09</span>
+        <span class="step-title">Write l04_launch.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">How the bridge topic mapping works</span>
+          <p>
+            The <code>ros_gz_bridge</code> node takes a list of <code>topic@GzType@RosType</code>
+            strings. For each pair, it subscribes to the Gazebo topic and republishes as the
+            equivalent ROS2 message type. The <code>@</code> separator means "bridge in both
+            directions" — <code>[</code> means Gazebo → ROS2 only,
+            <code>]</code> means ROS2 → Gazebo only. All sensor bridges are one-directional
+            Gazebo → ROS2, so we use <code>[</code>.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_sim/launch/l04_launch.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · l04_launch.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+l04_launch.py
+─────────────
+Starts: MAVROS2 + ros_gz_bridge (sensor topics) + world_spawner + sensor_checker.
+
+Assumes PX4 SITL is already running (Terminal 1: sitl_aeroknow).
+
+Usage:
+  ros2 launch aeroknow_sim l04_launch.py
+"""</span>
+
+<span class="kw">from</span> launch <span class="kw">import</span> LaunchDescription
+<span class="kw">from</span> launch.actions <span class="kw">import</span> LogInfo, TimerAction
+<span class="kw">from</span> launch_ros.actions <span class="kw">import</span> Node
+
+
+<span class="kw">def</span> <span class="fn">generate_launch_description</span>():
+
+    <span class="cm"># ── MAVROS2 ────────────────────────────────────────────────────
+    # Same as before — connects to PX4 SITL over UDP</span>
+    mavros_node = Node(
+        package=<span class="st">'mavros'</span>,
+        executable=<span class="st">'mavros_node'</span>,
+        name=<span class="st">'mavros'</span>,
+        output=<span class="st">'screen'</span>,
+        parameters=[{
+            <span class="st">'fcu_url'</span>:        <span class="st">'udp://:14540@127.0.0.1:14557'</span>,
+            <span class="st">'gcs_url'</span>:        <span class="st">''</span>,
+            <span class="st">'target_system_id'</span>:    <span class="nm">1</span>,
+            <span class="st">'target_component_id'</span>: <span class="nm">1</span>,
+        }],
+    )
+
+    <span class="cm"># ── Gazebo → ROS2 Bridge ────────────────────────────────────────
+    # Each entry: "gz_topic@gz_type@ros_type"
+    # '[' means Gazebo → ROS2 (unidirectional)
+    # '@' means bidirectional
+    #
+    # Camera image: Gazebo publishes gz.msgs.Image, bridge converts to sensor_msgs/Image.
+    # CameraInfo:   Needed for L06 camera calibration matrix.
+    # DepthImage:   Gazebo publishes gz.msgs.Image with float depth.
+    # LaserScan:    Gazebo publishes gz.msgs.LaserScan → sensor_msgs/LaserScan.
+    # WindSpeed:    World wind vector (for monitoring / L05 disturbance estimation).</span>
+    bridge_node = Node(
+        package=<span class="st">'ros_gz_bridge'</span>,
+        executable=<span class="st">'parameter_bridge'</span>,
+        name=<span class="st">'gz_ros_bridge'</span>,
+        output=<span class="st">'screen'</span>,
+        arguments=[
+            <span class="cm"># Downward camera image</span>
+            <span class="st">'/camera/image[gz.msgs.Image@sensor_msgs/msg/Image'</span>,
+            <span class="cm"># Camera calibration info (needed for L06 projection)</span>
+            <span class="st">'/camera/camera_info[gz.msgs.CameraInfo@sensor_msgs/msg/CameraInfo'</span>,
+            <span class="cm"># Depth image</span>
+            <span class="st">'/depth_camera/depth[gz.msgs.Image@sensor_msgs/msg/Image'</span>,
+            <span class="cm"># 2D lidar scan</span>
+            <span class="st">'/scan[gz.msgs.LaserScan@sensor_msgs/msg/LaserScan'</span>,
+            <span class="cm"># Gazebo clock → ROS2 clock (keeps timestamps in sync)</span>
+            <span class="st">'/clock[gz.msgs.Clock@rosgraph_msgs/msg/Clock'</span>,
+        ],
+        remappings=[
+            <span class="cm"># Remap Gazebo topic names to cleaner ROS2 names</span>
+            (<span class="st">'/camera/image'</span>,      <span class="st">'/camera/image_raw'</span>),
+            (<span class="st">'/depth_camera/depth'</span>, <span class="st">'/depth_camera/depth'</span>),
+        ],
+    )
+
+    <span class="cm"># ── World Spawner — starts 2s after bridge (bridge must be up first) ──</span>
+    spawner_node = TimerAction(
+        period=<span class="nm">2.0</span>,
+        actions=[Node(
+            package=<span class="st">'aeroknow_sim'</span>,
+            executable=<span class="st">'world_spawner'</span>,
+            name=<span class="st">'world_spawner'</span>,
+            output=<span class="st">'screen'</span>,
+        )]
+    )
+
+    <span class="cm"># ── L02 Bringup (telemetry, health, mission action) ────────────</span>
+    bringup_nodes = [
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'telemetry_listener'</span>,   name=<span class="st">'telemetry_listener'</span>,   output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'heartbeat_service'</span>,    name=<span class="st">'heartbeat_service'</span>,    output=<span class="st">'log'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mission_action_server'</span>, name=<span class="st">'mission_action_server'</span>, output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mode_manager'</span>,         name=<span class="st">'mode_manager'</span>,         output=<span class="st">'log'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'emergency_stop'</span>,       name=<span class="st">'emergency_stop'</span>,       output=<span class="st">'screen'</span>),
+    ]
+
+    <span class="kw">return</span> LaunchDescription([
+        LogInfo(msg=<span class="st">'[AEROKNOW L04] Starting sensor world stack...'</span>),
+        mavros_node,
+        bridge_node,
+        spawner_node,
+        *bringup_nodes,
+    ])</pre>
+        </div>
+
+        <p>Build and launch. PX4 SITL must already be running in Terminal 1 (<code>sitl_aeroknow</code>).</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_sim
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 launch aeroknow_sim l04_launch.py</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — bridge connects, sensor topics appear</span>
+          <pre><span class="t-ok">[INFO] [AEROKNOW L04] Starting sensor world stack...</span>
+<span class="t-ok">[INFO] [mavros-1]: FCU: Connected</span>
+<span class="t-ok">[INFO] [gz_ros_bridge-2]: Bridging [/camera/image] ↔ /camera/image_raw</span>
+<span class="t-ok">[INFO] [gz_ros_bridge-2]: Bridging [/scan] ↔ /scan</span>
+<span class="t-ok">[INFO] [gz_ros_bridge-2]: Bridging [/depth_camera/depth]</span>
+<span class="t-ok">[INFO] [world_spawner-3]: WorldSpawner ready.</span></pre>
+        </div>
+
+        <p>In Terminal 4, run the sensor checker to confirm everything is live:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_sim sensor_checker</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected output after 10 s</span>
+          <pre>──────────────────────────────────────────────────────────────
+  AEROKNOW L04 — SENSOR STACK VERIFICATION
+──────────────────────────────────────────────────────────────
+  Topic                                  Rate    Min Status
+──────────────────────────────────────────────────────────────
+  /camera/image_raw                      29.8Hz   20Hz <span class="t-ok">✓ OK</span>
+  /depth_camera/depth                    14.9Hz   10Hz <span class="t-ok">✓ OK</span>
+  /scan                                   9.9Hz    8Hz <span class="t-ok">✓ OK</span>
+  /mavros/imu/data                       99.6Hz   50Hz <span class="t-ok">✓ OK</span>
+  /mavros/global_position/global          4.9Hz    3Hz <span class="t-ok">✓ OK</span>
+  /mavros/battery                         1.0Hz  0.5Hz <span class="t-ok">✓ OK</span>
+  /mavros/state                           1.0Hz  0.5Hz <span class="t-ok">✓ OK</span>
+──────────────────────────────────────────────────────────────
+  <span class="t-ok">SENSOR STACK OK — ready for L05</span>
+──────────────────────────────────────────────────────────────</pre>
+        </div>
+
+        <p>Finally, confirm the L03 mission still flies correctly through the custom world with wind:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4 — fly L03 mission in new world</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>ros2 run aeroknow_bringup flight_controller</pre>
+        </div>
+        <p>
+          You should see the drone arm, take off to 20 m, navigate the L-shaped waypoint path, and land —
+          with the five buildings visible in Gazebo and the telemetry listener showing wind-induced
+          roll and pitch deviations of ±1–3° compared to the calm-air run from L03.
+        </p>
+
+        <h3>Final Workspace State After L04</h3>
+        <div class="file-tree">
+<span class="ft-dir">aeroknow_ws/src/</span>
+├── <span class="ft-dir">aeroknow_utils/</span>         <span class="ft-note"># L01 — sanity_check</span>
+├── <span class="ft-dir">aeroknow_bringup/</span>       <span class="ft-note"># L02–L03 — flight stack nodes</span>
+└── <span class="ft-dir">aeroknow_sim/</span>           <span class="ft-new"># new in L04</span>
+    ├── <span class="ft-file">package.xml</span>
+    ├── <span class="ft-file">setup.py</span>
+    ├── <span class="ft-dir">worlds/</span>
+    │   └── <span class="ft-new">aeroknow.world</span>     <span class="ft-note"># 5 buildings + wind</span>
+    ├── <span class="ft-dir">models/</span>
+    │   └── <span class="ft-dir">x500_sensors/</span>
+    │       ├── <span class="ft-new">model.sdf</span>          <span class="ft-note"># drone + 3 sensor plugins</span>
+    │       └── <span class="ft-new">model.config</span>
+    ├── <span class="ft-dir">launch/</span>
+    │   └── <span class="ft-new">l04_launch.py</span>      <span class="ft-note"># MAVROS2 + bridge + spawner</span>
+    └── <span class="ft-dir">aeroknow_sim/</span>
+        ├── <span class="ft-file">__init__.py</span>
+        ├── <span class="ft-new">world_spawner.py</span>   <span class="ft-note"># runtime model spawn/despawn</span>
+        └── <span class="ft-new">sensor_checker.py</span>  <span class="ft-note"># topic rate verification</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMON ERRORS -->
+  <div class="lab-section" id="s-errors">
+    <h2>Common Errors &amp; Fixes</h2>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 01 — Camera topic not visible after bridge starts</span>
+      <code class="error-msg">ros2 topic list | grep camera  →  (nothing)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The Gazebo sensor plugin did not start because the
+        <code>gz-sim-sensors-system</code> plugin is missing from the world SDF.
+        Without it, no sensor plugins fire regardless of what the model SDF says.
+        <strong>Fix:</strong> Confirm the world SDF has this block inside <code>&lt;world&gt;</code>:
+        <code>&lt;plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors"&gt;&lt;render_engine&gt;ogre2&lt;/render_engine&gt;&lt;/plugin&gt;</code>.
+        The <code>ogre2</code> render engine is required for camera sensors — without it, depth and
+        RGB cameras will not render.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 02 — x500_sensors model not found by PX4</span>
+      <code class="error-msg">ERROR [gz]: Model 'x500_sensors' not found in resource path</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> <code>GZ_SIM_RESOURCE_PATH</code> does not include the models directory,
+        or the symlink in <code>~/.gz/models/</code> is broken.
+        <strong>Fix:</strong> (1) Run <code>echo $GZ_SIM_RESOURCE_PATH</code> — it should contain
+        <code>~/aeroknow_ws/src/aeroknow_sim/models</code>. If not, run <code>source ~/.bashrc</code>.
+        (2) Check the symlink: <code>ls -la ~/.gz/models/x500_sensors</code> — it should point to
+        the models directory. If it shows "broken link", re-run the <code>ln -sf</code> command from Step 05.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 03 — Bridge starts but camera images are black/empty</span>
+      <code class="error-msg">camera/image_raw publishes at 30Hz but image data is all zeros</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The Gazebo render engine did not initialise correctly —
+        usually happens on headless servers or VMs with software rendering.
+        <strong>Fix:</strong> Add the <code>LIBGL_ALWAYS_SOFTWARE=1</code> environment variable
+        before the PX4 launch: <code>LIBGL_ALWAYS_SOFTWARE=1 sitl_aeroknow</code>.
+        This forces Mesa software rendering — images will be valid but Gazebo performance
+        will drop 30–50%. On a physical machine with a GPU, confirm the driver is loaded:
+        <code>glxinfo | grep renderer</code> should show your GPU name, not "llvmpipe".
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 04 — world_spawner service not available</span>
+      <code class="error-msg">Gazebo spawn service not available — is ros_gz_bridge running?</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The spawn and delete services exposed by Gazebo Garden use a different
+        interface package than ROS2 services. The <code>ros_gz_interfaces</code> package must be
+        installed, and the world name in the service path must match exactly.
+        <strong>Fix:</strong> (1) Confirm: <code>sudo apt install ros-humble-ros-gz-interfaces</code>.
+        (2) Confirm your world is named <code>aeroknow</code> in the SDF
+        (<code>&lt;world name="aeroknow"&gt;</code>) — the service path
+        <code>/world/aeroknow/create</code> uses this exact name.
+        (3) List available services: <code>ros2 service list | grep world</code>
+        to see what Gazebo is actually exposing.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 05 — Drone model is missing rotors / behaves incorrectly</span>
+      <code class="error-msg">model x500_sensors spawned but drone falls immediately or has no thrust</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The <code>&lt;include&gt;</code> merge of the base x500 model failed —
+        either the URI <code>model://x500</code> is not found by Gazebo, or PX4's model search path
+        is not set.
+        <strong>Fix:</strong> Add the PX4 models directory to the resource path:
+        <code>export GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:~/PX4-Autopilot/Tools/simulation/gz/models</code>
+        (and add to <code>~/.bashrc</code>). This tells Gazebo where to find the base <code>x500</code>
+        model that our <code>x500_sensors</code> inherits from.
+      </p>
+    </div>
+  </div>
+
+  <!-- EXTENSION CHALLENGES -->
+  <div class="lab-section" id="s-extend">
+    <h2>Extension Challenges</h2>
+    <p>The sensor world is running. Here are three harder things to try before L05.</p>
+
+    <div class="extension-box">
+      <ol>
+        <li>
+          <strong>Add a radar altimeter plugin to the drone model.</strong>
+          A radar altimeter measures height above the ground below — unlike the barometer
+          which measures absolute pressure. In Gazebo, this is an <code>altimeter</code> sensor
+          type. Add it to <code>model.sdf</code>, bridge it to the ROS2 topic
+          <code>/mavros/altitude</code>, and extend <code>sensor_checker.py</code> to verify it.
+          The radar altimeter topic will be used in L05 as a GNSS-denied height reference
+          when the barometer drifts.
+        </li>
+        <li>
+          <strong>Add a second building using world_spawner at runtime.</strong>
+          While the L04 stack is running, use the spawn topic to place a new tall building
+          (make it a box 8×8×30 m) at position (60, 0, 15).
+          Watch it appear in Gazebo without restarting the simulation.
+          Then verify the lidar scan topic shows a new obstacle bearing in the expected direction.
+          Hint: you'll need to send a custom SDF string using
+          <code>ros2 topic pub --once /world_spawner/spawn_barrel</code> won't work for a box —
+          extend <code>world_spawner.py</code> with a <code>spawn_box</code> topic that accepts
+          <code>"name x y z sx sy sz"</code>.
+        </li>
+        <li>
+          <strong>Visualise camera and lidar data in RViz2.</strong>
+          Open RViz2 (<code>ros2 run rviz2 rviz2</code>), add an <strong>Image</strong> display
+          subscribed to <code>/camera/image_raw</code>, and a <strong>LaserScan</strong> display
+          subscribed to <code>/scan</code>. You should see the camera feed from the drone's
+          perspective and a 360° circle of range measurements from the lidar.
+          Save the RViz configuration to
+          <code>~/aeroknow_ws/src/aeroknow_sim/config/l04_sensors.rviz</code>
+          and add it to the launch file so it opens automatically.
+          This is the same visualisation used in L05 to monitor the GNSS-denied navigation state.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- LAB NAV -->
+  <div class="lab-nav">
+    <a href="l03-px4-mavros2.html"       class="btn-lab prev">◂ Lab 03: PX4 + MAVROS2</a>
+    <a href="l05-gnss-denied-nav.html"   class="btn-lab">Lab 05: GNSS-Denied Nav ▸</a>
+  </div>
+
+</div><!-- end lab-page -->
+
+<footer>
+  <p>AEROKNOW · Practical Track · Lab 04 · Gazebo Simulation World ·
+  ROS2 Humble · Gazebo Garden · SDF 1.9</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    let text = pre.innerText
+      .split('\n')
+      .map(line => line.replace(/^\$\s*/, '').replace(/^pxh>\s*/, ''))
+      .join('\n').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  function jumpTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  const sections = ['s-overview','s-prereqs','s-sdf','s-world','s-sensors',
+                    's-wind','s-drone-model','s-spawner','s-sensor-check',
+                    's-launch','s-errors','s-extend'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          if (buttons[idx]) buttons[idx].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>
