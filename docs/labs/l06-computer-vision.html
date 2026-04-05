@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L06: Computer Vision Pipeline — AEROKNOW Labs</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    :root {
+      --lab-accent:      #00ff9d;
+      --lab-accent-dim:  rgba(0,255,157,0.08);
+      --lab-accent-glow: 0 0 20px rgba(0,255,157,0.3);
+      --lab-border:      rgba(0,255,157,0.35);
+      --lab-border-dim:  rgba(0,255,157,0.12);
+    }
+    .section-jump { position:sticky; top:60px; z-index:100; background:rgba(2,4,8,0.97); backdrop-filter:blur(10px); border-bottom:1px solid var(--lab-border-dim); padding:0; overflow-x:auto; scrollbar-width:none; }
+    .section-jump::-webkit-scrollbar { display:none; }
+    .jump-inner { display:flex; align-items:center; gap:0; padding:0 1rem; min-width:max-content; }
+    .jump-label { font-family:var(--font-mono); font-size:0.58rem; color:var(--text-muted); letter-spacing:0.15em; text-transform:uppercase; padding:0 0.75rem 0 0; border-right:1px solid var(--lab-border-dim); margin-right:0.25rem; white-space:nowrap; line-height:42px; }
+    .jump-btn { background:transparent; border:none; border-bottom:2px solid transparent; color:var(--text-muted); font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.06em; padding:0 0.85rem; height:42px; cursor:pointer; white-space:nowrap; transition:var(--transition); }
+    .jump-btn:hover { color:var(--text-secondary); border-bottom-color:var(--lab-border); }
+    .jump-btn.active { color:var(--lab-accent); border-bottom-color:var(--lab-accent); }
+    .jump-btn .jb-num { color:var(--lab-accent); margin-right:0.3rem; font-size:0.58rem; }
+    .lab-page { max-width:1100px; margin:0 auto; padding:2rem 2rem 5rem; }
+    .lab-hero { padding:3rem 0 2rem; border-bottom:1px solid var(--lab-border-dim); margin-bottom:3rem; position:relative; }
+    .lab-track-label { font-family:var(--font-mono); font-size:0.72rem; color:var(--lab-accent); letter-spacing:0.25em; text-transform:uppercase; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.6rem; }
+    .lab-track-label::before { content:''; width:30px; height:1px; background:var(--lab-accent); box-shadow:var(--lab-accent-glow); }
+    .lab-hero h1 { color:var(--text-primary); text-shadow:0 0 40px rgba(0,255,157,0.15); margin-bottom:1rem; }
+    .lab-hero p.lead { font-size:1.1rem; color:var(--text-secondary); max-width:680px; margin-bottom:1.5rem; line-height:1.75; }
+    .lab-meta { display:flex; gap:1.5rem; flex-wrap:wrap; align-items:center; }
+    .lab-meta-item { display:flex; align-items:center; gap:0.4rem; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); }
+    .lab-meta-item strong { color:var(--lab-accent); }
+    .lab-section { margin-bottom:4rem; scroll-margin-top:105px; }
+    .lab-section h2 { color:var(--lab-accent); margin-bottom:1.5rem; padding-bottom:0.5rem; border-bottom:1px solid var(--lab-border-dim); display:flex; align-items:center; gap:0.75rem; font-size:clamp(1.1rem,2vw,1.6rem); }
+    .lab-section h2::before { content:'//'; font-family:var(--font-mono); color:var(--lab-accent); font-size:0.9rem; opacity:0.6; }
+    .lab-section h3 { color:var(--text-primary); margin:2rem 0 0.8rem; font-size:1.1rem; }
+    .lab-section p { font-size:1rem; line-height:1.75; }
+    .lab-section ul, .lab-section ol { padding-left:1.5rem; margin-bottom:1.2rem; }
+    .lab-section li { margin-bottom:0.5rem; color:var(--text-secondary); line-height:1.65; }
+    .lab-section li strong { color:var(--text-primary); }
+    .lab-step { border:1px solid var(--lab-border-dim); border-left:3px solid var(--lab-accent); background:rgba(0,255,157,0.025); margin:2rem 0; }
+    .lab-step-header { display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; border-bottom:1px solid var(--lab-border-dim); }
+    .step-num { font-family:var(--font-mono); font-size:0.65rem; color:var(--lab-accent); background:rgba(0,255,157,0.08); border:1px solid var(--lab-border); padding:0.2rem 0.5rem; letter-spacing:0.1em; white-space:nowrap; }
+    .step-title { font-family:var(--font-ui); font-size:1rem; font-weight:600; color:var(--text-primary); letter-spacing:0.03em; }
+    .lab-step-body { padding:1.2rem 1.5rem; }
+    .why-box { background:rgba(0,212,255,0.03); border-left:3px solid var(--accent-primary); padding:0.9rem 1.1rem; margin-bottom:1.2rem; border-radius:0 3px 3px 0; }
+    .why-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-primary); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.35rem; }
+    .why-box p { font-size:0.95rem; color:var(--text-secondary); margin:0; line-height:1.7; }
+    .code-block { background:#020c14; border:1px solid var(--border-dim); border-left:3px solid var(--accent-primary); padding:1.2rem 1.5rem; overflow-x:auto; position:relative; margin:1rem 0; }
+    .code-block.bash   { border-left-color:var(--lab-accent); }
+    .code-block.python { border-left-color:var(--accent-primary); }
+    .code-lang { position:absolute; top:0.4rem; right:3.5rem; font-family:var(--font-mono); font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; }
+    .copy-btn { position:absolute; top:0.35rem; right:0.5rem; background:rgba(0,255,157,0.07); border:1px solid var(--lab-border-dim); color:var(--lab-accent); font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.08em; padding:0.2rem 0.5rem; cursor:pointer; text-transform:uppercase; transition:var(--transition); }
+    .copy-btn:hover  { background:rgba(0,255,157,0.14); border-color:var(--lab-border); }
+    .copy-btn.copied { color:var(--accent-primary); border-color:var(--accent-primary); }
+    .code-block pre { font-family:var(--font-mono); font-size:0.85rem; line-height:1.7; color:#c8e6f0; white-space:pre; tab-size:4; }
+    .code-block .cm   { color:#4a7a8a; font-style:italic; }
+    .code-block .kw   { color:#00d4ff; }
+    .code-block .fn   { color:#00ff9d; }
+    .code-block .st   { color:#ffd580; }
+    .code-block .nm   { color:#ff9d6f; }
+    .code-block .tp   { color:#b388ff; }
+    .code-block .prompt { color:var(--lab-accent); user-select:none; }
+    .terminal-output { background:#010a0f; border:1px solid rgba(0,255,157,0.1); border-left:3px solid rgba(0,255,157,0.4); padding:1rem 1.5rem; margin:0.75rem 0 1.2rem; }
+    .terminal-label { font-family:var(--font-mono); font-size:0.58rem; color:var(--lab-accent); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.6rem; opacity:0.7; }
+    .terminal-output pre { font-family:var(--font-mono); font-size:0.8rem; color:#7dbf9e; line-height:1.65; white-space:pre-wrap; word-break:break-all; }
+    .terminal-output pre .t-dim  { color:#3d6650; }
+    .terminal-output pre .t-ok   { color:#00ff9d; }
+    .terminal-output pre .t-warn { color:#ffb700; }
+    .terminal-output pre .t-err  { color:#ff3a3a; }
+    .terminal-output pre .t-cyan { color:#00d4ff; }
+    .error-doc { background:rgba(255,58,58,0.03); border:1px solid rgba(255,58,58,0.15); border-left:3px solid var(--accent-red); padding:1rem 1.2rem; margin:1rem 0; }
+    .error-doc-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-red); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.5rem; }
+    .error-doc .error-msg { font-family:var(--font-mono); font-size:0.82rem; color:#ff8080; margin-bottom:0.6rem; display:block; }
+    .error-doc .error-fix { font-size:0.92rem; color:var(--text-secondary); margin:0; }
+    .error-doc .error-fix strong { color:var(--text-primary); }
+    .prereq-check { display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0; }
+    .prereq-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.65rem 1rem; background:var(--bg-card); border:1px solid var(--border-dim); }
+    .prereq-icon { font-family:var(--font-mono); font-size:0.75rem; color:var(--lab-accent); margin-top:0.05rem; flex-shrink:0; }
+    .prereq-item p { margin:0; color:var(--text-secondary); line-height:1.5; font-size:0.9rem; }
+    .prereq-item code { font-family:var(--font-mono); font-size:0.82rem; color:var(--accent-primary); }
+    .theory-link { background:rgba(255,183,0,0.03); border:1px solid rgba(255,183,0,0.15); border-left:3px solid var(--accent-amber); padding:1rem 1.2rem; margin:1.5rem 0; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .theory-link-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-amber); letter-spacing:0.15em; text-transform:uppercase; white-space:nowrap; }
+    .theory-link p { margin:0; color:var(--text-secondary); font-size:0.92rem; flex:1; min-width:200px; }
+    .theory-link a { color:var(--accent-amber); text-decoration:underline; }
+    .arch-diagram { margin:2rem 0; background:rgba(0,255,157,0.015); border:1px solid var(--lab-border-dim); padding:1.5rem; overflow-x:auto; }
+    .arch-diagram svg { display:block; margin:0 auto; }
+    .file-tree { background:#020c14; border:1px solid var(--border-dim); border-left:3px solid var(--lab-accent); padding:1.2rem 1.5rem; font-family:var(--font-mono); font-size:0.83rem; line-height:1.9; margin:1rem 0; }
+    .ft-dir { color:var(--lab-accent); }
+    .ft-file { color:#c8e6f0; }
+    .ft-note { color:#3d6b7a; font-style:italic; }
+    .ft-new  { color:var(--accent-amber); }
+    .concept-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; margin:1.5rem 0; }
+    .concept-card { background:var(--bg-card); border:1px solid var(--border-dim); border-top:2px solid var(--lab-accent); padding:1rem 1.1rem; }
+    .concept-card-title { font-family:var(--font-mono); font-size:0.78rem; color:var(--lab-accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.5rem; }
+    .concept-card p { font-size:0.87rem; color:var(--text-secondary); margin:0; line-height:1.6; }
+    .flow-table { width:100%; border-collapse:collapse; margin:1rem 0; }
+    .flow-table th { font-family:var(--font-mono); font-size:0.68rem; color:var(--lab-accent); letter-spacing:0.1em; text-transform:uppercase; padding:0.5rem 0.8rem; border-bottom:1px solid var(--lab-border-dim); text-align:left; }
+    .flow-table td { padding:0.55rem 0.8rem; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.88rem; color:var(--text-secondary); vertical-align:top; }
+    .flow-table td:first-child { font-family:var(--font-mono); font-size:0.8rem; color:var(--accent-primary); }
+    .flow-table td code { font-family:var(--font-mono); font-size:0.78rem; color:var(--accent-primary); }
+    .callout.lab-note { border-color:var(--lab-accent); background:rgba(0,255,157,0.04); }
+    .callout.lab-note .callout-title { color:var(--lab-accent); }
+    .extension-box { background:rgba(0,255,157,0.025); border:1px solid var(--lab-border-dim); padding:1.5rem; margin-top:1.5rem; }
+    .extension-box::before { content:'◈ EXTENSION CHALLENGES'; font-family:var(--font-mono); font-size:0.65rem; color:var(--lab-accent); letter-spacing:0.15em; display:block; margin-bottom:1rem; }
+    .extension-box ol { padding-left:1.5rem; }
+    .extension-box li { margin-bottom:0.75rem; font-size:0.97rem; color:var(--text-secondary); line-height:1.65; }
+    .extension-box li a { color:var(--lab-accent); }
+    .lab-nav { display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--lab-border-dim); }
+    .btn-lab { background:transparent; border:1px solid var(--lab-accent); color:var(--lab-accent); font-family:var(--font-mono); font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; padding:0.8rem 1.8rem; text-decoration:none; display:inline-block; transition:var(--transition); position:relative; overflow:hidden; }
+    .btn-lab::before { content:''; position:absolute; inset:0; background:var(--lab-accent); transform:scaleX(0); transform-origin:left; transition:var(--transition); z-index:-1; }
+    .btn-lab:hover { color:var(--bg-void); box-shadow:var(--lab-accent-glow); text-shadow:none; }
+    .btn-lab:hover::before { transform:scaleX(1); }
+    .btn-lab.prev::before { transform-origin:right; }
+    @media (max-width:768px) { .lab-page { padding:1rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump">
+  <div class="jump-inner">
+    <span class="jump-label">L06 · JUMP TO</span>
+    <button class="jump-btn active" onclick="jumpTo('s-overview')"><span class="jb-num">00</span>Overview</button>
+    <button class="jump-btn" onclick="jumpTo('s-prereqs')"><span class="jb-num">01</span>Prerequisites</button>
+    <button class="jump-btn" onclick="jumpTo('s-concepts')"><span class="jb-num">02</span>Vision Concepts</button>
+    <button class="jump-btn" onclick="jumpTo('s-targets')"><span class="jb-num">03</span>Spawn Targets</button>
+    <button class="jump-btn" onclick="jumpTo('s-vision-node')"><span class="jb-num">04</span>Vision Node</button>
+    <button class="jump-btn" onclick="jumpTo('s-visualiser')"><span class="jb-num">05</span>Visualiser</button>
+    <button class="jump-btn" onclick="jumpTo('s-tracker')"><span class="jb-num">06</span>Target Tracker</button>
+    <button class="jump-btn" onclick="jumpTo('s-launch')"><span class="jb-num">07</span>Launch &amp; Demo</button>
+    <button class="jump-btn" onclick="jumpTo('s-errors')"><span class="jb-num">ERR</span>Common Errors</button>
+    <button class="jump-btn" onclick="jumpTo('s-extend')"><span class="jb-num">+</span>Extend</button>
+  </div>
+</div>
+
+<div class="lab-page">
+
+  <!-- HERO -->
+  <div class="lab-hero" id="s-overview">
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner br"></div>
+    <span class="lab-track-label">Practical Track · Lab 06 of 08</span>
+    <h1>Computer Vision Pipeline</h1>
+    <p class="lead">
+      The drone has a camera. L06 makes it see. You will wire YOLOv8n to the live
+      Gazebo camera feed, publish detections as typed ROS2 messages, overlay bounding
+      boxes on the video stream, and project pixel coordinates to world-frame GPS
+      positions using the camera geometry and drone altitude. By the end, the drone
+      can identify and geolocate a spawned target barrel from 30 m altitude
+      and publish its estimated GPS coordinates — the foundation for autonomous ISR.
+    </p>
+    <div class="lab-meta">
+      <div class="lab-meta-item">⏱ <strong>~3 hours</strong>&nbsp;wall clock</div>
+      <div class="lab-meta-item">📋 <strong>3 nodes built</strong></div>
+      <div class="lab-meta-item">🔧 <strong>Builds on</strong>&nbsp;L04 camera topics</div>
+      <div class="lab-meta-item">📦 <strong>New package:</strong>&nbsp;aeroknow_vision</div>
+      <span class="label label-green">YOLOv8n</span>
+      <span class="label label-primary">OpenCV</span>
+      <span class="label label-amber">Camera Projection</span>
+      <span class="label label-red">Geolocation</span>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="lab-section" id="s-arch">
+    <h2>What You Are Building</h2>
+    <p>
+      Three nodes in a new <code>aeroknow_vision</code> package. Data flows from the
+      camera topic through YOLOv8n inference, into a detection publisher, a visualiser
+      that draws boxes on a video stream, and a tracker that converts pixel coordinates
+      to world-frame GPS positions.
+    </p>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 860 270" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:860px;min-width:480px;">
+        <defs>
+          <marker id="arr"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,255,157,0.5)"/></marker>
+          <marker id="arr-c" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,212,255,0.5)"/></marker>
+          <marker id="arr-a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(255,183,0,0.5)"/></marker>
+          <marker id="arr-p" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(179,136,255,0.5)"/></marker>
+        </defs>
+
+        <!-- Camera topic input -->
+        <rect x="10" y="100" width="130" height="70" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.3)" stroke-width="1.2"/>
+        <text x="75" y="123" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00d4ff">Gazebo Camera</text>
+        <text x="75" y="139" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/camera/image_raw</text>
+        <text x="75" y="155" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">640×480 RGB 30Hz</text>
+
+        <!-- vision_node -->
+        <rect x="195" y="80" width="165" height="110" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+        <text x="277" y="103" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d">vision_node</text>
+        <text x="277" y="119" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">YOLOv8n inference</text>
+        <text x="277" y="134" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">runs in thread pool</text>
+        <text x="277" y="149" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">publishes detections</text>
+        <text x="277" y="164" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">+ annotated image</text>
+        <text x="277" y="179" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 04</text>
+
+        <!-- Arrows -->
+        <line x1="140" y1="135" x2="193" y2="135" stroke="rgba(0,212,255,0.5)" stroke-width="1.5" marker-end="url(#arr-c)"/>
+
+        <!-- detection_visualiser -->
+        <rect x="420" y="20" width="160" height="90" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.35)" stroke-width="1.2"/>
+        <text x="500" y="43" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00d4ff">detection_visualiser</text>
+        <text x="500" y="59" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">draws bounding boxes</text>
+        <text x="500" y="74" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">labels + confidence</text>
+        <text x="500" y="89" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">publishes /vision/overlay</text>
+        <text x="500" y="101" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,212,255,0.45)">Step 05</text>
+
+        <!-- target_tracker -->
+        <rect x="420" y="155" width="160" height="90" rx="2" fill="#050d14" stroke="rgba(255,183,0,0.35)" stroke-width="1.2"/>
+        <text x="500" y="178" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#ffb700">target_tracker</text>
+        <text x="500" y="194" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">pixel → world-frame</text>
+        <text x="500" y="209" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">GPS geolocation</text>
+        <text x="500" y="224" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">publishes /targets/gps</text>
+        <text x="500" y="236" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,183,0,0.45)">Step 06</text>
+
+        <!-- Arrows from vision_node -->
+        <line x1="360" y1="110" x2="418" y2="65"  stroke="rgba(0,212,255,0.4)" stroke-width="1.2" marker-end="url(#arr-c)"/>
+        <line x1="360" y1="155" x2="418" y2="200" stroke="rgba(255,183,0,0.4)" stroke-width="1.2" marker-end="url(#arr-a)"/>
+
+        <!-- Outputs -->
+        <rect x="645" y="20" width="200" height="220" rx="2" fill="rgba(0,255,157,0.01)" stroke="rgba(0,255,157,0.08)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="745" y="40" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,255,157,0.4)" letter-spacing="1">PUBLISHED TOPICS</text>
+        <text x="657" y="62" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00ff9d">/vision/detections</text>
+        <text x="657" y="80" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">  Detection2DArray</text>
+        <text x="657" y="100" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/vision/overlay</text>
+        <text x="657" y="118" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">  sensor_msgs/Image</text>
+        <text x="657" y="138" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#ffb700">/targets/gps</text>
+        <text x="657" y="156" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">  geographic_msgs/GeoPoint</text>
+        <text x="657" y="176" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#b388ff">/vision/fps</text>
+        <text x="657" y="194" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">  std_msgs/Float32</text>
+
+        <line x1="580" y1="65"  x2="643" y2="65"  stroke="rgba(0,255,157,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+        <line x1="580" y1="65"  x2="643" y2="110" stroke="rgba(0,212,255,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+        <line x1="580" y1="200" x2="643" y2="148" stroke="rgba(255,183,0,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
+
+        <!-- drone pose input to tracker -->
+        <rect x="195" y="215" width="165" height="45" rx="2" fill="#050d14" stroke="rgba(179,136,255,0.25)" stroke-width="1"/>
+        <text x="277" y="233" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#b388ff">Drone Pose + GPS</text>
+        <text x="277" y="248" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/mavros/local_position/pose</text>
+        <line x1="360" y1="238" x2="418" y2="220" stroke="rgba(179,136,255,0.35)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-p)"/>
+
+        <!-- package boundary -->
+        <rect x="183" y="10" width="450" height="250" rx="2" fill="none" stroke="rgba(0,255,157,0.05)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="408" y="258" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.3)" letter-spacing="1">aeroknow_vision · new package in L06</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- PREREQUISITES -->
+  <div class="lab-section" id="s-prereqs">
+    <h2>Prerequisites</h2>
+
+    <div class="prereq-check">
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L04 complete and sensor_checker passing.</strong>
+        <code>/camera/image_raw</code> must publish at ≥20 Hz.
+        Run <code>ros2 topic hz /camera/image_raw</code> with the L04 stack running — confirm rate.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>YOLOv8n installed from L01.</strong>
+        Confirm: <code>python3 -c "from ultralytics import YOLO; m=YOLO('yolov8n.pt'); print('OK')"</code>.
+        First run downloads the 6 MB weights file. If you're behind a proxy, set
+        <code>YOLO_CONFIG_DIR=~/.config/Ultralytics</code> and pre-download manually.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>cv_bridge installed.</strong>
+        <code>sudo apt install ros-humble-cv-bridge ros-humble-vision-msgs</code>.
+        <code>vision_msgs</code> provides the <code>Detection2DArray</code> message type
+        used to publish YOLO results.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>geographic_msgs installed.</strong>
+        Already installed in L05. Confirm:
+        <code>ros2 interfaces show geographic_msgs/msg/GeoPoint</code> should show latitude,
+        longitude, altitude fields.</p>
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <span class="theory-link-label">⟐ Theory Link</span>
+      <p>
+        This lab implements the inference pipeline from
+        <a href="../modules/m07-deep-learning-uav.html">Module 07 — Deep Learning &amp; Perception §7.3–7.5</a>.
+        The YOLOv8n architecture (CSPDarknet backbone, PANet neck, decoupled head),
+        the IoU matching and NMS post-processing, and the confidence threshold choices
+        discussed there all directly affect the behaviour you observe here.
+        The pixel-to-world projection in Step 06 uses the pinhole camera model from
+        <a href="../modules/m05-sensor-fusion.html">Module 05 §5.3</a>.
+      </p>
+    </div>
+  </div>
+
+  <!-- VISION CONCEPTS -->
+  <div class="lab-section" id="s-concepts">
+    <h2>Vision Pipeline Concepts — What Runs Where and Why</h2>
+
+    <h3>The Threading Problem</h3>
+    <p>
+      YOLOv8n inference on a CPU takes 50–200 ms per frame. The camera publishes at 30 Hz —
+      a new frame every 33 ms. If you run inference synchronously inside the ROS2 callback,
+      the callback takes 150 ms, blocking every other callback in the node for that time.
+      The ROS2 executor falls behind, the topic queue backs up, and the node processes
+      frames from seconds ago — useless for real-time detection.
+    </p>
+
+    <div class="callout lab-note">
+      <span class="callout-title">The Solution: Inference in a Thread Pool</span>
+      The image callback does one thing only: copy the latest frame into a shared buffer
+      and return immediately (microseconds). A separate Python thread constantly pulls
+      from that buffer and runs YOLOv8n inference. When inference finishes, it posts
+      results to an output queue. The ROS2 publish timer reads the output queue and
+      publishes detections. This decouples camera rate (30 Hz) from inference rate
+      (~5–15 Hz on CPU) without either blocking the other. ROS2 callbacks stay fast;
+      inference runs at its natural speed.
+    </div>
+
+    <h3>The Four Key Concepts</h3>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-card-title">Detection2DArray</div>
+        <p>
+          The ROS2 standard message for a list of 2D detections. Each
+          <code>Detection2D</code> contains a bounding box
+          (centre x/y + width/height in pixels), a class ID, a confidence score,
+          and a header with timestamp. Using the standard message type means the
+          L07 GCS and L08 swarm coordinator can subscribe without knowing YOLOv8
+          was used — they just see detections.
+        </p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-card-title">Pinhole Projection</div>
+        <p>
+          A pixel at <code>(u, v)</code> in the image corresponds to a ray in 3D space
+          through the camera centre. The camera intrinsic matrix K maps between pixel
+          coordinates and normalised image coordinates. Combined with drone altitude,
+          this gives a ground-plane intersection — the world position of the detected object.
+          Accuracy depends on the assumption that the target is on the ground plane.
+        </p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-card-title">Confidence Threshold</div>
+        <p>
+          YOLOv8 outputs a confidence score for each detection. Low threshold
+          (0.25) = more detections, more false positives. High threshold (0.7) =
+          fewer detections, fewer false positives. For ISR target geolocation
+          you want high precision (few false geolocations), so the threshold
+          is set higher (0.5+). For L08 swarm, lower threshold gives more
+          detections for the allocation algorithm to work with.
+        </p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-card-title">CameraInfo</div>
+        <p>
+          The <code>sensor_msgs/CameraInfo</code> topic (bridged from Gazebo in L04)
+          contains the camera intrinsic matrix K, distortion coefficients D,
+          and image dimensions. The tracker reads this once at startup —
+          it is the calibration that makes the pixel→world projection accurate.
+          Without it, you must hardcode K values from the SDF FOV parameters.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 03 — SPAWN TARGETS -->
+  <div class="lab-section" id="s-targets">
+    <h2>Step 01–02: Create the Package and Spawn Detection Targets</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 01</span>
+        <span class="step-title">Create the aeroknow_vision package</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why a new package instead of adding to aeroknow_bringup</span>
+          <p>
+            Vision processing has different dependencies (ultralytics, cv2, vision_msgs)
+            and different deployment characteristics from flight control — on real hardware,
+            vision runs on the payload computer, flight control on the autopilot computer.
+            Keeping them in separate packages mirrors that physical architecture and means
+            the vision pipeline can be developed and tested independently of the flight stack.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws/src
+<span class="prompt">$ </span>ros2 pkg create aeroknow_vision \
+    --build-type ament_python \
+    --dependencies rclpy sensor_msgs std_msgs geometry_msgs \
+                   vision_msgs geographic_msgs nav_msgs mavros_msgs</pre>
+        </div>
+
+        <p>Replace the generated <code>setup.py</code>:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · aeroknow_vision/setup.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="kw">from</span> setuptools <span class="kw">import</span> setup, find_packages
+<span class="kw">import</span> os
+<span class="kw">from</span> glob <span class="kw">import</span> glob
+
+package_name = <span class="st">'aeroknow_vision'</span>
+
+setup(
+    name=package_name, version=<span class="st">'0.1.0'</span>,
+    packages=find_packages(exclude=[<span class="st">'test'</span>]),
+    data_files=[
+        (<span class="st">'share/ament_index/resource_index/packages'</span>, [<span class="st">'resource/'</span> + package_name]),
+        (<span class="st">'share/'</span> + package_name, [<span class="st">'package.xml'</span>]),
+        (os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'launch'</span>), glob(<span class="st">'launch/*.py'</span>)),
+    ],
+    install_requires=[<span class="st">'setuptools'</span>],
+    zip_safe=<span class="kw">True</span>,
+    maintainer=<span class="st">'aeroknow'</span>,
+    maintainer_email=<span class="st">'aeroknow@example.com'</span>,
+    description=<span class="st">'AEROKNOW computer vision pipeline'</span>,
+    license=<span class="st">'MIT'</span>,
+    entry_points={<span class="st">'console_scripts'</span>: [
+        <span class="st">'vision_node          = aeroknow_vision.vision_node:main'</span>,
+        <span class="st">'detection_visualiser = aeroknow_vision.detection_visualiser:main'</span>,
+        <span class="st">'target_tracker       = aeroknow_vision.target_tracker:main'</span>,
+    ]},
+)</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_vision/launch
+<span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_vision
+<span class="prompt">$ </span>source install/setup.bash</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 02</span>
+        <span class="step-title">Spawn detection targets in the Gazebo world</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">What YOLOv8n can detect in the Gazebo world</span>
+          <p>
+            YOLOv8n is trained on the COCO dataset — 80 classes including
+            <em>bottle</em>, <em>cup</em>, <em>car</em>, <em>person</em>, <em>truck</em>.
+            The red barrel from L04 is not a COCO class, so YOLO won't detect it.
+            We need to spawn Gazebo objects that resemble COCO classes well enough
+            for a zero-shot detection to work. A scaled-up box model labelled as a
+            "car" works reliably. Alternatively, spawn a simple textured plane with
+            a COCO-class image — but the easiest approach is to use vehicle-like boxes.
+            For a production system you would fine-tune YOLO on your actual target class —
+            that process is described in the extension challenge.
+          </p>
+        </div>
+        <p>
+          With the L04 stack running (Terminal 1: <code>sitl_aeroknow</code>,
+          Terminal 2: <code>ros2 launch aeroknow_sim l04_launch.py</code>),
+          spawn a vehicle-like target from Terminal 3:
+        </p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># Spawn a vehicle-like box at (20, 15, 0) — in view of the drone at 30m altitude</span>
+<span class="prompt">$ </span>ros2 topic pub --once /world_spawner/spawn_barrel \
+    std_msgs/msg/String "data: 'target_vehicle 20 15 0.5'"
+
+<span class="cm"># Verify it appears in Gazebo — check the topic published by world_spawner</span>
+<span class="prompt">$ </span>ros2 topic echo /world_spawner/spawn_barrel --once</pre>
+        </div>
+
+        <p>
+          You should see the red barrel appear in the Gazebo world at the northeast corner.
+          The drone at 30 m altitude flying over this position will have it within camera FOV.
+          The downward camera (80° FOV, 640×480) at 30 m altitude covers a ground footprint of
+          approximately <strong>48 m × 36 m</strong> — the barrel at (20, 15) will be visible
+          from directly overhead.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 04 — VISION NODE -->
+  <div class="lab-section" id="s-vision-node">
+    <h2>Step 03: vision_node.py</h2>
+    <p>
+      The core detection node. Subscribes to the camera topic, runs YOLOv8n on each
+      frame in a background thread, and publishes results as <code>Detection2DArray</code>
+      messages. The threading model is the most important design decision here.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 03</span>
+        <span class="step-title">Write vision_node.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why the inference runs in a concurrent.futures ThreadPoolExecutor</span>
+          <p>
+            Python's GIL means CPU-bound work in a pure Python thread doesn't parallelise
+            well. However, YOLOv8 (via PyTorch) releases the GIL during tensor operations,
+            so a <code>ThreadPoolExecutor</code> with one worker does give true CPU parallelism
+            for inference. The image callback acquires a lock, replaces the pending frame,
+            and returns — it never blocks on inference. The worker thread picks up the latest
+            frame, runs YOLO, and posts results. If inference takes 200 ms and frames arrive
+            at 33 ms, some frames are skipped — this is intentional and correct.
+            Processing stale frames is worse than skipping them.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_vision/aeroknow_vision/vision_node.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · vision_node.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+vision_node.py
+──────────────
+Runs YOLOv8n on the live Gazebo camera feed.
+Publishes detections as vision_msgs/Detection2DArray.
+Uses a background thread for inference to keep ROS2 callbacks fast.
+
+Published topics:
+  /vision/detections  (vision_msgs/Detection2DArray) — YOLO results
+  /vision/fps         (std_msgs/Float32)              — inference FPS
+  /vision/annotated   (sensor_msgs/Image)             — annotated frame
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> sensor_msgs.msg  <span class="kw">import</span> Image
+<span class="kw">from</span> std_msgs.msg     <span class="kw">import</span> Float32
+<span class="kw">from</span> vision_msgs.msg  <span class="kw">import</span> Detection2DArray, Detection2D, ObjectHypothesisWithPose, BoundingBox2D
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> cv2
+<span class="kw">import</span> threading
+<span class="kw">import</span> time
+<span class="kw">from</span> concurrent.futures <span class="kw">import</span> ThreadPoolExecutor
+<span class="kw">from</span> queue <span class="kw">import</span> Queue, Empty
+
+<span class="kw">try</span>:
+    <span class="kw">from</span> cv_bridge <span class="kw">import</span> CvBridge
+    CV_BRIDGE_OK = <span class="kw">True</span>
+<span class="kw">except</span> ImportError:
+    CV_BRIDGE_OK = <span class="kw">False</span>
+    print(<span class="st">"[WARN] cv_bridge not found — install ros-humble-cv-bridge"</span>)
+
+<span class="kw">from</span> ultralytics <span class="kw">import</span> YOLO
+
+CONF_THRESHOLD  = <span class="nm">0.45</span>   <span class="cm"># minimum confidence to publish a detection</span>
+IOU_THRESHOLD   = <span class="nm">0.45</span>   <span class="cm"># NMS IoU threshold (from Module 07 §7.4)</span>
+MODEL_PATH      = <span class="st">'yolov8n.pt'</span>   <span class="cm"># downloads automatically on first run</span>
+MAX_QUEUE_DEPTH = <span class="nm">2</span>       <span class="cm"># frames waiting for inference — drop older frames</span>
+
+
+<span class="kw">class</span> <span class="tp">VisionNode</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'vision_node'</span>)
+
+        <span class="cm"># ── Load YOLOv8n model ───────────────────────────────────────</span>
+        self.get_logger().info(<span class="st">f'Loading YOLOv8n from {MODEL_PATH}...'</span>)
+        self.model = YOLO(MODEL_PATH)
+        self.get_logger().info(<span class="st">'YOLOv8n loaded'</span>)
+
+        <span class="cm"># ── Thread-safe frame buffer ─────────────────────────────────
+        # Only one frame is ever pending — we want the most recent frame,
+        # not a queue of stale frames.</span>
+        self._frame_lock    = threading.Lock()
+        self._pending_frame = <span class="kw">None</span>          <span class="cm"># latest camera frame (numpy BGR)</span>
+        self._result_queue  = Queue(maxsize=MAX_QUEUE_DEPTH)
+        self._running       = <span class="kw">True</span>
+
+        self.bridge = CvBridge() <span class="kw">if</span> CV_BRIDGE_OK <span class="kw">else</span> <span class="kw">None</span>
+
+        <span class="cm"># ── Performance tracking ─────────────────────────────────────</span>
+        self._fps_window  = []   <span class="cm"># list of recent inference durations [s]</span>
+        self._det_count   = <span class="nm">0</span>   <span class="cm"># total detections since start</span>
+
+        <span class="cm"># ── QoS ──────────────────────────────────────────────────────</span>
+        sen_qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+
+        <span class="cm"># ── Subscriptions ────────────────────────────────────────────</span>
+        self.create_subscription(Image, <span class="st">'/camera/image_raw'</span>,
+                                 self.<span class="fn">image_cb</span>, sen_qos)
+
+        <span class="cm"># ── Publishers ───────────────────────────────────────────────</span>
+        self.det_pub  = self.create_publisher(Detection2DArray,
+            <span class="st">'/vision/detections'</span>, <span class="nm">10</span>)
+        self.fps_pub  = self.create_publisher(Float32,
+            <span class="st">'/vision/fps'</span>, <span class="nm">10</span>)
+        self.ann_pub  = self.create_publisher(Image,
+            <span class="st">'/vision/annotated'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># ── Inference thread ─────────────────────────────────────────</span>
+        self._executor = ThreadPoolExecutor(max_workers=<span class="nm">1</span>)
+        self._executor.submit(self.<span class="fn">_inference_loop</span>)
+
+        <span class="cm"># ── Publish timer: posts results from inference queue to ROS2 ─</span>
+        self.create_timer(<span class="nm">0.05</span>, self.<span class="fn">_publish_results</span>)   <span class="cm"># 20 Hz poll</span>
+
+        self.get_logger().info(
+            <span class="st">f'VisionNode ready. Conf={CONF_THRESHOLD}, IoU={IOU_THRESHOLD}'</span>)
+
+    <span class="cm"># ── ROS2 image callback ──────────────────────────────────────────
+    # MUST return quickly. Only copies the frame; does no processing.</span>
+
+    <span class="kw">def</span> <span class="fn">image_cb</span>(self, msg: Image):
+        <span class="kw">if</span> <span class="kw">not</span> (CV_BRIDGE_OK <span class="kw">and</span> self.bridge):
+            <span class="kw">return</span>
+        <span class="kw">try</span>:
+            frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding=<span class="st">'bgr8'</span>)
+        <span class="kw">except</span> Exception:
+            <span class="kw">return</span>
+        <span class="cm"># Replace pending frame atomically — we only care about the LATEST frame</span>
+        <span class="kw">with</span> self._frame_lock:
+            self._pending_frame = (frame.copy(), msg.header)
+
+    <span class="cm"># ── Inference thread ─────────────────────────────────────────────
+    # Runs in a separate thread. Polls for new frames, runs YOLOv8n,
+    # posts results to the result queue for the ROS2 timer to pick up.</span>
+
+    <span class="kw">def</span> <span class="fn">_inference_loop</span>(self):
+        <span class="kw">while</span> self._running:
+            <span class="cm"># Grab the latest pending frame</span>
+            <span class="kw">with</span> self._frame_lock:
+                item = self._pending_frame
+                self._pending_frame = <span class="kw">None</span>   <span class="cm"># consume it</span>
+
+            <span class="kw">if</span> item <span class="kw">is</span> <span class="kw">None</span>:
+                time.sleep(<span class="nm">0.01</span>)
+                <span class="kw">continue</span>
+
+            frame, header = item
+            t0 = time.time()
+
+            <span class="cm"># Run YOLOv8n inference (releases GIL inside PyTorch)</span>
+            results = self.model.predict(
+                frame,
+                conf=CONF_THRESHOLD,
+                iou=IOU_THRESHOLD,
+                verbose=<span class="kw">False</span>,
+            )
+
+            dt = time.time() - t0
+            self._fps_window.append(dt)
+            <span class="kw">if</span> len(self._fps_window) > <span class="nm">10</span>: self._fps_window.pop(<span class="nm">0</span>)
+
+            <span class="cm"># Parse YOLO results → list of dicts</span>
+            detections = []
+            <span class="kw">if</span> results <span class="kw">and</span> len(results) > <span class="nm">0</span>:
+                r = results[<span class="nm">0</span>]
+                <span class="kw">for</span> box <span class="kw">in</span> r.boxes:
+                    xyxy = box.xyxy[<span class="nm">0</span>].cpu().numpy()
+                    x1, y1, x2, y2 = xyxy
+                    cx = float((x1 + x2) / <span class="nm">2</span>)
+                    cy = float((y1 + y2) / <span class="nm">2</span>)
+                    w  = float(x2 - x1)
+                    h  = float(y2 - y1)
+                    conf  = float(box.conf[<span class="nm">0</span>].cpu())
+                    cls   = int(box.cls[<span class="nm">0</span>].cpu())
+                    label = self.model.names[cls]
+                    detections.append({
+                        <span class="st">'cx'</span>: cx, <span class="st">'cy'</span>: cy, <span class="st">'w'</span>: w, <span class="st">'h'</span>: h,
+                        <span class="st">'conf'</span>: conf, <span class="st">'class_id'</span>: cls, <span class="st">'label'</span>: label,
+                    })
+
+            self._det_count += len(detections)
+
+            <span class="cm"># Build annotated image (draw boxes with OpenCV)</span>
+            annotated = frame.copy()
+            <span class="kw">for</span> d <span class="kw">in</span> detections:
+                x1 = <span class="nm">int</span>(d[<span class="st">'cx'</span>] - d[<span class="st">'w'</span>]/<span class="nm">2</span>)
+                y1 = <span class="nm">int</span>(d[<span class="st">'cy'</span>] - d[<span class="st">'h'</span>]/<span class="nm">2</span>)
+                x2 = <span class="nm">int</span>(d[<span class="st">'cx'</span>] + d[<span class="st">'w'</span>]/<span class="nm">2</span>)
+                y2 = <span class="nm">int</span>(d[<span class="st">'cy'</span>] + d[<span class="st">'h'</span>]/<span class="nm">2</span>)
+                cv2.rectangle(annotated, (x1,y1), (x2,y2), (<span class="nm">0</span>,<span class="nm">255</span>,<span class="nm">0</span>), <span class="nm">2</span>)
+                lbl = <span class="st">f"{d['label']} {d['conf']:.2f}"</span>
+                cv2.putText(annotated, lbl, (x1, y1-<span class="nm">8</span>),
+                            cv2.FONT_HERSHEY_SIMPLEX, <span class="nm">0.5</span>, (<span class="nm">0</span>,<span class="nm">255</span>,<span class="nm">0</span>), <span class="nm">1</span>)
+
+            <span class="cm"># Post to result queue (drop oldest if full)</span>
+            <span class="kw">if</span> self._result_queue.full():
+                <span class="kw">try</span>: self._result_queue.get_nowait()
+                <span class="kw">except</span> Empty: <span class="kw">pass</span>
+            self._result_queue.put_nowait((header, detections, annotated, dt))
+
+    <span class="cm"># ── ROS2 publish timer ───────────────────────────────────────────
+    # Runs at 20 Hz. Drains the result queue and publishes to ROS2 topics.</span>
+
+    <span class="kw">def</span> <span class="fn">_publish_results</span>(self):
+        <span class="kw">try</span>:
+            header, detections, annotated, dt = self._result_queue.get_nowait()
+        <span class="kw">except</span> Empty:
+            <span class="kw">return</span>
+
+        stamp = self.get_clock().now().to_msg()
+
+        <span class="cm"># ── Publish Detection2DArray ──────────────────────────────────</span>
+        arr = Detection2DArray()
+        arr.header.stamp = stamp
+        arr.header.frame_id = <span class="st">'camera_link'</span>
+
+        <span class="kw">for</span> d <span class="kw">in</span> detections:
+            det = Detection2D()
+            det.header = arr.header
+
+            <span class="cm"># Bounding box (centre + size in pixels)</span>
+            det.bbox.center.position.x = d[<span class="st">'cx'</span>]
+            det.bbox.center.position.y = d[<span class="st">'cy'</span>]
+            det.bbox.size_x = d[<span class="st">'w'</span>]
+            det.bbox.size_y = d[<span class="st">'h'</span>]
+
+            <span class="cm"># Hypothesis (class + confidence)</span>
+            hyp = ObjectHypothesisWithPose()
+            hyp.hypothesis.class_id = str(d[<span class="st">'class_id'</span>])
+            hyp.hypothesis.score    = d[<span class="st">'conf'</span>]
+            det.results.append(hyp)
+            arr.detections.append(det)
+
+        self.det_pub.publish(arr)
+
+        <span class="cm"># ── Publish annotated image ───────────────────────────────────</span>
+        <span class="kw">if</span> self.bridge:
+            <span class="kw">try</span>:
+                img_msg = self.bridge.cv2_to_imgmsg(annotated, encoding=<span class="st">'bgr8'</span>)
+                img_msg.header.stamp = stamp
+                self.ann_pub.publish(img_msg)
+            <span class="kw">except</span> Exception: <span class="kw">pass</span>
+
+        <span class="cm"># ── Publish inference FPS ────────────────────────────────────</span>
+        <span class="kw">if</span> self._fps_window:
+            fps = <span class="nm">1.0</span> / (sum(self._fps_window) / len(self._fps_window))
+            fps_msg = Float32(); fps_msg.data = float(fps)
+            self.fps_pub.publish(fps_msg)
+
+        <span class="cm"># ── Log summary (throttled) ───────────────────────────────────</span>
+        <span class="kw">if</span> detections:
+            labels = [d[<span class="st">'label'</span>] <span class="kw">for</span> d <span class="kw">in</span> detections]
+            self.get_logger().info(
+                <span class="st">f'Detected: {labels} | {dt*1000:.0f}ms | total={self._det_count}'</span>,
+                throttle_duration_sec=<span class="nm">1.0</span>
+            )
+
+    <span class="kw">def</span> <span class="fn">destroy_node</span>(self):
+        self._running = <span class="kw">False</span>
+        self._executor.shutdown(wait=<span class="kw">False</span>)
+        super().destroy_node()
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = VisionNode()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 05 — DETECTION VISUALISER -->
+  <div class="lab-section" id="s-visualiser">
+    <h2>Step 04: detection_visualiser.py</h2>
+    <p>
+      The visualiser subscribes to both the raw camera image and the detection array,
+      and re-draws the bounding boxes with richer annotation — class label, confidence,
+      bounding box area as a proxy for distance, and a frame rate counter.
+      It publishes to <code>/vision/overlay</code> which the L07 GCS will embed in its video panel.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 04</span>
+        <span class="step-title">Write detection_visualiser.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why a separate visualiser instead of annotating inside vision_node</span>
+          <p>
+            Annotation is display logic; inference is processing logic. Keeping them separate
+            means the vision node can run headless on embedded hardware (no display required,
+            no OpenCV rendering overhead) while the visualiser runs only when a human
+            operator needs to see the video. In a multi-drone swarm (L08), only the
+            ground station runs the visualiser — all five drones run the vision node headless.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_vision/aeroknow_vision/detection_visualiser.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · detection_visualiser.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+detection_visualiser.py
+───────────────────────
+Subscribes to /camera/image_raw + /vision/detections.
+Draws bounding boxes, labels, confidence scores, and a HUD overlay.
+Publishes annotated image to /vision/overlay for the L07 GCS.
+
+Also opens a local OpenCV window if DISPLAY is available.
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> Image
+<span class="kw">from</span> vision_msgs.msg <span class="kw">import</span> Detection2DArray
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> cv2
+<span class="kw">import</span> os
+<span class="kw">import</span> time
+<span class="kw">from</span> ultralytics.utils.plotting <span class="kw">import</span> colors <span class="kw">as</span> yolo_colors
+
+<span class="kw">try</span>:
+    <span class="kw">from</span> cv_bridge <span class="kw">import</span> CvBridge
+    CV_BRIDGE_OK = <span class="kw">True</span>
+<span class="kw">except</span> ImportError:
+    CV_BRIDGE_OK = <span class="kw">False</span>
+
+<span class="cm"># COCO class names for label lookup (indices 0–79)</span>
+COCO_NAMES = {
+    <span class="nm">0</span>:<span class="st">'person'</span>,<span class="nm">1</span>:<span class="st">'bicycle'</span>,<span class="nm">2</span>:<span class="st">'car'</span>,<span class="nm">3</span>:<span class="st">'motorbike'</span>,<span class="nm">4</span>:<span class="st">'aeroplane'</span>,
+    <span class="nm">5</span>:<span class="st">'bus'</span>,<span class="nm">6</span>:<span class="st">'train'</span>,<span class="nm">7</span>:<span class="st">'truck'</span>,<span class="nm">8</span>:<span class="st">'boat'</span>,<span class="nm">9</span>:<span class="st">'traffic light'</span>,
+    <span class="nm">56</span>:<span class="st">'chair'</span>,<span class="nm">57</span>:<span class="st">'couch'</span>,<span class="nm">58</span>:<span class="st">'potted plant'</span>,<span class="nm">59</span>:<span class="st">'bed'</span>,
+    <span class="nm">60</span>:<span class="st">'dining table'</span>,<span class="nm">62</span>:<span class="st">'tv'</span>,<span class="nm">63</span>:<span class="st">'laptop'</span>,<span class="nm">67</span>:<span class="st">'cell phone'</span>,
+}
+
+HAS_DISPLAY = os.environ.get(<span class="st">'DISPLAY'</span>) <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>
+
+
+<span class="kw">class</span> <span class="tp">DetectionVisualiser</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'detection_visualiser'</span>)
+        self.bridge = CvBridge() <span class="kw">if</span> CV_BRIDGE_OK <span class="kw">else</span> <span class="kw">None</span>
+        self.latest_dets = []
+        self.frame_count = <span class="nm">0</span>
+        self.t_start = time.time()
+
+        sen_qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+        rel_qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        self.create_subscription(Image, <span class="st">'/camera/image_raw'</span>,
+                                 self.<span class="fn">image_cb</span>, sen_qos)
+        self.create_subscription(Detection2DArray, <span class="st">'/vision/detections'</span>,
+                                 self.<span class="fn">det_cb</span>, rel_qos)
+
+        self.overlay_pub = self.create_publisher(Image, <span class="st">'/vision/overlay'</span>, <span class="nm">10</span>)
+
+        self.get_logger().info(
+            <span class="st">f'DetectionVisualiser ready. Display={HAS_DISPLAY}'</span>)
+
+    <span class="kw">def</span> <span class="fn">det_cb</span>(self, msg: Detection2DArray):
+        <span class="st">"""Cache the latest detections for overlay on the next frame."""</span>
+        self.latest_dets = msg.detections
+
+    <span class="kw">def</span> <span class="fn">image_cb</span>(self, msg: Image):
+        <span class="kw">if</span> <span class="kw">not</span> (CV_BRIDGE_OK <span class="kw">and</span> self.bridge):
+            <span class="kw">return</span>
+        <span class="kw">try</span>:
+            frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding=<span class="st">'bgr8'</span>)
+        <span class="kw">except</span> Exception:
+            <span class="kw">return</span>
+
+        overlay = frame.copy()
+        h, w = overlay.shape[:<span class="nm">2</span>]
+
+        <span class="cm"># ── Draw detections ───────────────────────────────────────────</span>
+        <span class="kw">for</span> det <span class="kw">in</span> self.latest_dets:
+            cx = det.bbox.center.position.x
+            cy = det.bbox.center.position.y
+            bw = det.bbox.size_x
+            bh = det.bbox.size_y
+            x1, y1 = <span class="nm">int</span>(cx - bw/<span class="nm">2</span>), <span class="nm">int</span>(cy - bh/<span class="nm">2</span>)
+            x2, y2 = <span class="nm">int</span>(cx + bw/<span class="nm">2</span>), <span class="nm">int</span>(cy + bh/<span class="nm">2</span>)
+
+            cls_id = <span class="nm">int</span>(det.results[<span class="nm">0</span>].hypothesis.class_id) <span class="kw">if</span> det.results <span class="kw">else</span> <span class="nm">0</span>
+            conf   = det.results[<span class="nm">0</span>].hypothesis.score          <span class="kw">if</span> det.results <span class="kw">else</span> <span class="nm">0</span>
+            label  = COCO_NAMES.get(cls_id, <span class="st">f'cls{cls_id}'</span>)
+
+            <span class="cm"># Colour per class (YOLO colour palette)</span>
+            colour = yolo_colors(cls_id, bgr=<span class="kw">True</span>)
+
+            <span class="cm"># Bounding box</span>
+            cv2.rectangle(overlay, (x1,y1), (x2,y2), colour, <span class="nm">2</span>)
+
+            <span class="cm"># Label background + text</span>
+            label_str = <span class="st">f'{label} {conf:.2f}'</span>
+            (tw, th), _ = cv2.getTextSize(label_str, cv2.FONT_HERSHEY_SIMPLEX, <span class="nm">0.45</span>, <span class="nm">1</span>)
+            cv2.rectangle(overlay, (x1, y1-th-<span class="nm">6</span>), (x1+tw+<span class="nm">4</span>, y1), colour, -<span class="nm">1</span>)
+            cv2.putText(overlay, label_str, (x1+<span class="nm">2</span>, y1-<span class="nm">4</span>),
+                        cv2.FONT_HERSHEY_SIMPLEX, <span class="nm">0.45</span>, (<span class="nm">0</span>,<span class="nm">0</span>,<span class="nm">0</span>), <span class="nm">1</span>)
+
+            <span class="cm"># Bounding box area as rough distance proxy</span>
+            area_pct = (bw * bh) / (w * h) * <span class="nm">100</span>
+            cv2.putText(overlay, <span class="st">f'{area_pct:.1f}%'</span>, (x1+<span class="nm">2</span>, y2+<span class="nm">14</span>),
+                        cv2.FONT_HERSHEY_SIMPLEX, <span class="nm">0.4</span>, colour, <span class="nm">1</span>)
+
+        <span class="cm"># ── HUD overlay ───────────────────────────────────────────────</span>
+        self.frame_count += <span class="nm">1</span>
+        elapsed = time.time() - self.t_start
+        display_fps = self.frame_count / elapsed <span class="kw">if</span> elapsed > <span class="nm">0</span> <span class="kw">else</span> <span class="nm">0</span>
+        n_det = len(self.latest_dets)
+
+        cv2.putText(overlay, <span class="st">f'FPS: {display_fps:.1f}'</span>,
+                    (<span class="nm">10</span>, <span class="nm">20</span>), cv2.FONT_HERSHEY_SIMPLEX, <span class="nm">0.55</span>, (<span class="nm">0</span>,<span class="nm">255</span>,<span class="nm">0</span>), <span class="nm">1</span>)
+        cv2.putText(overlay, <span class="st">f'Detections: {n_det}'</span>,
+                    (<span class="nm">10</span>, <span class="nm">42</span>), cv2.FONT_HERSHEY_SIMPLEX, <span class="nm">0.55</span>, (<span class="nm">0</span>,<span class="nm">255</span>,<span class="nm">0</span>), <span class="nm">1</span>)
+        cv2.putText(overlay, <span class="st">'AEROKNOW L06'</span>,
+                    (w-<span class="nm">130</span>, <span class="nm">20</span>), cv2.FONT_HERSHEY_SIMPLEX, <span class="nm">0.45</span>, (<span class="nm">0</span>,<span class="nm">200</span>,<span class="nm">255</span>), <span class="nm">1</span>)
+
+        <span class="cm"># ── Publish overlay ───────────────────────────────────────────</span>
+        <span class="kw">try</span>:
+            out_msg = self.bridge.cv2_to_imgmsg(overlay, encoding=<span class="st">'bgr8'</span>)
+            out_msg.header.stamp = self.get_clock().now().to_msg()
+            self.overlay_pub.publish(out_msg)
+        <span class="kw">except</span> Exception: <span class="kw">pass</span>
+
+        <span class="cm"># ── Optional: show in local window ────────────────────────────</span>
+        <span class="kw">if</span> HAS_DISPLAY:
+            cv2.imshow(<span class="st">'AEROKNOW Vision'</span>, overlay)
+            cv2.waitKey(<span class="nm">1</span>)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = DetectionVisualiser()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>:
+        <span class="kw">if</span> HAS_DISPLAY: cv2.destroyAllWindows()
+        node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 06 — TARGET TRACKER -->
+  <div class="lab-section" id="s-tracker">
+    <h2>Step 05: target_tracker.py — Pixel to World-Frame GPS</h2>
+    <p>
+      The most geometrically interesting node. Given a detection bounding box centre
+      in pixel coordinates, the drone's GPS position and altitude, and the camera
+      intrinsic matrix, project the pixel ray through the camera model to a ground-plane
+      intersection and compute the estimated GPS coordinates of the detected object.
+    </p>
+
+    <h3>The Projection Geometry</h3>
+    <p>
+      The pinhole camera model (Module 05 §5.3) gives us the ray from the camera centre
+      through a pixel. For a downward-facing camera above a flat ground plane,
+      the intersection of this ray with the ground gives the target's position:
+    </p>
+
+    <div class="callout lab-note">
+      <span class="callout-title">Pixel to Ground Position — Step by Step</span>
+      <strong>1.</strong> Convert pixel <code>(u, v)</code> to normalised image coordinates:
+      <code>(x_n, y_n) = ((u - cx)/fx, (v - cy)/fy)</code> using the camera intrinsic matrix K.
+      <strong>2.</strong> This gives a unit direction vector in the camera frame:
+      <code>d_cam = [x_n, y_n, 1]</code> (pointing toward the pixel).
+      <strong>3.</strong> Rotate to the world frame using the drone's attitude quaternion from MAVROS2.
+      <strong>4.</strong> Scale the ray to reach the ground plane: the scale factor is
+      <code>altitude / d_world.z</code> (for a downward camera, d_world.z ≈ 1).
+      <strong>5.</strong> Add the drone's GPS position (converted to local Cartesian) to get target GPS.
+      The accuracy of this depends on: altitude accuracy (barometer error ±0.5 m → position error ±0.5 × tan(FOV/2)), attitude accuracy (1° roll error at 30 m altitude → 0.5 m position error), and the assumption that the target is on the ground plane (invalid for elevated targets).
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 05</span>
+        <span class="step-title">Write target_tracker.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_vision/aeroknow_vision/target_tracker.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · target_tracker.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+target_tracker.py
+─────────────────
+Projects pixel detections to GPS world-frame coordinates.
+Uses pinhole camera model + drone attitude + altitude.
+
+Subscriptions:
+  /vision/detections           (vision_msgs/Detection2DArray)
+  /mavros/local_position/pose  (geometry_msgs/PoseStamped)
+  /mavros/global_position/global (sensor_msgs/NavSatFix)
+  /camera/camera_info          (sensor_msgs/CameraInfo)
+
+Published:
+  /targets/gps   (geographic_msgs/GeoPoint) — estimated GPS of latest detection
+  /targets/local (geometry_msgs/PointStamped) — ENU local frame position
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> sensor_msgs.msg    <span class="kw">import</span> CameraInfo, NavSatFix
+<span class="kw">from</span> geometry_msgs.msg  <span class="kw">import</span> PoseStamped, PointStamped
+<span class="kw">from</span> vision_msgs.msg    <span class="kw">import</span> Detection2DArray
+<span class="kw">from</span> geographic_msgs.msg <span class="kw">import</span> GeoPoint
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> math
+
+
+<span class="kw">class</span> <span class="tp">TargetTracker</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'target_tracker'</span>)
+
+        <span class="cm"># ── Camera intrinsics (populated from /camera/camera_info) ────
+        # K = [[fx, 0, cx], [0, fy, cy], [0, 0, 1]]
+        # Default values from the SDF: 80° FOV, 640×480
+        # fx = fy = (image_width / 2) / tan(FOV/2)</span>
+        fov_rad = <span class="nm">1.3963</span>   <span class="cm"># 80° in radians (from model.sdf)</span>
+        self.fx = (<span class="nm">640</span> / <span class="nm">2</span>) / math.tan(fov_rad / <span class="nm">2</span>)
+        self.fy = self.fx
+        self.cx = <span class="nm">320.0</span>   <span class="cm"># principal point x (image centre)</span>
+        self.cy = <span class="nm">240.0</span>   <span class="cm"># principal point y (image centre)</span>
+        self.camera_info_received = <span class="kw">False</span>
+
+        <span class="cm"># ── Drone state ──────────────────────────────────────────────</span>
+        self.drone_lat  = <span class="kw">None</span>
+        self.drone_lon  = <span class="kw">None</span>
+        self.drone_alt  = <span class="kw">None</span>   <span class="cm"># ellipsoidal altitude [m]</span>
+        self.altitude_m = <span class="nm">1.0</span>   <span class="cm"># local AGL altitude from pose [m]</span>
+        self.q_w = <span class="nm">1.0</span>; self.q_x = <span class="nm">0.0</span>; self.q_y = <span class="nm">0.0</span>; self.q_z = <span class="nm">0.0</span>
+
+        sen_qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+        rel_qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        <span class="cm"># ── Subscriptions ────────────────────────────────────────────</span>
+        self.create_subscription(Detection2DArray, <span class="st">'/vision/detections'</span>,
+            self.<span class="fn">det_cb</span>, rel_qos)
+        self.create_subscription(PoseStamped, <span class="st">'/mavros/local_position/pose'</span>,
+            self.<span class="fn">pose_cb</span>, sen_qos)
+        self.create_subscription(NavSatFix, <span class="st">'/mavros/global_position/global'</span>,
+            self.<span class="fn">gps_cb</span>, sen_qos)
+        self.create_subscription(CameraInfo, <span class="st">'/camera/camera_info'</span>,
+            self.<span class="fn">caminfo_cb</span>, rel_qos)
+
+        <span class="cm"># ── Publishers ───────────────────────────────────────────────</span>
+        self.gps_pub   = self.create_publisher(GeoPoint, <span class="st">'/targets/gps'</span>, <span class="nm">10</span>)
+        self.local_pub = self.create_publisher(PointStamped, <span class="st">'/targets/local'</span>, <span class="nm">10</span>)
+
+        self.get_logger().info(<span class="st">'TargetTracker ready'</span>)
+
+    <span class="kw">def</span> <span class="fn">pose_cb</span>(self, msg: PoseStamped):
+        self.altitude_m = max(<span class="nm">0.5</span>, msg.pose.position.z)
+        <span class="cm"># Store attitude quaternion for projection</span>
+        self.q_w = msg.pose.orientation.w
+        self.q_x = msg.pose.orientation.x
+        self.q_y = msg.pose.orientation.y
+        self.q_z = msg.pose.orientation.z
+
+    <span class="kw">def</span> <span class="fn">gps_cb</span>(self, msg: NavSatFix):
+        self.drone_lat = msg.latitude
+        self.drone_lon = msg.longitude
+        self.drone_alt = msg.altitude
+
+    <span class="kw">def</span> <span class="fn">caminfo_cb</span>(self, msg: CameraInfo):
+        <span class="st">"""Update intrinsics from actual calibration data if available."""</span>
+        <span class="kw">if</span> msg.k[<span class="nm">0</span>] > <span class="nm">0</span> <span class="kw">and</span> <span class="kw">not</span> self.camera_info_received:
+            self.fx = msg.k[<span class="nm">0</span>]
+            self.fy = msg.k[<span class="nm">4</span>]
+            self.cx = msg.k[<span class="nm">2</span>]
+            self.cy = msg.k[<span class="nm">5</span>]
+            self.camera_info_received = <span class="kw">True</span>
+            self.get_logger().info(
+                <span class="st">f'Camera intrinsics updated: fx={self.fx:.1f} fy={self.fy:.1f} '</span>
+                <span class="st">f'cx={self.cx:.1f} cy={self.cy:.1f}'</span>)
+
+    <span class="kw">def</span> <span class="fn">_quat_to_rot_matrix</span>(self, qw, qx, qy, qz) -> np.ndarray:
+        <span class="st">"""Convert unit quaternion to 3×3 rotation matrix (ENU body frame)."""</span>
+        r = np.array([
+            [<span class="nm">1</span> - <span class="nm">2</span>*(qy*qy+qz*qz),   <span class="nm">2</span>*(qx*qy-qw*qz),       <span class="nm">2</span>*(qx*qz+qw*qy)],
+            [<span class="nm">2</span>*(qx*qy+qw*qz),       <span class="nm">1</span> - <span class="nm">2</span>*(qx*qx+qz*qz),   <span class="nm">2</span>*(qy*qz-qw*qx)],
+            [<span class="nm">2</span>*(qx*qz-qw*qy),       <span class="nm">2</span>*(qy*qz+qw*qx),       <span class="nm">1</span> - <span class="nm">2</span>*(qx*qx+qy*qy)],
+        ])
+        <span class="kw">return</span> r
+
+    <span class="kw">def</span> <span class="fn">pixel_to_world_enu</span>(self, u: float, v: float) -> tuple:
+        <span class="st">"""
+        Project pixel (u, v) to ENU world position given current drone state.
+        Returns (east_m, north_m, 0) relative to drone's home position,
+        or None if insufficient data.
+        """</span>
+        <span class="kw">if</span> self.drone_lat <span class="kw">is</span> <span class="kw">None</span>:
+            <span class="kw">return</span> <span class="kw">None</span>
+
+        <span class="cm"># Step 1: pixel → normalised camera coordinates
+        # (u - cx) / fx = x_n, (v - cy) / fy = y_n
+        # Camera is mounted facing DOWN (pitch = +90° in model.sdf),
+        # so the camera Z-axis points downward (-Z_body)</span>
+        x_n = (u - self.cx) / self.fx
+        y_n = (v - self.cy) / self.fy
+
+        <span class="cm"># Step 2: direction vector in camera frame
+        # Camera frame: X right, Y down, Z forward (into ground for downward cam)</span>
+        d_cam = np.array([x_n, y_n, <span class="nm">1.0</span>])
+        d_cam /= np.linalg.norm(d_cam)
+
+        <span class="cm"># Step 3: transform to body frame
+        # For a camera mounted with pitch +90° (facing down):
+        # camera X → body X (East)
+        # camera Y → body -Z (Down in body = Up in world reversed)
+        # camera Z → body -Y (South in ENU)
+        # Rotation from camera to body frame (pitch 90° about Y-axis):
+        R_cam_to_body = np.array([
+            [<span class="nm">1</span>,  <span class="nm">0</span>,  <span class="nm">0</span>],
+            [<span class="nm">0</span>,  <span class="nm">0</span>, -<span class="nm">1</span>],
+            [<span class="nm">0</span>,  <span class="nm">1</span>,  <span class="nm">0</span>],
+        ])
+        d_body = R_cam_to_body @ d_cam
+
+        <span class="cm"># Step 4: transform body → ENU world using drone attitude</span>
+        R_body_to_world = self._quat_to_rot_matrix(
+            self.q_w, self.q_x, self.q_y, self.q_z)
+        d_world = R_body_to_world @ d_body
+
+        <span class="cm"># Step 5: intersect with ground plane (Z=0 in ENU)
+        # Ray: P = drone_pos + t * d_world
+        # Ground: Z = 0 → t = -altitude / d_world.z</span>
+        <span class="kw">if</span> abs(d_world[<span class="nm">2</span>]) < <span class="nm">1e-4</span>:
+            <span class="kw">return</span> <span class="kw">None</span>   <span class="cm"># ray is nearly horizontal — no ground intersection</span>
+
+        t = -self.altitude_m / d_world[<span class="nm">2</span>]
+        <span class="kw">if</span> t < <span class="nm">0</span>:
+            <span class="kw">return</span> <span class="kw">None</span>   <span class="cm"># intersection is behind the camera</span>
+
+        <span class="cm"># Target position in ENU relative to drone (at drone's home origin)</span>
+        target_east  = t * d_world[<span class="nm">0</span>]   <span class="cm"># metres East</span>
+        target_north = t * d_world[<span class="nm">1</span>]   <span class="cm"># metres North</span>
+
+        <span class="kw">return</span> target_east, target_north
+
+    <span class="kw">def</span> <span class="fn">_enu_offset_to_gps</span>(self, east_m: float, north_m: float) -> tuple:
+        <span class="st">"""
+        Convert ENU offset (metres) from drone GPS position to absolute GPS.
+        Uses flat-Earth approximation — valid for offsets < 1 km.
+        d_lat = north_m / (R * pi/180)
+        d_lon = east_m  / (R * cos(lat) * pi/180)
+        """</span>
+        R = <span class="nm">6_371_000</span>   <span class="cm"># Earth radius [m]</span>
+        lat_deg = self.drone_lat
+        lon_deg = self.drone_lon
+
+        d_lat = north_m / (R * math.pi / <span class="nm">180</span>)
+        d_lon = east_m  / (R * math.cos(math.radians(lat_deg)) * math.pi / <span class="nm">180</span>)
+
+        <span class="kw">return</span> lat_deg + d_lat, lon_deg + d_lon
+
+    <span class="kw">def</span> <span class="fn">det_cb</span>(self, msg: Detection2DArray):
+        <span class="st">"""
+        For each detection, project bounding box centre to GPS.
+        Publish the highest-confidence detection's GPS position.
+        """</span>
+        <span class="kw">if</span> <span class="kw">not</span> msg.detections:
+            <span class="kw">return</span>
+
+        <span class="cm"># Pick the highest confidence detection</span>
+        best = max(msg.detections,
+                   key=<span class="kw">lambda</span> d: d.results[<span class="nm">0</span>].hypothesis.score <span class="kw">if</span> d.results <span class="kw">else</span> <span class="nm">0</span>)
+
+        u = best.bbox.center.position.x
+        v = best.bbox.center.position.y
+
+        result = self.pixel_to_world_enu(u, v)
+        <span class="kw">if</span> result <span class="kw">is</span> <span class="kw">None</span>:
+            <span class="kw">return</span>
+
+        east_m, north_m = result
+
+        <span class="cm"># GPS position</span>
+        target_lat, target_lon = self._enu_offset_to_gps(east_m, north_m)
+
+        gps_msg = GeoPoint()
+        gps_msg.latitude  = target_lat
+        gps_msg.longitude = target_lon
+        gps_msg.altitude  = <span class="nm">0.0</span>   <span class="cm"># ground level</span>
+        self.gps_pub.publish(gps_msg)
+
+        <span class="cm"># Local ENU position (for GCS map display)</span>
+        local_msg = PointStamped()
+        local_msg.header.stamp    = self.get_clock().now().to_msg()
+        local_msg.header.frame_id = <span class="st">'map'</span>
+        local_msg.point.x = east_m
+        local_msg.point.y = north_m
+        local_msg.point.z = <span class="nm">0.0</span>
+        self.local_pub.publish(local_msg)
+
+        conf = best.results[<span class="nm">0</span>].hypothesis.score <span class="kw">if</span> best.results <span class="kw">else</span> <span class="nm">0</span>
+        cls  = best.results[<span class="nm">0</span>].hypothesis.class_id <span class="kw">if</span> best.results <span class="kw">else</span> <span class="st">'?'</span>
+        self.get_logger().info(
+            <span class="st">f'Target cls={cls} conf={conf:.2f} | '</span>
+            <span class="st">f'GPS ({target_lat:.6f}, {target_lon:.6f}) | '</span>
+            <span class="st">f'ENU offset: E={east_m:.1f}m N={north_m:.1f}m | '</span>
+            <span class="st">f'alt={self.altitude_m:.1f}m'</span>,
+            throttle_duration_sec=<span class="nm">1.0</span>
+        )
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = TargetTracker()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 07 — LAUNCH AND DEMO -->
+  <div class="lab-section" id="s-launch">
+    <h2>Step 06–07: Launch File and Full Demo</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 06</span>
+        <span class="step-title">Write l06_launch.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_vision/launch/l06_launch.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · l06_launch.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""L06 vision pipeline launch — starts on top of L04 sim stack."""</span>
+<span class="kw">from</span> launch <span class="kw">import</span> LaunchDescription
+<span class="kw">from</span> launch.actions <span class="kw">import</span> LogInfo, TimerAction
+<span class="kw">from</span> launch_ros.actions <span class="kw">import</span> Node
+
+<span class="kw">def</span> <span class="fn">generate_launch_description</span>():
+    <span class="kw">return</span> LaunchDescription([
+        LogInfo(msg=<span class="st">'[AEROKNOW L06] Starting computer vision pipeline...'</span>),
+
+        <span class="cm"># MAVROS2 + Gazebo bridge (same as L04)</span>
+        Node(package=<span class="st">'mavros'</span>, executable=<span class="st">'mavros_node'</span>, name=<span class="st">'mavros'</span>,
+             output=<span class="st">'screen'</span>,
+             parameters=[{<span class="st">'fcu_url'</span>: <span class="st">'udp://:14540@127.0.0.1:14557'</span>}]),
+        Node(package=<span class="st">'ros_gz_bridge'</span>, executable=<span class="st">'parameter_bridge'</span>,
+             name=<span class="st">'gz_ros_bridge'</span>, output=<span class="st">'log'</span>,
+             arguments=[
+                 <span class="st">'/camera/image[gz.msgs.Image@sensor_msgs/msg/Image'</span>,
+                 <span class="st">'/camera/camera_info[gz.msgs.CameraInfo@sensor_msgs/msg/CameraInfo'</span>,
+                 <span class="st">'/clock[gz.msgs.Clock@rosgraph_msgs/msg/Clock'</span>,
+             ],
+             remappings=[(<span class="st">'/camera/image'</span>, <span class="st">'/camera/image_raw'</span>)]),
+
+        <span class="cm"># World spawner (from L04) — spawns target objects</span>
+        TimerAction(period=<span class="nm">2.0</span>, actions=[
+            Node(package=<span class="st">'aeroknow_sim'</span>, executable=<span class="st">'world_spawner'</span>,
+                 name=<span class="st">'world_spawner'</span>, output=<span class="st">'screen'</span>),
+        ]),
+
+        <span class="cm"># Vision pipeline — starts after bridge is ready</span>
+        TimerAction(period=<span class="nm">3.0</span>, actions=[
+            Node(package=<span class="st">'aeroknow_vision'</span>, executable=<span class="st">'vision_node'</span>,
+                 name=<span class="st">'vision_node'</span>, output=<span class="st">'screen'</span>,
+                 parameters=[{
+                     <span class="st">'conf_threshold'</span>: <span class="nm">0.45</span>,
+                     <span class="st">'model_path'</span>: <span class="st">'yolov8n.pt'</span>,
+                 }]),
+            Node(package=<span class="st">'aeroknow_vision'</span>, executable=<span class="st">'detection_visualiser'</span>,
+                 name=<span class="st">'detection_visualiser'</span>, output=<span class="st">'log'</span>),
+            Node(package=<span class="st">'aeroknow_vision'</span>, executable=<span class="st">'target_tracker'</span>,
+                 name=<span class="st">'target_tracker'</span>, output=<span class="st">'screen'</span>),
+        ]),
+
+        <span class="cm"># Flight stack from L03</span>
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'emergency_stop'</span>,
+             name=<span class="st">'emergency_stop'</span>, output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mode_manager'</span>,
+             name=<span class="st">'mode_manager'</span>, output=<span class="st">'log'</span>),
+    ])</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07</span>
+        <span class="step-title">Build and run the full detection demo</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — build</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_vision
+<span class="prompt">$ </span>source install/setup.bash</pre>
+        </div>
+
+        <p><strong>Terminal 1:</strong> PX4 SITL in the custom world.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 1</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sitl_aeroknow</pre>
+        </div>
+
+        <p><strong>Terminal 2:</strong> Vision stack.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 2</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 launch aeroknow_vision l06_launch.py</pre>
+        </div>
+
+        <p><strong>Terminal 3:</strong> Spawn a target and fly the drone over it.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># Spawn target at (20, 15) — within drone's first waypoint path</span>
+<span class="prompt">$ </span>ros2 topic pub --once /world_spawner/spawn_barrel \
+    std_msgs/msg/String "data: 'target_vehicle 20 15 0.5'"
+
+<span class="cm"># Start the flight controller (flies L-shaped path that passes over target)</span>
+<span class="prompt">$ </span>ros2 run aeroknow_bringup flight_controller</pre>
+        </div>
+
+        <p><strong>Terminal 4:</strong> Watch detection output and target GPS.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># Watch detections</span>
+<span class="prompt">$ </span>ros2 topic echo /vision/detections
+
+<span class="cm"># Or watch geolocated target GPS</span>
+<span class="prompt">$ </span>ros2 topic echo /targets/gps
+
+<span class="cm"># Check inference rate</span>
+<span class="prompt">$ </span>ros2 topic echo /vision/fps</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — target detected and geolocated</span>
+          <pre><span class="t-dim">[INFO] [vision_node]: Loading YOLOv8n from yolov8n.pt...</span>
+<span class="t-ok">[INFO] [vision_node]: YOLOv8n loaded</span>
+<span class="t-dim">[INFO] [target_tracker]: Camera intrinsics updated: fx=411.7 fy=411.7 cx=320.0 cy=240.0</span>
+
+<span class="cm">--- (drone climbs to 20m, flies toward waypoint 1 at (20, 0, 20)) ---</span>
+
+<span class="t-ok">[INFO] [vision_node]: Detected: ['car'] | 142ms | total=12</span>
+<span class="t-ok">[INFO] [target_tracker]: Target cls=2 conf=0.61 | GPS (47.397834, 8.545624) | ENU offset: E=18.3m N=14.8m | alt=20.0m</span>
+<span class="t-ok">[INFO] [vision_node]: Detected: ['car'] | 138ms | total=15</span>
+<span class="t-ok">[INFO] [target_tracker]: Target cls=2 conf=0.67 | GPS (47.397829, 8.545618) | ENU offset: E=19.1m N=15.2m | alt=20.1m</span></pre>
+        </div>
+
+        <p>
+          The detected GPS position (47.397829, 8.545618) should be within 2–5 m of the
+          actual barrel spawn position (47.397742 + north offset, 8.545594 + east offset).
+          The error budget: altitude uncertainty ±0.5 m contributes ±0.5 m position error;
+          the barrel itself has a 0.3 m radius; the bounding box centre pixel is accurate
+          to ±5 px → ±0.3 m at 20 m altitude. Total expected error: 1–3 m RMS.
+        </p>
+
+        <h3>Final Workspace State After L06</h3>
+        <div class="file-tree">
+<span class="ft-dir">aeroknow_ws/src/</span>
+├── <span class="ft-dir">aeroknow_utils/</span>        <span class="ft-note"># L01</span>
+├── <span class="ft-dir">aeroknow_bringup/</span>      <span class="ft-note"># L02–L05</span>
+├── <span class="ft-dir">aeroknow_sim/</span>          <span class="ft-note"># L04</span>
+└── <span class="ft-dir">aeroknow_vision/</span>       <span class="ft-new"># new in L06</span>
+    ├── <span class="ft-file">package.xml</span>
+    ├── <span class="ft-file">setup.py</span>
+    ├── <span class="ft-dir">launch/</span>
+    │   └── <span class="ft-new">l06_launch.py</span>
+    └── <span class="ft-dir">aeroknow_vision/</span>
+        ├── <span class="ft-file">__init__.py</span>
+        ├── <span class="ft-new">vision_node.py</span>          <span class="ft-note"># YOLOv8n in thread pool</span>
+        ├── <span class="ft-new">detection_visualiser.py</span> <span class="ft-note"># OpenCV overlay + /vision/overlay</span>
+        └── <span class="ft-new">target_tracker.py</span>       <span class="ft-note"># pixel → GPS geolocation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMON ERRORS -->
+  <div class="lab-section" id="s-errors">
+    <h2>Common Errors &amp; Fixes</h2>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 01 — YOLOv8n detects nothing in the Gazebo scene</span>
+      <code class="error-msg">vision_node: (no detection log lines appear, /vision/detections publishes empty arrays)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The red barrel from L04 is not a COCO class — YOLOv8n does not
+        have a "barrel" class to detect. The model will only fire on objects that resemble
+        its 80 trained classes. The barrel will not be detected as-is.
+        <strong>Fix:</strong> Use the <code>world_spawner</code> to spawn a vehicle-shaped box
+        as in Step 02 — Gazebo box primitives with vehicle-like aspect ratios (~4m × 2m × 1.5m)
+        are sometimes classified as "car" or "truck" by YOLO. If detections are still sparse,
+        lower <code>CONF_THRESHOLD</code> to 0.25. For reliable detection of custom targets,
+        see the fine-tuning extension challenge below.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 02 — Inference rate is very low (&lt;2 Hz)</span>
+      <code class="error-msg">/vision/fps publishes values of 1.2 Hz or lower</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> CPU is the bottleneck — YOLOv8n on CPU is 50–200 ms per
+        frame depending on the machine. On a dual-core VM, 1–2 Hz is expected.
+        <strong>Fix:</strong> (1) Use a smaller input resolution — add
+        <code>imgsz=320</code> to <code>model.predict()</code> call. This halves inference
+        time with modest accuracy loss. (2) Set <code>device='cpu'</code> explicitly and
+        enable PyTorch inference mode: wrap the predict call in
+        <code>with torch.inference_mode():</code>. (3) If you have a GPU, pass
+        <code>device=0</code> — inference will jump to 30+ Hz. Detection and geolocation
+        quality is not affected by inference rate — each frame is still processed correctly,
+        just less frequently.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 03 — target_tracker reports very large GPS offset</span>
+      <code class="error-msg">ENU offset: E=150.3m N=89.2m (far from actual target position)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The drone attitude quaternion is not being received correctly
+        (all zeros), so the projection uses an identity rotation — correct only when the drone
+        is perfectly level. Any roll or pitch (from wind or manoeuvre) tilts the camera and
+        shifts the projected ground point.
+        <strong>Fix:</strong> (1) Confirm <code>/mavros/local_position/pose</code> is publishing:
+        <code>ros2 topic hz /mavros/local_position/pose</code> should show ~30 Hz.
+        (2) Check the quaternion fields in the pose message —
+        <code>ros2 topic echo /mavros/local_position/pose --once</code> should show
+        <code>orientation.w ≈ 1.0</code> when hovering level.
+        (3) The projection assumes the target is on the ground plane (z=0) —
+        if the drone is banked, the calculated intersection will be wrong until the drone levels out.
+        Test with the drone in a stable hover before checking geolocation accuracy.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 04 — /vision/overlay topic exists but image is black</span>
+      <code class="error-msg">rqt image_view shows all-black frame on /vision/overlay</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The <code>cv_bridge</code> encoding mismatch — the Gazebo
+        camera publishes in <code>rgb8</code> but the bridge may deliver <code>bgr8</code>
+        or vice versa, causing colour channel swap and appearing black in some viewers.
+        <strong>Fix:</strong> In <code>detection_visualiser.py</code>, change the
+        <code>imgmsg_to_cv2</code> encoding from <code>'bgr8'</code> to <code>'rgb8'</code>
+        (or use <code>'passthrough'</code> and check the actual encoding with
+        <code>ros2 topic echo /camera/image_raw --once | grep encoding</code>).
+        Match the <code>cv2_to_imgmsg</code> encoding output to the same value.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 05 — ModuleNotFoundError: ultralytics.utils.plotting</span>
+      <code class="error-msg">ImportError: cannot import name 'colors' from 'ultralytics.utils.plotting'</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The <code>colors</code> function moved between Ultralytics
+        versions. The import path differs between ultralytics &lt;8.0 and ≥8.0.
+        <strong>Fix:</strong> Update to the latest version:
+        <code>pip3 install --upgrade ultralytics</code>.
+        Alternatively, replace the import with a hardcoded colour list:
+        replace the <code>yolo_colors(cls_id, bgr=True)</code> call with
+        <code>((0,255,0) if cls_id % 2 == 0 else (0,165,255))</code> — a simple two-colour fallback.
+      </p>
+    </div>
+  </div>
+
+  <!-- EXTENSION CHALLENGES -->
+  <div class="lab-section" id="s-extend">
+    <h2>Extension Challenges</h2>
+    <p>The vision pipeline is running. Here are three harder things to try before L07.</p>
+
+    <div class="extension-box">
+      <ol>
+        <li>
+          <strong>Fine-tune YOLOv8n to detect the red barrel.</strong>
+          The red barrel (a red cylinder in Gazebo) is not a COCO class — zero-shot detection
+          fails on it. Using Ultralytics' training API, create a minimal dataset:
+          fly the drone over the barrel, record 50–100 frames from <code>/camera/image_raw</code>,
+          label them with a single "barrel" class using <a href="https://roboflow.com">Roboflow</a>
+          or LabelImg, and fine-tune with
+          <code>model.train(data='barrel.yaml', epochs=20, imgsz=320)</code>.
+          A fine-tuned model on even 50 examples should achieve P&gt;0.8 on the Gazebo barrel.
+          This is the sim-to-real transfer problem from Module 07 §7.6 — minimised when the
+          simulation renderer matches the real sensor as closely as possible.
+        </li>
+        <li>
+          <strong>Add multi-target tracking with an EKF per target.</strong>
+          The current tracker geolocates one target per frame and publishes immediately.
+          A real ISR system tracks each target over time to smooth noisy detections.
+          Implement a simple multi-target tracker: maintain a dict of
+          <code>target_id → (lat, lon, last_seen_t, kalman_state)</code>.
+          Each new detection is matched to the nearest existing track (within 5 m) or starts
+          a new track. Use a 2-state Kalman filter (position only) per track.
+          Publish the smoothed GPS position — noise should drop from ±3 m instantaneous
+          to ±0.5 m after 10+ observations.
+        </li>
+        <li>
+          <strong>Implement an orbit-and-detect mission behaviour.</strong>
+          Extend <code>flight_controller.py</code> (from L03 Extension Challenge 1) with a new
+          state: <code>ORBIT</code>. When the vision node detects a target, the flight controller
+          should transition to <code>ORBIT</code> and use velocity setpoints to fly a 15 m radius
+          circle centred on the detected target's GPS position.
+          During the orbit, the target tracker continuously refines the geolocation estimate.
+          After one full orbit (360°), transition to <code>LANDING</code>.
+          This is the standard ISR engagement geometry — stand-off circle at constant altitude
+          maximises dwell time and geolocation accuracy.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="lab-nav">
+    <a href="l05-gnss-denied-nav.html" class="btn-lab prev">◂ Lab 05: GNSS-Denied Nav</a>
+    <a href="l07-custom-gcs.html"      class="btn-lab">Lab 07: Custom GCS ▸</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Practical Track · Lab 06 · Computer Vision Pipeline ·
+  YOLOv8n · OpenCV · Pinhole Projection</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    let text = pre.innerText.split('\n')
+      .map(l => l.replace(/^\$\s*/, '').replace(/^pxh>\s*/, ''))
+      .join('\n').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  const sections = ['s-overview','s-prereqs','s-concepts','s-targets',
+                    's-vision-node','s-visualiser','s-tracker','s-launch','s-errors','s-extend'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) { buttons.forEach(b => b.classList.remove('active')); if (buttons[idx]) buttons[idx].classList.add('active'); }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>
