@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L05: GNSS-Denied Navigation — AEROKNOW Labs</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    :root {
+      --lab-accent:      #00ff9d;
+      --lab-accent-dim:  rgba(0,255,157,0.08);
+      --lab-accent-glow: 0 0 20px rgba(0,255,157,0.3);
+      --lab-border:      rgba(0,255,157,0.35);
+      --lab-border-dim:  rgba(0,255,157,0.12);
+    }
+    .section-jump { position:sticky; top:60px; z-index:100; background:rgba(2,4,8,0.97); backdrop-filter:blur(10px); border-bottom:1px solid var(--lab-border-dim); padding:0; overflow-x:auto; scrollbar-width:none; }
+    .section-jump::-webkit-scrollbar { display:none; }
+    .jump-inner { display:flex; align-items:center; gap:0; padding:0 1rem; min-width:max-content; }
+    .jump-label { font-family:var(--font-mono); font-size:0.58rem; color:var(--text-muted); letter-spacing:0.15em; text-transform:uppercase; padding:0 0.75rem 0 0; border-right:1px solid var(--lab-border-dim); margin-right:0.25rem; white-space:nowrap; line-height:42px; }
+    .jump-btn { background:transparent; border:none; border-bottom:2px solid transparent; color:var(--text-muted); font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.06em; padding:0 0.85rem; height:42px; cursor:pointer; white-space:nowrap; transition:var(--transition); }
+    .jump-btn:hover { color:var(--text-secondary); border-bottom-color:var(--lab-border); }
+    .jump-btn.active { color:var(--lab-accent); border-bottom-color:var(--lab-accent); }
+    .jump-btn .jb-num { color:var(--lab-accent); margin-right:0.3rem; font-size:0.58rem; }
+    .lab-page { max-width:1100px; margin:0 auto; padding:2rem 2rem 5rem; }
+    .lab-hero { padding:3rem 0 2rem; border-bottom:1px solid var(--lab-border-dim); margin-bottom:3rem; position:relative; }
+    .lab-track-label { font-family:var(--font-mono); font-size:0.72rem; color:var(--lab-accent); letter-spacing:0.25em; text-transform:uppercase; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.6rem; }
+    .lab-track-label::before { content:''; width:30px; height:1px; background:var(--lab-accent); box-shadow:var(--lab-accent-glow); }
+    .lab-hero h1 { color:var(--text-primary); text-shadow:0 0 40px rgba(0,255,157,0.15); margin-bottom:1rem; }
+    .lab-hero p.lead { font-size:1.1rem; color:var(--text-secondary); max-width:680px; margin-bottom:1.5rem; line-height:1.75; }
+    .lab-meta { display:flex; gap:1.5rem; flex-wrap:wrap; align-items:center; }
+    .lab-meta-item { display:flex; align-items:center; gap:0.4rem; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); }
+    .lab-meta-item strong { color:var(--lab-accent); }
+    .lab-section { margin-bottom:4rem; scroll-margin-top:105px; }
+    .lab-section h2 { color:var(--lab-accent); margin-bottom:1.5rem; padding-bottom:0.5rem; border-bottom:1px solid var(--lab-border-dim); display:flex; align-items:center; gap:0.75rem; font-size:clamp(1.1rem,2vw,1.6rem); }
+    .lab-section h2::before { content:'//'; font-family:var(--font-mono); color:var(--lab-accent); font-size:0.9rem; opacity:0.6; }
+    .lab-section h3 { color:var(--text-primary); margin:2rem 0 0.8rem; font-size:1.1rem; }
+    .lab-section p { font-size:1rem; line-height:1.75; }
+    .lab-section ul, .lab-section ol { padding-left:1.5rem; margin-bottom:1.2rem; }
+    .lab-section li { margin-bottom:0.5rem; color:var(--text-secondary); line-height:1.65; }
+    .lab-section li strong { color:var(--text-primary); }
+    .lab-step { border:1px solid var(--lab-border-dim); border-left:3px solid var(--lab-accent); background:rgba(0,255,157,0.025); margin:2rem 0; position:relative; }
+    .lab-step-header { display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; border-bottom:1px solid var(--lab-border-dim); }
+    .step-num { font-family:var(--font-mono); font-size:0.65rem; color:var(--lab-accent); background:rgba(0,255,157,0.08); border:1px solid var(--lab-border); padding:0.2rem 0.5rem; letter-spacing:0.1em; white-space:nowrap; }
+    .step-title { font-family:var(--font-ui); font-size:1rem; font-weight:600; color:var(--text-primary); letter-spacing:0.03em; }
+    .lab-step-body { padding:1.2rem 1.5rem; }
+    .why-box { background:rgba(0,212,255,0.03); border-left:3px solid var(--accent-primary); padding:0.9rem 1.1rem; margin-bottom:1.2rem; border-radius:0 3px 3px 0; }
+    .why-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-primary); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.35rem; }
+    .why-box p { font-size:0.95rem; color:var(--text-secondary); margin:0; line-height:1.7; }
+    .code-block { background:#020c14; border:1px solid var(--border-dim); border-left:3px solid var(--accent-primary); padding:1.2rem 1.5rem; overflow-x:auto; position:relative; margin:1rem 0; }
+    .code-block.bash   { border-left-color:var(--lab-accent); }
+    .code-block.python { border-left-color:var(--accent-primary); }
+    .code-block.yaml   { border-left-color:var(--accent-amber); }
+    .code-lang { position:absolute; top:0.4rem; right:3.5rem; font-family:var(--font-mono); font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; }
+    .copy-btn { position:absolute; top:0.35rem; right:0.5rem; background:rgba(0,255,157,0.07); border:1px solid var(--lab-border-dim); color:var(--lab-accent); font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.08em; padding:0.2rem 0.5rem; cursor:pointer; text-transform:uppercase; transition:var(--transition); }
+    .copy-btn:hover  { background:rgba(0,255,157,0.14); border-color:var(--lab-border); }
+    .copy-btn.copied { color:var(--accent-primary); border-color:var(--accent-primary); }
+    .code-block pre { font-family:var(--font-mono); font-size:0.85rem; line-height:1.7; color:#c8e6f0; white-space:pre; tab-size:4; }
+    .code-block .cm   { color:#4a7a8a; font-style:italic; }
+    .code-block .kw   { color:#00d4ff; }
+    .code-block .fn   { color:#00ff9d; }
+    .code-block .st   { color:#ffd580; }
+    .code-block .nm   { color:#ff9d6f; }
+    .code-block .tp   { color:#b388ff; }
+    .code-block .prompt { color:var(--lab-accent); user-select:none; }
+    .terminal-output { background:#010a0f; border:1px solid rgba(0,255,157,0.1); border-left:3px solid rgba(0,255,157,0.4); padding:1rem 1.5rem; margin:0.75rem 0 1.2rem; position:relative; }
+    .terminal-label { font-family:var(--font-mono); font-size:0.58rem; color:var(--lab-accent); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.6rem; opacity:0.7; }
+    .terminal-output pre { font-family:var(--font-mono); font-size:0.8rem; color:#7dbf9e; line-height:1.65; white-space:pre-wrap; word-break:break-all; }
+    .terminal-output pre .t-dim  { color:#3d6650; }
+    .terminal-output pre .t-ok   { color:#00ff9d; }
+    .terminal-output pre .t-warn { color:#ffb700; }
+    .terminal-output pre .t-err  { color:#ff3a3a; }
+    .terminal-output pre .t-cyan { color:#00d4ff; }
+    .error-doc { background:rgba(255,58,58,0.03); border:1px solid rgba(255,58,58,0.15); border-left:3px solid var(--accent-red); padding:1rem 1.2rem; margin:1rem 0; }
+    .error-doc-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-red); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.5rem; }
+    .error-doc .error-msg { font-family:var(--font-mono); font-size:0.82rem; color:#ff8080; margin-bottom:0.6rem; display:block; }
+    .error-doc .error-fix { font-size:0.92rem; color:var(--text-secondary); margin:0; }
+    .error-doc .error-fix strong { color:var(--text-primary); }
+    .prereq-check { display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0; }
+    .prereq-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.65rem 1rem; background:var(--bg-card); border:1px solid var(--border-dim); font-size:0.9rem; }
+    .prereq-icon { font-family:var(--font-mono); font-size:0.75rem; color:var(--lab-accent); margin-top:0.05rem; flex-shrink:0; }
+    .prereq-item p { margin:0; color:var(--text-secondary); line-height:1.5; font-size:0.9rem; }
+    .prereq-item code { font-family:var(--font-mono); font-size:0.82rem; color:var(--accent-primary); }
+    .theory-link { background:rgba(255,183,0,0.03); border:1px solid rgba(255,183,0,0.15); border-left:3px solid var(--accent-amber); padding:1rem 1.2rem; margin:1.5rem 0; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .theory-link-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-amber); letter-spacing:0.15em; text-transform:uppercase; white-space:nowrap; }
+    .theory-link p { margin:0; color:var(--text-secondary); font-size:0.92rem; flex:1; min-width:200px; }
+    .theory-link a { color:var(--accent-amber); text-decoration:underline; }
+    .arch-diagram { margin:2rem 0; background:rgba(0,255,157,0.015); border:1px solid var(--lab-border-dim); padding:1.5rem; overflow-x:auto; }
+    .arch-diagram svg { display:block; margin:0 auto; }
+    .file-tree { background:#020c14; border:1px solid var(--border-dim); border-left:3px solid var(--lab-accent); padding:1.2rem 1.5rem; font-family:var(--font-mono); font-size:0.83rem; line-height:1.9; margin:1rem 0; }
+    .ft-dir  { color:var(--lab-accent); }
+    .ft-file { color:#c8e6f0; }
+    .ft-note { color:#3d6b7a; font-style:italic; }
+    .ft-new  { color:var(--accent-amber); }
+    /* EKF data flow table */
+    .flow-table { width:100%; border-collapse:collapse; margin:1rem 0; }
+    .flow-table th { font-family:var(--font-mono); font-size:0.68rem; color:var(--lab-accent); letter-spacing:0.1em; text-transform:uppercase; padding:0.5rem 0.8rem; border-bottom:1px solid var(--lab-border-dim); text-align:left; }
+    .flow-table td { padding:0.55rem 0.8rem; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.88rem; color:var(--text-secondary); vertical-align:top; }
+    .flow-table td:first-child { font-family:var(--font-mono); font-size:0.8rem; color:var(--accent-primary); }
+    .flow-table td code { font-family:var(--font-mono); font-size:0.78rem; color:var(--accent-primary); }
+    .callout.lab-note { border-color:var(--lab-accent); background:rgba(0,255,157,0.04); }
+    .callout.lab-note .callout-title { color:var(--lab-accent); }
+    .extension-box { background:rgba(0,255,157,0.025); border:1px solid var(--lab-border-dim); padding:1.5rem; margin-top:1.5rem; }
+    .extension-box::before { content:'◈ EXTENSION CHALLENGES'; font-family:var(--font-mono); font-size:0.65rem; color:var(--lab-accent); letter-spacing:0.15em; display:block; margin-bottom:1rem; }
+    .extension-box ol { padding-left:1.5rem; }
+    .extension-box li { margin-bottom:0.75rem; font-size:0.97rem; color:var(--text-secondary); line-height:1.65; }
+    .extension-box li a { color:var(--lab-accent); }
+    .lab-nav { display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--lab-border-dim); }
+    .btn-lab { background:transparent; border:1px solid var(--lab-accent); color:var(--lab-accent); font-family:var(--font-mono); font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; padding:0.8rem 1.8rem; text-decoration:none; display:inline-block; transition:var(--transition); position:relative; overflow:hidden; }
+    .btn-lab::before { content:''; position:absolute; inset:0; background:var(--lab-accent); transform:scaleX(0); transform-origin:left; transition:var(--transition); z-index:-1; }
+    .btn-lab:hover { color:var(--bg-void); box-shadow:var(--lab-accent-glow); text-shadow:none; }
+    .btn-lab:hover::before { transform:scaleX(1); }
+    .btn-lab.prev::before { transform-origin:right; }
+    @media (max-width:768px) { .lab-page { padding:1rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump">
+  <div class="jump-inner">
+    <span class="jump-label">L05 · JUMP TO</span>
+    <button class="jump-btn active" onclick="jumpTo('s-overview')"><span class="jb-num">00</span>Overview</button>
+    <button class="jump-btn" onclick="jumpTo('s-prereqs')"><span class="jb-num">01</span>Prerequisites</button>
+    <button class="jump-btn" onclick="jumpTo('s-concepts')"><span class="jb-num">02</span>EKF Concepts</button>
+    <button class="jump-btn" onclick="jumpTo('s-install')"><span class="jb-num">03</span>robot_localization</button>
+    <button class="jump-btn" onclick="jumpTo('s-ekf-config')"><span class="jb-num">04</span>EKF Config</button>
+    <button class="jump-btn" onclick="jumpTo('s-ekf-node')"><span class="jb-num">05</span>EKF Nav Node</button>
+    <button class="jump-btn" onclick="jumpTo('s-gps-denial')"><span class="jb-num">06</span>GPS Denial</button>
+    <button class="jump-btn" onclick="jumpTo('s-health-monitor')"><span class="jb-num">07</span>Nav Health</button>
+    <button class="jump-btn" onclick="jumpTo('s-demo')"><span class="jb-num">08</span>Full Demo</button>
+    <button class="jump-btn" onclick="jumpTo('s-errors')"><span class="jb-num">ERR</span>Common Errors</button>
+    <button class="jump-btn" onclick="jumpTo('s-extend')"><span class="jb-num">+</span>Extend</button>
+  </div>
+</div>
+
+<div class="lab-page">
+
+  <!-- HERO -->
+  <div class="lab-hero" id="s-overview">
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner br"></div>
+    <span class="lab-track-label">Practical Track · Lab 05 of 08</span>
+    <h1>GNSS-Denied Navigation</h1>
+    <p class="lead">
+      Module 04 proved that GPS can be jammed and IMU drift is quadratic and brutal.
+      L05 is where that theory becomes working code. You will configure the
+      <code>robot_localization</code> EKF package, wire it to the L04 sensor stack,
+      write a GPS denial injector that kills GPS mid-flight, and build a navigation
+      health monitor that watches the covariance ellipsoid and triggers RTB before the
+      estimate degrades beyond safe limits. By the end, the drone completes a mission
+      through a simulated GPS-jammed zone and recovers cleanly.
+    </p>
+    <div class="lab-meta">
+      <div class="lab-meta-item">⏱ <strong>~3–4 hours</strong>&nbsp;wall clock</div>
+      <div class="lab-meta-item">📋 <strong>3 nodes built</strong></div>
+      <div class="lab-meta-item">🔧 <strong>Builds on</strong>&nbsp;L04 world + sensors</div>
+      <div class="lab-meta-item">📦 <strong>New nodes in:</strong>&nbsp;aeroknow_bringup</div>
+      <span class="label label-green">robot_localization</span>
+      <span class="label label-primary">EKF Fusion</span>
+      <span class="label label-amber">GPS Denial</span>
+      <span class="label label-red">Covariance Monitor</span>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="lab-section" id="s-arch">
+    <h2>What You Are Building</h2>
+    <p>
+      Three new nodes that form the GNSS-denied navigation layer.
+      They sit between the raw sensors and the flight controller,
+      providing a fused position estimate that remains valid when GPS disappears.
+    </p>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 860 310" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:860px;min-width:480px;">
+        <defs>
+          <marker id="arr"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,255,157,0.5)"/></marker>
+          <marker id="arr-c" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,212,255,0.5)"/></marker>
+          <marker id="arr-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(255,58,58,0.5)"/></marker>
+          <marker id="arr-a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(255,183,0,0.5)"/></marker>
+        </defs>
+
+        <!-- Sensors (inputs) -->
+        <rect x="10" y="30"  width="130" height="50" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.3)" stroke-width="1.2"/>
+        <text x="75" y="52"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00d4ff">IMU</text>
+        <text x="75" y="67"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/mavros/imu/data  100Hz</text>
+
+        <rect x="10" y="100" width="130" height="50" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.3)" stroke-width="1.2"/>
+        <text x="75" y="122" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00d4ff">GPS</text>
+        <text x="75" y="137" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/mavros/gps  5Hz</text>
+
+        <rect x="10" y="170" width="130" height="50" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.3)" stroke-width="1.2"/>
+        <text x="75" y="192" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00d4ff">Baro</text>
+        <text x="75" y="207" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/mavros/altitude  25Hz</text>
+
+        <rect x="10" y="240" width="130" height="50" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.3)" stroke-width="1.2"/>
+        <text x="75" y="262" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00d4ff">Optical Flow</text>
+        <text x="75" y="277" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/camera/image_raw</text>
+
+        <!-- EKF node (robot_localization) -->
+        <rect x="200" y="110" width="165" height="90" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+        <text x="282" y="133" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d">ekf_nav_node</text>
+        <text x="282" y="150" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">robot_localization EKF</text>
+        <text x="282" y="165" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">fuses IMU+GPS+baro</text>
+        <text x="282" y="180" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">publishes /odometry/filtered</text>
+        <text x="282" y="193" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 05</text>
+
+        <!-- Arrows sensors → EKF -->
+        <line x1="140" y1="55"  x2="198" y2="140" stroke="rgba(0,212,255,0.4)" stroke-width="1.2" marker-end="url(#arr-c)"/>
+        <line x1="140" y1="125" x2="198" y2="155" stroke="rgba(0,212,255,0.4)" stroke-width="1.2" marker-end="url(#arr-c)"/>
+        <line x1="140" y1="195" x2="198" y2="165" stroke="rgba(0,212,255,0.4)" stroke-width="1.2" marker-end="url(#arr-c)"/>
+        <line x1="140" y1="265" x2="198" y2="175" stroke="rgba(0,212,255,0.4)" stroke-width="1.2" marker-end="url(#arr-c)"/>
+
+        <!-- GPS Denial injector -->
+        <rect x="200" y="240" width="165" height="55" rx="2" fill="#050d14" stroke="rgba(255,58,58,0.4)" stroke-width="1.5"/>
+        <text x="282" y="261" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#ff3a3a">gps_denial_injector</text>
+        <text x="282" y="277" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">mutes GPS topic on command</text>
+        <text x="282" y="288" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,58,58,0.45)">Step 06</text>
+
+        <!-- Nav health monitor -->
+        <rect x="430" y="110" width="160" height="90" rx="2" fill="#050d14" stroke="rgba(255,183,0,0.4)" stroke-width="1.5"/>
+        <text x="510" y="133" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#ffb700">nav_health_monitor</text>
+        <text x="510" y="150" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">watches covariance</text>
+        <text x="510" y="165" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">triggers RTB if σ_pos > 5m</text>
+        <text x="510" y="180" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">publishes /nav_health</text>
+        <text x="510" y="193" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,183,0,0.45)">Step 07</text>
+
+        <!-- Arrows EKF → health monitor, flight controller -->
+        <line x1="365" y1="155" x2="428" y2="155" stroke="rgba(0,255,157,0.45)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- flight controller (downstream) -->
+        <rect x="650" y="110" width="150" height="90" rx="2" fill="#050d14" stroke="rgba(179,136,255,0.3)" stroke-width="1.2"/>
+        <text x="725" y="133" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#b388ff">flight_controller</text>
+        <text x="725" y="150" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">uses /odometry/filtered</text>
+        <text x="725" y="165" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">instead of raw GPS</text>
+        <text x="725" y="180" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">for position control</text>
+        <text x="725" y="193" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(179,136,255,0.45)">from L03</text>
+
+        <line x1="590" y1="155" x2="648" y2="155" stroke="rgba(179,136,255,0.4)" stroke-width="1.2" marker-end="url(#arr)"/>
+
+        <!-- denial injector → EKF (mutes GPS input) -->
+        <line x1="282" y1="240" x2="240" y2="200" stroke="rgba(255,58,58,0.45)" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arr-r)"/>
+
+        <!-- health monitor → emergency stop -->
+        <rect x="650" y="220" width="150" height="50" rx="2" fill="#050d14" stroke="rgba(255,58,58,0.3)" stroke-width="1"/>
+        <text x="725" y="241" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#ff3a3a">emergency_stop</text>
+        <text x="725" y="256" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">triggered by RTB alert</text>
+        <line x1="590" y1="190" x2="648" y2="240" stroke="rgba(255,183,0,0.4)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-a)"/>
+
+        <!-- Package boundary -->
+        <rect x="188" y="100" width="395" height="200" rx="2" fill="none" stroke="rgba(0,255,157,0.06)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="385" y="295" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.3)" letter-spacing="1">nodes added to aeroknow_bringup in L05</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- PREREQUISITES -->
+  <div class="lab-section" id="s-prereqs">
+    <h2>Prerequisites</h2>
+
+    <div class="prereq-check">
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L04 complete.</strong> <code>ros2 launch aeroknow_sim l04_launch.py</code> runs,
+        and <code>ros2 run aeroknow_sim sensor_checker</code> shows all 7 sensors <code>✓ OK</code>.
+        The camera, lidar, and depth topics must be live before continuing.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>robot_localization installed:</strong>
+        <code>sudo apt install ros-humble-robot-localization</code>.
+        Verify: <code>ros2 pkg list | grep robot_localization</code> shows the package.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>geographic_msgs installed:</strong>
+        <code>sudo apt install ros-humble-geographic-msgs</code>.
+        Needed for GPS NavSatFix → EKF conversion.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>nav_msgs installed:</strong>
+        <code>sudo apt install ros-humble-nav-msgs</code>.
+        The EKF outputs <code>nav_msgs/Odometry</code> — the flight controller and health
+        monitor both subscribe to it.</p>
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <span class="theory-link-label">⟐ Theory Link</span>
+      <p>
+        This lab is the direct implementation of
+        <a href="../modules/m04-gnss-denied-nav.html">Module 04 — GNSS-Denied Navigation</a>
+        and <a href="../modules/m05-sensor-fusion.html">Module 05 — Sensor Fusion</a>.
+        The EKF predict/update equations from M04 §4.4 (Theorem 4.1) run inside
+        <code>robot_localization</code>. The covariance thresholds in the health monitor
+        correspond directly to the Allan variance analysis in M05 §5.2 —
+        if you haven't read those sections, do so now. The numbers in the YAML config
+        come directly from those equations.
+      </p>
+    </div>
+  </div>
+
+  <!-- EKF CONCEPTS -->
+  <div class="lab-section" id="s-concepts">
+    <h2>EKF Concepts — What robot_localization Does</h2>
+    <p>
+      Before writing a line of code, you need to understand what
+      <code>robot_localization</code> is, what it expects as inputs, and what it produces.
+      Getting the input frames and topic types wrong produces an EKF that silently runs
+      but produces meaningless output — the most common L05 failure mode.
+    </p>
+
+    <h3>What robot_localization Does</h3>
+    <p>
+      <code>robot_localization</code> runs a 15-state EKF. The state vector is:
+    </p>
+    <div class="callout lab-note">
+      <span class="callout-title">The 15-State Vector</span>
+      <code>[x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az]</code>
+      — position (3), orientation (3), linear velocity (3), angular velocity (3),
+      linear acceleration (3). All in the <strong>odom</strong> frame (ENU, origin = where node started).
+      Not all states need sensors — states without sensor input are propagated
+      by the IMU integration model and their covariance grows over time.
+    </div>
+
+    <h3>The Three Frames You Must Understand</h3>
+    <table class="flow-table">
+      <thead><tr><th>Frame</th><th>Origin</th><th>Used For</th><th>Published By</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>map</code></td>
+          <td>Fixed world origin — Earth-centred or arbitrary</td>
+          <td>Absolute GPS-referenced position</td>
+          <td>GPS + <code>navsat_transform_node</code></td>
+        </tr>
+        <tr>
+          <td><code>odom</code></td>
+          <td>Where the robot started (drifts relative to map over time)</td>
+          <td>Local position estimate from EKF</td>
+          <td><code>robot_localization</code> EKF node</td>
+        </tr>
+        <tr>
+          <td><code>base_link</code></td>
+          <td>Robot body centre</td>
+          <td>Sensor transforms, attitude</td>
+          <td>TF tree (MAVROS2 publishes this)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>What Inputs the EKF Accepts</h3>
+    <table class="flow-table">
+      <thead><tr><th>Message Type</th><th>MAVROS2 Topic</th><th>Data Used</th><th>Update Rate</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>sensor_msgs/Imu</code></td>
+          <td><code>/mavros/imu/data</code></td>
+          <td>orientation (roll/pitch/yaw), angular velocity, linear acceleration</td>
+          <td>100 Hz — drives the predict step</td>
+        </tr>
+        <tr>
+          <td><code>nav_msgs/Odometry</code></td>
+          <td>(converted from GPS)</td>
+          <td>x, y position from GPS via <code>navsat_transform_node</code></td>
+          <td>5 Hz — GPS update step</td>
+        </tr>
+        <tr>
+          <td><code>nav_msgs/Odometry</code></td>
+          <td>(from optical flow node)</td>
+          <td>vx, vy velocity in body frame</td>
+          <td>30 Hz — velocity update step (replaces GPS when denied)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout lab-note">
+      <span class="callout-title">Why We Need navsat_transform_node</span>
+      GPS gives position in latitude/longitude/altitude — spherical coordinates on Earth's surface.
+      The EKF works in Cartesian metres in the local ENU frame.
+      <code>navsat_transform_node</code> (also in <code>robot_localization</code>) converts
+      GPS NavSatFix messages to local Cartesian Odometry messages.
+      You run it alongside the EKF — it needs the first GPS fix and the initial IMU heading
+      to establish the local frame origin. Once GPS is denied, the node stops producing
+      odometry and the EKF continues on IMU + optical flow only.
+    </div>
+  </div>
+
+  <!-- STEP 03 — INSTALL -->
+  <div class="lab-section" id="s-install">
+    <h2>Step 01: Install Dependencies and Create TF Publisher</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 01</span>
+        <span class="step-title">Install packages and write the TF static broadcaster</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why a TF broadcaster is needed</span>
+          <p>
+            The EKF needs a complete TF tree to know how sensors relate to the drone body.
+            MAVROS2 publishes the <code>base_link</code> → <code>odom</code> transform, but
+            it does not publish the sensor-to-body transforms (camera position relative to
+            the drone centre). Without these, <code>robot_localization</code> cannot
+            correctly account for the lever arm offset between the IMU and the camera —
+            the exact source of error analysed in Module 05 §5.5.
+            We publish static transforms that match the positions defined in our
+            <code>model.sdf</code> from L04.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sudo apt install -y ros-humble-robot-localization \
+                         ros-humble-nav-msgs \
+                         ros-humble-geographic-msgs \
+                         ros-humble-tf2-ros \
+                         ros-humble-tf2-geometry-msgs</pre>
+        </div>
+
+        <p>Write the static TF broadcaster that publishes the sensor frames:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/static_tf_publisher.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · static_tf_publisher.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+static_tf_publisher.py
+──────────────────────
+Publishes static TF transforms for all sensor links relative to base_link.
+Values match the &lt;pose&gt; entries in the L04 model.sdf exactly.
+
+These transforms tell robot_localization where each sensor
+physically is relative to the drone's centre of mass —
+this is the lever arm correction from Module 05 §5.5.
+"""</span>
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> tf2_ros <span class="kw">import</span> StaticTransformBroadcaster
+<span class="kw">from</span> geometry_msgs.msg <span class="kw">import</span> TransformStamped
+<span class="kw">import</span> math
+
+
+<span class="kw">def</span> <span class="fn">make_tf</span>(parent, child, x, y, z, roll=<span class="nm">0</span>, pitch=<span class="nm">0</span>, yaw=<span class="nm">0</span>) -> TransformStamped:
+    <span class="st">"""Build a static transform message."""</span>
+    t = TransformStamped()
+    t.header.frame_id = parent
+    t.child_frame_id  = child
+    t.transform.translation.x = float(x)
+    t.transform.translation.y = float(y)
+    t.transform.translation.z = float(z)
+
+    <span class="cm"># Convert Euler angles to quaternion</span>
+    cr, sr = math.cos(roll/<span class="nm">2</span>),  math.sin(roll/<span class="nm">2</span>)
+    cp, sp = math.cos(pitch/<span class="nm">2</span>), math.sin(pitch/<span class="nm">2</span>)
+    cy, sy = math.cos(yaw/<span class="nm">2</span>),  math.sin(yaw/<span class="nm">2</span>)
+    t.transform.rotation.w = cr*cp*cy + sr*sp*sy
+    t.transform.rotation.x = sr*cp*cy - cr*sp*sy
+    t.transform.rotation.y = cr*sp*cy + sr*cp*sy
+    t.transform.rotation.z = cr*cp*sy - sr*sp*cy
+    <span class="kw">return</span> t
+
+
+<span class="kw">class</span> <span class="tp">StaticTFPublisher</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'static_tf_publisher'</span>)
+        br = StaticTransformBroadcaster(self)
+        now = self.get_clock().now().to_msg()
+
+        transforms = []
+
+        <span class="cm"># base_link → camera_link
+        # Matches model.sdf: 0.05m forward, 0m lateral, 0.06m below, pitch 90° down</span>
+        tf_cam = make_tf(<span class="st">'base_link'</span>, <span class="st">'camera_link'</span>,
+                         x=<span class="nm">0.05</span>, y=<span class="nm">0.0</span>, z=-<span class="nm">0.06</span>,
+                         pitch=math.pi/<span class="nm">2</span>)
+        tf_cam.header.stamp = now
+        transforms.append(tf_cam)
+
+        <span class="cm"># base_link → depth_link
+        # Matches model.sdf: 0.12m forward, level</span>
+        tf_dep = make_tf(<span class="st">'base_link'</span>, <span class="st">'depth_link'</span>,
+                         x=<span class="nm">0.12</span>, y=<span class="nm">0.0</span>, z=<span class="nm">0.0</span>)
+        tf_dep.header.stamp = now
+        transforms.append(tf_dep)
+
+        <span class="cm"># base_link → lidar_link
+        # Matches model.sdf: 0.1m above body</span>
+        tf_lid = make_tf(<span class="st">'base_link'</span>, <span class="st">'lidar_link'</span>,
+                         x=<span class="nm">0.0</span>, y=<span class="nm">0.0</span>, z=<span class="nm">0.1</span>)
+        tf_lid.header.stamp = now
+        transforms.append(tf_lid)
+
+        <span class="cm"># map → odom (identity — same frame at startup)
+        # robot_localization will update this continuously</span>
+        tf_map = make_tf(<span class="st">'map'</span>, <span class="st">'odom'</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>)
+        tf_map.header.stamp = now
+        transforms.append(tf_map)
+
+        br.sendTransform(transforms)
+        self.get_logger().info(<span class="st">'Static TF frames published: camera_link, depth_link, lidar_link'</span>)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = StaticTFPublisher()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 04 — EKF CONFIG -->
+  <div class="lab-section" id="s-ekf-config">
+    <h2>Step 02–03: EKF Configuration YAML</h2>
+    <p>
+      <code>robot_localization</code> is configured entirely through a YAML parameter file.
+      Every number in this file has a physical meaning grounded in the sensor noise models
+      from Module 05. Getting this wrong is the most common cause of EKF divergence.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 02</span>
+        <span class="step-title">Write ekf_params.yaml</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">How to read the YAML config</span>
+          <p>
+            The <code>imu0_config</code> array is 15 booleans corresponding to the 15 EKF
+            states: <code>[x,y,z, roll,pitch,yaw, vx,vy,vz, vroll,vpitch,vyaw, ax,ay,az]</code>.
+            <code>true</code> = "use this measurement from this sensor to update this state."
+            <code>false</code> = "ignore." The IMU provides orientation and angular rates —
+            not raw position. The odometry (from GPS conversion) provides x and y position.
+            Setting the wrong states to <code>true</code> causes conflicting updates that make
+            the filter diverge.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_bringup/config
+<span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/config/ekf_params.yaml</pre>
+        </div>
+
+        <div class="code-block yaml">
+          <span class="code-lang">yaml · ekf_params.yaml</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># ─────────────────────────────────────────────────────────────────
+# robot_localization EKF parameters for AEROKNOW GNSS-denied nav.
+# All covariance values derived from Module 05 sensor noise analysis.
+# ─────────────────────────────────────────────────────────────────</span>
+
+<span class="fn">ekf_filter_node</span>:
+  <span class="fn">ros__parameters</span>:
+
+    <span class="cm"># EKF operates in local ENU frame (odom → base_link)</span>
+    <span class="fn">world_frame</span>: <span class="st">odom</span>
+    <span class="fn">base_link_frame</span>: <span class="st">base_link</span>
+    <span class="fn">odom_frame</span>: <span class="st">odom</span>
+    <span class="fn">map_frame</span>: <span class="st">map</span>
+
+    <span class="fn">frequency</span>: <span class="nm">50.0</span>        <span class="cm"># EKF update rate [Hz]</span>
+    <span class="fn">sensor_timeout</span>: <span class="nm">0.1</span>   <span class="cm"># [s] before sensor declared stale</span>
+    <span class="fn">two_d_mode</span>: <span class="kw">false</span>      <span class="cm"># full 3D: altitude is estimated</span>
+    <span class="fn">print_diagnostics</span>: <span class="kw">true</span>
+
+    <span class="cm"># ── IMU sensor (imu0) ──────────────────────────────────────────
+    # Topic: /mavros/imu/data (100 Hz, BEST_EFFORT)
+    # Provides: orientation (roll/pitch/yaw), angular rates, linear accel
+    # Config array: [x,y,z, r,p,y, vx,vy,vz, vr,vp,vy, ax,ay,az]</span>
+    <span class="fn">imu0</span>: <span class="st">/mavros/imu/data</span>
+    <span class="fn">imu0_config</span>: [<span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>,   <span class="cm"># x,y,z — IMU does not give position</span>
+                   <span class="kw">true</span>,  <span class="kw">true</span>,  <span class="kw">true</span>,    <span class="cm"># roll,pitch,yaw — yes, orientation</span>
+                   <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>,   <span class="cm"># vx,vy,vz — not from IMU directly</span>
+                   <span class="kw">true</span>,  <span class="kw">true</span>,  <span class="kw">true</span>,    <span class="cm"># angular rates — yes</span>
+                   <span class="kw">true</span>,  <span class="kw">true</span>,  <span class="kw">true</span>]    <span class="cm"># linear acceleration — yes (integrate to vel)</span>
+    <span class="fn">imu0_differential</span>: <span class="kw">false</span>
+    <span class="fn">imu0_relative</span>: <span class="kw">false</span>
+    <span class="fn">imu0_remove_gravitational_acceleration</span>: <span class="kw">true</span>  <span class="cm"># critical — subtract 9.81 m/s²</span>
+    <span class="cm"># Noise covariance — from ADIS16488 Allan variance (Module 05 §5.2 Worked Example 5.1)
+    # Format: 3×3 diagonal of [roll,pitch,yaw] variances → then same for rates → then accels
+    # σ_orientation = 0.01 rad, σ_ang_rate = 0.001 rad/s, σ_accel = 0.05 m/s²</span>
+    <span class="fn">imu0_twist_rejection_threshold</span>: <span class="nm">5.0</span>
+    <span class="fn">imu0_pose_rejection_threshold</span>:  <span class="nm">5.0</span>
+
+    <span class="cm"># ── GPS-derived odometry (odom0) ──────────────────────────────
+    # Topic: /odometry/gps — published by navsat_transform_node
+    # Provides: x, y position in local ENU frame
+    # When GPS is denied, this topic stops and EKF continues on IMU only.</span>
+    <span class="fn">odom0</span>: <span class="st">/odometry/gps</span>
+    <span class="fn">odom0_config</span>: [<span class="kw">true</span>,  <span class="kw">true</span>,  <span class="kw">false</span>,    <span class="cm"># x,y — yes, z — no (baro handles z)</span>
+                    <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>,    <span class="cm"># orientation — GPS doesn't give this</span>
+                    <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>,    <span class="cm"># velocity — GPS doesn't give this</span>
+                    <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>,    <span class="cm"># angular rates — no</span>
+                    <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>]    <span class="cm"># acceleration — no</span>
+    <span class="fn">odom0_differential</span>: <span class="kw">false</span>
+    <span class="fn">odom0_relative</span>: <span class="kw">false</span>
+    <span class="cm"># GPS position noise: 3m horizontal CEP → σ ≈ 2.5m → variance ≈ 6.25 m²</span>
+    <span class="fn">odom0_pose_rejection_threshold</span>: <span class="nm">8.0</span>   <span class="cm"># chi-square gate (Module 05 §5.6)</span>
+
+    <span class="cm"># ── Optical flow velocity (odom1) ─────────────────────────────
+    # Topic: /odometry/optical_flow — published by our ekf_nav_node
+    # Provides: vx, vy velocity from camera optical flow (GPS-denied substitute)
+    # Active during GPS denial; supplements IMU integration.</span>
+    <span class="fn">odom1</span>: <span class="st">/odometry/optical_flow</span>
+    <span class="fn">odom1_config</span>: [<span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>,    <span class="cm"># position — flow doesn't give this</span>
+                    <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>,    <span class="cm"># orientation — no</span>
+                    <span class="kw">true</span>,  <span class="kw">true</span>,  <span class="kw">false</span>,    <span class="cm"># vx, vy — yes (horizontal velocity)</span>
+                    <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>,    <span class="cm"># angular rates — no</span>
+                    <span class="kw">false</span>, <span class="kw">false</span>, <span class="kw">false</span>]    <span class="cm"># acceleration — no</span>
+    <span class="fn">odom1_differential</span>: <span class="kw">false</span>
+    <span class="fn">odom1_relative</span>: <span class="kw">false</span>
+    <span class="fn">odom1_pose_rejection_threshold</span>: <span class="nm">3.0</span>
+
+    <span class="cm"># ── Process noise covariance Q ─────────────────────────────────
+    # 15×15 matrix (diagonal only — off-diagonal assumed zero)
+    # Values derived from IMU Allan variance: Module 05 §5.4
+    # Order: [x,y,z, roll,pitch,yaw, vx,vy,vz, vroll,vpitch,vyaw, ax,ay,az]
+    # Position drift: σ²=0.05 m² (grows with IMU integration time)
+    # Velocity drift: σ²=0.01 m²/s²
+    # Orientation: σ²=0.001 rad² (gyro noise)
+    # Acceleration: σ²=0.01 (from Allan variance)</span>
+    <span class="fn">process_noise_covariance</span>: [<span class="nm">0.05</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0.05</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.06</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.003</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.003</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.006</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.01</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.01</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.015</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.001</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.001</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.002</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.01</span>, <span class="nm">0</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.01</span>, <span class="nm">0</span>,
+                                  <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.015</span>]
+
+<span class="cm"># ── navsat_transform_node (converts GPS → local odometry) ─────────</span>
+<span class="fn">navsat_transform_node</span>:
+  <span class="fn">ros__parameters</span>:
+    <span class="fn">frequency</span>: <span class="nm">10.0</span>
+    <span class="fn">delay</span>: <span class="nm">3.0</span>             <span class="cm"># wait 3s for GPS to stabilise before first fix</span>
+    <span class="fn">magnetic_declination_radians</span>: <span class="nm">0.0</span>
+    <span class="fn">yaw_offset</span>: <span class="nm">0.0</span>
+    <span class="fn">zero_altitude</span>: <span class="kw">false</span>
+    <span class="fn">broadcast_utm_transform</span>: <span class="kw">false</span>
+    <span class="fn">publish_filtered_gps</span>: <span class="kw">false</span>
+    <span class="fn">use_odometry_yaw</span>: <span class="kw">false</span>
+    <span class="fn">wait_for_datum</span>: <span class="kw">false</span></pre>
+        </div>
+
+        <p>Update <code>setup.py</code> to install the config directory:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · aeroknow_bringup/setup.py — add to data_files</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre>(os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'config'</span>),
+    glob(<span class="st">'config/*.yaml'</span>)),</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 05 — EKF NAV NODE -->
+  <div class="lab-section" id="s-ekf-node">
+    <h2>Step 03–04: ekf_nav_node.py</h2>
+    <p>
+      The EKF nav node does three things: launches and manages the
+      <code>robot_localization</code> EKF via a subprocess, computes a simple optical flow
+      velocity estimate from consecutive camera frames (the GPS-denied velocity source),
+      and monitors when GPS transitions from present to absent so it can
+      log the event and alert the health monitor.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 03</span>
+        <span class="step-title">Write ekf_nav_node.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why compute optical flow here instead of a separate node</span>
+          <p>
+            Optical flow for ego-motion (how fast the drone is moving over the ground) only
+            needs two consecutive frames and the camera altitude — it's a simple Lucas-Kanade
+            sparse flow computation, not a full RAFT dense flow network (Module 07).
+            We compute it here because it is tightly coupled to the EKF timing: the flow
+            velocity estimate must be published as a <code>nav_msgs/Odometry</code> with a
+            covariance that reflects how well the flow could be estimated (low texture →
+            high covariance, high texture → low covariance). Coupling the computation and
+            the covariance assignment in one node prevents timing mismatches.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/ekf_nav_node.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · ekf_nav_node.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+ekf_nav_node.py
+───────────────
+Manages the GNSS-denied navigation stack:
+  1. Converts camera frames to sparse optical flow velocity
+  2. Publishes flow velocity as nav_msgs/Odometry for robot_localization
+  3. Monitors GPS fix status and logs denial events
+  4. Adjusts optical flow covariance based on feature count
+
+Topics published:
+  /odometry/optical_flow  (nav_msgs/Odometry) — flow-based velocity
+  /nav/gps_denied        (std_msgs/Bool)       — True when GPS is denied
+
+Topics subscribed:
+  /camera/image_raw       — for optical flow computation
+  /mavros/global_position/global — to detect GPS denial
+  /mavros/local_position/pose    — altitude for flow scaling
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> sensor_msgs.msg  <span class="kw">import</span> Image, NavSatFix
+<span class="kw">from</span> geometry_msgs.msg <span class="kw">import</span> PoseStamped
+<span class="kw">from</span> nav_msgs.msg     <span class="kw">import</span> Odometry
+<span class="kw">from</span> std_msgs.msg     <span class="kw">import</span> Bool
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> cv2
+<span class="kw">import</span> time
+
+<span class="kw">try</span>:
+    <span class="kw">from</span> cv_bridge <span class="kw">import</span> CvBridge
+    CV_BRIDGE_OK = <span class="kw">True</span>
+<span class="kw">except</span> ImportError:
+    CV_BRIDGE_OK = <span class="kw">False</span>
+
+<span class="cm"># Optical flow parameters</span>
+LK_PARAMS = dict(
+    winSize   = (<span class="nm">21</span>, <span class="nm">21</span>),
+    maxLevel  = <span class="nm">3</span>,
+    criteria  = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, <span class="nm">30</span>, <span class="nm">0.01</span>),
+)
+FEATURE_PARAMS = dict(
+    maxCorners  = <span class="nm">100</span>,
+    qualityLevel= <span class="nm">0.3</span>,
+    minDistance = <span class="nm">7</span>,
+    blockSize   = <span class="nm">7</span>,
+)
+MIN_FEATURES = <span class="nm">10</span>   <span class="cm"># below this, flow is unreliable — set high covariance</span>
+GPS_STALE_S  = <span class="nm">2.0</span>   <span class="cm"># seconds without GPS before declaring denial</span>
+
+
+<span class="kw">class</span> <span class="tp">EKFNavNode</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'ekf_nav_node'</span>)
+
+        <span class="cm"># ── State ────────────────────────────────────────────────────</span>
+        self.prev_gray    = <span class="kw">None</span>       <span class="cm"># previous camera frame (grayscale)</span>
+        self.prev_pts     = <span class="kw">None</span>       <span class="cm"># tracked feature points in prev frame</span>
+        self.prev_t       = <span class="kw">None</span>       <span class="cm"># timestamp of previous frame</span>
+        self.altitude_m   = <span class="nm">1.0</span>        <span class="cm"># current altitude AGL [m] — for flow scaling</span>
+        self.last_gps_t   = time.time() <span class="cm"># last time GPS message was received</span>
+        self.gps_denied   = <span class="kw">False</span>
+        self.bridge       = CvBridge() <span class="kw">if</span> CV_BRIDGE_OK <span class="kw">else</span> <span class="kw">None</span>
+
+        sen_qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+        rel_qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        <span class="cm"># ── Subscriptions ────────────────────────────────────────────</span>
+        self.create_subscription(Image,    <span class="st">'/camera/image_raw'</span>,
+            self.<span class="fn">image_cb</span>, sen_qos)
+        self.create_subscription(NavSatFix, <span class="st">'/mavros/global_position/global'</span>,
+            self.<span class="fn">gps_cb</span>, sen_qos)
+        self.create_subscription(PoseStamped, <span class="st">'/mavros/local_position/pose'</span>,
+            self.<span class="fn">pose_cb</span>, sen_qos)
+
+        <span class="cm"># ── Publishers ───────────────────────────────────────────────</span>
+        self.flow_pub   = self.create_publisher(Odometry, <span class="st">'/odometry/optical_flow'</span>, <span class="nm">10</span>)
+        self.denied_pub = self.create_publisher(Bool, <span class="st">'/nav/gps_denied'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># ── GPS denial watchdog ──────────────────────────────────────
+        # Fires every 0.5s — checks if GPS has gone stale</span>
+        self.create_timer(<span class="nm">0.5</span>, self.<span class="fn">gps_watchdog</span>)
+
+        self.get_logger().info(<span class="st">'EKFNavNode started'</span>)
+        <span class="kw">if</span> <span class="kw">not</span> CV_BRIDGE_OK:
+            self.get_logger().warn(<span class="st">'cv_bridge not installed — optical flow disabled'</span>)
+
+    <span class="cm"># ── Callbacks ────────────────────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">gps_cb</span>(self, msg: NavSatFix):
+        <span class="st">"""Record the time of the last valid GPS message."""</span>
+        <span class="kw">if</span> msg.status.status >= <span class="nm">0</span>:   <span class="cm"># -1 = no fix, 0+ = fix</span>
+            self.last_gps_t = time.time()
+
+    <span class="kw">def</span> <span class="fn">pose_cb</span>(self, msg: PoseStamped):
+        <span class="st">"""Track altitude for optical flow pixel-to-metre conversion."""</span>
+        self.altitude_m = max(<span class="nm">0.5</span>, msg.pose.position.z)
+
+    <span class="kw">def</span> <span class="fn">gps_watchdog</span>(self):
+        <span class="st">"""Detect GPS denial (no valid GPS for GPS_STALE_S seconds)."""</span>
+        was_denied = self.gps_denied
+        self.gps_denied = (time.time() - self.last_gps_t) > GPS_STALE_S
+
+        <span class="kw">if</span> self.gps_denied <span class="kw">and</span> <span class="kw">not</span> was_denied:
+            self.get_logger().warn(
+                <span class="st">'GPS DENIED — switching to IMU + optical flow navigation'</span>)
+        <span class="kw">elif</span> <span class="kw">not</span> self.gps_denied <span class="kw">and</span> was_denied:
+            self.get_logger().info(<span class="st">'GPS RESTORED'</span>)
+
+        msg = Bool(); msg.data = self.gps_denied
+        self.denied_pub.publish(msg)
+
+    <span class="kw">def</span> <span class="fn">image_cb</span>(self, msg: Image):
+        <span class="st">"""
+        Compute Lucas-Kanade sparse optical flow between consecutive frames.
+        Convert pixel displacement to ground velocity using altitude.
+        Publish as nav_msgs/Odometry for robot_localization.
+        """</span>
+        <span class="kw">if</span> <span class="kw">not</span> CV_BRIDGE_OK <span class="kw">or</span> self.bridge <span class="kw">is</span> <span class="kw">None</span>:
+            <span class="kw">return</span>
+
+        <span class="cm"># Convert ROS2 Image → OpenCV numpy array</span>
+        <span class="kw">try</span>:
+            frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding=<span class="st">'bgr8'</span>)
+        <span class="kw">except</span> Exception <span class="kw">as</span> e:
+            self.get_logger().warn(<span class="st">f'Image conversion failed: {e}'</span>)
+            <span class="kw">return</span>
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        t_now = time.time()
+
+        <span class="kw">if</span> self.prev_gray <span class="kw">is</span> <span class="kw">None</span>:
+            <span class="cm"># First frame — initialise</span>
+            self.prev_gray = gray
+            self.prev_pts  = cv2.goodFeaturesToTrack(gray, mask=<span class="kw">None</span>, **FEATURE_PARAMS)
+            self.prev_t    = t_now
+            <span class="kw">return</span>
+
+        dt = t_now - self.prev_t
+        <span class="kw">if</span> dt <= <span class="nm">0</span> <span class="kw">or</span> dt > <span class="nm">1.0</span>:   <span class="cm"># skip if dt is unreasonable</span>
+            self.prev_gray = gray
+            self.prev_t    = t_now
+            <span class="kw">return</span>
+
+        <span class="cm"># Track existing feature points into the new frame</span>
+        vx, vy = <span class="nm">0.0</span>, <span class="nm">0.0</span>
+        n_good  = <span class="nm">0</span>
+        covariance_scale = <span class="nm">1.0</span>   <span class="cm"># multiplier on velocity covariance (1 = nominal)</span>
+
+        <span class="kw">if</span> self.prev_pts <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">and</span> len(self.prev_pts) >= MIN_FEATURES:
+            curr_pts, status, _ = cv2.calcOpticalFlowPyrLK(
+                self.prev_gray, gray, self.prev_pts, <span class="kw">None</span>, **LK_PARAMS)
+
+            <span class="kw">if</span> curr_pts <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">and</span> status <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+                good_prev = self.prev_pts[status == <span class="nm">1</span>]
+                good_curr = curr_pts[status == <span class="nm">1</span>]
+                n_good = len(good_curr)
+
+                <span class="kw">if</span> n_good >= MIN_FEATURES:
+                    <span class="cm"># Mean pixel displacement per second</span>
+                    displacement = (good_curr - good_prev).reshape(-<span class="nm">1</span>, <span class="nm">2</span>)
+                    mean_dx = np.median(displacement[:, <span class="nm">0</span>]) / dt  <span class="cm"># px/s</span>
+                    mean_dy = np.median(displacement[:, <span class="nm">1</span>]) / dt  <span class="cm"># px/s</span>
+
+                    <span class="cm"># Convert px/s → m/s using altitude and camera FOV
+                    # FOV = 80° (from model.sdf), image width = 640px
+                    # angular_rate [rad/s] = displacement_px/s × (FOV_rad / image_width_px)
+                    # linear_velocity [m/s] = angular_rate × altitude</span>
+                    fov_rad   = <span class="nm">1.3963</span>   <span class="cm"># 80° in radians</span>
+                    img_width = <span class="nm">640.0</span>
+                    px_to_rad = fov_rad / img_width
+                    <span class="cm"># Camera faces down: x-pixel movement = eastward motion, y-pixel = southward</span>
+                    vx = -mean_dx * px_to_rad * self.altitude_m  <span class="cm"># positive East</span>
+                    vy = -mean_dy * px_to_rad * self.altitude_m  <span class="cm"># positive North</span>
+
+                    <span class="cm"># Better features → lower covariance (more confidence)</span>
+                    covariance_scale = max(<span class="nm">0.1</span>, MIN_FEATURES / n_good)
+        <span class="kw">else</span>:
+            <span class="cm"># Too few features — high covariance (don't trust this measurement much)</span>
+            covariance_scale = <span class="nm">10.0</span>
+            self.get_logger().warn(
+                <span class="st">f'Low features: {len(self.prev_pts) if self.prev_pts is not None else 0}'</span>
+                <span class="st">' — optical flow unreliable'</span>,
+                throttle_duration_sec=<span class="nm">2.0</span>
+            )
+
+        <span class="cm"># Refresh feature set every 10 frames to avoid drift in tracking</span>
+        <span class="kw">if</span> n_good < MIN_FEATURES * <span class="nm">2</span>:
+            self.prev_pts = cv2.goodFeaturesToTrack(gray, mask=<span class="kw">None</span>, **FEATURE_PARAMS)
+        <span class="kw">else</span>:
+            self.prev_pts = good_curr.reshape(-<span class="nm">1</span>, <span class="nm">1</span>, <span class="nm">2</span>)
+
+        self.prev_gray = gray
+        self.prev_t    = t_now
+
+        <span class="cm"># ── Publish as Odometry for robot_localization ───────────────
+        # Only vx and vy are set (odom1_config uses only vx, vy).
+        # The covariance diagonal entries [0][0] and [1][1] are for vx, vy.
+        # Higher covariance_scale = less confidence in this measurement.</span>
+        odom = Odometry()
+        odom.header.stamp    = self.get_clock().now().to_msg()
+        odom.header.frame_id = <span class="st">'odom'</span>
+        odom.child_frame_id  = <span class="st">'base_link'</span>
+        odom.twist.twist.linear.x = float(vx)
+        odom.twist.twist.linear.y = float(vy)
+
+        <span class="cm"># 6×6 covariance for twist (velocity): [vx,vy,vz,vroll,vpitch,vyaw]
+        # Only vx, vy entries matter since odom1_config only uses those.</span>
+        base_vel_cov = <span class="nm">0.15</span> * covariance_scale   <span class="cm"># m²/s²</span>
+        odom.twist.covariance[<span class="nm">0</span>]  = base_vel_cov   <span class="cm"># vx variance</span>
+        odom.twist.covariance[<span class="nm">7</span>]  = base_vel_cov   <span class="cm"># vy variance</span>
+        odom.twist.covariance[<span class="nm">14</span>] = <span class="nm">9999.0</span>         <span class="cm"># vz — not observable from downward flow</span>
+        odom.twist.covariance[<span class="nm">21</span>] = <span class="nm">9999.0</span>
+        odom.twist.covariance[<span class="nm">28</span>] = <span class="nm">9999.0</span>
+        odom.twist.covariance[<span class="nm">35</span>] = <span class="nm">9999.0</span>
+
+        self.flow_pub.publish(odom)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = EKFNavNode()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 06 — GPS DENIAL INJECTOR -->
+  <div class="lab-section" id="s-gps-denial">
+    <h2>Step 05: gps_denial_injector.py</h2>
+    <p>
+      You cannot physically jam GPS inside your computer. Instead, the denial injector
+      intercepts the GPS topic and stops forwarding messages — from the EKF's perspective,
+      this is indistinguishable from a real jammer killing the signal. It can be triggered
+      by time, by waypoint entry, or by an external command.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 05</span>
+        <span class="step-title">Write gps_denial_injector.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why intercept and re-publish rather than mute the topic</span>
+          <p>
+            ROS2 has no built-in way to "mute" a topic at runtime. You cannot unsubscribe a
+            remote publisher. The correct approach is to create a <em>relay</em>: subscribe to
+            the real GPS topic and republish on a <em>new</em> topic
+            (<code>/mavros/global_position/global_relayed</code>). When denial is active, simply
+            stop republishing. The EKF subscribes to the relayed topic, not the raw one.
+            This pattern — intercept, transform/filter, republish — is the standard
+            ROS2 approach to runtime topic modification.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/gps_denial_injector.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · gps_denial_injector.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+gps_denial_injector.py
+──────────────────────
+Relays GPS topic — stops relaying when denial is active.
+From the EKF's perspective, GPS simply stops arriving.
+
+Relay chain:
+  /mavros/global_position/global
+      ↓ (relayed when not denied)
+  /mavros/global_position/global_relayed
+      ↓ (navsat_transform_node subscribes here)
+  /odometry/gps
+      ↓ (EKF odom0 input)
+
+Trigger:
+  # Deny GPS now:
+  ros2 topic pub --once /gps_denial/command std_msgs/msg/Bool "data: true"
+  # Restore GPS:
+  ros2 topic pub --once /gps_denial/command std_msgs/msg/Bool "data: false"
+
+  # Deny for 30 seconds starting in 5 seconds:
+  ros2 topic pub --once /gps_denial/timed std_msgs/msg/String "data: '5 30'"
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> sensor_msgs.msg <span class="kw">import</span> NavSatFix
+<span class="kw">from</span> std_msgs.msg    <span class="kw">import</span> Bool, String
+
+<span class="kw">import</span> time
+
+
+<span class="kw">class</span> <span class="tp">GPSDenialInjector</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'gps_denial_injector'</span>)
+
+        self.denied      = <span class="kw">False</span>
+        self.deny_until  = <span class="nm">0.0</span>   <span class="cm"># epoch time to re-enable GPS</span>
+        self.n_blocked   = <span class="nm">0</span>     <span class="cm"># count of blocked GPS messages</span>
+        self.n_passed    = <span class="nm">0</span>     <span class="cm"># count of passed GPS messages</span>
+
+        sen_qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+        rel_qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        <span class="cm"># Subscribe to real GPS</span>
+        self.create_subscription(NavSatFix,
+            <span class="st">'/mavros/global_position/global'</span>,
+            self.<span class="fn">gps_relay_cb</span>, sen_qos)
+
+        <span class="cm"># Control topics</span>
+        self.create_subscription(Bool,
+            <span class="st">'/gps_denial/command'</span>, self.<span class="fn">command_cb</span>, rel_qos)
+        self.create_subscription(String,
+            <span class="st">'/gps_denial/timed'</span>, self.<span class="fn">timed_cb</span>, rel_qos)
+
+        <span class="cm"># Publish relayed GPS (navsat_transform_node subscribes here)</span>
+        self.gps_pub = self.create_publisher(NavSatFix,
+            <span class="st">'/mavros/global_position/global_relayed'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># Status publisher (nav_health_monitor listens)</span>
+        self.status_pub = self.create_publisher(Bool, <span class="st">'/gps_denial/active'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># Stats timer</span>
+        self.create_timer(<span class="nm">5.0</span>, self.<span class="fn">print_stats</span>)
+
+        self.get_logger().info(
+            <span class="st">'GPSDenialInjector active.\n'</span>
+            <span class="st">'  Deny:    ros2 topic pub --once /gps_denial/command std_msgs/msg/Bool "data: true"\n'</span>
+            <span class="st">'  Restore: ros2 topic pub --once /gps_denial/command std_msgs/msg/Bool "data: false"\n'</span>
+            <span class="st">'  Timed:   ros2 topic pub --once /gps_denial/timed std_msgs/msg/String "data: \'5 30\'"'</span>
+        )
+
+    <span class="kw">def</span> <span class="fn">gps_relay_cb</span>(self, msg: NavSatFix):
+        <span class="cm"># Check if a timed denial has expired</span>
+        <span class="kw">if</span> self.deny_until > <span class="nm">0</span> <span class="kw">and</span> time.time() > self.deny_until:
+            self.denied     = <span class="kw">False</span>
+            self.deny_until = <span class="nm">0.0</span>
+            self.get_logger().info(<span class="st">'Timed GPS denial expired — restoring GPS'</span>)
+
+        <span class="kw">if</span> self.denied:
+            self.n_blocked += <span class="nm">1</span>
+            <span class="cm"># Do NOT republish — GPS simply stops appearing to the EKF</span>
+        <span class="kw">else</span>:
+            self.n_passed += <span class="nm">1</span>
+            self.gps_pub.publish(msg)
+
+        status = Bool(); status.data = self.denied
+        self.status_pub.publish(status)
+
+    <span class="kw">def</span> <span class="fn">command_cb</span>(self, msg: Bool):
+        prev = self.denied
+        self.denied = msg.data
+        <span class="kw">if</span> self.denied <span class="kw">and</span> <span class="kw">not</span> prev:
+            self.get_logger().warn(<span class="st">'GPS DENIAL ACTIVATED — blocking GPS relay'</span>)
+        <span class="kw">elif</span> <span class="kw">not</span> self.denied <span class="kw">and</span> prev:
+            self.get_logger().info(<span class="st">'GPS DENIAL DEACTIVATED — resuming relay'</span>)
+
+    <span class="kw">def</span> <span class="fn">timed_cb</span>(self, msg: String):
+        <span class="st">"""Parse 'delay_s duration_s' and schedule a timed denial."""</span>
+        parts = msg.data.strip().split()
+        <span class="kw">if</span> len(parts) != <span class="nm">2</span>:
+            self.get_logger().warn(<span class="st">f'timed: expected "delay_s duration_s", got: {msg.data}'</span>)
+            <span class="kw">return</span>
+        delay_s    = float(parts[<span class="nm">0</span>])
+        duration_s = float(parts[<span class="nm">1</span>])
+        start_t    = time.time() + delay_s
+        self.deny_until = start_t + duration_s
+
+        <span class="cm"># Schedule the start</span>
+        self.create_timer(delay_s, self.<span class="fn">_start_timed_denial</span>)
+        self.get_logger().info(
+            <span class="st">f'Timed GPS denial scheduled: starts in {delay_s:.0f}s, '</span>
+            <span class="st">f'lasts {duration_s:.0f}s'</span>
+        )
+
+    <span class="kw">def</span> <span class="fn">_start_timed_denial</span>(self):
+        self.denied = <span class="kw">True</span>
+        self.get_logger().warn(<span class="st">'Timed GPS denial STARTED'</span>)
+
+    <span class="kw">def</span> <span class="fn">print_stats</span>(self):
+        total = self.n_passed + self.n_blocked
+        <span class="kw">if</span> total > <span class="nm">0</span>:
+            pct = self.n_blocked / total * <span class="nm">100</span>
+            self.get_logger().info(
+                <span class="st">f'GPS relay stats: {self.n_passed} passed, {self.n_blocked} blocked ({pct:.0f}%)'</span>,
+                throttle_duration_sec=<span class="nm">5.0</span>
+            )
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = GPSDenialInjector()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 07 — HEALTH MONITOR -->
+  <div class="lab-section" id="s-health-monitor">
+    <h2>Step 06: nav_health_monitor.py</h2>
+    <p>
+      The EKF outputs a covariance matrix alongside every position estimate. As GPS denial
+      continues and only IMU + optical flow are available, the covariance grows —
+      the filter knows its estimate is becoming less certain. The health monitor watches
+      this covariance and triggers an RTB if it exceeds a safe threshold. This is the
+      chi-square RAIM concept from Module 05 §5.6 applied to the navigation output.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 06</span>
+        <span class="step-title">Write nav_health_monitor.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why watch covariance, not just position error</span>
+          <p>
+            In a real scenario, you don't know the true position — there's no ground truth
+            to compare against. The covariance is what the EKF itself believes about its
+            own uncertainty. When the covariance position diagonal entries exceed a threshold
+            (e.g., σ_x > 5 m), the filter is telling you: "I am no longer confident in my
+            position estimate to within a safe margin." This is the operationally correct
+            trigger for RTB — you act on the filter's self-assessed uncertainty, not on
+            a comparison to external ground truth you don't have.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/aeroknow_bringup/nav_health_monitor.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · nav_health_monitor.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+nav_health_monitor.py
+─────────────────────
+Watches the robot_localization EKF covariance matrix.
+Classifies navigation health and triggers RTB when covariance
+exceeds safe operational limits.
+
+Covariance thresholds (Module 05 §5.6, chi-square test context):
+  σ_xy < 2.0 m → NOMINAL
+  σ_xy < 5.0 m → DEGRADED (warn, continue)
+  σ_xy ≥ 5.0 m → CRITICAL  (trigger RTB)
+
+Subscribed topics:
+  /odometry/filtered (nav_msgs/Odometry) — EKF output with covariance
+  /nav/gps_denied    (std_msgs/Bool)      — GPS denial status
+
+Published topics:
+  /nav_health        (std_msgs/String)    — NOMINAL / DEGRADED / CRITICAL
+  /emergency_stop    (std_msgs/Bool)      — True if CRITICAL and RTB triggered
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> nav_msgs.msg  <span class="kw">import</span> Odometry
+<span class="kw">from</span> std_msgs.msg  <span class="kw">import</span> Bool, String
+
+<span class="kw">import</span> math
+
+SIGMA_NOMINAL   = <span class="nm">2.0</span>   <span class="cm"># [m] max σ_xy for NOMINAL</span>
+SIGMA_DEGRADED  = <span class="nm">5.0</span>   <span class="cm"># [m] max σ_xy before RTB</span>
+RTB_HOLD_S      = <span class="nm">3.0</span>   <span class="cm"># [s] must be CRITICAL for this long before RTB fires</span>
+
+
+<span class="kw">class</span> <span class="tp">NavHealthMonitor</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'nav_health_monitor'</span>)
+
+        self.sigma_xy    = <span class="nm">0.0</span>
+        self.sigma_z     = <span class="nm">0.0</span>
+        self.gps_denied  = <span class="kw">False</span>
+        self.health      = <span class="st">'NOMINAL'</span>
+        self.critical_since = <span class="kw">None</span>   <span class="cm"># time CRITICAL state started</span>
+        self.rtb_fired   = <span class="kw">False</span>
+
+        sen_qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+        rel_qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                             history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        self.create_subscription(Odometry, <span class="st">'/odometry/filtered'</span>,
+            self.<span class="fn">odom_cb</span>, sen_qos)
+        self.create_subscription(Bool, <span class="st">'/nav/gps_denied'</span>,
+            self.<span class="fn">denial_cb</span>, rel_qos)
+
+        self.health_pub = self.create_publisher(String, <span class="st">'/nav_health'</span>, <span class="nm">10</span>)
+        self.estop_pub  = self.create_publisher(Bool, <span class="st">'/emergency_stop'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># Display timer</span>
+        self.create_timer(<span class="nm">1.0</span>, self.<span class="fn">display</span>)
+        self.get_logger().info(<span class="st">'NavHealthMonitor started'</span>)
+
+    <span class="kw">def</span> <span class="fn">denial_cb</span>(self, msg: Bool):
+        self.gps_denied = msg.data
+
+    <span class="kw">def</span> <span class="fn">odom_cb</span>(self, msg: Odometry):
+        <span class="cm"># Extract position standard deviations from the covariance matrix.
+        # nav_msgs/Odometry pose covariance is a 6×6 matrix (36 elements).
+        # Elements [0] = xx, [7] = yy, [14] = zz (diagonal, 0-indexed).
+        # σ = sqrt(variance)</span>
+        cov = msg.pose.covariance
+        self.sigma_xy = math.sqrt(max(<span class="nm">0</span>, (cov[<span class="nm">0</span>] + cov[<span class="nm">7</span>]) / <span class="nm">2</span>))  <span class="cm"># RMS of x and y σ</span>
+        self.sigma_z  = math.sqrt(max(<span class="nm">0</span>, cov[<span class="nm">14</span>]))
+
+        <span class="cm"># Classify health</span>
+        prev_health = self.health
+        <span class="kw">if</span> self.sigma_xy < SIGMA_NOMINAL:
+            self.health = <span class="st">'NOMINAL'</span>
+            self.critical_since = <span class="kw">None</span>
+        <span class="kw">elif</span> self.sigma_xy < SIGMA_DEGRADED:
+            self.health = <span class="st">'DEGRADED'</span>
+            self.critical_since = <span class="kw">None</span>
+        <span class="kw">else</span>:
+            self.health = <span class="st">'CRITICAL'</span>
+
+        <span class="kw">if</span> self.health != prev_health:
+            self.get_logger().warn(
+                <span class="st">f'Nav health: {prev_health} → {self.health} '</span>
+                <span class="st">f'(σ_xy={self.sigma_xy:.2f}m, GPS_denied={self.gps_denied})'</span>
+            )
+
+        <span class="cm"># Track how long we've been CRITICAL</span>
+        <span class="kw">import</span> time
+        <span class="kw">if</span> self.health == <span class="st">'CRITICAL'</span>:
+            <span class="kw">if</span> self.critical_since <span class="kw">is</span> <span class="kw">None</span>:
+                self.critical_since = time.time()
+            <span class="kw">elif</span> time.time() - self.critical_since >= RTB_HOLD_S <span class="kw">and</span> <span class="kw">not</span> self.rtb_fired:
+                self.rtb_fired = <span class="kw">True</span>
+                self.get_logger().error(
+                    <span class="st">f'NAV CRITICAL for {RTB_HOLD_S}s — triggering RTB/emergency stop! '</span>
+                    <span class="st">f'σ_xy={self.sigma_xy:.2f}m'</span>
+                )
+                stop_msg = Bool(); stop_msg.data = <span class="kw">True</span>
+                self.estop_pub.publish(stop_msg)
+        <span class="kw">else</span>:
+            self.rtb_fired = <span class="kw">False</span>   <span class="cm"># reset if health improves</span>
+
+        <span class="cm"># Publish health string</span>
+        h_msg = String(); h_msg.data = (
+            <span class="st">f'{self.health}|σ_xy={self.sigma_xy:.3f}m|σ_z={self.sigma_z:.3f}m'</span>
+            <span class="st">f'|GPS_denied={self.gps_denied}'</span>
+        )
+        self.health_pub.publish(h_msg)
+
+    <span class="kw">def</span> <span class="fn">display</span>(self):
+        colour = (<span class="st">'\033[92m'</span> <span class="kw">if</span> self.health == <span class="st">'NOMINAL'</span>
+                  <span class="kw">else</span> <span class="st">'\033[93m'</span> <span class="kw">if</span> self.health == <span class="st">'DEGRADED'</span>
+                  <span class="kw">else</span> <span class="st">'\033[91m'</span>)
+        self.get_logger().info(
+            <span class="st">f'{colour}{self.health}\033[0m | '</span>
+            <span class="st">f'σ_xy={self.sigma_xy:.3f}m | σ_z={self.sigma_z:.3f}m | '</span>
+            <span class="st">f'GPS denied={self.gps_denied}',</span>
+            throttle_duration_sec=<span class="nm">1.0</span>
+        )
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = NavHealthMonitor()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 08 — FULL DEMO -->
+  <div class="lab-section" id="s-demo">
+    <h2>Step 07–08: Build, Launch, and Run the GPS Denial Demo</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07</span>
+        <span class="step-title">Add entry points, update setup.py, and build</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block python">
+          <span class="code-lang">python · aeroknow_bringup/setup.py — final console_scripts list</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="st">'console_scripts'</span>: [
+    <span class="cm"># L02</span>
+    <span class="st">'telemetry_listener    = aeroknow_bringup.telemetry_listener:main'</span>,
+    <span class="st">'heartbeat_service     = aeroknow_bringup.heartbeat_service:main'</span>,
+    <span class="st">'mission_action_server = aeroknow_bringup.mission_action_server:main'</span>,
+    <span class="cm"># L03</span>
+    <span class="st">'flight_controller     = aeroknow_bringup.flight_controller:main'</span>,
+    <span class="st">'offboard_velocity_node= aeroknow_bringup.offboard_velocity_node:main'</span>,
+    <span class="st">'mode_manager          = aeroknow_bringup.mode_manager:main'</span>,
+    <span class="st">'emergency_stop        = aeroknow_bringup.emergency_stop:main'</span>,
+    <span class="st">'mission_runner        = aeroknow_bringup.mission_runner:main'</span>,
+    <span class="cm"># L05</span>
+    <span class="st">'static_tf_publisher   = aeroknow_bringup.static_tf_publisher:main'</span>,
+    <span class="st">'ekf_nav_node          = aeroknow_bringup.ekf_nav_node:main'</span>,
+    <span class="st">'gps_denial_injector   = aeroknow_bringup.gps_denial_injector:main'</span>,
+    <span class="st">'nav_health_monitor    = aeroknow_bringup.nav_health_monitor:main'</span>,
+],</pre>
+        </div>
+
+        <p>Write the L05 launch file:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_bringup/launch/l05_launch.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · l05_launch.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""L05 full GNSS-denied navigation stack launch file."""</span>
+<span class="kw">from</span> launch <span class="kw">import</span> LaunchDescription
+<span class="kw">from</span> launch.actions <span class="kw">import</span> LogInfo, TimerAction
+<span class="kw">from</span> launch_ros.actions <span class="kw">import</span> Node
+<span class="kw">from</span> ament_index_python.packages <span class="kw">import</span> get_package_share_directory
+<span class="kw">import</span> os
+
+
+<span class="kw">def</span> <span class="fn">generate_launch_description</span>():
+    ekf_params = os.path.join(
+        get_package_share_directory(<span class="st">'aeroknow_bringup'</span>),
+        <span class="st">'config'</span>, <span class="st">'ekf_params.yaml'</span>
+    )
+
+    <span class="kw">return</span> LaunchDescription([
+        LogInfo(msg=<span class="st">'[AEROKNOW L05] Starting GNSS-denied navigation stack...'</span>),
+
+        <span class="cm"># ── Infrastructure (from L04 launch) ──────────────────────────</span>
+        Node(package=<span class="st">'mavros'</span>, executable=<span class="st">'mavros_node'</span>, name=<span class="st">'mavros'</span>,
+             output=<span class="st">'screen'</span>,
+             parameters=[{<span class="st">'fcu_url'</span>: <span class="st">'udp://:14540@127.0.0.1:14557'</span>}]),
+        Node(package=<span class="st">'ros_gz_bridge'</span>, executable=<span class="st">'parameter_bridge'</span>,
+             name=<span class="st">'gz_ros_bridge'</span>, output=<span class="st">'screen'</span>,
+             arguments=[
+                 <span class="st">'/camera/image[gz.msgs.Image@sensor_msgs/msg/Image'</span>,
+                 <span class="st">'/scan[gz.msgs.LaserScan@sensor_msgs/msg/LaserScan'</span>,
+                 <span class="st">'/clock[gz.msgs.Clock@rosgraph_msgs/msg/Clock'</span>,
+             ],
+             remappings=[(<span class="st">'/camera/image'</span>, <span class="st">'/camera/image_raw'</span>)]),
+
+        <span class="cm"># ── L05 navigation nodes ──────────────────────────────────────</span>
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'static_tf_publisher'</span>,
+             name=<span class="st">'static_tf_publisher'</span>, output=<span class="st">'log'</span>),
+
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'gps_denial_injector'</span>,
+             name=<span class="st">'gps_denial_injector'</span>, output=<span class="st">'screen'</span>),
+
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'ekf_nav_node'</span>,
+             name=<span class="st">'ekf_nav_node'</span>, output=<span class="st">'screen'</span>),
+
+        <span class="cm"># navsat_transform_node: converts GPS NavSatFix → Odometry for EKF</span>
+        TimerAction(period=<span class="nm">3.0</span>, actions=[
+            Node(package=<span class="st">'robot_localization'</span>,
+                 executable=<span class="st">'navsat_transform_node'</span>,
+                 name=<span class="st">'navsat_transform_node'</span>, output=<span class="st">'screen'</span>,
+                 parameters=[ekf_params],
+                 remappings=[
+                     (<span class="st">'gps/fix'</span>,   <span class="st">'/mavros/global_position/global_relayed'</span>),
+                     (<span class="st">'imu/data'</span>,  <span class="st">'/mavros/imu/data'</span>),
+                     (<span class="st">'odometry/filtered'</span>, <span class="st">'/odometry/filtered'</span>),
+                 ]),
+        ]),
+
+        <span class="cm"># EKF node: the main filter</span>
+        TimerAction(period=<span class="nm">4.0</span>, actions=[
+            Node(package=<span class="st">'robot_localization'</span>,
+                 executable=<span class="st">'ekf_node'</span>,
+                 name=<span class="st">'ekf_filter_node'</span>, output=<span class="st">'screen'</span>,
+                 parameters=[ekf_params]),
+        ]),
+
+        <span class="cm"># Health monitor starts after EKF (needs /odometry/filtered)</span>
+        TimerAction(period=<span class="nm">5.0</span>, actions=[
+            Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'nav_health_monitor'</span>,
+                 name=<span class="st">'nav_health_monitor'</span>, output=<span class="st">'screen'</span>),
+        ]),
+
+        <span class="cm"># Safety nodes</span>
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'emergency_stop'</span>,
+             name=<span class="st">'emergency_stop'</span>, output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mode_manager'</span>,
+             name=<span class="st">'mode_manager'</span>, output=<span class="st">'log'</span>),
+    ])</pre>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — build</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_bringup
+<span class="prompt">$ </span>source install/setup.bash</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 08</span>
+        <span class="step-title">Run the GPS denial demo — the full test</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">What this demo proves</span>
+          <p>
+            The drone takes off, hovers, receives a waypoint command, then GPS is denied
+            mid-flight. You watch the health monitor transition from NOMINAL → DEGRADED as
+            the covariance grows. The optical flow keeps the velocity estimate bounded.
+            GPS is then restored, the EKF re-converges, and health returns to NOMINAL.
+            This is the complete GNSS-denied scenario from Module 04 — with real numbers,
+            in real time.
+          </p>
+        </div>
+
+        <p><strong>Terminal 1:</strong> PX4 SITL in custom world.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 1</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sitl_aeroknow</pre>
+        </div>
+
+        <p><strong>Terminal 2:</strong> Full navigation stack.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 2</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 launch aeroknow_bringup l05_launch.py</pre>
+        </div>
+
+        <p><strong>Terminal 3:</strong> Start the flight controller.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_bringup flight_controller</pre>
+        </div>
+
+        <p><strong>Terminal 4:</strong> Once the drone is flying — inject GPS denial for 30 seconds.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 4 — deny GPS in 5s for 30s</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 topic pub --once /gps_denial/timed std_msgs/msg/String "data: '5 30'"</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — health monitor output during denial and recovery</span>
+          <pre><span class="t-ok">[INFO] NOMINAL | σ_xy=0.312m | σ_z=0.251m | GPS_denied=False</span>
+<span class="t-ok">[INFO] NOMINAL | σ_xy=0.308m | σ_z=0.249m | GPS_denied=False</span>
+<span class="t-warn">[WARN] GPS DENIAL ACTIVATED — blocking GPS relay</span>
+<span class="t-warn">[WARN] Nav health: NOMINAL → DEGRADED (σ_xy=2.841m, GPS_denied=True)</span>
+<span class="t-warn">[WARN] DEGRADED | σ_xy=3.217m | σ_z=0.261m | GPS_denied=True</span>
+<span class="t-warn">[WARN] DEGRADED | σ_xy=3.890m | σ_z=0.263m | GPS_denied=True</span>
+<span class="t-dim">[INFO] Timed GPS denial expired — restoring GPS</span>
+<span class="t-ok">[INFO] Nav health: DEGRADED → NOMINAL (σ_xy=1.102m, GPS_denied=False)</span>
+<span class="t-ok">[INFO] NOMINAL | σ_xy=0.489m | σ_z=0.252m | GPS_denied=False</span></pre>
+        </div>
+
+        <p>
+          Notice: during the 30-second denial, σ_xy grows from ~0.3 m to ~4 m.
+          It stays below the 5 m CRITICAL threshold because optical flow provides
+          velocity corrections that prevent pure IMU drift. Without optical flow
+          (disable <code>odom1</code> in the YAML and retry), σ_xy would reach 5 m
+          within ~15 seconds on a MEMS IMU — triggering the RTB.
+        </p>
+
+        <h3>Final Workspace State After L05</h3>
+        <div class="file-tree">
+<span class="ft-dir">aeroknow_ws/src/aeroknow_bringup/</span>
+├── <span class="ft-dir">config/</span>
+│   └── <span class="ft-new">ekf_params.yaml</span>              <span class="ft-note"># robot_localization config</span>
+├── <span class="ft-dir">launch/</span>
+│   ├── <span class="ft-file">bringup_launch.py</span>            <span class="ft-note"># L02</span>
+│   ├── <span class="ft-file">l03_launch.py</span>                <span class="ft-note"># L03</span>
+│   └── <span class="ft-new">l05_launch.py</span>                <span class="ft-note"># L05 full nav stack</span>
+└── <span class="ft-dir">aeroknow_bringup/</span>
+    ├── <span class="ft-file">... (L02-L03 nodes)</span>
+    ├── <span class="ft-new">static_tf_publisher.py</span>       <span class="ft-note"># sensor frame TF</span>
+    ├── <span class="ft-new">ekf_nav_node.py</span>              <span class="ft-note"># optical flow + GPS monitor</span>
+    ├── <span class="ft-new">gps_denial_injector.py</span>       <span class="ft-note"># GPS topic relay + denial</span>
+    └── <span class="ft-new">nav_health_monitor.py</span>        <span class="ft-note"># covariance watch + RTB trigger</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMON ERRORS -->
+  <div class="lab-section" id="s-errors">
+    <h2>Common Errors &amp; Fixes</h2>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 01 — EKF diverges immediately after start</span>
+      <code class="error-msg">ekf_filter_node: covariance matrix is not positive definite</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> One of the sensor inputs has a covariance set to zero,
+        which is numerically invalid for the EKF. This usually means a MAVROS2 topic is
+        publishing with an all-zero covariance field — some firmware versions do this for
+        GPS before a fix is acquired.
+        <strong>Fix:</strong> Add a small minimum covariance floor in the YAML — raise
+        <code>odom0_pose_rejection_threshold</code> to 15.0 temporarily. Also confirm
+        <code>navsat_transform_node</code> is receiving a valid first GPS fix
+        (check <code>ros2 topic echo /mavros/global_position/global</code> — status field
+        must be ≥ 0). The EKF cannot initialise without at least one valid GPS message.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 02 — /odometry/filtered not published</span>
+      <code class="error-msg">ros2 topic list  →  /odometry/filtered absent</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> <code>ekf_filter_node</code> did not receive any valid sensor
+        input within the <code>sensor_timeout</code> period, so it never started publishing.
+        Common sub-causes: (1) TF tree incomplete — <code>static_tf_publisher</code> not running,
+        (2) IMU topic QoS mismatch, (3) YAML parameter file not found by the node.
+        <strong>Fix:</strong> (1) Run <code>ros2 run tf2_tools view_frames</code> — confirm
+        <code>base_link → odom</code> exists. (2) Check IMU: <code>ros2 topic hz /mavros/imu/data</code>
+        should show ~100 Hz. (3) Confirm the YAML path in the launch file matches
+        <code>ros2 run aeroknow_bringup --ros-args --params-file /path/to/ekf_params.yaml</code>.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 03 — Optical flow publishes zero velocity always</span>
+      <code class="error-msg">ekf_nav_node: Low features: 0 — optical flow unreliable (constant)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> Either cv_bridge is not installed, or the camera topic
+        is not publishing, or the image is all black (rendering issue from L04 Error 03).
+        <strong>Fix:</strong> (1) <code>pip3 install cv-bridge</code> or
+        <code>sudo apt install ros-humble-cv-bridge</code>. (2) Check camera:
+        <code>ros2 topic hz /camera/image_raw</code> — should show ~30 Hz.
+        (3) If image is black, re-apply the L04 fix for software rendering.
+        Optical flow is not critical for the EKF to run — it degrades gracefully without it,
+        the covariance just grows faster during denial.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 04 — navsat_transform_node never publishes /odometry/gps</span>
+      <code class="error-msg">ros2 topic hz /odometry/gps  →  0 Hz (not publishing)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> <code>navsat_transform_node</code> needs a valid initial IMU
+        orientation and GPS fix to establish the local frame origin. It waits up to
+        <code>delay: 3.0</code> seconds before giving up on the first fix.
+        <strong>Fix:</strong> Confirm the remapping in the launch file is correct —
+        <code>gps/fix</code> must map to <code>/mavros/global_position/global_relayed</code>
+        (the injector's output), not the raw GPS topic. Run
+        <code>ros2 topic echo /mavros/global_position/global_relayed</code> —
+        if this is empty, the injector is not running or is in denial mode.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 05 — RTB triggers immediately on first EKF start</span>
+      <code class="error-msg">[ERROR] NAV CRITICAL for 3s — triggering RTB! σ_xy=999.99m</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The initial EKF covariance before any sensor updates is
+        very large (the prior is uncertain). The health monitor sees this and triggers RTB
+        before the EKF has had time to converge.
+        <strong>Fix:</strong> Add a startup delay to the health monitor — only start
+        evaluating health after 10 seconds (let the EKF converge first).
+        Add <code>self.startup_done = False</code> in <code>__init__</code> and
+        <code>self.create_timer(10.0, lambda: setattr(self, 'startup_done', True))</code>.
+        Then gate the RTB trigger: <code>if not self.startup_done: return</code>
+        at the top of <code>odom_cb</code>.
+      </p>
+    </div>
+  </div>
+
+  <!-- EXTENSION CHALLENGES -->
+  <div class="lab-section" id="s-extend">
+    <h2>Extension Challenges</h2>
+    <p>The GNSS-denied stack is running. Here are three harder things to try before L06.</p>
+
+    <div class="extension-box">
+      <ol>
+        <li>
+          <strong>Add a barometer altitude input to the EKF.</strong>
+          MAVROS2 publishes barometric altitude on <code>/mavros/altitude</code>
+          (type <code>mavros_msgs/Altitude</code>). Convert it to a
+          <code>nav_msgs/Odometry</code> message containing only the z-position,
+          and add it as <code>odom2</code> in <code>ekf_params.yaml</code> with only
+          z-position set to <code>true</code> in the config array.
+          Measure σ_z before and after — the barometer should significantly reduce
+          vertical uncertainty during GPS denial, because IMU-integrated altitude drifts
+          much faster than horizontal position.
+        </li>
+        <li>
+          <strong>Plot σ_xy vs time during a GPS denial run.</strong>
+          Subscribe to <code>/odometry/filtered</code>, extract the covariance diagonal
+          elements, and use <code>matplotlib</code> to plot σ_xy over time.
+          Generate two curves: (a) with optical flow active, (b) with optical flow disabled
+          (comment out <code>odom1</code> in YAML, rebuild).
+          The difference demonstrates the quantitative contribution of optical flow to
+          position uncertainty — this is the Fisher Information Matrix analysis from
+          Module 05 §5.7 made visual.
+        </li>
+        <li>
+          <strong>Implement a chi-square GPS spoof detector in gps_denial_injector.</strong>
+          Instead of completely blocking GPS, simulate a spoofing attack:
+          when denial is active, publish a GPS message with a position offset by +50 m north.
+          Modify the <code>nav_health_monitor</code> to run a simplified chi-square test
+          on the GPS-versus-EKF innovation (GPS position minus EKF predicted GPS position).
+          The detector should flag the spoofed GPS within 2–3 measurements.
+          This directly implements the chi-square RAIM from Module 05 §5.6 and
+          Worked Example 5.2.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="lab-nav">
+    <a href="l04-gazebo-simulation.html" class="btn-lab prev">◂ Lab 04: Gazebo World</a>
+    <a href="l06-computer-vision.html"   class="btn-lab">Lab 06: Computer Vision ▸</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Practical Track · Lab 05 · GNSS-Denied Navigation ·
+  ROS2 Humble · robot_localization · OpenCV Lucas-Kanade</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    let text = pre.innerText.split('\n')
+      .map(l => l.replace(/^\$\s*/, '').replace(/^pxh>\s*/, ''))
+      .join('\n').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  const sections = ['s-overview','s-prereqs','s-concepts','s-install','s-ekf-config',
+                    's-ekf-node','s-gps-denial','s-health-monitor','s-demo','s-errors','s-extend'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) { buttons.forEach(b => b.classList.remove('active')); if (buttons[idx]) buttons[idx].classList.add('active'); }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>
