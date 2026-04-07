@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>B01: What Is a Drone? — AEROKNOW Beginner Track</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+
+  <style>
+    /* ── Beginner Track Badge ── */
+    .beginner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-amber);
+      background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.25);
+      padding: 0.25rem 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .beginner-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-amber);
+      box-shadow: var(--glow-amber);
+      animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ── Plain-English intro box ── */
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+
+    /* ── Analogy box ── */
+    .analogy-box {
+      background: rgba(255,183,0,0.04);
+      border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber);
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-amber);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+
+    /* ── Story box (Cadet Arjun narrative) ── */
+    .story-box {
+      background: rgba(179,136,255,0.04);
+      border: 1px solid rgba(179,136,255,0.18);
+      border-left: 3px solid #b388ff;
+      padding: 1.2rem 1.5rem;
+      margin: 1.8rem 0;
+      position: relative;
+    }
+    .story-box .story-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: #b388ff;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+    .story-box p { margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.97rem; line-height: 1.75; }
+    .story-box p:last-child { margin-bottom: 0; }
+
+    /* ── Key term ── */
+    .key-term {
+      color: var(--accent-primary);
+      font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4);
+      cursor: help;
+    }
+
+    /* ── Drone anatomy diagram ── */
+    .anatomy-wrap {
+      background: rgba(5,13,20,0.8);
+      border: 1px solid var(--border-dim);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      position: relative;
+    }
+    .anatomy-title {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Drag and drop label exercise ── */
+    .dnd-wrap {
+      background: rgba(0,255,157,0.02);
+      border: 1px solid rgba(0,255,157,0.12);
+      border-top: 2px solid var(--accent-green);
+      padding: 1.5rem 1.8rem;
+      margin: 2rem 0;
+    }
+    .dnd-title {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--accent-green);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .dnd-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.2rem;
+    }
+    .dnd-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.4rem;
+      min-height: 2.5rem;
+      padding: 0.6rem;
+      background: rgba(0,0,0,0.3);
+      border: 1px dashed rgba(0,255,157,0.2);
+    }
+    .dnd-chip {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent-green);
+      background: rgba(0,255,157,0.08);
+      border: 1px solid rgba(0,255,157,0.3);
+      padding: 0.3rem 0.8rem;
+      cursor: grab;
+      user-select: none;
+      transition: var(--transition);
+    }
+    .dnd-chip:hover { background: rgba(0,255,157,0.15); box-shadow: var(--glow-green); }
+    .dnd-chip.dragging { opacity: 0.4; cursor: grabbing; }
+    .dnd-chip.placed { opacity: 0.3; cursor: default; pointer-events: none; }
+
+    .dnd-targets {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .dnd-target {
+      border: 1px dashed var(--border-dim);
+      padding: 0.5rem 0.75rem;
+      min-height: 2.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+      background: rgba(0,0,0,0.2);
+    }
+    .dnd-target.drag-over {
+      border-color: var(--accent-green);
+      background: rgba(0,255,157,0.05);
+    }
+    .dnd-target.correct { border-color: var(--accent-green); background: rgba(0,255,157,0.07); }
+    .dnd-target.wrong   { border-color: var(--accent-red);   background: rgba(255,58,58,0.07); }
+    .dnd-target-num {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .dnd-target-hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      flex: 1;
+    }
+    .dnd-target-drop {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      min-width: 80px;
+    }
+
+    .dnd-controls {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .dnd-btn {
+      background: transparent;
+      border: 1px solid var(--border-dim);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .dnd-btn.primary {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+    .dnd-btn.primary:hover {
+      background: var(--accent-green);
+      color: var(--bg-void);
+      box-shadow: var(--glow-green);
+    }
+    .dnd-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+    .dnd-result {
+      margin-top: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: none;
+    }
+
+    /* ── Scenario decision ── */
+    .scenario-box {
+      background: rgba(255,58,58,0.03);
+      border: 1px solid rgba(255,58,58,0.15);
+      border-left: 3px solid var(--accent-red);
+      padding: 1.4rem 1.6rem;
+      margin: 2rem 0;
+    }
+    .scenario-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-red);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .scenario-q {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      line-height: 1.55;
+    }
+    .scenario-choices {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .scenario-choice {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-dim);
+      color: var(--text-secondary);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      text-align: left;
+      transition: var(--transition);
+    }
+    .scenario-choice:hover:not(:disabled) {
+      border-color: var(--accent-primary);
+      background: rgba(0,212,255,0.05);
+      color: var(--text-primary);
+    }
+    .scenario-choice:disabled { cursor: default; }
+    .scenario-choice.s-correct { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0,255,157,0.06); }
+    .scenario-choice.s-wrong   { border-color: var(--accent-red);   color: var(--accent-red);   background: rgba(255,58,58,0.06); opacity:0.7; }
+    .scenario-feedback {
+      margin-top: 0.9rem;
+      padding: 0.8rem 1rem;
+      background: rgba(0,0,0,0.3);
+      border-left: 2px solid var(--accent-amber);
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      display: none;
+    }
+
+    /* ── Classification grid ── */
+    .class-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .class-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      padding: 1.1rem 1.2rem;
+      transition: var(--transition);
+    }
+    .class-card:hover {
+      border-color: var(--border-bright);
+      background: var(--bg-card-hover);
+    }
+    .class-card-type {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .class-card h4 {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+    .class-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+    .class-card-example {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      margin-top: 0.5rem;
+      opacity: 0.7;
+    }
+
+    /* ── Simulation canvas area ── */
+    .sim-wrap {
+      background: rgba(1,8,16,0.95);
+      border: 1px solid var(--border-dim);
+      margin: 1.5rem 0;
+      position: relative;
+    }
+    .sim-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .sim-title {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .sim-status {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--accent-green);
+      letter-spacing: 0.1em;
+    }
+    #drone-sim-canvas {
+      display: block;
+      width: 100%;
+    }
+    .sim-controls {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border-dim);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .sim-btn {
+      background: transparent;
+      border: 1px solid var(--border-dim);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .sim-btn:hover   { border-color: var(--accent-primary); color: var(--accent-primary); }
+    .sim-btn.active  { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0,255,157,0.07); }
+    .sim-info {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    /* ── Section jump bar ── */
+    .section-jump {
+      position: sticky;
+      top: 60px;
+      z-index: 100;
+      background: rgba(2,4,8,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 1rem;
+      min-width: max-content;
+    }
+    .jump-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0 0.75rem 0 0;
+      border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem;
+      white-space: nowrap;
+      line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      padding: 0 0.85rem;
+      height: 42px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* ── Stepping stone panel ── */
+    .advance-panel {
+      background: rgba(0,212,255,0.03);
+      border: 1px solid var(--border-dim);
+      border-top: 2px solid var(--accent-primary);
+      padding: 1.5rem 1.8rem;
+      margin: 3rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .advance-icon {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--accent-primary);
+      opacity: 0.5;
+      flex-shrink: 0;
+    }
+    .advance-text h3 {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      color: var(--accent-primary);
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.05em;
+    }
+    .advance-text p { font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+    .advance-link {
+      margin-left: auto;
+      display: inline-block;
+      background: transparent;
+      border: 1px solid var(--accent-primary);
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.7rem 1.5rem;
+      text-decoration: none;
+      transition: var(--transition);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .advance-link:hover {
+      background: var(--accent-primary);
+      color: var(--bg-void);
+      box-shadow: var(--glow-primary);
+    }
+    .cite {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--accent-amber);
+      background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem;
+      margin-left: 0.25rem;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- ── SECTION JUMP BAR ── -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">1.1</span>The Airshow</button>
+    <button class="jump-btn"        onclick="jumpTo('s2')"><span class="jb-num">1.2</span>What Is a Drone?</button>
+    <button class="jump-btn"        onclick="jumpTo('s3')"><span class="jb-num">1.3</span>The Four Forces</button>
+    <button class="jump-btn"        onclick="jumpTo('s4')"><span class="jb-num">1.4</span>Types of Drones</button>
+    <button class="jump-btn"        onclick="jumpTo('s5')"><span class="jb-num">1.5</span>Label the Drone</button>
+    <button class="jump-btn"        onclick="jumpTo('s6')"><span class="jb-num">1.6</span>Live Simulation</button>
+    <button class="jump-btn"        onclick="jumpTo('s7')"><span class="jb-num">1.7</span>Mission Decision</button>
+    <button class="jump-btn"        onclick="jumpTo('s8')"><span class="jb-num">1.8</span>Knowledge Check</button>
+    <button class="jump-btn"        onclick="jumpTo('s9')"><span class="jb-num">1.9</span>Go Deeper</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- ── HERO ── -->
+  <div class="module-hero">
+    <span class="beginner-badge">Beginner Track — Module B01</span>
+    <span class="module-num">MODULE B01 // WHAT IS A DRONE?</span>
+    <h1>What Is a Drone?</h1>
+    <p class="lead">
+      Everyone has seen one. Few people really know what it is.
+      In this module, we start from zero — no physics, no engineering background required.
+      By the end, you'll understand what a drone actually is, how it stays in the air,
+      and why militaries around the world have made it their most important new tool.
+    </p>
+    <div class="module-meta">
+      <span class="label label-amber">Beginner Friendly</span>
+      <span class="label label-green">No Prerequisites</span>
+      <span class="label label-primary">30 Min Read</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.1  THE AIRSHOW — STORY OPENING
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>1.1 Cadet Arjun's First Encounter</h2>
+
+    <div class="story-box">
+      <span class="story-label">📖 Mission Log — Day 1</span>
+      <p>
+        Arjun was seventeen when he saw it for the first time. Not in a movie. Not on a screen.
+        In the actual sky above the Aero India airshow in Bengaluru, a matte-grey aircraft
+        banked silently overhead — no cockpit, no pilot, no engine noise anyone could place.
+        It moved too precisely to be random. Too smoothly to be a toy.
+      </p>
+      <p>
+        "What <em>is</em> that?" he asked the officer standing beside him.
+      </p>
+      <p>
+        The officer didn't look up. "That," she said, "is the most important aircraft your
+        generation will ever learn to operate."
+      </p>
+      <p>
+        That was the day Arjun decided he needed to understand drones. Not just fly them —
+        <strong>understand</strong> them. This module is where that education begins.
+      </p>
+    </div>
+
+    <div class="plain-intro">
+      <span class="pi-label">What You'll Know After This Module</span>
+      <p>
+        You will be able to define what a UAV is, explain the four forces that keep it airborne,
+        identify the main types used in military operations, and label the key parts of a
+        quadcopter drone — all in plain English, without any prior engineering knowledge.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.2  WHAT IS A DRONE?
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>1.2 What Is a Drone, Exactly?</h2>
+
+    <p>
+      The word <strong>"drone"</strong> is informal slang. The correct technical term is
+      <span class="key-term" title="Unmanned Aerial Vehicle — any aircraft that flies without a human pilot onboard">UAV</span>
+      — <strong>Unmanned Aerial Vehicle</strong>. Some documents call it a
+      <span class="key-term" title="Unmanned Aircraft System — includes the UAV, its ground control station, and communications link">UAS</span>
+      (Unmanned Aircraft System), which includes not just the aircraft but everything
+      that makes it work: the ground control station, the radio link, and the software.
+    </p>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Think of it this way</span>
+      <p>
+        A UAV is to a normal aircraft what a remote-controlled car is to a regular car —
+        except the UAV can also drive <em>itself</em>, using onboard computers instead of
+        a human behind a controller. Some UAVs need a pilot on the ground at all times.
+        Others can fly an entire mission with nobody touching the controls.
+      </p>
+    </div>
+
+    <p>
+      There is one critical thing that makes a UAV different from every aircraft before it:
+      <strong>the pilot is not at risk</strong>. The aircraft can be shot down, captured, or
+      crashed — and the person who flew it walks away unharmed. That single fact has
+      transformed how militaries think about air power.
+    </p>
+
+    <div class="story-box">
+      <span class="story-label">📖 Mission Log — The Officer Explains</span>
+      <p>
+        "Before UAVs," the officer told Arjun, "if you wanted a camera over hostile territory,
+        you sent a pilot into the danger zone. Shoot down the plane, you lose the pilot.
+        That limits everything — the missions you'll attempt, the risks you'll accept,
+        the decisions you'll make."
+      </p>
+      <p>
+        "Now you send the machine. The pilot sits in an air-conditioned room, 5,000 kilometres
+        away. The machine gets shot down?" She shrugged. "You build another one."
+      </p>
+    </div>
+
+    <h3>The Three Modes of Operation</h3>
+    <p>
+      Not all drones are the same level of autonomous. There is a spectrum
+      <span class="cite">NATO AEP-83</span>:
+    </p>
+
+    <div class="spec-table-wrap" style="overflow-x:auto; margin:1.2rem 0;">
+      <table class="spec-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border-dim);">
+            <th style="font-family:var(--font-mono);font-size:0.68rem;color:var(--accent-primary);text-align:left;padding:0.5rem 0.75rem;letter-spacing:0.1em;">Mode</th>
+            <th style="font-family:var(--font-mono);font-size:0.68rem;color:var(--accent-primary);text-align:left;padding:0.5rem 0.75rem;letter-spacing:0.1em;">Who Flies It?</th>
+            <th style="font-family:var(--font-mono);font-size:0.68rem;color:var(--accent-primary);text-align:left;padding:0.5rem 0.75rem;letter-spacing:0.1em;">Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-panel);">
+            <td style="padding:0.6rem 0.75rem;font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-primary);">Remotely Piloted</td>
+            <td style="padding:0.6rem 0.75rem;color:var(--text-secondary);font-size:0.9rem;">A human operator controls it in real time from the ground</td>
+            <td style="padding:0.6rem 0.75rem;color:var(--text-muted);font-size:0.82rem;">DJI consumer drones, hobby racing drones</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-panel);">
+            <td style="padding:0.6rem 0.75rem;font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-amber);">Semi-Autonomous</td>
+            <td style="padding:0.6rem 0.75rem;color:var(--text-secondary);font-size:0.9rem;">Onboard computer handles flight; human gives mission commands</td>
+            <td style="padding:0.6rem 0.75rem;color:var(--text-muted);font-size:0.82rem;">Military MALE UAVs like MQ-9 Reaper</td>
+          </tr>
+          <tr>
+            <td style="padding:0.6rem 0.75rem;font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-green);">Fully Autonomous</td>
+            <td style="padding:0.6rem 0.75rem;color:var(--text-secondary);font-size:0.9rem;">AI makes all decisions; no human in the control loop</td>
+            <td style="padding:0.6rem 0.75rem;color:var(--text-muted);font-size:0.82rem;">Experimental swarm systems (covered in Module B09)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.3  THE FOUR FORCES
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>1.3 Why Doesn't It Fall Out of the Sky?</h2>
+
+    <p>
+      Every aircraft — from a paper plane to a fighter jet to a military drone —
+      is a battle between <strong>four forces</strong>. Understanding these four forces
+      is the foundation of all aerospace engineering.
+    </p>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — The Tug of War</span>
+      <p>
+        Imagine four people pulling on a drone in four different directions.
+        If the forces balance, the drone hovers perfectly still.
+        If one side pulls harder, the drone moves that way.
+        A pilot's entire job — human or computer — is to manage these four forces.
+      </p>
+    </div>
+
+    <!-- Four Forces Visual Diagram (SVG) -->
+    <div class="anatomy-wrap">
+      <div class="anatomy-title">▸ THE FOUR FORCES — Interactive Diagram</div>
+      <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:0 auto;">
+        <defs>
+          <marker id="arr-up"    markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,8 L4,0 L8,8" fill="none" stroke="#00ff9d" stroke-width="1.5"/>
+          </marker>
+          <marker id="arr-down"  markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,0 L4,8 L8,0" fill="none" stroke="#ff3a3a" stroke-width="1.5"/>
+          </marker>
+          <marker id="arr-right" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+          </marker>
+          <marker id="arr-left"  markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M8,0 L0,4 L8,8" fill="none" stroke="#ffb700" stroke-width="1.5"/>
+          </marker>
+          <filter id="glow-g"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+
+        <!-- Background grid -->
+        <rect width="700" height="380" fill="#010810"/>
+        <g stroke="rgba(0,212,255,0.06)" stroke-width="1">
+          <line x1="0" y1="95" x2="700" y2="95"/>
+          <line x1="0" y1="190" x2="700" y2="190"/>
+          <line x1="0" y1="285" x2="700" y2="285"/>
+          <line x1="175" y1="0" x2="175" y2="380"/>
+          <line x1="350" y1="0" x2="350" y2="380"/>
+          <line x1="525" y1="0" x2="525" y2="380"/>
+        </g>
+
+        <!-- DRONE BODY (quadcopter top-view) -->
+        <g transform="translate(350,190)">
+          <!-- Arms -->
+          <line x1="-60" y1="-60" x2="60" y2="60" stroke="rgba(0,212,255,0.25)" stroke-width="8" stroke-linecap="round"/>
+          <line x1="60"  y1="-60" x2="-60" y2="60" stroke="rgba(0,212,255,0.25)" stroke-width="8" stroke-linecap="round"/>
+          <!-- Body -->
+          <rect x="-18" y="-18" width="36" height="36" rx="4" fill="rgba(0,212,255,0.12)" stroke="rgba(0,212,255,0.5)" stroke-width="1.5"/>
+          <!-- Rotors -->
+          <g filter="url(#glow-g)">
+            <circle cx="-65" cy="-65" r="20" fill="none" stroke="#00d4ff" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>
+            <circle cx="65"  cy="-65" r="20" fill="none" stroke="#00d4ff" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>
+            <circle cx="-65" cy="65"  r="20" fill="none" stroke="#00d4ff" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>
+            <circle cx="65"  cy="65"  r="20" fill="none" stroke="#00d4ff" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>
+          </g>
+          <!-- Motor hubs -->
+          <circle cx="-65" cy="-65" r="5" fill="#00d4ff" opacity="0.8"/>
+          <circle cx="65"  cy="-65" r="5" fill="#00d4ff" opacity="0.8"/>
+          <circle cx="-65" cy="65"  r="5" fill="#00d4ff" opacity="0.8"/>
+          <circle cx="65"  cy="65"  r="5" fill="#00d4ff" opacity="0.8"/>
+          <!-- Center dot -->
+          <circle cx="0" cy="0" r="4" fill="#00d4ff"/>
+        </g>
+
+        <!-- LIFT arrow (up) -->
+        <line x1="350" y1="165" x2="350" y2="55" stroke="#00ff9d" stroke-width="2.5" marker-end="url(#arr-up)" filter="url(#glow-g)"/>
+        <text x="365" y="95" font-family="'Share Tech Mono',monospace" font-size="11" fill="#00ff9d" letter-spacing="1">LIFT</text>
+        <text x="365" y="110" font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(0,255,157,0.5)">↑ Rotors push air down</text>
+
+        <!-- WEIGHT arrow (down) -->
+        <line x1="350" y1="215" x2="350" y2="325" stroke="#ff3a3a" stroke-width="2.5" marker-end="url(#arr-down)" filter="url(#glow-g)"/>
+        <text x="365" y="278" font-family="'Share Tech Mono',monospace" font-size="11" fill="#ff3a3a" letter-spacing="1">WEIGHT</text>
+        <text x="365" y="293" font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(255,58,58,0.5)">↓ Gravity pulls drone down</text>
+
+        <!-- THRUST arrow (right) -->
+        <line x1="390" y1="190" x2="510" y2="190" stroke="#00d4ff" stroke-width="2.5" marker-end="url(#arr-right)"/>
+        <text x="480" y="178" font-family="'Share Tech Mono',monospace" font-size="11" fill="#00d4ff" letter-spacing="1">THRUST</text>
+        <text x="470" y="210" font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(0,212,255,0.5)">→ Forward motion</text>
+
+        <!-- DRAG arrow (left) -->
+        <line x1="310" y1="190" x2="190" y2="190" stroke="#ffb700" stroke-width="2.5" marker-end="url(#arr-left)"/>
+        <text x="200" y="178" font-family="'Share Tech Mono',monospace" font-size="11" fill="#ffb700" letter-spacing="1">DRAG</text>
+        <text x="185" y="210" font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(255,183,0,0.5)">← Air resistance</text>
+
+        <!-- Labels: hover condition -->
+        <text x="350" y="365" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="rgba(0,212,255,0.35)" letter-spacing="2">HOVER: LIFT = WEIGHT · THRUST = DRAG</text>
+      </svg>
+    </div>
+
+    <h3>What Each Force Does</h3>
+
+    <p>
+      <strong class="key-term" title="The upward force generated by spinning rotors pushing air downward">Lift</strong>
+      is generated by the rotors. Each rotor spins fast enough to push air downward.
+      Air pushed down = drone pushed up. This is Newton's Third Law in action: every action has an equal and opposite reaction.
+    </p>
+    <p>
+      <strong class="key-term" title="The force of gravity pulling the drone toward the ground">Weight</strong>
+      is simply gravity — Earth pulling the drone downward. The heavier the drone (and its payload),
+      the more lift the rotors must generate just to hover.
+    </p>
+    <p>
+      <strong class="key-term" title="The force that moves the drone forward, generated by tilting the rotors">Thrust</strong>
+      is what moves the drone forward. A quadcopter achieves this by tilting slightly — some of the rotor's lift
+      force is now directed forward instead of straight up.
+    </p>
+    <p>
+      <strong class="key-term" title="Air resistance — the force that opposes forward motion">Drag</strong>
+      is air resistance. The faster a drone moves, the more the air pushes back against it.
+      Aerodynamic shape design is all about minimising drag.
+    </p>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Why Hover = Balance</span>
+      <p>
+        When a drone hovers perfectly still, Lift exactly equals Weight and
+        Thrust exactly equals Drag. The instant the pilot (or autopilot) wants
+        to move in any direction, they tip this balance — deliberately.
+        All of drone flight is controlled imbalance.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.4  TYPES OF DRONES
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>1.4 The Family of Military Drones</h2>
+
+    <p>
+      Not all military UAVs look like the quadcopter in your neighbour's garden.
+      Military drones span an enormous range — from a device small enough to fit
+      in a soldier's backpack to aircraft heavier than a bus.
+    </p>
+
+    <div class="story-box">
+      <span class="story-label">📖 Mission Log — The Hangar Tour</span>
+      <p>
+        The officer walked Arjun through a hangar. Along one wall sat machines of every size.
+        A palm-sized device that looked like a toy. A sleek fixed-wing aircraft the length of a car.
+        Something that resembled a miniature helicopter. And at the far end, almost touching the ceiling,
+        a vehicle with a wingspan wider than a bus.
+      </p>
+      <p>
+        "Same category," she said. "All UAVs. Different jobs."
+      </p>
+    </div>
+
+    <div class="class-grid">
+      <div class="class-card">
+        <div class="class-card-type" style="color:var(--accent-green);">Group 1 — Nano/Micro</div>
+        <h4 style="color:var(--text-primary);">Pocket Drones</h4>
+        <p>Under 20 kg. Fits in a backpack. Used by infantry for over-the-hill reconnaissance — see what's around the corner before you walk into it.</p>
+        <div class="class-card-example" style="color:var(--accent-green);">Example: Black Hornet Nano</div>
+      </div>
+
+      <div class="class-card">
+        <div class="class-card-type" style="color:var(--accent-primary);">Group 2 — Small</div>
+        <h4 style="color:var(--text-primary);">Tactical UAVs</h4>
+        <p>20–55 kg. Launched by a small team. Provides real-time video to ground commanders during active operations.</p>
+        <div class="class-card-example" style="color:var(--accent-primary);">Example: RQ-11 Raven</div>
+      </div>
+
+      <div class="class-card">
+        <div class="class-card-type" style="color:var(--accent-amber);">Group 3 — Medium</div>
+        <h4 style="color:var(--text-primary);">Theatre UAVs</h4>
+        <p>55–600 kg. Operates at altitude for hours. Covers large areas. Feeds intelligence to commanders many levels up the chain.</p>
+        <div class="class-card-example" style="color:var(--accent-amber);">Example: MQ-1C Grey Eagle</div>
+      </div>
+
+      <div class="class-card">
+        <div class="class-card-type" style="color:var(--accent-red);">Group 4-5 — Large/MALE</div>
+        <h4 style="color:var(--text-primary);">Strategic UAVs</h4>
+        <p>600 kg+. Can carry weapons and sensors. Flies for 24+ hours. Replaces entire squadrons of manned aircraft for persistent surveillance.</p>
+        <div class="class-card-example" style="color:var(--accent-red);">Example: MQ-9 Reaper</div>
+      </div>
+
+      <div class="class-card">
+        <div class="class-card-type" style="color:#b388ff;">Loitering Munition</div>
+        <h4 style="color:var(--text-primary);">Kamikaze Drones</h4>
+        <p>A drone that <em>is</em> the weapon. Flies to a target area, circles waiting for the right moment, then dives and explodes. One-way mission.</p>
+        <div class="class-card-example" style="color:#b388ff;">Example: Harop, Shahed-136</div>
+      </div>
+
+      <div class="class-card">
+        <div class="class-card-type" style="color:var(--accent-green);">Swarm Systems</div>
+        <h4 style="color:var(--text-primary);">The Swarm</h4>
+        <p>Dozens or hundreds of small drones working together as one system. Overwhelm air defences. Coordinate attacks. No single point of failure.</p>
+        <div class="class-card-example" style="color:var(--accent-green);">Covered in Module B09</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.5  DRAG AND DROP — LABEL THE DRONE
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>1.5 Label the Drone</h2>
+    <p>
+      Before we go further, make sure the vocabulary is locked in.
+      Drag each label from the word bank to the correct part of the quadcopter.
+    </p>
+
+    <div class="dnd-wrap" id="dnd-exercise">
+      <div class="dnd-title">▸ DRAG-AND-DROP — DRONE ANATOMY</div>
+      <div class="dnd-subtitle">Drag each term to the drone component it describes.</div>
+
+      <!-- Word bank -->
+      <div class="dnd-bank" id="dnd-bank">
+        <div class="dnd-chip" draggable="true" data-label="Rotor / Propeller">Rotor / Propeller</div>
+        <div class="dnd-chip" draggable="true" data-label="Motor">Motor</div>
+        <div class="dnd-chip" draggable="true" data-label="Flight Controller">Flight Controller</div>
+        <div class="dnd-chip" draggable="true" data-label="Frame / Arm">Frame / Arm</div>
+        <div class="dnd-chip" draggable="true" data-label="Battery">Battery</div>
+        <div class="dnd-chip" draggable="true" data-label="Camera / Payload">Camera / Payload</div>
+      </div>
+
+      <!-- Drop targets -->
+      <div class="dnd-targets">
+        <div class="dnd-target" data-answer="Rotor / Propeller">
+          <span class="dnd-target-num">①</span>
+          <span class="dnd-target-hint">Spinning blade that pushes air downward to generate lift</span>
+          <span class="dnd-target-drop" id="drop-0">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Motor">
+          <span class="dnd-target-num">②</span>
+          <span class="dnd-target-hint">Electric device that spins the blades at thousands of RPM</span>
+          <span class="dnd-target-drop" id="drop-1">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Flight Controller">
+          <span class="dnd-target-num">③</span>
+          <span class="dnd-target-hint">The drone's "brain" — runs algorithms to keep it stable</span>
+          <span class="dnd-target-drop" id="drop-2">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Frame / Arm">
+          <span class="dnd-target-num">④</span>
+          <span class="dnd-target-hint">Structural skeleton that holds motors apart and absorbs vibration</span>
+          <span class="dnd-target-drop" id="drop-3">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Battery">
+          <span class="dnd-target-num">⑤</span>
+          <span class="dnd-target-hint">Power source — typically LiPo cells, limits flight time</span>
+          <span class="dnd-target-drop" id="drop-4">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Camera / Payload">
+          <span class="dnd-target-num">⑥</span>
+          <span class="dnd-target-hint">The sensor or equipment the drone is carrying to do its job</span>
+          <span class="dnd-target-drop" id="drop-5">— drop here —</span>
+        </div>
+      </div>
+
+      <div class="dnd-controls">
+        <button class="dnd-btn primary" onclick="checkDnD()">▸ CHECK LABELS</button>
+        <button class="dnd-btn" onclick="resetDnD()">↺ Reset</button>
+      </div>
+      <div class="dnd-result" id="dnd-result"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.6  LIVE SIMULATION
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>1.6 Watch the Forces in Action</h2>
+
+    <p>
+      The simulation below shows a drone responding to the four forces in real time.
+      Toggle each force to see how the drone behaves when the balance is disturbed.
+    </p>
+
+    <div class="sim-wrap">
+      <div class="sim-header">
+        <span class="sim-title">▸ FORCE BALANCE SIMULATOR — B01</span>
+        <span class="sim-status" id="sim-status-txt">● HOVER</span>
+      </div>
+      <canvas id="drone-sim-canvas" height="300"></canvas>
+      <div class="sim-controls">
+        <button class="sim-btn active" id="btn-hover"   onclick="simMode('hover')">Hover</button>
+        <button class="sim-btn"        id="btn-climb"   onclick="simMode('climb')">Climb ↑</button>
+        <button class="sim-btn"        id="btn-descend" onclick="simMode('descend')">Descend ↓</button>
+        <button class="sim-btn"        id="btn-forward" onclick="simMode('forward')">Forward →</button>
+        <button class="sim-btn"        id="btn-fast"    onclick="simMode('fast')">Full Speed</button>
+        <span class="sim-info" id="sim-force-readout">L=100% W=100% T=0% D=0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.7  SCENARIO DECISION
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>1.7 Mission Decision — What Would You Do, Cadet?</h2>
+
+    <div class="story-box">
+      <span class="story-label">📖 Mission Log — First Assignment</span>
+      <p>
+        Arjun's first assignment: choose the right UAV for a reconnaissance mission.
+        The target is a suspected supply depot 80 km behind enemy lines.
+        Intelligence wants 6 hours of continuous overhead video. The area has
+        limited air defences but is inside range of radar systems. There is no
+        friendly landing strip within 200 km.
+      </p>
+    </div>
+
+    <div class="scenario-box">
+      <span class="scenario-label">⚠ Cadet Decision — Choose Your Platform</span>
+      <p class="scenario-q">
+        Which UAV class is most appropriate for this mission?
+        Consider: range, endurance, payload capacity, and survivability.
+      </p>
+      <div class="scenario-choices" id="sc-choices">
+        <button class="scenario-choice" onclick="scenarioAnswer(this, false)">
+          <strong>A.</strong> Group 1 Nano drone (Black Hornet class) — small, hard to detect, fits in a pocket
+        </button>
+        <button class="scenario-choice" onclick="scenarioAnswer(this, false)">
+          <strong>B.</strong> Commercial quadcopter — cheap, easy to replace if shot down
+        </button>
+        <button class="scenario-choice" onclick="scenarioAnswer(this, true)">
+          <strong>C.</strong> Group 4 MALE UAV (MQ-9 class) — long endurance, high altitude, large sensor payload
+        </button>
+        <button class="scenario-choice" onclick="scenarioAnswer(this, false)">
+          <strong>D.</strong> Loitering munition — low cost, one-way mission, high surprise factor
+        </button>
+      </div>
+      <div class="scenario-feedback" id="sc-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.8  KNOWLEDGE CHECK — MCQ QUIZ
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>1.8 Knowledge Check</h2>
+    <p>Four questions. No guessing — think through each one before selecting.</p>
+
+    <div class="bq-quiz" id="quiz-b01">
+
+      <div class="bq-question"
+           data-question="What does UAV stand for, and what makes it different from a regular aircraft?"
+           data-options='["Unified Aerial Vehicle — it has better navigation","Unmanned Aerial Vehicle — no human pilot onboard","Universal Aviation Vehicle — it can fly in any weather","Unmanned Aerial Vector — it uses GPS to steer"]'
+           data-correct="1"
+           data-explanation="UAV = Unmanned Aerial Vehicle. The defining characteristic is the absence of a human pilot onboard. The aircraft can be remotely piloted from the ground, semi-autonomous, or fully autonomous — but in all cases, no human sits inside it during flight.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A drone is hovering perfectly still. What must be true about the four forces acting on it?"
+           data-options='["Lift must be greater than Weight so it stays up","Thrust must be greater than Drag to keep it stationary","Lift equals Weight, and Thrust equals Drag","All four forces must be zero"]'
+           data-correct="2"
+           data-explanation="For hover (zero net acceleration), the forces must be balanced: Lift = Weight (no vertical movement) and Thrust = Drag (no horizontal movement). This is Newton's First Law — an object at rest stays at rest when net force is zero.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A military unit needs to watch a target area continuously for 18 hours from 80 km away without landing. Which UAV class is the correct choice?"
+           data-options='["Group 1 Nano — small and hard to detect","Commercial quadcopter — cheap and available","Loitering munition — designed for long patrols","Group 4-5 MALE UAV — designed for long-range persistent ISR"]'
+           data-correct="3"
+           data-explanation="MALE (Medium Altitude Long Endurance) UAVs like the MQ-9 Reaper are specifically designed for persistent Intelligence, Surveillance and Reconnaissance (ISR) over long distances and extended time periods. A nano drone has a range of kilometres and flight time of minutes. A loitering munition is a one-way weapon, not a surveillance platform.">
+      </div>
+
+      <div class="bq-question"
+           data-question="What is a loitering munition, and how does it differ from a standard surveillance drone?"
+           data-options='["A drone that loiters above friendly forces to provide communications relay","A drone designed for long-endurance surveillance with a recoverable airframe","A drone that is itself the weapon — it flies to a target area, waits, then strikes by crashing into the target","A drone that carries missiles and fires them from altitude"]'
+           data-correct="2"
+           data-explanation="A loitering munition (also called a kamikaze drone or suicide drone) is a one-way weapon system. Unlike a conventional drone that launches a missile and returns to base, the loitering munition itself dives into the target and detonates. The warhead is inside the aircraft. Examples include the Israeli Harop and Iranian Shahed-136.">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       1.9  ADVANCE TO FULL MODULE (STEPPING STONE)
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>1.9 You've Completed the Foundation</h2>
+
+    <p>
+      You now understand what a UAV is, why it matters, how the four forces govern its flight,
+      and how different platforms serve different military roles. That mental model is the foundation
+      for everything that follows.
+    </p>
+    <p>
+      The next step: go deeper into the mathematics and engineering behind how UAVs are actually
+      classified, weighted, and sized for missions. That's what Module M01 is about — the full,
+      rigorous version of what you just learned.
+    </p>
+
+    <div class="advance-panel">
+      <div class="advance-icon">▸▸</div>
+      <div class="advance-text">
+        <h3>READY TO GO DEEPER?</h3>
+        <p>
+          Module M01 covers the NATO STANAG 4670 classification system, payload mass fraction
+          calculations, ISR endurance equations, and the J/S jamming equation — the full
+          engineering treatment of everything introduced here.
+        </p>
+      </div>
+      <a href="../modules/m01-uav-systems.html" class="advance-link">M01: UAV Systems Overview ▸</a>
+    </div>
+
+    <!-- Next beginner module -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-dim); flex-wrap:wrap; gap:1rem;">
+      <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);">BEGINNER TRACK · MODULE B01 OF 10</span>
+      <a href="b02-why-drones-fly.html" class="btn-primary" style="font-size:0.75rem;">B02: Why Drones Fly — Forces & Physics ▸</a>
+    </div>
+  </div>
+
+</div><!-- end module-page -->
+
+<footer>
+  <p>AEROKNOW · Beginner Module B01 · What Is a Drone? · Beginner Track</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/beginner-quiz.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════
+   SECTION JUMP BAR
+   ══════════════════════════════════════════════ */
+function jumpTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+const buttons  = document.querySelectorAll('.jump-btn');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = sections.indexOf(entry.target.id);
+      if (idx !== -1) {
+        buttons.forEach(b => b.classList.remove('active'));
+        if (buttons[idx]) buttons[idx].classList.add('active');
+      }
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+
+
+/* ══════════════════════════════════════════════
+   DRAG AND DROP EXERCISE
+   ══════════════════════════════════════════════ */
+let draggedChip = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const chips   = document.querySelectorAll('.dnd-chip');
+  const targets = document.querySelectorAll('.dnd-target');
+
+  chips.forEach(chip => {
+    chip.addEventListener('dragstart', e => {
+      draggedChip = chip;
+      chip.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    chip.addEventListener('dragend', () => {
+      chip.classList.remove('dragging');
+    });
+  });
+
+  targets.forEach((target, i) => {
+    target.addEventListener('dragover', e => {
+      e.preventDefault();
+      target.classList.add('drag-over');
+    });
+    target.addEventListener('dragleave', () => {
+      target.classList.remove('drag-over');
+    });
+    target.addEventListener('drop', e => {
+      e.preventDefault();
+      target.classList.remove('drag-over');
+      if (!draggedChip) return;
+
+      const dropEl = target.querySelector('.dnd-target-drop');
+      // If target already has a chip, return it to bank
+      const existing = target.getAttribute('data-placed');
+      if (existing) {
+        const bank = document.getElementById('dnd-bank');
+        const oldChip = [...bank.querySelectorAll('.dnd-chip.placed')]
+          .find(c => c.getAttribute('data-label') === existing);
+        if (oldChip) oldChip.classList.remove('placed');
+      }
+
+      // Place new chip
+      const label = draggedChip.getAttribute('data-label');
+      target.setAttribute('data-placed', label);
+      dropEl.textContent = label;
+      dropEl.style.color = 'var(--accent-primary)';
+      target.classList.remove('correct','wrong');
+      draggedChip.classList.add('placed');
+      draggedChip = null;
+
+      document.getElementById('dnd-result').style.display = 'none';
+    });
+  });
+});
+
+function checkDnD() {
+  const targets = document.querySelectorAll('.dnd-target');
+  let correct = 0;
+  targets.forEach(target => {
+    const answer = target.getAttribute('data-answer');
+    const placed = target.getAttribute('data-placed');
+    target.classList.remove('correct','wrong');
+    if (!placed) return;
+    if (placed === answer) { target.classList.add('correct'); correct++; }
+    else                   { target.classList.add('wrong'); }
+  });
+  const resultEl = document.getElementById('dnd-result');
+  resultEl.style.display = 'block';
+  const total = targets.length;
+  const pct   = Math.round((correct/total)*100);
+  const color = correct === total ? 'var(--accent-green)' : correct >= total/2 ? 'var(--accent-amber)' : 'var(--accent-red)';
+  resultEl.style.color = color;
+  resultEl.textContent = `${correct}/${total} correct (${pct}%) — ${correct===total ? 'All labels placed correctly. ✓' : 'Review the incorrect labels and try again.'}`;
+}
+
+function resetDnD() {
+  const targets = document.querySelectorAll('.dnd-target');
+  const chips   = document.querySelectorAll('.dnd-chip');
+  targets.forEach(t => {
+    t.classList.remove('correct','wrong');
+    t.removeAttribute('data-placed');
+    const drop = t.querySelector('.dnd-target-drop');
+    drop.textContent = '— drop here —';
+    drop.style.color = '';
+  });
+  chips.forEach(c => c.classList.remove('placed'));
+  const resultEl = document.getElementById('dnd-result');
+  resultEl.style.display = 'none';
+}
+
+
+/* ══════════════════════════════════════════════
+   SCENARIO DECISION
+   ══════════════════════════════════════════════ */
+function scenarioAnswer(btn, isCorrect) {
+  const choices  = document.querySelectorAll('.scenario-choice');
+  const feedback = document.getElementById('sc-feedback');
+  choices.forEach(c => {
+    c.disabled = true;
+    c.classList.remove('s-correct','s-wrong');
+  });
+  btn.classList.add(isCorrect ? 's-correct' : 's-wrong');
+  // Also highlight the correct answer
+  choices[2].classList.add('s-correct');
+
+  feedback.style.display = 'block';
+  if (isCorrect) {
+    feedback.style.borderLeftColor = 'var(--accent-green)';
+    feedback.innerHTML = `
+      <strong style="color:var(--accent-green);">Correct, Cadet.</strong>
+      A Group 4-5 MALE UAV is the only platform that can meet all three constraints:
+      80 km range, 6+ hour endurance, and a meaningful sensor payload.
+      The MQ-9 Reaper, for example, has a range exceeding 1,800 km and can carry
+      electro-optical/infrared cameras, synthetic aperture radar, and signals intelligence equipment simultaneously.
+      The nano drone would run out of battery within minutes at that range.
+      The loitering munition has no return flight — it self-destructs on the target.
+    `;
+  } else {
+    feedback.style.borderLeftColor = 'var(--accent-red)';
+    feedback.innerHTML = `
+      <strong style="color:var(--accent-red);">Not quite, Cadet.</strong>
+      Review the mission requirements: 80 km range, 6+ hours continuous video, no landing strip.
+      A nano drone has a range of ~1-2 km and battery life of ~25 minutes.
+      A commercial quadcopter has similar limitations and no military sensors.
+      A loitering munition is a one-way weapon — it can't provide continuous surveillance, it destroys itself on contact.
+      The correct answer is <strong style="color:var(--accent-green);">C — a MALE UAV</strong>.
+      Think: Endurance + Range + Payload = MALE class.
+    `;
+  }
+}
+
+
+/* ══════════════════════════════════════════════
+   FORCE BALANCE CANVAS SIMULATION
+   ══════════════════════════════════════════════ */
+(function () {
+  const canvas   = document.getElementById('drone-sim-canvas');
+  if (!canvas) return;
+  const ctx      = canvas.getContext('2d');
+  let W, H;
+  let mode       = 'hover';
+  let droneY     = 0;
+  let droneX     = 0;
+  let velY       = 0;
+  let velX       = 0;
+  let rotorAngle = 0;
+  let t          = 0;
+
+  const MODES = {
+    hover:   { lift:1.00, weight:1.00, thrust:0.00, drag:0.00, label:'HOVER',     statusColor:'#00ff9d' },
+    climb:   { lift:1.30, weight:1.00, thrust:0.05, drag:0.01, label:'CLIMB',     statusColor:'#00d4ff' },
+    descend: { lift:0.70, weight:1.00, thrust:0.05, drag:0.01, label:'DESCEND',   statusColor:'#ffb700' },
+    forward: { lift:1.00, weight:1.00, thrust:0.40, drag:0.20, label:'FORWARD',   statusColor:'#00d4ff' },
+    fast:    { lift:1.05, weight:1.00, thrust:0.90, drag:0.60, label:'FULL SPEED',statusColor:'#ff3a3a' },
+  };
+
+  function resize() {
+    W = canvas.parentElement.clientWidth || 700;
+    H = 300;
+    canvas.width  = W;
+    canvas.height = H;
+    droneY = H / 2;
+    droneX = W / 2;
+  }
+
+  function drawGrid() {
+    ctx.strokeStyle = 'rgba(0,212,255,0.05)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  }
+
+  function drawDrone(x, y, angle) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Arms
+    ctx.strokeStyle = 'rgba(0,212,255,0.6)';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([dx,dy]) => {
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(dx*30, dy*30); ctx.stroke();
+    });
+
+    // Body
+    ctx.fillStyle = 'rgba(0,212,255,0.15)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.rect(-10,-10,20,20); ctx.fill(); ctx.stroke();
+
+    // Rotors
+    [[-30,-30],[30,-30],[-30,30],[30,30]].forEach(([rx,ry], i) => {
+      ctx.save();
+      ctx.translate(rx, ry);
+      ctx.rotate(angle * (i%2===0 ? 1 : -1));
+      ctx.strokeStyle = 'rgba(0,212,255,0.8)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(16,0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,-16); ctx.lineTo(0,16); ctx.stroke();
+      ctx.strokeStyle = 'rgba(0,212,255,0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(0,0,16,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+    });
+
+    ctx.restore();
+  }
+
+  function drawForceArrows(x, y, m) {
+    const scale = 55;
+    // Lift (up) — green
+    const liftLen = m.lift * scale;
+    if (liftLen > 2) {
+      ctx.strokeStyle = '#00ff9d'; ctx.fillStyle = '#00ff9d'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - liftLen); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x-5, y-liftLen+8); ctx.lineTo(x, y-liftLen); ctx.lineTo(x+5, y-liftLen+8); ctx.stroke();
+      ctx.font = '9px Share Tech Mono'; ctx.fillText('LIFT', x+5, y-liftLen+4);
+    }
+    // Weight (down) — red
+    const wLen = m.weight * scale;
+    ctx.strokeStyle = '#ff3a3a'; ctx.fillStyle = '#ff3a3a'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + wLen); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x-5, y+wLen-8); ctx.lineTo(x, y+wLen); ctx.lineTo(x+5, y+wLen-8); ctx.stroke();
+    ctx.fillText('WEIGHT', x+5, y+wLen-4);
+    // Thrust (right) — cyan
+    const tLen = m.thrust * scale;
+    if (tLen > 2) {
+      ctx.strokeStyle = '#00d4ff'; ctx.fillStyle = '#00d4ff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + tLen, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x+tLen-8, y-5); ctx.lineTo(x+tLen, y); ctx.lineTo(x+tLen-8, y+5); ctx.stroke();
+      ctx.fillText('THRUST', x+tLen-30, y-6);
+    }
+    // Drag (left) — amber
+    const dLen = m.drag * scale;
+    if (dLen > 2) {
+      ctx.strokeStyle = '#ffb700'; ctx.fillStyle = '#ffb700'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - dLen, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x-dLen+8, y-5); ctx.lineTo(x-dLen, y); ctx.lineTo(x-dLen+8, y+5); ctx.stroke();
+      ctx.fillText('DRAG', x-dLen-2, y-6);
+    }
+  }
+
+  function tick() {
+    const m = MODES[mode];
+    t++;
+    rotorAngle += 0.18 + m.thrust * 0.12;
+
+    // Physics update
+    const netY = (m.weight - m.lift)  * 1.5;
+    const netX = (m.thrust - m.drag)  * 1.5;
+    velY += netY * 0.05;
+    velX += netX * 0.05;
+    velY *= 0.92; velX *= 0.92;
+    droneY += velY;
+    droneX += netX * 0.3;
+
+    // Clamp
+    droneY = Math.max(60, Math.min(H - 60, droneY));
+    droneX = Math.max(80, Math.min(W - 80, droneX));
+
+    // Draw
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#010810';
+    ctx.fillRect(0, 0, W, H);
+    drawGrid();
+
+    // Ground line
+    ctx.strokeStyle = 'rgba(0,212,255,0.15)'; ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(0, H-20); ctx.lineTo(W, H-20); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(0,212,255,0.2)';
+    ctx.font = '9px Share Tech Mono';
+    ctx.fillText('GROUND', 8, H-6);
+
+    // Altitude indicator
+    const alt = Math.round(((H - droneY) / H) * 100);
+    ctx.fillStyle = 'rgba(0,255,157,0.5)';
+    ctx.fillText(`ALT: ${alt}%`, W-70, 16);
+
+    drawForceArrows(droneX, droneY, m);
+    drawDrone(droneX, droneY, rotorAngle);
+
+    // HUD readout
+    document.getElementById('sim-force-readout').textContent =
+      `L=${Math.round(m.lift*100)}% W=${Math.round(m.weight*100)}% T=${Math.round(m.thrust*100)}% D=${Math.round(m.drag*100)}%`;
+
+    requestAnimationFrame(tick);
+  }
+
+  window.simMode = function(newMode) {
+    mode = newMode;
+    document.querySelectorAll('.sim-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + newMode).classList.add('active');
+    const m = MODES[newMode];
+    const statusEl = document.getElementById('sim-status-txt');
+    statusEl.textContent = '● ' + m.label;
+    statusEl.style.color = m.statusColor;
+  };
+
+  window.addEventListener('resize', resize);
+  resize();
+  tick();
+})();
+</script>
+
+</body>
+</html>
