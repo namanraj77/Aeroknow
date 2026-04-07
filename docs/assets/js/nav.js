@@ -19,11 +19,11 @@
   const LABS = [
     { num: 'L01', title: 'Environment Setup',         href: 'labs/l01-environment-setup.html',   done: true  },
     { num: 'L02', title: 'ROS2 Fundamentals',         href: 'labs/l02-ros2-fundamentals.html',   done: true  }, 
-    { num: 'L03', title: 'PX4 + MAVROS2',             href: 'labs/l03-px4-mavros2.html',         done: false },
-    { num: 'L04', title: 'Gazebo Simulation',         href: 'labs/l04-gazebo-simulation.html',   done: false },
-    { num: 'L05', title: 'GNSS-Denied Navigation',    href: 'labs/l05-gnss-denied-nav.html',     done: false },
-    { num: 'L06', title: 'Computer Vision Pipeline',  href: 'labs/l06-computer-vision.html',     done: false },
-    { num: 'L07', title: 'Custom GCS',                href: 'labs/l07-custom-gcs.html',          done: false },
+    { num: 'L03', title: 'PX4 + MAVROS2',             href: 'labs/l03-px4-mavros2.html',         done: true },
+    { num: 'L04', title: 'Gazebo Simulation',         href: 'labs/l04-gazebo-simulation.html',   done: true },
+    { num: 'L05', title: 'GNSS-Denied Navigation',    href: 'labs/l05-gnss-denied-nav.html',     done: true },
+    { num: 'L06', title: 'Computer Vision Pipeline',  href: 'labs/l06-computer-vision.html',     done: true },
+    { num: 'L07', title: 'Custom GCS',                href: 'labs/l07-custom-gcs.html',          done: true },
     { num: 'L08', title: 'Swarm Simulation',          href: 'labs/l08-swarm-simulation.html',    done: false },
   ];
 
