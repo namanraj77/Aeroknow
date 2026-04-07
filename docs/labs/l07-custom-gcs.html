@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L07: Custom GCS — AEROKNOW Labs</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    :root {
+      --lab-accent:      #00ff9d;
+      --lab-accent-dim:  rgba(0,255,157,0.08);
+      --lab-accent-glow: 0 0 20px rgba(0,255,157,0.3);
+      --lab-border:      rgba(0,255,157,0.35);
+      --lab-border-dim:  rgba(0,255,157,0.12);
+    }
+    .section-jump { position:sticky; top:60px; z-index:100; background:rgba(2,4,8,0.97); backdrop-filter:blur(10px); border-bottom:1px solid var(--lab-border-dim); padding:0; overflow-x:auto; scrollbar-width:none; }
+    .section-jump::-webkit-scrollbar { display:none; }
+    .jump-inner { display:flex; align-items:center; gap:0; padding:0 1rem; min-width:max-content; }
+    .jump-label { font-family:var(--font-mono); font-size:0.58rem; color:var(--text-muted); letter-spacing:0.15em; text-transform:uppercase; padding:0 0.75rem 0 0; border-right:1px solid var(--lab-border-dim); margin-right:0.25rem; white-space:nowrap; line-height:42px; }
+    .jump-btn { background:transparent; border:none; border-bottom:2px solid transparent; color:var(--text-muted); font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.06em; padding:0 0.85rem; height:42px; cursor:pointer; white-space:nowrap; transition:var(--transition); }
+    .jump-btn:hover { color:var(--text-secondary); border-bottom-color:var(--lab-border); }
+    .jump-btn.active { color:var(--lab-accent); border-bottom-color:var(--lab-accent); }
+    .jump-btn .jb-num { color:var(--lab-accent); margin-right:0.3rem; font-size:0.58rem; }
+    .lab-page { max-width:1100px; margin:0 auto; padding:2rem 2rem 5rem; }
+    .lab-hero { padding:3rem 0 2rem; border-bottom:1px solid var(--lab-border-dim); margin-bottom:3rem; position:relative; }
+    .lab-track-label { font-family:var(--font-mono); font-size:0.72rem; color:var(--lab-accent); letter-spacing:0.25em; text-transform:uppercase; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.6rem; }
+    .lab-track-label::before { content:''; width:30px; height:1px; background:var(--lab-accent); box-shadow:var(--lab-accent-glow); }
+    .lab-hero h1 { color:var(--text-primary); text-shadow:0 0 40px rgba(0,255,157,0.15); margin-bottom:1rem; }
+    .lab-hero p.lead { font-size:1.1rem; color:var(--text-secondary); max-width:680px; margin-bottom:1.5rem; line-height:1.75; }
+    .lab-meta { display:flex; gap:1.5rem; flex-wrap:wrap; align-items:center; }
+    .lab-meta-item { display:flex; align-items:center; gap:0.4rem; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); }
+    .lab-meta-item strong { color:var(--lab-accent); }
+    .lab-section { margin-bottom:4rem; scroll-margin-top:105px; }
+    .lab-section h2 { color:var(--lab-accent); margin-bottom:1.5rem; padding-bottom:0.5rem; border-bottom:1px solid var(--lab-border-dim); display:flex; align-items:center; gap:0.75rem; font-size:clamp(1.1rem,2vw,1.6rem); }
+    .lab-section h2::before { content:'//'; font-family:var(--font-mono); color:var(--lab-accent); font-size:0.9rem; opacity:0.6; }
+    .lab-section h3 { color:var(--text-primary); margin:2rem 0 0.8rem; font-size:1.1rem; }
+    .lab-section p { font-size:1rem; line-height:1.75; }
+    .lab-section ul, .lab-section ol { padding-left:1.5rem; margin-bottom:1.2rem; }
+    .lab-section li { margin-bottom:0.5rem; color:var(--text-secondary); line-height:1.65; }
+    .lab-section li strong { color:var(--text-primary); }
+    .lab-step { border:1px solid var(--lab-border-dim); border-left:3px solid var(--lab-accent); background:rgba(0,255,157,0.025); margin:2rem 0; }
+    .lab-step-header { display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; border-bottom:1px solid var(--lab-border-dim); }
+    .step-num { font-family:var(--font-mono); font-size:0.65rem; color:var(--lab-accent); background:rgba(0,255,157,0.08); border:1px solid var(--lab-border); padding:0.2rem 0.5rem; letter-spacing:0.1em; white-space:nowrap; }
+    .step-title { font-family:var(--font-ui); font-size:1rem; font-weight:600; color:var(--text-primary); letter-spacing:0.03em; }
+    .lab-step-body { padding:1.2rem 1.5rem; }
+    .why-box { background:rgba(0,212,255,0.03); border-left:3px solid var(--accent-primary); padding:0.9rem 1.1rem; margin-bottom:1.2rem; border-radius:0 3px 3px 0; }
+    .why-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-primary); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.35rem; }
+    .why-box p { font-size:0.95rem; color:var(--text-secondary); margin:0; line-height:1.7; }
+    .code-block { background:#020c14; border:1px solid var(--border-dim); border-left:3px solid var(--accent-primary); padding:1.2rem 1.5rem; overflow-x:auto; position:relative; margin:1rem 0; }
+    .code-block.bash   { border-left-color:var(--lab-accent); }
+    .code-block.python { border-left-color:var(--accent-primary); }
+    .code-lang { position:absolute; top:0.4rem; right:3.5rem; font-family:var(--font-mono); font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; }
+    .copy-btn { position:absolute; top:0.35rem; right:0.5rem; background:rgba(0,255,157,0.07); border:1px solid var(--lab-border-dim); color:var(--lab-accent); font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.08em; padding:0.2rem 0.5rem; cursor:pointer; text-transform:uppercase; transition:var(--transition); }
+    .copy-btn:hover { background:rgba(0,255,157,0.14); border-color:var(--lab-border); }
+    .copy-btn.copied { color:var(--accent-primary); border-color:var(--accent-primary); }
+    .code-block pre { font-family:var(--font-mono); font-size:0.85rem; line-height:1.7; color:#c8e6f0; white-space:pre; tab-size:4; }
+    .code-block .cm  { color:#4a7a8a; font-style:italic; }
+    .code-block .kw  { color:#00d4ff; }
+    .code-block .fn  { color:#00ff9d; }
+    .code-block .st  { color:#ffd580; }
+    .code-block .nm  { color:#ff9d6f; }
+    .code-block .tp  { color:#b388ff; }
+    .code-block .prompt { color:var(--lab-accent); user-select:none; }
+    .terminal-output { background:#010a0f; border:1px solid rgba(0,255,157,0.1); border-left:3px solid rgba(0,255,157,0.4); padding:1rem 1.5rem; margin:0.75rem 0 1.2rem; }
+    .terminal-label { font-family:var(--font-mono); font-size:0.58rem; color:var(--lab-accent); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.6rem; opacity:0.7; }
+    .terminal-output pre { font-family:var(--font-mono); font-size:0.8rem; color:#7dbf9e; line-height:1.65; white-space:pre-wrap; }
+    .terminal-output pre .t-ok   { color:#00ff9d; }
+    .terminal-output pre .t-warn { color:#ffb700; }
+    .terminal-output pre .t-err  { color:#ff3a3a; }
+    .terminal-output pre .t-dim  { color:#3d6650; }
+    .terminal-output pre .t-cyan { color:#00d4ff; }
+    .error-doc { background:rgba(255,58,58,0.03); border:1px solid rgba(255,58,58,0.15); border-left:3px solid var(--accent-red); padding:1rem 1.2rem; margin:1rem 0; }
+    .error-doc-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-red); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.5rem; }
+    .error-doc .error-msg { font-family:var(--font-mono); font-size:0.82rem; color:#ff8080; margin-bottom:0.6rem; display:block; }
+    .error-doc .error-fix { font-size:0.92rem; color:var(--text-secondary); margin:0; }
+    .error-doc .error-fix strong { color:var(--text-primary); }
+    .prereq-check { display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0; }
+    .prereq-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.65rem 1rem; background:var(--bg-card); border:1px solid var(--border-dim); }
+    .prereq-icon { font-family:var(--font-mono); font-size:0.75rem; color:var(--lab-accent); margin-top:0.05rem; flex-shrink:0; }
+    .prereq-item p { margin:0; color:var(--text-secondary); line-height:1.5; font-size:0.9rem; }
+    .prereq-item code { font-family:var(--font-mono); font-size:0.82rem; color:var(--accent-primary); }
+    .theory-link { background:rgba(255,183,0,0.03); border:1px solid rgba(255,183,0,0.15); border-left:3px solid var(--accent-amber); padding:1rem 1.2rem; margin:1.5rem 0; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .theory-link-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-amber); letter-spacing:0.15em; text-transform:uppercase; white-space:nowrap; }
+    .theory-link p { margin:0; color:var(--text-secondary); font-size:0.92rem; flex:1; min-width:200px; }
+    .theory-link a { color:var(--accent-amber); text-decoration:underline; }
+    .arch-diagram { margin:2rem 0; background:rgba(0,255,157,0.015); border:1px solid var(--lab-border-dim); padding:1.5rem; overflow-x:auto; }
+    .arch-diagram svg { display:block; margin:0 auto; }
+    .file-tree { background:#020c14; border:1px solid var(--border-dim); border-left:3px solid var(--lab-accent); padding:1.2rem 1.5rem; font-family:var(--font-mono); font-size:0.83rem; line-height:1.9; margin:1rem 0; }
+    .ft-dir { color:var(--lab-accent); } .ft-file { color:#c8e6f0; } .ft-note { color:#3d6b7a; font-style:italic; } .ft-new { color:var(--accent-amber); }
+    /* phase strips */
+    .phase-strip { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.5rem 0; }
+    .phase-card { background:var(--bg-card); border:1px solid var(--border-dim); padding:1.1rem 1.2rem; }
+    .phase-card-label { font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.6rem; }
+    .phase-card ul { padding-left:1.2rem; margin:0; }
+    .phase-card li { font-size:0.86rem; color:var(--text-secondary); margin-bottom:0.35rem; }
+    .callout.lab-note { border-color:var(--lab-accent); background:rgba(0,255,157,0.04); }
+    .callout.lab-note .callout-title { color:var(--lab-accent); }
+    .extension-box { background:rgba(0,255,157,0.025); border:1px solid var(--lab-border-dim); padding:1.5rem; margin-top:1.5rem; }
+    .extension-box::before { content:'◈ EXTENSION CHALLENGES'; font-family:var(--font-mono); font-size:0.65rem; color:var(--lab-accent); letter-spacing:0.15em; display:block; margin-bottom:1rem; }
+    .extension-box ol { padding-left:1.5rem; }
+    .extension-box li { margin-bottom:0.75rem; font-size:0.97rem; color:var(--text-secondary); line-height:1.65; }
+    .lab-nav { display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--lab-border-dim); }
+    .btn-lab { background:transparent; border:1px solid var(--lab-accent); color:var(--lab-accent); font-family:var(--font-mono); font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; padding:0.8rem 1.8rem; text-decoration:none; display:inline-block; transition:var(--transition); position:relative; overflow:hidden; }
+    .btn-lab::before { content:''; position:absolute; inset:0; background:var(--lab-accent); transform:scaleX(0); transform-origin:left; transition:var(--transition); z-index:-1; }
+    .btn-lab:hover { color:var(--bg-void); box-shadow:var(--lab-accent-glow); text-shadow:none; }
+    .btn-lab:hover::before { transform:scaleX(1); }
+    .btn-lab.prev::before { transform-origin:right; }
+    @media (max-width:768px) { .lab-page { padding:1rem 1rem 3rem; } .phase-strip { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump">
+  <div class="jump-inner">
+    <span class="jump-label">L07 · JUMP TO</span>
+    <button class="jump-btn active" onclick="jumpTo('s-overview')"><span class="jb-num">00</span>Overview</button>
+    <button class="jump-btn" onclick="jumpTo('s-prereqs')"><span class="jb-num">01</span>Prerequisites</button>
+    <button class="jump-btn" onclick="jumpTo('s-architecture')"><span class="jb-num">02</span>Architecture</button>
+    <button class="jump-btn" onclick="jumpTo('s-package')"><span class="jb-num">03</span>Package Setup</button>
+    <button class="jump-btn" onclick="jumpTo('s-backend')"><span class="jb-num">04</span>GCS Backend</button>
+    <button class="jump-btn" onclick="jumpTo('s-phase1')"><span class="jb-num">05</span>Phase 1 UI</button>
+    <button class="jump-btn" onclick="jumpTo('s-map-widget')"><span class="jb-num">06</span>Map Widget</button>
+    <button class="jump-btn" onclick="jumpTo('s-video-widget')"><span class="jb-num">07</span>Video Widget</button>
+    <button class="jump-btn" onclick="jumpTo('s-phase2')"><span class="jb-num">08</span>Phase 2 UI</button>
+    <button class="jump-btn" onclick="jumpTo('s-launch')"><span class="jb-num">09</span>Launch &amp; Demo</button>
+    <button class="jump-btn" onclick="jumpTo('s-errors')"><span class="jb-num">ERR</span>Common Errors</button>
+    <button class="jump-btn" onclick="jumpTo('s-extend')"><span class="jb-num">+</span>Extend</button>
+  </div>
+</div>
+
+<div class="lab-page">
+
+  <!-- HERO -->
+  <div class="lab-hero" id="s-overview">
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner br"></div>
+    <span class="lab-track-label">Practical Track · Lab 07 of 08</span>
+    <h1>Custom Ground Control Station</h1>
+    <p class="lead">
+      Every autonomous UAV needs a human-in-the-loop interface. L07 builds one from scratch
+      using PyQt5 — a real desktop application that an operator uses to monitor the drone,
+      send commands, and act on alerts. Phase 1 covers the minimum viable GCS:
+      telemetry, arm/disarm, waypoints, emergency stop. Phase 2 adds the full operator
+      picture: live map, camera feed, sensor health panel, and detection overlays wired
+      to L06. You will understand exactly what commercial GCS tools like QGroundControl
+      do under the hood — because yours will do the same thing.
+    </p>
+    <div class="lab-meta">
+      <div class="lab-meta-item">⏱ <strong>~4 hours</strong>&nbsp;wall clock</div>
+      <div class="lab-meta-item">📋 <strong>5 files built</strong></div>
+      <div class="lab-meta-item">🔧 <strong>Integrates</strong>&nbsp;L02–L06 topics</div>
+      <div class="lab-meta-item">📦 <strong>New package:</strong>&nbsp;aeroknow_gcs</div>
+      <span class="label label-green">PyQt5</span>
+      <span class="label label-primary">Folium Map</span>
+      <span class="label label-amber">Video Feed</span>
+      <span class="label label-red">Phase 1 + Phase 2</span>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="lab-section" id="s-architecture">
+    <h2>Architecture — The Two-Layer Design</h2>
+
+    <p>
+      The GCS has a strict two-layer design. This is not optional — it is necessary
+      because PyQt5's UI thread must never block, and ROS2's <code>spin()</code>
+      must never be called from the UI thread. The layers communicate through
+      Qt signals and slots, which are thread-safe by design.
+    </p>
+
+    <div class="callout lab-note">
+      <span class="callout-title">The Golden Rule of Qt + ROS2</span>
+      <strong>All ROS2 work happens in a background thread. All UI updates happen in the Qt main thread.</strong>
+      The bridge between them is Qt signals. The backend node runs <code>rclpy.spin()</code>
+      in a <code>threading.Thread</code>. When a ROS2 callback receives data, it emits a Qt signal.
+      Qt routes that signal to a slot in the UI thread, which updates the widget.
+      Breaking this rule — calling a Qt widget method from a ROS2 callback thread — causes
+      random crashes that are nearly impossible to debug.
+    </div>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 860 290" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:860px;min-width:480px;">
+        <defs>
+          <marker id="arr"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,255,157,0.5)"/></marker>
+          <marker id="arr-c" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,212,255,0.5)"/></marker>
+          <marker id="arr-a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(255,183,0,0.5)"/></marker>
+          <marker id="arr-p" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(179,136,255,0.5)"/></marker>
+        </defs>
+
+        <!-- ROS2 topics (left) -->
+        <rect x="10" y="10" width="165" height="270" rx="2" fill="rgba(0,212,255,0.02)" stroke="rgba(0,212,255,0.1)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="92" y="30" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.5)" letter-spacing="1">ROS2 TOPICS</text>
+        <text x="22" y="52"  font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/mavros/state</text>
+        <text x="22" y="70"  font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/mavros/imu/data</text>
+        <text x="22" y="88"  font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/mavros/battery</text>
+        <text x="22" y="106" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/mavros/global_position</text>
+        <text x="22" y="124" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/mavros/altitude</text>
+        <text x="22" y="142" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/vision/detections</text>
+        <text x="22" y="160" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/vision/overlay</text>
+        <text x="22" y="178" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/targets/gps</text>
+        <text x="22" y="196" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">/nav_health</text>
+        <text x="22" y="214" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#ffb700">/mavros/cmd/arming</text>
+        <text x="22" y="232" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#ffb700">/mavros/set_mode</text>
+        <text x="22" y="250" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#ffb700">/emergency_stop</text>
+        <text x="22" y="268" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#ffb700">/fly_to_waypoint</text>
+
+        <!-- gcs_backend -->
+        <rect x="225" y="80" width="160" height="130" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+        <text x="305" y="103" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d">gcs_backend.py</text>
+        <text x="305" y="119" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">ROS2 node in background</text>
+        <text x="305" y="134" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">thread (rclpy.spin)</text>
+        <text x="305" y="150" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">subscribes all topics</text>
+        <text x="305" y="165" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">emits Qt signals</text>
+        <text x="305" y="180" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">calls services on</text>
+        <text x="305" y="195" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">UI button press</text>
+        <text x="305" y="208" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 04</text>
+
+        <!-- Qt signal arrow -->
+        <line x1="175" y1="145" x2="223" y2="145" stroke="rgba(0,212,255,0.5)" stroke-width="1.5" marker-end="url(#arr-c)"/>
+        <text x="190" y="138" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">subscribe</text>
+
+        <!-- Phase 1 UI -->
+        <rect x="440" y="15" width="170" height="120" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.35)" stroke-width="1.2"/>
+        <text x="525" y="37" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d">Phase 1 UI</text>
+        <text x="525" y="53" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Telemetry panel</text>
+        <text x="525" y="68" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Arm / Disarm</text>
+        <text x="525" y="83" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Mode selector</text>
+        <text x="525" y="98" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Waypoint upload</text>
+        <text x="525" y="113" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">E-Stop button</text>
+        <text x="525" y="127" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 05</text>
+
+        <!-- Phase 2 UI -->
+        <rect x="440" y="155" width="170" height="120" rx="2" fill="#050d14" stroke="rgba(255,183,0,0.35)" stroke-width="1.2"/>
+        <text x="525" y="177" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#ffb700">Phase 2 UI</text>
+        <text x="525" y="193" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Live Folium map</text>
+        <text x="525" y="208" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Camera feed</text>
+        <text x="525" y="223" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Sensor health panel</text>
+        <text x="525" y="238" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Detection overlay</text>
+        <text x="525" y="253" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Mission log</text>
+        <text x="525" y="267" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,183,0,0.45)">Step 08</text>
+
+        <!-- Qt signals -->
+        <line x1="385" y1="125" x2="438" y2="75"  stroke="rgba(0,255,157,0.45)" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="385" y1="155" x2="438" y2="215" stroke="rgba(255,183,0,0.45)" stroke-width="1.5" marker-end="url(#arr-a)"/>
+        <text x="392" y="118" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.6)">Qt signals</text>
+        <text x="392" y="162" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,183,0,0.6)">Qt signals</text>
+
+        <!-- Widgets -->
+        <rect x="670" y="155" width="130" height="55" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
+        <text x="735" y="177" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#00d4ff">map_widget.py</text>
+        <text x="735" y="193" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Folium + QWebEngine</text>
+        <text x="735" y="203" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,212,255,0.45)">Step 06</text>
+
+        <rect x="670" y="220" width="130" height="55" rx="2" fill="#050d14" stroke="rgba(179,136,255,0.25)" stroke-width="1"/>
+        <text x="735" y="242" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8.5" fill="#b388ff">video_widget.py</text>
+        <text x="735" y="258" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">OpenCV → QPixmap</text>
+        <text x="735" y="268" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(179,136,255,0.45)">Step 07</text>
+
+        <line x1="610" y1="215" x2="668" y2="182" stroke="rgba(0,212,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-c)"/>
+        <line x1="610" y1="230" x2="668" y2="248" stroke="rgba(179,136,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-p)"/>
+      </svg>
+    </div>
+
+    <h3>Phase 1 vs Phase 2</h3>
+    <div class="phase-strip">
+      <div class="phase-card">
+        <div class="phase-card-label" style="color:var(--lab-accent);">Phase 1 — Minimal Viable GCS</div>
+        <ul>
+          <li>Telemetry panel: mode, armed state, altitude, speed, battery, GPS fix</li>
+          <li>Arm / Disarm buttons with confirmation dialog</li>
+          <li>Mode selector dropdown (POSITION, OFFBOARD, AUTO.LAND)</li>
+          <li>Waypoint input: lat/lon/alt text fields + Send button</li>
+          <li>Emergency Stop — always visible, always red, single click</li>
+          <li>Mission log: timestamped text box for events</li>
+          <li><strong>Runs on any machine with PyQt5 — no browser dependency</strong></li>
+        </ul>
+      </div>
+      <div class="phase-card">
+        <div class="phase-card-label" style="color:var(--accent-amber);">Phase 2 — Full Operator Interface</div>
+        <ul>
+          <li>Live Folium map: drone position + track history + target markers</li>
+          <li>Camera video feed with YOLO detection overlay from L06</li>
+          <li>Sensor health panel: EKF σ, GPS denied status, IMU rate, battery</li>
+          <li>Detection list: class, confidence, geolocation per detection</li>
+          <li>Tabbed layout: Dashboard | Map | Video | Health | Log</li>
+          <li><strong>Requires QtWebEngine for Folium (see Step 06)</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREREQUISITES -->
+  <div class="lab-section" id="s-prereqs">
+    <h2>Prerequisites</h2>
+
+    <div class="prereq-check">
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L02–L06 complete.</strong> The GCS subscribes to topics from every prior lab.
+        The minimum requirement is L03 (flight topics). L05 and L06 topics are optional —
+        the Phase 2 panels simply show "no data" if those nodes aren't running.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>PyQt5 installed from L01.</strong>
+        Confirm: <code>python3 -c "from PyQt5.QtWidgets import QApplication; print('OK')"</code>.
+        If missing: <code>pip3 install PyQt5</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>Folium installed from L01.</strong>
+        Confirm: <code>python3 -c "import folium; print(folium.__version__)"</code>.
+        If missing: <code>pip3 install folium</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>PyQtWebEngine installed (Phase 2 only).</strong>
+        <code>pip3 install PyQtWebEngine</code> and
+        <code>sudo apt install python3-pyqt5.qtwebengine</code>.
+        Phase 1 works without this. Phase 2 needs it for the Folium map widget.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>Display available.</strong> The GCS is a GUI application — it needs a desktop
+        environment. Confirm: <code>echo $DISPLAY</code> should print <code>:0</code> or similar.
+        On a headless server, use <code>Xvfb</code>:
+        <code>sudo apt install xvfb &amp;&amp; Xvfb :99 -screen 0 1920x1080x24 &amp;</code>
+        then <code>export DISPLAY=:99</code>.</p>
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <span class="theory-link-label">⟐ Theory Link</span>
+      <p>
+        The GCS is the C2 (command and control) interface described in
+        <a href="../modules/m01-uav-systems.html">Module 01 §1.4 — C2 Architecture</a>.
+        The datalink latency discussed there directly affects the UI design:
+        commands must be confirmed by state feedback (e.g., arm button becomes green only when
+        <code>/mavros/state.armed</code> confirms True), not assumed from button press alone.
+        The operator authority levels from Module 01 §1.5 map directly to the
+        confirmation dialogs and mode restrictions built into the GCS.
+      </p>
+    </div>
+  </div>
+
+  <!-- STEP 03 — PACKAGE SETUP -->
+  <div class="lab-section" id="s-package">
+    <h2>Step 01: Create aeroknow_gcs Package</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 01</span>
+        <span class="step-title">Create the package and directory structure</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why the GCS gets its own package</span>
+          <p>
+            The GCS is an operator tool, not an onboard system. On a real programme it runs
+            on the ground station laptop, not on the vehicle. A separate package keeps its
+            heavy GUI dependencies (PyQt5, WebEngine) away from the flight code packages
+            that must remain lightweight enough to run on embedded hardware.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws/src
+<span class="prompt">$ </span>ros2 pkg create aeroknow_gcs \
+    --build-type ament_python \
+    --dependencies rclpy std_msgs sensor_msgs geometry_msgs \
+                   mavros_msgs vision_msgs geographic_msgs nav_msgs
+<span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_gcs/launch</pre>
+        </div>
+
+        <p>Write <code>setup.py</code>:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · aeroknow_gcs/setup.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="kw">from</span> setuptools <span class="kw">import</span> setup, find_packages
+<span class="kw">import</span> os
+<span class="kw">from</span> glob <span class="kw">import</span> glob
+
+package_name = <span class="st">'aeroknow_gcs'</span>
+setup(
+    name=package_name, version=<span class="st">'0.1.0'</span>,
+    packages=find_packages(exclude=[<span class="st">'test'</span>]),
+    data_files=[
+        (<span class="st">'share/ament_index/resource_index/packages'</span>, [<span class="st">'resource/'</span> + package_name]),
+        (<span class="st">'share/'</span> + package_name, [<span class="st">'package.xml'</span>]),
+        (os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'launch'</span>), glob(<span class="st">'launch/*.py'</span>)),
+    ],
+    install_requires=[<span class="st">'setuptools'</span>],
+    zip_safe=<span class="kw">True</span>,
+    maintainer=<span class="st">'aeroknow'</span>,
+    maintainer_email=<span class="st">'aeroknow@example.com'</span>,
+    description=<span class="st">'AEROKNOW Ground Control Station'</span>,
+    license=<span class="st">'MIT'</span>,
+    entry_points={<span class="st">'console_scripts'</span>: [
+        <span class="st">'gcs = aeroknow_gcs.gcs_ui:main'</span>,
+    ]},
+)</pre>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_gcs
+<span class="prompt">$ </span>source install/setup.bash</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 04 — GCS BACKEND -->
+  <div class="lab-section" id="s-backend">
+    <h2>Step 02: gcs_backend.py — The ROS2 Bridge Layer</h2>
+    <p>
+      The backend is a <code>QObject</code> subclass that runs a ROS2 node in a background
+      thread and exposes the data to the UI through Qt signals. Every ROS2 subscription
+      emits a signal. Every UI command call goes through a method on this object.
+      The UI never touches rclpy directly.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 02</span>
+        <span class="step-title">Write gcs_backend.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why QObject and not just a plain Python class</span>
+          <p>
+            Qt signals and slots only work between <code>QObject</code> subclasses.
+            A signal emitted from a background thread is automatically queued and delivered
+            to the UI thread — this is thread-safe communication built into Qt's event loop.
+            If you used a plain Python queue or callback instead, you would need to poll it
+            from a UI timer, introducing latency and complexity.
+            The <code>QObject</code> + signal approach is both simpler and safer.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_gcs/aeroknow_gcs/gcs_backend.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · gcs_backend.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+gcs_backend.py
+──────────────
+ROS2 node wrapped as a QObject.
+Runs rclpy.spin() in a background thread.
+Exposes all drone data as Qt signals.
+Receives UI commands and forwards them to ROS2.
+
+Threading model:
+  Main thread:    Qt event loop (UI)
+  Backend thread: rclpy.spin(node) — all ROS2 callbacks fire here
+  Bridge:         Qt signals (thread-safe cross-thread delivery)
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node           <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.action         <span class="kw">import</span> ActionClient
+<span class="kw">from</span> rclpy.qos            <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+<span class="kw">from</span> rclpy.executors      <span class="kw">import</span> MultiThreadedExecutor
+
+<span class="kw">from</span> PyQt5.QtCore         <span class="kw">import</span> QObject, pyqtSignal, QThread
+
+<span class="kw">from</span> mavros_msgs.msg      <span class="kw">import</span> State
+<span class="kw">from</span> mavros_msgs.srv      <span class="kw">import</span> CommandBool, SetMode
+<span class="kw">from</span> sensor_msgs.msg      <span class="kw">import</span> Imu, NavSatFix, BatteryState, Image
+<span class="kw">from</span> geometry_msgs.msg    <span class="kw">import</span> PoseStamped
+<span class="kw">from</span> std_msgs.msg         <span class="kw">import</span> Bool, String, Float32
+<span class="kw">from</span> vision_msgs.msg      <span class="kw">import</span> Detection2DArray
+<span class="kw">from</span> geographic_msgs.msg  <span class="kw">import</span> GeoPoint
+<span class="kw">from</span> std_srvs.srv         <span class="kw">import</span> Trigger
+
+<span class="kw">from</span> aeroknow_bringup.action <span class="kw">import</span> FlyToWaypoint
+
+<span class="kw">import</span> threading
+<span class="kw">import</span> math
+
+
+<span class="kw">class</span> <span class="tp">GCSBackend</span>(QObject):
+    <span class="cm">"""
+    Signals emitted to the UI thread:
+      All carry Python primitives or dicts — never ROS2 message objects.
+      This keeps the UI layer decoupled from rclpy.
+    """</span>
+    <span class="cm"># Telemetry</span>
+    sig_state      = pyqtSignal(<span class="tp">dict</span>)    <span class="cm"># {connected, armed, mode}</span>
+    sig_position   = pyqtSignal(<span class="tp">dict</span>)    <span class="cm"># {lat, lon, alt_rel, alt_abs}</span>
+    sig_attitude   = pyqtSignal(<span class="tp">dict</span>)    <span class="cm"># {roll, pitch, yaw}</span>
+    sig_battery    = pyqtSignal(<span class="tp">dict</span>)    <span class="cm"># {voltage, percentage}</span>
+    sig_velocity   = pyqtSignal(<span class="tp">dict</span>)    <span class="cm"># {vx, vy, vz, groundspeed}</span>
+    <span class="cm"># Navigation health (L05)</span>
+    sig_nav_health = pyqtSignal(<span class="tp">str</span>)     <span class="cm"># raw string from /nav_health</span>
+    sig_gps_denied = pyqtSignal(<span class="tp">bool</span>)
+    <span class="cm"># Vision (L06)</span>
+    sig_detections = pyqtSignal(<span class="tp">list</span>)    <span class="cm"># list of dicts</span>
+    sig_video_frame= pyqtSignal(<span class="tp">object</span>)  <span class="cm"># numpy BGR array</span>
+    sig_target_gps = pyqtSignal(<span class="tp">float</span>, <span class="tp">float</span>)  <span class="cm"># lat, lon</span>
+    <span class="cm"># Feedback</span>
+    sig_log        = pyqtSignal(<span class="tp">str</span>)     <span class="cm"># timestamped log message</span>
+    sig_fps        = pyqtSignal(<span class="tp">float</span>)
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, parent=<span class="kw">None</span>):
+        super().__init__(parent)
+        rclpy.init()
+        self._node     = _GCSNode(self)
+        self._executor = MultiThreadedExecutor(num_threads=<span class="nm">4</span>)
+        self._executor.add_node(self._node)
+        self._thread   = threading.Thread(target=self._spin, daemon=<span class="kw">True</span>)
+        self._thread.start()
+
+    <span class="kw">def</span> <span class="fn">_spin</span>(self):
+        <span class="kw">try</span>:
+            self._executor.spin()
+        <span class="kw">except</span> Exception <span class="kw">as</span> e:
+            self.sig_log.emit(<span class="st">f'[ERROR] ROS2 spin error: {e}'</span>)
+
+    <span class="kw">def</span> <span class="fn">shutdown</span>(self):
+        self._executor.shutdown()
+        rclpy.shutdown()
+
+    <span class="cm"># ── Commands (called from UI thread, forwarded to ROS2) ──────────</span>
+
+    <span class="kw">def</span> <span class="fn">arm</span>(self):
+        self._node.send_arm(<span class="kw">True</span>)
+        self.sig_log.emit(<span class="st">'CMD: Arm requested'</span>)
+
+    <span class="kw">def</span> <span class="fn">disarm</span>(self):
+        self._node.send_arm(<span class="kw">False</span>)
+        self.sig_log.emit(<span class="st">'CMD: Disarm requested'</span>)
+
+    <span class="kw">def</span> <span class="fn">set_mode</span>(self, mode: str):
+        self._node.send_mode(mode)
+        self.sig_log.emit(<span class="st">f'CMD: Mode → {mode}'</span>)
+
+    <span class="kw">def</span> <span class="fn">emergency_stop</span>(self):
+        self._node.send_estop()
+        self.sig_log.emit(<span class="st">'CMD: *** EMERGENCY STOP ***'</span>)
+
+    <span class="kw">def</span> <span class="fn">fly_to_waypoint</span>(self, lat: float, lon: float, alt: float):
+        self._node.send_waypoint(lat, lon, alt)
+        self.sig_log.emit(<span class="st">f'CMD: Waypoint → ({lat:.6f}, {lon:.6f}, {alt:.1f}m)'</span>)
+
+
+<span class="kw">class</span> <span class="tp">_GCSNode</span>(Node):
+    <span class="cm">"""
+    The actual rclpy Node. Holds all subscriptions and service clients.
+    Calls backend.sig_* to pass data to the UI.
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, backend: GCSBackend):
+        super().__init__(<span class="st">'aeroknow_gcs_node'</span>)
+        self.be = backend
+
+        sen = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+        rel = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        <span class="cm"># ── Subscriptions ────────────────────────────────────────────</span>
+        self.create_subscription(State,    <span class="st">'/mavros/state'</span>,              self.<span class="fn">_state_cb</span>,    rel)
+        self.create_subscription(NavSatFix,<span class="st">'/mavros/global_position/global'</span>,self.<span class="fn">_gps_cb</span>,      sen)
+        self.create_subscription(PoseStamped,<span class="st">'/mavros/local_position/pose'</span>, self.<span class="fn">_pose_cb</span>,     sen)
+        self.create_subscription(BatteryState,<span class="st">'/mavros/battery'</span>,           self.<span class="fn">_battery_cb</span>,  sen)
+        self.create_subscription(Imu,      <span class="st">'/mavros/imu/data'</span>,            self.<span class="fn">_imu_cb</span>,      sen)
+        self.create_subscription(String,   <span class="st">'/nav_health'</span>,                 self.<span class="fn">_health_cb</span>,   rel)
+        self.create_subscription(Bool,     <span class="st">'/nav/gps_denied'</span>,             self.<span class="fn">_denied_cb</span>,   rel)
+        self.create_subscription(Detection2DArray,<span class="st">'/vision/detections'</span>,   self.<span class="fn">_dets_cb</span>,     rel)
+        self.create_subscription(Image,    <span class="st">'/vision/overlay'</span>,             self.<span class="fn">_video_cb</span>,    sen)
+        self.create_subscription(GeoPoint, <span class="st">'/targets/gps'</span>,               self.<span class="fn">_target_cb</span>,   rel)
+        self.create_subscription(Float32,  <span class="st">'/vision/fps'</span>,                 self.<span class="fn">_fps_cb</span>,      rel)
+
+        <span class="cm"># ── Service clients ──────────────────────────────────────────</span>
+        self._arm_cli  = self.create_client(CommandBool, <span class="st">'/mavros/cmd/arming'</span>)
+        self._mode_cli = self.create_client(SetMode,     <span class="st">'/mavros/set_mode'</span>)
+        self._land_cli = self.create_client(Trigger,     <span class="st">'/mavros/cmd/land'</span>)
+
+        <span class="cm"># ── Publishers ───────────────────────────────────────────────</span>
+        self._estop_pub = self.create_publisher(Bool, <span class="st">'/emergency_stop'</span>, <span class="nm">10</span>)
+        self._mode_pub  = self.create_publisher(String, <span class="st">'/mode_manager/request'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># ── Action client ────────────────────────────────────────────</span>
+        self._wp_client = ActionClient(self, FlyToWaypoint, <span class="st">'fly_to_waypoint'</span>)
+
+        <span class="cm"># ── cv_bridge (for video) ────────────────────────────────────</span>
+        <span class="kw">try</span>:
+            <span class="kw">from</span> cv_bridge <span class="kw">import</span> CvBridge
+            self._bridge = CvBridge()
+        <span class="kw">except</span> ImportError:
+            self._bridge = <span class="kw">None</span>
+
+        self._alt_rel = <span class="nm">0.0</span>
+
+    <span class="cm"># ── Subscription callbacks ───────────────────────────────────────</span>
+
+    <span class="kw">def</span> <span class="fn">_state_cb</span>(self, m: State):
+        self.be.sig_state.emit({
+            <span class="st">'connected'</span>: m.connected, <span class="st">'armed'</span>: m.armed, <span class="st">'mode'</span>: m.mode})
+
+    <span class="kw">def</span> <span class="fn">_gps_cb</span>(self, m: NavSatFix):
+        self.be.sig_position.emit({
+            <span class="st">'lat'</span>: m.latitude, <span class="st">'lon'</span>: m.longitude,
+            <span class="st">'alt_abs'</span>: m.altitude, <span class="st">'alt_rel'</span>: self._alt_rel})
+
+    <span class="kw">def</span> <span class="fn">_pose_cb</span>(self, m: PoseStamped):
+        self._alt_rel = m.pose.position.z
+        <span class="cm"># Extract roll, pitch, yaw from quaternion</span>
+        q = m.pose.orientation
+        sinr = <span class="nm">2</span>*(q.w*q.x + q.y*q.z); cosr = <span class="nm">1</span> - <span class="nm">2</span>*(q.x**<span class="nm">2</span> + q.y**<span class="nm">2</span>)
+        roll  = math.degrees(math.atan2(sinr, cosr))
+        sinp  = <span class="nm">2</span>*(q.w*q.y - q.z*q.x)
+        pitch = math.degrees(math.asin(max(-<span class="nm">1</span>, min(<span class="nm">1</span>, sinp))))
+        siny  = <span class="nm">2</span>*(q.w*q.z + q.x*q.y); cosy = <span class="nm">1</span> - <span class="nm">2</span>*(q.y**<span class="nm">2</span> + q.z**<span class="nm">2</span>)
+        yaw   = math.degrees(math.atan2(siny, cosy))
+        self.be.sig_attitude.emit({<span class="st">'roll'</span>: roll, <span class="st">'pitch'</span>: pitch, <span class="st">'yaw'</span>: yaw})
+
+    <span class="kw">def</span> <span class="fn">_battery_cb</span>(self, m: BatteryState):
+        self.be.sig_battery.emit({
+            <span class="st">'voltage'</span>: m.voltage, <span class="st">'percentage'</span>: m.percentage * <span class="nm">100</span>})
+
+    <span class="kw">def</span> <span class="fn">_imu_cb</span>(self, m: Imu):
+        <span class="cm"># IMU linear acceleration ≈ body velocity changes; we just forward for display</span>
+        ax, ay = m.linear_acceleration.x, m.linear_acceleration.y
+        gs = math.sqrt(ax**<span class="nm">2</span> + ay**<span class="nm">2</span>)
+        self.be.sig_velocity.emit({<span class="st">'vx'</span>: ax, <span class="st">'vy'</span>: ay, <span class="st">'vz'</span>: m.linear_acceleration.z, <span class="st">'groundspeed'</span>: gs})
+
+    <span class="kw">def</span> <span class="fn">_health_cb</span>(self, m: String): self.be.sig_nav_health.emit(m.data)
+    <span class="kw">def</span> <span class="fn">_denied_cb</span>(self, m: Bool):   self.be.sig_gps_denied.emit(m.data)
+    <span class="kw">def</span> <span class="fn">_target_cb</span>(self, m: GeoPoint): self.be.sig_target_gps.emit(m.latitude, m.longitude)
+    <span class="kw">def</span> <span class="fn">_fps_cb</span>(self, m: Float32):   self.be.sig_fps.emit(m.data)
+
+    <span class="kw">def</span> <span class="fn">_dets_cb</span>(self, m: Detection2DArray):
+        dets = []
+        <span class="kw">for</span> d <span class="kw">in</span> m.detections:
+            conf = d.results[<span class="nm">0</span>].hypothesis.score    <span class="kw">if</span> d.results <span class="kw">else</span> <span class="nm">0</span>
+            cls  = d.results[<span class="nm">0</span>].hypothesis.class_id <span class="kw">if</span> d.results <span class="kw">else</span> <span class="st">'?'</span>
+            dets.append({<span class="st">'class_id'</span>: cls, <span class="st">'conf'</span>: conf,
+                          <span class="st">'cx'</span>: d.bbox.center.position.x,
+                          <span class="st">'cy'</span>: d.bbox.center.position.y,
+                          <span class="st">'w'</span>: d.bbox.size_x, <span class="st">'h'</span>: d.bbox.size_y})
+        self.be.sig_detections.emit(dets)
+
+    <span class="kw">def</span> <span class="fn">_video_cb</span>(self, m: Image):
+        <span class="kw">if</span> <span class="kw">not</span> self._bridge: <span class="kw">return</span>
+        <span class="kw">try</span>:
+            frame = self._bridge.imgmsg_to_cv2(m, desired_encoding=<span class="st">'bgr8'</span>)
+            self.be.sig_video_frame.emit(frame)
+        <span class="kw">except</span> Exception: <span class="kw">pass</span>
+
+    <span class="cm"># ── Command methods (called from UI, executed in ROS2 thread) ────</span>
+
+    <span class="kw">def</span> <span class="fn">send_arm</span>(self, arm: bool):
+        req = CommandBool.Request(); req.value = arm
+        self._arm_cli.call_async(req)
+
+    <span class="kw">def</span> <span class="fn">send_mode</span>(self, mode: str):
+        msg = String(); msg.data = mode
+        self._mode_pub.publish(msg)
+
+    <span class="kw">def</span> <span class="fn">send_estop</span>(self):
+        msg = Bool(); msg.data = <span class="kw">True</span>
+        self._estop_pub.publish(msg)
+
+    <span class="kw">def</span> <span class="fn">send_waypoint</span>(self, lat: float, lon: float, alt: float):
+        <span class="kw">if</span> <span class="kw">not</span> self._wp_client.wait_for_server(timeout_sec=<span class="nm">1.0</span>):
+            self.be.sig_log.emit(<span class="st">'[WARN] FlyToWaypoint action server not available'</span>)
+            <span class="kw">return</span>
+        goal = FlyToWaypoint.Goal()
+        goal.target_lat = lat; goal.target_lon = lon
+        goal.target_alt = alt; goal.acceptance_radius = <span class="nm">5.0</span>
+        self._wp_client.send_goal_async(goal)</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 05 — PHASE 1 UI -->
+  <div class="lab-section" id="s-phase1">
+    <h2>Step 03: Phase 1 UI — gcs_ui.py (Minimal GCS)</h2>
+    <p>
+      Phase 1 is a single PyQt5 window with no external browser dependency.
+      It demonstrates the core GCS pattern: telemetry display, command buttons,
+      and the always-visible emergency stop.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 03</span>
+        <span class="step-title">Write gcs_ui.py — Phase 1 main window</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why the emergency stop button is always visible and always red</span>
+          <p>
+            The emergency stop must never be more than one click away, regardless of which
+            tab or panel the operator is looking at. It lives in a fixed toolbar that spans
+            the full window width and is never hidden. The red background is a deliberate
+            violation of normal UI aesthetics — its purpose is to be unmissable.
+            This is a direct implementation of the operator authority principle from Module 01 §1.5:
+            the human retains unconditional override authority at all times.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_gcs/aeroknow_gcs/gcs_ui.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · gcs_ui.py (Phase 1 — complete file)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+gcs_ui.py
+─────────
+Phase 1 GCS: minimal PyQt5 window.
+Phase 2: adds map, video, health, and detection tabs.
+Run with: ros2 run aeroknow_gcs gcs
+"""</span>
+
+<span class="kw">import</span> sys
+<span class="kw">import</span> time
+<span class="kw">from</span> PyQt5.QtWidgets <span class="kw">import</span> (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QGridLayout, QLabel, QPushButton, QLineEdit, QTextEdit,
+    QComboBox, QGroupBox, QTabWidget, QMessageBox, QSplitter,
+    QFrame, QToolBar, QSizePolicy,
+)
+<span class="kw">from</span> PyQt5.QtCore    <span class="kw">import</span> Qt, QTimer, pyqtSlot, QDateTime
+<span class="kw">from</span> PyQt5.QtGui     <span class="kw">import</span> QColor, QPalette, QFont, QIcon
+
+<span class="kw">from</span> .gcs_backend <span class="kw">import</span> GCSBackend
+
+<span class="cm"># ── Dark theme stylesheet ─────────────────────────────────────────</span>
+DARK_STYLE = <span class="st">"""
+QMainWindow, QWidget { background:#0a0f14; color:#c8e6f0; font-family:'Consolas','Courier New',monospace; }
+QGroupBox { border:1px solid #1a3040; border-radius:4px; margin-top:8px; padding-top:10px; font-size:11px; color:#00ff9d; }
+QGroupBox::title { subcontrol-origin:margin; left:8px; color:#00ff9d; }
+QLabel { color:#c8e6f0; }
+QLabel#val { color:#00ff9d; font-size:15px; font-weight:bold; }
+QLabel#warn { color:#ffb700; }
+QLabel#err  { color:#ff3a3a; }
+QPushButton { background:#0d1f2d; border:1px solid #1a3040; color:#c8e6f0; padding:6px 14px; border-radius:3px; font-family:inherit; }
+QPushButton:hover { background:#152a3d; border-color:#00ff9d; }
+QPushButton:pressed { background:#00ff9d; color:#000; }
+QPushButton#estop { background:#8b0000; border:2px solid #ff3a3a; color:#fff; font-size:14px; font-weight:bold; padding:10px 24px; }
+QPushButton#estop:hover { background:#ff3a3a; }
+QPushButton#arm   { background:#003a1a; border:1px solid #00ff9d; color:#00ff9d; }
+QPushButton#arm:hover { background:#00ff9d; color:#000; }
+QPushButton#disarm { background:#3a1a00; border:1px solid #ffb700; color:#ffb700; }
+QLineEdit { background:#0d1f2d; border:1px solid #1a3040; color:#00d4ff; padding:4px; border-radius:2px; }
+QTextEdit { background:#040c14; border:1px solid #1a3040; color:#7dbf9e; font-size:12px; }
+QComboBox { background:#0d1f2d; border:1px solid #1a3040; color:#c8e6f0; padding:4px; }
+QComboBox::drop-down { border:0px; }
+QTabWidget::pane { border:1px solid #1a3040; }
+QTabBar::tab { background:#0d1f2d; color:#7dbf9e; padding:6px 16px; margin-right:2px; border-top:2px solid transparent; }
+QTabBar::tab:selected { color:#00ff9d; border-top:2px solid #00ff9d; background:#152a3d; }
+QSplitter::handle { background:#1a3040; }
+"""</span>
+
+
+<span class="kw">def</span> <span class="fn">ts</span>() -> str:
+    <span class="st">"""Current timestamp for log entries."""</span>
+    <span class="kw">return</span> QDateTime.currentDateTime().toString(<span class="st">'hh:mm:ss'</span>)
+
+
+<span class="kw">class</span> <span class="tp">TelemetryPanel</span>(QGroupBox):
+    <span class="st">"""6-field live telemetry display."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'Telemetry'</span>)
+        grid = QGridLayout(self)
+        grid.setSpacing(<span class="nm">8</span>)
+        self._fields = {}
+        pairs = [
+            (<span class="st">'MODE'</span>,  <span class="st">'—'</span>), (<span class="st">'ARMED'</span>,     <span class="st">'—'</span>),
+            (<span class="st">'ALT'</span>,   <span class="st">'—'</span>), (<span class="st">'BATTERY'</span>,   <span class="st">'—'</span>),
+            (<span class="st">'LAT'</span>,   <span class="st">'—'</span>), (<span class="st">'LON'</span>,       <span class="st">'—'</span>),
+            (<span class="st">'ROLL'</span>,  <span class="st">'—'</span>), (<span class="st">'PITCH'</span>,     <span class="st">'—'</span>),
+            (<span class="st">'YAW'</span>,   <span class="st">'—'</span>), (<span class="st">'GPS DENIED'</span>, <span class="st">'—'</span>),
+        ]
+        <span class="kw">for</span> i, (k, v) <span class="kw">in</span> enumerate(pairs):
+            row, col = divmod(i, <span class="nm">2</span>)
+            lbl = QLabel(k + <span class="st">':'</span>)
+            lbl.setStyleSheet(<span class="st">'color:#4a7a8a; font-size:11px;'</span>)
+            val = QLabel(v)
+            val.setObjectName(<span class="st">'val'</span>)
+            grid.addWidget(lbl, row, col*<span class="nm">2</span>)
+            grid.addWidget(val, row, col*<span class="nm">2</span>+<span class="nm">1</span>)
+            self._fields[k] = val
+
+    <span class="kw">def</span> <span class="fn">set</span>(self, key: str, value: str, colour: str = <span class="st">'#00ff9d'</span>):
+        <span class="kw">if</span> key <span class="kw">in</span> self._fields:
+            self._fields[key].setText(value)
+            self._fields[key].setStyleSheet(<span class="st">f'color:{colour}; font-size:15px; font-weight:bold;'</span>)
+
+
+<span class="kw">class</span> <span class="tp">CommandPanel</span>(QGroupBox):
+    <span class="st">"""Arm, mode, waypoint, and basic controls."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, backend: GCSBackend):
+        super().__init__(<span class="st">'Commands'</span>)
+        self.be = backend
+        layout = QVBoxLayout(self)
+
+        <span class="cm"># Arm/Disarm row</span>
+        arm_row = QHBoxLayout()
+        self.btn_arm    = QPushButton(<span class="st">'ARM'</span>)
+        self.btn_disarm = QPushButton(<span class="st">'DISARM'</span>)
+        self.btn_arm.setObjectName(<span class="st">'arm'</span>)
+        self.btn_disarm.setObjectName(<span class="st">'disarm'</span>)
+        self.btn_arm.clicked.connect(self.<span class="fn">_arm</span>)
+        self.btn_disarm.clicked.connect(self.<span class="fn">_disarm</span>)
+        arm_row.addWidget(self.btn_arm)
+        arm_row.addWidget(self.btn_disarm)
+        layout.addLayout(arm_row)
+
+        <span class="cm"># Mode selector</span>
+        mode_row = QHBoxLayout()
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItems([
+            <span class="st">'POSITION'</span>, <span class="st">'OFFBOARD'</span>, <span class="st">'AUTO.LAND'</span>, <span class="st">'AUTO.RTL'</span>, <span class="st">'STABILIZED'</span>
+        ])
+        self.btn_mode = QPushButton(<span class="st">'Set Mode'</span>)
+        self.btn_mode.clicked.connect(self.<span class="fn">_set_mode</span>)
+        mode_row.addWidget(QLabel(<span class="st">'Mode:'</span>))
+        mode_row.addWidget(self.mode_combo, <span class="nm">1</span>)
+        mode_row.addWidget(self.btn_mode)
+        layout.addLayout(mode_row)
+
+        <span class="cm"># Waypoint input</span>
+        wp_box = QGroupBox(<span class="st">'Waypoint'</span>)
+        wp_layout = QGridLayout(wp_box)
+        self.lat_in = QLineEdit(<span class="st">'47.3978'</span>)
+        self.lon_in = QLineEdit(<span class="st">'8.5456'</span>)
+        self.alt_in = QLineEdit(<span class="st">'25.0'</span>)
+        self.btn_wp = QPushButton(<span class="st">'Send Waypoint'</span>)
+        self.btn_wp.clicked.connect(self.<span class="fn">_send_wp</span>)
+        <span class="kw">for</span> i, (lbl, w) <span class="kw">in</span> enumerate([(<span class="st">'Lat'</span>,self.lat_in),(<span class="st">'Lon'</span>,self.lon_in),(<span class="st">'Alt(m)'</span>,self.alt_in)]):
+            wp_layout.addWidget(QLabel(lbl), <span class="nm">0</span>, i); wp_layout.addWidget(w, <span class="nm">1</span>, i)
+        wp_layout.addWidget(self.btn_wp, <span class="nm">2</span>, <span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">3</span>)
+        layout.addWidget(wp_box)
+
+        <span class="cm"># Health service check</span>
+        self.btn_health = QPushButton(<span class="st">'Check Health'</span>)
+        self.btn_health.clicked.connect(<span class="kw">lambda</span>: self.be.sig_log.emit(<span class="st">f'[{ts()}] Health check requested'</span>))
+        layout.addWidget(self.btn_health)
+
+    <span class="kw">def</span> <span class="fn">_arm</span>(self):
+        <span class="kw">if</span> QMessageBox.question(self, <span class="st">'Confirm'</span>, <span class="st">'ARM the drone?'</span>,
+            QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+            self.be.arm()
+
+    <span class="kw">def</span> <span class="fn">_disarm</span>(self):
+        self.be.disarm()
+
+    <span class="kw">def</span> <span class="fn">_set_mode</span>(self):
+        mode = self.mode_combo.currentText()
+        <span class="kw">if</span> mode == <span class="st">'OFFBOARD'</span> <span class="kw">and</span> QMessageBox.question(
+                self, <span class="st">'Confirm'</span>, <span class="st">'Switch to OFFBOARD? Ensure setpoints are streaming.'</span>,
+                QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
+            <span class="kw">return</span>
+        self.be.set_mode(mode)
+
+    <span class="kw">def</span> <span class="fn">_send_wp</span>(self):
+        <span class="kw">try</span>:
+            lat = float(self.lat_in.text())
+            lon = float(self.lon_in.text())
+            alt = float(self.alt_in.text())
+            self.be.fly_to_waypoint(lat, lon, alt)
+        <span class="kw">except</span> ValueError:
+            QMessageBox.warning(self, <span class="st">'Input Error'</span>, <span class="st">'Lat/Lon/Alt must be numbers.'</span>)
+
+
+<span class="kw">class</span> <span class="tp">GCSMainWindow</span>(QMainWindow):
+    <span class="st">"""Main GCS window — Phase 1 layout with Phase 2 tab stubs."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__()
+        self.be = GCSBackend(self)
+        self.setWindowTitle(<span class="st">'AEROKNOW GCS'</span>)
+        self.resize(<span class="nm">1100</span>, <span class="nm">720</span>)
+        self.setStyleSheet(DARK_STYLE)
+
+        <span class="cm"># ── Emergency stop toolbar (always visible) ───────────────────</span>
+        toolbar = QToolBar()
+        toolbar.setMovable(<span class="kw">False</span>)
+        toolbar.setStyleSheet(<span class="st">'background:#050a0e; border-bottom:1px solid #1a3040; padding:4px;'</span>)
+
+        title_lbl = QLabel(<span class="st">'  AEROKNOW GCS  '</span>)
+        title_lbl.setStyleSheet(<span class="st">'color:#00ff9d; font-size:14px; font-weight:bold; letter-spacing:3px;'</span>)
+        toolbar.addWidget(title_lbl)
+
+        spacer = QWidget(); spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        toolbar.addWidget(spacer)
+
+        self.lbl_conn = QLabel(<span class="st">'● DISCONNECTED'</span>)
+        self.lbl_conn.setStyleSheet(<span class="st">'color:#ff3a3a; font-size:11px;'</span>)
+        toolbar.addWidget(self.lbl_conn)
+
+        toolbar.addSeparator()
+        self.btn_estop = QPushButton(<span class="st">'⚠  EMERGENCY STOP'</span>)
+        self.btn_estop.setObjectName(<span class="st">'estop'</span>)
+        self.btn_estop.clicked.connect(self.<span class="fn">_emergency_stop</span>)
+        toolbar.addWidget(self.btn_estop)
+        self.addToolBar(toolbar)
+
+        <span class="cm"># ── Central: tab widget ───────────────────────────────────────</span>
+        self.tabs = QTabWidget()
+        self.setCentralWidget(self.tabs)
+
+        <span class="cm"># Tab 1: Dashboard (Phase 1)</span>
+        dash = QWidget()
+        dash_layout = QHBoxLayout(dash)
+        splitter = QSplitter(Qt.Horizontal)
+
+        <span class="cm"># Left: telemetry + commands</span>
+        left = QWidget(); ll = QVBoxLayout(left)
+        self.telem = TelemetryPanel()
+        self.cmds  = CommandPanel(self.be)
+        ll.addWidget(self.telem)
+        ll.addWidget(self.cmds)
+        ll.addStretch()
+        splitter.addWidget(left)
+
+        <span class="cm"># Right: mission log</span>
+        log_box = QGroupBox(<span class="st">'Mission Log'</span>)
+        log_layout = QVBoxLayout(log_box)
+        self.log = QTextEdit(); self.log.setReadOnly(<span class="kw">True</span>)
+        btn_clear = QPushButton(<span class="st">'Clear'</span>)
+        btn_clear.clicked.connect(self.log.clear)
+        log_layout.addWidget(self.log)
+        log_layout.addWidget(btn_clear)
+        splitter.addWidget(log_box)
+        splitter.setSizes([<span class="nm">400</span>, <span class="nm">600</span>])
+        dash_layout.addWidget(splitter)
+        self.tabs.addTab(dash, <span class="st">'Dashboard'</span>)
+
+        <span class="cm"># Phase 2 tabs (built later — stub labels for now)</span>
+        self.tabs.addTab(QLabel(<span class="st">'Map — Phase 2 (Step 06)'</span>),    <span class="st">'Map'</span>)
+        self.tabs.addTab(QLabel(<span class="st">'Video — Phase 2 (Step 07)'</span>),  <span class="st">'Video'</span>)
+        self.tabs.addTab(QLabel(<span class="st">'Health — Phase 2 (Step 08)'</span>), <span class="st">'Health'</span>)
+
+        <span class="cm"># ── Connect backend signals ───────────────────────────────────</span>
+        self.be.sig_state.connect(self.<span class="fn">_on_state</span>)
+        self.be.sig_position.connect(self.<span class="fn">_on_position</span>)
+        self.be.sig_attitude.connect(self.<span class="fn">_on_attitude</span>)
+        self.be.sig_battery.connect(self.<span class="fn">_on_battery</span>)
+        self.be.sig_gps_denied.connect(self.<span class="fn">_on_denied</span>)
+        self.be.sig_log.connect(self.<span class="fn">_on_log</span>)
+
+        self._on_log(<span class="st">f'[{ts()}] GCS started — waiting for FCU connection...'</span>)
+
+    <span class="cm"># ── Signal slots ─────────────────────────────────────────────────</span>
+
+    @pyqtSlot(<span class="tp">dict</span>)
+    <span class="kw">def</span> <span class="fn">_on_state</span>(self, d):
+        mode_col = <span class="st">'#ffb700'</span> <span class="kw">if</span> d[<span class="st">'mode'</span>] == <span class="st">'OFFBOARD'</span> <span class="kw">else</span> <span class="st">'#00ff9d'</span>
+        self.telem.set(<span class="st">'MODE'</span>,  d[<span class="st">'mode'</span>], mode_col)
+        armed_col = <span class="st">'#ff3a3a'</span> <span class="kw">if</span> d[<span class="st">'armed'</span>] <span class="kw">else</span> <span class="st">'#4a7a8a'</span>
+        self.telem.set(<span class="st">'ARMED'</span>, <span class="st">'ARMED'</span> <span class="kw">if</span> d[<span class="st">'armed'</span>] <span class="kw">else</span> <span class="st">'DISARMED'</span>, armed_col)
+        conn_col = <span class="st">'#00ff9d'</span> <span class="kw">if</span> d[<span class="st">'connected'</span>] <span class="kw">else</span> <span class="st">'#ff3a3a'</span>
+        self.lbl_conn.setText(<span class="st">'● CONNECTED'</span> <span class="kw">if</span> d[<span class="st">'connected'</span>] <span class="kw">else</span> <span class="st">'● DISCONNECTED'</span>)
+        self.lbl_conn.setStyleSheet(<span class="st">f'color:{conn_col}; font-size:11px;'</span>)
+
+    @pyqtSlot(<span class="tp">dict</span>)
+    <span class="kw">def</span> <span class="fn">_on_position</span>(self, d):
+        self.telem.set(<span class="st">'LAT'</span>, <span class="st">f"{d['lat']:.6f}°"</span>)
+        self.telem.set(<span class="st">'LON'</span>, <span class="st">f"{d['lon']:.6f}°"</span>)
+        self.telem.set(<span class="st">'ALT'</span>, <span class="st">f"{d['alt_rel']:.1f} m"</span>)
+
+    @pyqtSlot(<span class="tp">dict</span>)
+    <span class="kw">def</span> <span class="fn">_on_attitude</span>(self, d):
+        self.telem.set(<span class="st">'ROLL'</span>,  <span class="st">f"{d['roll']:+.1f}°"</span>)
+        self.telem.set(<span class="st">'PITCH'</span>, <span class="st">f"{d['pitch']:+.1f}°"</span>)
+        self.telem.set(<span class="st">'YAW'</span>,   <span class="st">f"{d['yaw']:+.1f}°"</span>)
+
+    @pyqtSlot(<span class="tp">dict</span>)
+    <span class="kw">def</span> <span class="fn">_on_battery</span>(self, d):
+        pct = d[<span class="st">'percentage'</span>]
+        col = <span class="st">'#ff3a3a'</span> <span class="kw">if</span> pct < <span class="nm">20</span> <span class="kw">else</span> (<span class="st">'#ffb700'</span> <span class="kw">if</span> pct < <span class="nm">40</span> <span class="kw">else</span> <span class="st">'#00ff9d'</span>)
+        self.telem.set(<span class="st">'BATTERY'</span>, <span class="st">f"{d['voltage']:.1f}V  {pct:.0f}%"</span>, col)
+
+    @pyqtSlot(<span class="tp">bool</span>)
+    <span class="kw">def</span> <span class="fn">_on_denied</span>(self, denied):
+        col = <span class="st">'#ff3a3a'</span> <span class="kw">if</span> denied <span class="kw">else</span> <span class="st">'#00ff9d'</span>
+        self.telem.set(<span class="st">'GPS DENIED'</span>, <span class="st">'YES'</span> <span class="kw">if</span> denied <span class="kw">else</span> <span class="st">'NO'</span>, col)
+
+    @pyqtSlot(<span class="tp">str</span>)
+    <span class="kw">def</span> <span class="fn">_on_log</span>(self, msg):
+        self.log.append(<span class="st">f'[{ts()}] {msg}'</span>)
+        self.log.verticalScrollBar().setValue(self.log.verticalScrollBar().maximum())
+
+    <span class="kw">def</span> <span class="fn">_emergency_stop</span>(self):
+        <span class="kw">if</span> QMessageBox.question(self, <span class="st">'⚠ CONFIRM'</span>,
+            <span class="st">'EMERGENCY STOP — drone will land immediately.\n\nAre you sure?'</span>,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No) == QMessageBox.Yes:
+            self.be.emergency_stop()
+            self._on_log(<span class="st">'*** EMERGENCY STOP SENT ***'</span>)
+
+    <span class="kw">def</span> <span class="fn">closeEvent</span>(self, event):
+        self.be.shutdown()
+        event.accept()
+
+
+<span class="kw">def</span> <span class="fn">main</span>():
+    app = QApplication(sys.argv)
+    app.setStyle(<span class="st">'Fusion'</span>)
+    win = GCSMainWindow()
+    win.show()
+    sys.exit(app.exec_())
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>:
+    main()</pre>
+        </div>
+
+        <p>Build and run Phase 1 — confirm the window opens and telemetry updates:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 (with L04 stack running in T1+T2)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_gcs
+<span class="prompt">$ </span>source install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_gcs gcs</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected — GCS window opens, telemetry fields populate</span>
+          <pre><span class="t-ok">● CONNECTED</span>  (top right — green after FCU connects)
+<span class="t-cyan">MODE:  MANUAL        ARMED: DISARMED</span>
+<span class="t-cyan">ALT:   0.0 m         BATTERY: 12.4V  82%</span>
+<span class="t-cyan">LAT:   47.397742°    LON:  8.545594°</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 06 — MAP WIDGET -->
+  <div class="lab-section" id="s-map-widget">
+    <h2>Step 04: map_widget.py — Live Folium Map</h2>
+    <p>
+      Folium generates Leaflet.js HTML maps. We embed one in a <code>QWebEngineView</code>,
+      then update the drone's position marker by regenerating the HTML and reloading
+      the view. It is not the most elegant approach — but it requires zero backend
+      infrastructure and works offline with cached tiles.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 04</span>
+        <span class="step-title">Write map_widget.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why regenerate HTML instead of updating the marker in JavaScript</span>
+          <p>
+            The alternative — calling <code>view.page().runJavaScript()</code> to move a marker —
+            requires writing a JavaScript interface between Python and the Leaflet map, and
+            synchronising the two-way communication. For a lab application, regenerating a small
+            HTML file every second is far simpler and perfectly fast enough.
+            At 1 Hz position updates, the HTML is ~5 KB and the reload is imperceptible.
+            For a production GCS, the JS interface is worth building — see the extension challenge.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_gcs/aeroknow_gcs/map_widget.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · map_widget.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+map_widget.py
+─────────────
+Folium map embedded in a QWebEngineView.
+Updates drone position + track history + target markers.
+Refreshes at 1 Hz by regenerating the HTML file.
+"""</span>
+
+<span class="kw">import</span> os
+<span class="kw">import</span> tempfile
+<span class="kw">import</span> folium
+
+<span class="kw">from</span> PyQt5.QtWidgets <span class="kw">import</span> QWidget, QVBoxLayout, QLabel
+<span class="kw">from</span> PyQt5.QtCore    <span class="kw">import</span> QTimer, pyqtSlot, QUrl
+
+<span class="kw">try</span>:
+    <span class="kw">from</span> PyQt5.QtWebEngineWidgets <span class="kw">import</span> QWebEngineView
+    WEBENGINE_OK = <span class="kw">True</span>
+<span class="kw">except</span> ImportError:
+    WEBENGINE_OK = <span class="kw">False</span>
+
+<span class="cm"># Default map centre — Zurich (PX4 SITL default GPS origin)</span>
+DEFAULT_LAT = <span class="nm">47.3978</span>
+DEFAULT_LON = <span class="nm">8.5456</span>
+MAX_TRACK   = <span class="nm">200</span>   <span class="cm"># max position history points</span>
+
+
+<span class="kw">class</span> <span class="tp">MapWidget</span>(QWidget):
+    <span class="st">"""Live map widget. Falls back to a label if QtWebEngine not installed."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, backend, parent=<span class="kw">None</span>):
+        super().__init__(parent)
+        self.be      = backend
+        self.lat     = DEFAULT_LAT
+        self.lon     = DEFAULT_LON
+        self.track   = []   <span class="cm"># list of (lat, lon)</span>
+        self.targets = []   <span class="cm"># list of (lat, lon)</span>
+        self._map_file = os.path.join(tempfile.gettempdir(), <span class="st">'aeroknow_map.html'</span>)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>)
+
+        <span class="kw">if</span> WEBENGINE_OK:
+            self._view = QWebEngineView()
+            layout.addWidget(self._view)
+            <span class="cm"># Render initial map</span>
+            self._render_map()
+            self._view.load(QUrl.fromLocalFile(self._map_file))
+
+            <span class="cm"># Refresh at 1 Hz when position changes</span>
+            self._dirty = <span class="kw">False</span>
+            self._timer = QTimer(self)
+            self._timer.timeout.connect(self.<span class="fn">_refresh</span>)
+            self._timer.start(<span class="nm">1000</span>)
+        <span class="kw">else</span>:
+            lbl = QLabel(
+                <span class="st">'Map requires PyQtWebEngine.\n'</span>
+                <span class="st">'Install: pip3 install PyQtWebEngine\n'</span>
+                <span class="st">'         sudo apt install python3-pyqt5.qtwebengine'</span>
+            )
+            lbl.setStyleSheet(<span class="st">'color:#ffb700; padding:20px;'</span>)
+            lbl.setAlignment(Qt.AlignCenter <span class="kw">if</span> <span class="kw">True</span> <span class="kw">else</span> <span class="nm">4</span>)
+            layout.addWidget(lbl)
+
+        <span class="cm"># Connect backend signals</span>
+        self.be.sig_position.connect(self.<span class="fn">_on_position</span>)
+        self.be.sig_target_gps.connect(self.<span class="fn">_on_target</span>)
+
+    @pyqtSlot(<span class="tp">dict</span>)
+    <span class="kw">def</span> <span class="fn">_on_position</span>(self, d):
+        self.lat = d[<span class="st">'lat'</span>]; self.lon = d[<span class="st">'lon'</span>]
+        self.track.append((self.lat, self.lon))
+        <span class="kw">if</span> len(self.track) > MAX_TRACK:
+            self.track.pop(<span class="nm">0</span>)
+        self._dirty = <span class="kw">True</span>
+
+    @pyqtSlot(<span class="tp">float</span>, <span class="tp">float</span>)
+    <span class="kw">def</span> <span class="fn">_on_target</span>(self, lat, lon):
+        self.targets.append((lat, lon))
+        <span class="kw">if</span> len(self.targets) > <span class="nm">20</span>:
+            self.targets.pop(<span class="nm">0</span>)
+        self._dirty = <span class="kw">True</span>
+
+    <span class="kw">def</span> <span class="fn">_refresh</span>(self):
+        <span class="kw">if</span> <span class="kw">not</span> (WEBENGINE_OK <span class="kw">and</span> self._dirty): <span class="kw">return</span>
+        self._dirty = <span class="kw">False</span>
+        self._render_map()
+        self._view.load(QUrl.fromLocalFile(self._map_file))
+
+    <span class="kw">def</span> <span class="fn">_render_map</span>(self):
+        <span class="st">"""Build Folium HTML — drone position + track + targets."""</span>
+        m = folium.Map(
+            location=[self.lat, self.lon],
+            zoom_start=<span class="nm">17</span>,
+            tiles=<span class="st">'OpenStreetMap'</span>,
+        )
+        <span class="cm"># Drone position marker</span>
+        folium.Marker(
+            location=[self.lat, self.lon],
+            tooltip=<span class="st">f'Drone ({self.lat:.6f}, {self.lon:.6f})'</span>,
+            icon=folium.Icon(color=<span class="st">'green'</span>, icon=<span class="st">'plane'</span>, prefix=<span class="st">'fa'</span>),
+        ).add_to(m)
+
+        <span class="cm"># Track polyline</span>
+        <span class="kw">if</span> len(self.track) >= <span class="nm">2</span>:
+            folium.PolyLine(self.track, color=<span class="st">'#00ff9d'</span>, weight=<span class="nm">2</span>,
+                            opacity=<span class="nm">0.8</span>, tooltip=<span class="st">'Flight track'</span>).add_to(m)
+
+        <span class="cm"># Target markers (red)</span>
+        <span class="kw">for</span> i, (tlat, tlon) <span class="kw">in</span> enumerate(self.targets):
+            folium.Marker(
+                location=[tlat, tlon],
+                tooltip=<span class="st">f'Target {i+1}'</span>,
+                icon=folium.Icon(color=<span class="st">'red'</span>, icon=<span class="st">'crosshairs'</span>, prefix=<span class="st">'fa'</span>),
+            ).add_to(m)
+
+        m.save(self._map_file)</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 07 — VIDEO WIDGET -->
+  <div class="lab-section" id="s-video-widget">
+    <h2>Step 05: video_widget.py — Camera Feed in Qt</h2>
+    <p>
+      Converting an OpenCV numpy frame to a Qt widget image is a three-step
+      conversion chain: numpy BGR → QImage → QPixmap → QLabel.
+      The widget receives frames via the backend's <code>sig_video_frame</code> signal
+      and updates itself — always in the Qt main thread.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 05</span>
+        <span class="step-title">Write video_widget.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_gcs/aeroknow_gcs/video_widget.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · video_widget.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+video_widget.py
+───────────────
+Displays OpenCV frames from /vision/overlay in a Qt widget.
+Conversion chain: numpy BGR → QImage → QPixmap → scaled QLabel.
+"""</span>
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> PyQt5.QtWidgets <span class="kw">import</span> QWidget, QVBoxLayout, QLabel
+<span class="kw">from</span> PyQt5.QtCore    <span class="kw">import</span> pyqtSlot, Qt
+<span class="kw">from</span> PyQt5.QtGui     <span class="kw">import</span> QImage, QPixmap
+
+
+<span class="kw">class</span> <span class="tp">VideoWidget</span>(QWidget):
+    <span class="st">"""
+    Subscribes to sig_video_frame (numpy BGR array).
+    Renders the frame scaled to fill the widget.
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, backend, parent=<span class="kw">None</span>):
+        super().__init__(parent)
+        self.be = backend
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>)
+
+        self._lbl = QLabel(<span class="st">'Waiting for camera feed...'</span>)
+        self._lbl.setAlignment(Qt.AlignCenter)
+        self._lbl.setStyleSheet(<span class="st">'background:#040c14; color:#3d6b7a;'</span>)
+        self._lbl.setMinimumSize(<span class="nm">320</span>, <span class="nm">240</span>)
+        layout.addWidget(self._lbl)
+
+        <span class="cm"># FPS label overlay</span>
+        self._fps_lbl = QLabel(<span class="st">''</span>)
+        self._fps_lbl.setStyleSheet(<span class="st">'color:#00ff9d; font-size:11px; padding:2px;'</span>)
+        layout.addWidget(self._fps_lbl)
+
+        <span class="cm"># Connect signals</span>
+        self.be.sig_video_frame.connect(self.<span class="fn">_on_frame</span>)
+        self.be.sig_fps.connect(self.<span class="fn">_on_fps</span>)
+
+    @pyqtSlot(<span class="tp">object</span>)
+    <span class="kw">def</span> <span class="fn">_on_frame</span>(self, frame: np.ndarray):
+        <span class="st">"""
+        Convert numpy BGR frame to QPixmap and display.
+        Steps:
+        1. Convert BGR → RGB (Qt uses RGB)
+        2. Create QImage from raw bytes (must specify bytes_per_line!)
+        3. Convert to QPixmap
+        4. Scale to widget size maintaining aspect ratio
+        """</span>
+        rgb = frame[:, :, ::-<span class="nm">1</span>].copy()   <span class="cm"># BGR → RGB, must copy (contiguous array)</span>
+        h, w, ch = rgb.shape
+        bytes_per_line = ch * w
+
+        q_img = QImage(rgb.data, w, h, bytes_per_line, QImage.Format_RGB888)
+        pixmap = QPixmap.fromImage(q_img)
+
+        <span class="cm"># Scale to widget size, maintaining aspect ratio</span>
+        scaled = pixmap.scaled(
+            self._lbl.width(), self._lbl.height(),
+            Qt.KeepAspectRatio, Qt.SmoothTransformation
+        )
+        self._lbl.setPixmap(scaled)
+
+    @pyqtSlot(<span class="tp">float</span>)
+    <span class="kw">def</span> <span class="fn">_on_fps</span>(self, fps: float):
+        self._fps_lbl.setText(<span class="st">f'Inference: {fps:.1f} Hz'</span>)</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 08 — PHASE 2 -->
+  <div class="lab-section" id="s-phase2">
+    <h2>Step 06: Phase 2 — Wire the Widgets into the Full GCS</h2>
+    <p>
+      Phase 2 replaces the stub tab labels with real widgets.
+      Open <code>gcs_ui.py</code> and replace the Phase 2 stub tabs
+      with the map, video, and health widgets.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 06</span>
+        <span class="step-title">Add Phase 2 tabs to gcs_ui.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why Phase 2 is a modification of Phase 1 rather than a separate file</span>
+          <p>
+            The backend, emergency stop toolbar, and mission log are shared between both phases.
+            Duplicating them in a second file would mean maintaining two versions of the same
+            logic. Instead, Phase 2 simply replaces the stub <code>QLabel</code> tabs with
+            real widgets. The diff is small and surgical — exactly the kind of incremental
+            evolution real software goes through.
+          </p>
+        </div>
+
+        <p>
+          Add these imports at the top of <code>gcs_ui.py</code>, after the existing imports:
+        </p>
+        <div class="code-block python">
+          <span class="code-lang">python · add to gcs_ui.py — imports</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="kw">from</span> .map_widget   <span class="kw">import</span> MapWidget
+<span class="kw">from</span> .video_widget <span class="kw">import</span> VideoWidget</pre>
+        </div>
+
+        <p>
+          In <code>GCSMainWindow.__init__</code>, replace the three stub tab lines:
+        </p>
+        <div class="code-block python">
+          <span class="code-lang">python · replace in GCSMainWindow.__init__ — Phase 2 tabs</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># ── Phase 2: Map tab ──────────────────────────────────────────</span>
+self.map_widget = MapWidget(self.be)
+self.tabs.addTab(self.map_widget, <span class="st">'Map'</span>)
+
+<span class="cm"># ── Phase 2: Video tab ────────────────────────────────────────</span>
+self.video_widget = VideoWidget(self.be)
+self.tabs.addTab(self.video_widget, <span class="st">'Video'</span>)
+
+<span class="cm"># ── Phase 2: Health tab ───────────────────────────────────────</span>
+health_tab = QWidget()
+hl = QVBoxLayout(health_tab)
+
+self.lbl_nav   = QLabel(<span class="st">'Nav Health: —'</span>)
+self.lbl_sigma = QLabel(<span class="st">'σ_xy: —'</span>)
+self.det_log   = QTextEdit(); self.det_log.setReadOnly(<span class="kw">True</span>)
+self.det_log.setPlaceholderText(<span class="st">'Detection events will appear here...'</span>)
+
+<span class="kw">for</span> w <span class="kw">in</span> [QLabel(<span class="st">'&lt;b&gt;Navigation Health&lt;/b&gt;'</span>), self.lbl_nav,
+           self.lbl_sigma, QLabel(<span class="st">'&lt;b&gt;Recent Detections&lt;/b&gt;'</span>), self.det_log]:
+    hl.addWidget(w)
+
+self.tabs.addTab(health_tab, <span class="st">'Health'</span>)
+
+<span class="cm"># ── Phase 2: Connect additional signals ───────────────────────</span>
+self.be.sig_nav_health.connect(self.<span class="fn">_on_nav_health</span>)
+self.be.sig_detections.connect(self.<span class="fn">_on_detections</span>)</pre>
+        </div>
+
+        <p>Add the new slot methods to <code>GCSMainWindow</code>:</p>
+        <div class="code-block python">
+          <span class="code-lang">python · add methods to GCSMainWindow</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre>@pyqtSlot(<span class="tp">str</span>)
+<span class="kw">def</span> <span class="fn">_on_nav_health</span>(self, msg: str):
+    <span class="cm"># msg format: "NOMINAL|σ_xy=0.312m|σ_z=0.251m|GPS_denied=False"</span>
+    parts = msg.split(<span class="st">'|'</span>)
+    status = parts[<span class="nm">0</span>] <span class="kw">if</span> parts <span class="kw">else</span> <span class="st">'UNKNOWN'</span>
+    col = (<span class="st">'#00ff9d'</span> <span class="kw">if</span> status == <span class="st">'NOMINAL'</span>
+           <span class="kw">else</span> <span class="st">'#ffb700'</span> <span class="kw">if</span> status == <span class="st">'DEGRADED'</span>
+           <span class="kw">else</span> <span class="st">'#ff3a3a'</span>)
+    self.lbl_nav.setText(status)
+    self.lbl_nav.setStyleSheet(<span class="st">f'color:{col}; font-size:18px; font-weight:bold;'</span>)
+    sigma = next((p <span class="kw">for</span> p <span class="kw">in</span> parts <span class="kw">if</span> <span class="st">'σ_xy'</span> <span class="kw">in</span> p), <span class="st">''</span>)
+    self.lbl_sigma.setText(sigma)
+
+@pyqtSlot(<span class="tp">list</span>)
+<span class="kw">def</span> <span class="fn">_on_detections</span>(self, dets: list):
+    <span class="kw">if</span> dets:
+        <span class="kw">for</span> d <span class="kw">in</span> dets:
+            self.det_log.append(
+                <span class="st">f'[{ts()}] cls={d["class_id"]} conf={d["conf"]:.2f} '</span>
+                <span class="st">f'bbox=({d["cx"]:.0f},{d["cy"]:.0f})'</span>
+            )</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 09 — LAUNCH AND DEMO -->
+  <div class="lab-section" id="s-launch">
+    <h2>Step 07: Launch File and Full Demo</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07</span>
+        <span class="step-title">Write l07_launch.py and run the complete GCS demo</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_gcs/launch/l07_launch.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · l07_launch.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+L07 launch — starts the full backend stack.
+The GCS itself is launched separately (ros2 run aeroknow_gcs gcs)
+because Qt applications cannot be launched inside a launch file.
+"""</span>
+<span class="kw">from</span> launch <span class="kw">import</span> LaunchDescription
+<span class="kw">from</span> launch.actions <span class="kw">import</span> LogInfo, TimerAction
+<span class="kw">from</span> launch_ros.actions <span class="kw">import</span> Node
+
+<span class="kw">def</span> <span class="fn">generate_launch_description</span>():
+    <span class="kw">return</span> LaunchDescription([
+        LogInfo(msg=<span class="st">'[AEROKNOW L07] Starting backend stack for GCS...'</span>),
+
+        <span class="cm"># MAVROS2</span>
+        Node(package=<span class="st">'mavros'</span>, executable=<span class="st">'mavros_node'</span>, name=<span class="st">'mavros'</span>,
+             output=<span class="st">'screen'</span>, parameters=[{<span class="st">'fcu_url'</span>: <span class="st">'udp://:14540@127.0.0.1:14557'</span>}]),
+
+        <span class="cm"># Gazebo bridge (camera + sensors)</span>
+        Node(package=<span class="st">'ros_gz_bridge'</span>, executable=<span class="st">'parameter_bridge'</span>,
+             name=<span class="st">'gz_ros_bridge'</span>, output=<span class="st">'log'</span>,
+             arguments=[
+                 <span class="st">'/camera/image[gz.msgs.Image@sensor_msgs/msg/Image'</span>,
+                 <span class="st">'/camera/camera_info[gz.msgs.CameraInfo@sensor_msgs/msg/CameraInfo'</span>,
+                 <span class="st">'/clock[gz.msgs.Clock@rosgraph_msgs/msg/Clock'</span>,
+             ],
+             remappings=[(<span class="st">'/camera/image'</span>, <span class="st">'/camera/image_raw'</span>)]),
+
+        <span class="cm"># Flight stack from L03</span>
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'emergency_stop'</span>,
+             name=<span class="st">'emergency_stop'</span>, output=<span class="st">'screen'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mode_manager'</span>,
+             name=<span class="st">'mode_manager'</span>, output=<span class="st">'log'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'mission_action_server'</span>,
+             name=<span class="st">'mission_action_server'</span>, output=<span class="st">'log'</span>),
+        Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'heartbeat_service'</span>,
+             name=<span class="st">'heartbeat_service'</span>, output=<span class="st">'log'</span>),
+
+        <span class="cm"># Vision pipeline from L06 (optional — GCS works without it)</span>
+        TimerAction(period=<span class="nm">3.0</span>, actions=[
+            Node(package=<span class="st">'aeroknow_vision'</span>, executable=<span class="st">'vision_node'</span>,
+                 name=<span class="st">'vision_node'</span>, output=<span class="st">'log'</span>),
+            Node(package=<span class="st">'aeroknow_vision'</span>, executable=<span class="st">'target_tracker'</span>,
+                 name=<span class="st">'target_tracker'</span>, output=<span class="st">'log'</span>),
+        ]),
+
+        <span class="cm"># Nav health from L05 (optional)</span>
+        TimerAction(period=<span class="nm">4.0</span>, actions=[
+            Node(package=<span class="st">'aeroknow_bringup'</span>, executable=<span class="st">'nav_health_monitor'</span>,
+                 name=<span class="st">'nav_health_monitor'</span>, output=<span class="st">'log'</span>),
+        ]),
+    ])</pre>
+        </div>
+
+        <p>Build, then launch the stack and GCS in separate terminals:</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — build</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_gcs
+<span class="prompt">$ </span>source install/setup.bash</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 1 — PX4 SITL</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>sitl_aeroknow</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 2 — backend stack</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 launch aeroknow_gcs l07_launch.py</pre>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — GCS application (separate terminal, needs DISPLAY)</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_gcs gcs</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected GCS window — Phase 2 with all tabs populated</span>
+          <pre><span class="t-ok">Dashboard tab:</span>
+  <span class="t-cyan">MODE: MANUAL   ARMED: DISARMED   ALT: 0.0m   BATTERY: 12.4V 82%</span>
+  <span class="t-cyan">LAT: 47.397742°   LON: 8.545594°   GPS DENIED: NO</span>
+
+<span class="t-ok">Map tab:</span>  <span class="t-dim">Leaflet map centred on drone, green plane marker visible</span>
+<span class="t-ok">Video tab:</span> <span class="t-dim">Live camera feed with YOLO bounding boxes overlaid</span>
+<span class="t-ok">Health tab:</span> <span class="t-dim">NOMINAL in green, σ_xy value updating, detection log</span>
+
+<span class="t-dim">After arming and flying:</span>
+<span class="t-ok">Map tab:</span>  <span class="t-dim">Green polyline trace of flight path, red target markers</span>
+<span class="t-ok">BATTERY warning at &lt;40%: yellow   &lt;20%: red</span></pre>
+        </div>
+
+        <h3>Final Workspace State After L07</h3>
+        <div class="file-tree">
+<span class="ft-dir">aeroknow_ws/src/</span>
+├── <span class="ft-dir">aeroknow_utils/</span>         <span class="ft-note"># L01</span>
+├── <span class="ft-dir">aeroknow_bringup/</span>       <span class="ft-note"># L02–L05</span>
+├── <span class="ft-dir">aeroknow_sim/</span>           <span class="ft-note"># L04</span>
+├── <span class="ft-dir">aeroknow_vision/</span>        <span class="ft-note"># L06</span>
+└── <span class="ft-dir">aeroknow_gcs/</span>           <span class="ft-new"># new in L07</span>
+    ├── <span class="ft-file">package.xml</span>
+    ├── <span class="ft-file">setup.py</span>
+    ├── <span class="ft-dir">launch/</span>
+    │   └── <span class="ft-new">l07_launch.py</span>
+    └── <span class="ft-dir">aeroknow_gcs/</span>
+        ├── <span class="ft-file">__init__.py</span>
+        ├── <span class="ft-new">gcs_backend.py</span>    <span class="ft-note"># QObject ROS2 bridge</span>
+        ├── <span class="ft-new">gcs_ui.py</span>         <span class="ft-note"># Phase 1 + Phase 2 main window</span>
+        ├── <span class="ft-new">map_widget.py</span>     <span class="ft-note"># Folium + QWebEngineView</span>
+        └── <span class="ft-new">video_widget.py</span>   <span class="ft-note"># OpenCV → QPixmap</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMON ERRORS -->
+  <div class="lab-section" id="s-errors">
+    <h2>Common Errors &amp; Fixes</h2>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 01 — GCS crashes immediately with "QObject: Cannot create children for a parent that is in a different thread"</span>
+      <code class="error-msg">QObject: Cannot create children for a parent that is in a different thread.</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> A ROS2 callback is directly calling a Qt widget method —
+        violating the golden rule. Common location: the <code>_video_cb</code> calling
+        <code>self.lbl.setPixmap()</code> directly instead of emitting a signal.
+        <strong>Fix:</strong> Every UI update must go through a Qt signal.
+        In <code>_GCSNode</code>, the video callback must emit <code>self.be.sig_video_frame.emit(frame)</code>
+        and the widget's <code>_on_frame</code> slot (decorated with <code>@pyqtSlot</code>)
+        does the actual QPixmap update. Never call any Qt widget method from a ROS2 callback.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 02 — Map tab shows "Map requires PyQtWebEngine"</span>
+      <code class="error-msg">Map requires PyQtWebEngine. Install: pip3 install PyQtWebEngine</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> <code>PyQt5.QtWebEngineWidgets</code> is not installed.
+        <strong>Fix:</strong>
+        <code>pip3 install PyQtWebEngine</code> and
+        <code>sudo apt install python3-pyqt5.qtwebengine</code>.
+        Note: on some Ubuntu 22.04 installations, the pip package conflicts with the apt package.
+        Install the apt version first, then check if the pip version is still needed.
+        Confirm: <code>python3 -c "from PyQt5.QtWebEngineWidgets import QWebEngineView; print('OK')"</code>.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 03 — "rclpy already initialised" when launching GCS</span>
+      <code class="error-msg">RuntimeError: rclpy.init() called while ROS is already initialized</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> Two GCS instances are running, or a previous run did not shut down
+        cleanly and left a stale ROS2 context.
+        <strong>Fix:</strong> (1) Kill all running GCS instances:
+        <code>pkill -f "aeroknow_gcs"</code>.
+        (2) Check for leftover rclpy processes: <code>ros2 node list | grep gcs</code>.
+        (3) If the problem persists, add a guard in <code>GCSBackend.__init__</code>:
+        <code>if not rclpy.ok(): rclpy.init()</code> instead of unconditional <code>rclpy.init()</code>.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 04 — Arm button triggers but drone does not arm</span>
+      <code class="error-msg">CMD: Arm requested  (in log)  — but ARMED field stays DISARMED</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> Either the drone is not in a mode that allows arming (must be in
+        MANUAL or STABILIZED for the first arm), or PX4 has a pre-arm failure (GPS, IMU calibration).
+        <strong>Fix:</strong> (1) Check the PX4 shell (Terminal 1) for <code>commander: Preflight Fail</code>
+        messages. (2) The GCS arm button calls the raw MAVROS2 arming service — it bypasses the
+        mode manager's pre-flight check. Add a health check call before arming in <code>_arm()</code>:
+        call <code>self.be.set_mode('OFFBOARD')</code> first, wait for OFFBOARD confirmation via the
+        state signal, then arm. This is exactly how QGroundControl does it.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 05 — Map does not update after drone takes off</span>
+      <code class="error-msg">Green plane marker stays at origin — never moves</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The <code>sig_position</code> signal is not connected to
+        the map widget's <code>_on_position</code> slot, or the Folium map HTML regeneration
+        is not triggering the web view reload.
+        <strong>Fix:</strong> (1) Confirm the connection in <code>MapWidget.__init__</code>:
+        <code>self.be.sig_position.connect(self._on_position)</code> must be present.
+        (2) Add a print statement in <code>_on_position</code> to confirm it's being called.
+        (3) If the map tile fails to load (no internet), use <code>tiles='CartoDB positron'</code>
+        or <code>tiles=None</code> in the <code>folium.Map()</code> call — the offline fallback
+        shows a grey canvas but still shows markers and the flight track polyline.
+      </p>
+    </div>
+  </div>
+
+  <!-- EXTENSION CHALLENGES -->
+  <div class="lab-section" id="s-extend">
+    <h2>Extension Challenges</h2>
+    <p>The full GCS is running. Three harder things to try before L08.</p>
+
+    <div class="extension-box">
+      <ol>
+        <li>
+          <strong>Replace the HTML regeneration map with a JavaScript-driven live update.</strong>
+          Instead of regenerating the full Folium HTML on every position update,
+          write a custom HTML template with Leaflet.js that exposes a JavaScript function
+          <code>updateDrone(lat, lon)</code>. Call it from Python using
+          <code>self._view.page().runJavaScript(f"updateDrone({lat}, {lon})")</code>.
+          This eliminates the full page reload on each position update, making the marker
+          movement smooth rather than a flash-and-recentre. The update rate can increase
+          from 1 Hz to 10 Hz without noticeable CPU cost.
+        </li>
+        <li>
+          <strong>Add a mission planner to the map tab.</strong>
+          Intercept mouse click events on the Leaflet map
+          (use JavaScript <code>map.on('click', function(e) {...})</code> and
+          <code>page().runJavaScript()</code> + <code>page().javaScriptConsoleMessage()</code>
+          to receive click coordinates back in Python).
+          Build a waypoint list widget on the right side of the map tab.
+          Each map click appends a waypoint to the list; a "Send Mission" button sends them
+          one by one to the <code>fly_to_waypoint</code> action server using the backend.
+          This is a basic but functional mission planning interface.
+        </li>
+        <li>
+          <strong>Add a recording capability to the video widget.</strong>
+          When the operator clicks a "Record" button, start writing the video frames to an
+          <code>mp4</code> file using <code>cv2.VideoWriter</code>.
+          Show elapsed recording time in the button label.
+          Click again to stop and save.
+          This is operationally important for ISR — all camera footage should be recorded
+          for post-mission analysis. Add a "Export Detections" button that writes a CSV
+          of all detection events (timestamp, class, confidence, GPS) from the detection log.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="lab-nav">
+    <a href="l06-computer-vision.html" class="btn-lab prev">◂ Lab 06: Computer Vision</a>
+    <a href="l08-swarm-simulation.html" class="btn-lab">Lab 08: Swarm Simulation ▸</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Practical Track · Lab 07 · Custom GCS ·
+  PyQt5 · Folium · ROS2 Humble</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    let text = pre.innerText.split('\n')
+      .map(l => l.replace(/^\$\s*/, '').replace(/^pxh>\s*/, ''))
+      .join('\n').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  const sections = ['s-overview','s-architecture','s-prereqs','s-package','s-backend',
+                    's-phase1','s-map-widget','s-video-widget','s-phase2','s-launch',
+                    's-errors','s-extend'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) { buttons.forEach(b => b.classList.remove('active')); if (buttons[idx]) buttons[idx].classList.add('active'); }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>
