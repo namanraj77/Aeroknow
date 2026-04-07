@@ -24,7 +24,7 @@
     { num: 'L05', title: 'GNSS-Denied Navigation',    href: 'labs/l05-gnss-denied-nav.html',     done: true },
     { num: 'L06', title: 'Computer Vision Pipeline',  href: 'labs/l06-computer-vision.html',     done: true },
     { num: 'L07', title: 'Custom GCS',                href: 'labs/l07-custom-gcs.html',          done: true },
-    { num: 'L08', title: 'Swarm Simulation',          href: 'labs/l08-swarm-simulation.html',    done: false },
+    { num: 'L08', title: 'Swarm Simulation',          href: 'labs/l08-swarm-simulation.html',    done: true },
   ];
 
   function buildNav(basePath) {
