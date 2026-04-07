@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L08: Swarm Simulation — AEROKNOW Labs</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    :root {
+      --lab-accent:      #00ff9d;
+      --lab-accent-dim:  rgba(0,255,157,0.08);
+      --lab-accent-glow: 0 0 20px rgba(0,255,157,0.3);
+      --lab-border:      rgba(0,255,157,0.35);
+      --lab-border-dim:  rgba(0,255,157,0.12);
+    }
+    .section-jump { position:sticky; top:60px; z-index:100; background:rgba(2,4,8,0.97); backdrop-filter:blur(10px); border-bottom:1px solid var(--lab-border-dim); padding:0; overflow-x:auto; scrollbar-width:none; }
+    .section-jump::-webkit-scrollbar { display:none; }
+    .jump-inner { display:flex; align-items:center; gap:0; padding:0 1rem; min-width:max-content; }
+    .jump-label { font-family:var(--font-mono); font-size:0.58rem; color:var(--text-muted); letter-spacing:0.15em; text-transform:uppercase; padding:0 0.75rem 0 0; border-right:1px solid var(--lab-border-dim); margin-right:0.25rem; white-space:nowrap; line-height:42px; }
+    .jump-btn { background:transparent; border:none; border-bottom:2px solid transparent; color:var(--text-muted); font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.06em; padding:0 0.85rem; height:42px; cursor:pointer; white-space:nowrap; transition:var(--transition); }
+    .jump-btn:hover { color:var(--text-secondary); border-bottom-color:var(--lab-border); }
+    .jump-btn.active { color:var(--lab-accent); border-bottom-color:var(--lab-accent); }
+    .jump-btn .jb-num { color:var(--lab-accent); margin-right:0.3rem; font-size:0.58rem; }
+    .lab-page { max-width:1100px; margin:0 auto; padding:2rem 2rem 5rem; }
+    .lab-hero { padding:3rem 0 2rem; border-bottom:1px solid var(--lab-border-dim); margin-bottom:3rem; position:relative; }
+    .lab-track-label { font-family:var(--font-mono); font-size:0.72rem; color:var(--lab-accent); letter-spacing:0.25em; text-transform:uppercase; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.6rem; }
+    .lab-track-label::before { content:''; width:30px; height:1px; background:var(--lab-accent); box-shadow:var(--lab-accent-glow); }
+    .lab-hero h1 { color:var(--text-primary); text-shadow:0 0 40px rgba(0,255,157,0.15); margin-bottom:1rem; }
+    .lab-hero p.lead { font-size:1.1rem; color:var(--text-secondary); max-width:680px; margin-bottom:1.5rem; line-height:1.75; }
+    .lab-meta { display:flex; gap:1.5rem; flex-wrap:wrap; align-items:center; }
+    .lab-meta-item { display:flex; align-items:center; gap:0.4rem; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); }
+    .lab-meta-item strong { color:var(--lab-accent); }
+    .lab-section { margin-bottom:4rem; scroll-margin-top:105px; }
+    .lab-section h2 { color:var(--lab-accent); margin-bottom:1.5rem; padding-bottom:0.5rem; border-bottom:1px solid var(--lab-border-dim); display:flex; align-items:center; gap:0.75rem; font-size:clamp(1.1rem,2vw,1.6rem); }
+    .lab-section h2::before { content:'//'; font-family:var(--font-mono); color:var(--lab-accent); font-size:0.9rem; opacity:0.6; }
+    .lab-section h3 { color:var(--text-primary); margin:2rem 0 0.8rem; font-size:1.1rem; }
+    .lab-section p { font-size:1rem; line-height:1.75; }
+    .lab-section ul, .lab-section ol { padding-left:1.5rem; margin-bottom:1.2rem; }
+    .lab-section li { margin-bottom:0.5rem; color:var(--text-secondary); line-height:1.65; }
+    .lab-section li strong { color:var(--text-primary); }
+    .lab-step { border:1px solid var(--lab-border-dim); border-left:3px solid var(--lab-accent); background:rgba(0,255,157,0.025); margin:2rem 0; }
+    .lab-step-header { display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; border-bottom:1px solid var(--lab-border-dim); }
+    .step-num { font-family:var(--font-mono); font-size:0.65rem; color:var(--lab-accent); background:rgba(0,255,157,0.08); border:1px solid var(--lab-border); padding:0.2rem 0.5rem; letter-spacing:0.1em; white-space:nowrap; }
+    .step-title { font-family:var(--font-ui); font-size:1rem; font-weight:600; color:var(--text-primary); letter-spacing:0.03em; }
+    .lab-step-body { padding:1.2rem 1.5rem; }
+    .why-box { background:rgba(0,212,255,0.03); border-left:3px solid var(--accent-primary); padding:0.9rem 1.1rem; margin-bottom:1.2rem; border-radius:0 3px 3px 0; }
+    .why-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-primary); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.35rem; }
+    .why-box p { font-size:0.95rem; color:var(--text-secondary); margin:0; line-height:1.7; }
+    .code-block { background:#020c14; border:1px solid var(--border-dim); border-left:3px solid var(--accent-primary); padding:1.2rem 1.5rem; overflow-x:auto; position:relative; margin:1rem 0; }
+    .code-block.bash   { border-left-color:var(--lab-accent); }
+    .code-block.python { border-left-color:var(--accent-primary); }
+    .code-lang { position:absolute; top:0.4rem; right:3.5rem; font-family:var(--font-mono); font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; }
+    .copy-btn { position:absolute; top:0.35rem; right:0.5rem; background:rgba(0,255,157,0.07); border:1px solid var(--lab-border-dim); color:var(--lab-accent); font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.08em; padding:0.2rem 0.5rem; cursor:pointer; text-transform:uppercase; transition:var(--transition); }
+    .copy-btn:hover { background:rgba(0,255,157,0.14); border-color:var(--lab-border); }
+    .copy-btn.copied { color:var(--accent-primary); border-color:var(--accent-primary); }
+    .code-block pre { font-family:var(--font-mono); font-size:0.85rem; line-height:1.7; color:#c8e6f0; white-space:pre; tab-size:4; }
+    .code-block .cm  { color:#4a7a8a; font-style:italic; }
+    .code-block .kw  { color:#00d4ff; }
+    .code-block .fn  { color:#00ff9d; }
+    .code-block .st  { color:#ffd580; }
+    .code-block .nm  { color:#ff9d6f; }
+    .code-block .tp  { color:#b388ff; }
+    .code-block .prompt { color:var(--lab-accent); user-select:none; }
+    .terminal-output { background:#010a0f; border:1px solid rgba(0,255,157,0.1); border-left:3px solid rgba(0,255,157,0.4); padding:1rem 1.5rem; margin:0.75rem 0 1.2rem; }
+    .terminal-label { font-family:var(--font-mono); font-size:0.58rem; color:var(--lab-accent); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.6rem; opacity:0.7; }
+    .terminal-output pre { font-family:var(--font-mono); font-size:0.8rem; color:#7dbf9e; line-height:1.65; white-space:pre-wrap; }
+    .terminal-output pre .t-ok   { color:#00ff9d; }
+    .terminal-output pre .t-warn { color:#ffb700; }
+    .terminal-output pre .t-err  { color:#ff3a3a; }
+    .terminal-output pre .t-dim  { color:#3d6650; }
+    .terminal-output pre .t-cyan { color:#00d4ff; }
+    .error-doc { background:rgba(255,58,58,0.03); border:1px solid rgba(255,58,58,0.15); border-left:3px solid var(--accent-red); padding:1rem 1.2rem; margin:1rem 0; }
+    .error-doc-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-red); letter-spacing:0.15em; text-transform:uppercase; display:block; margin-bottom:0.5rem; }
+    .error-doc .error-msg { font-family:var(--font-mono); font-size:0.82rem; color:#ff8080; margin-bottom:0.6rem; display:block; }
+    .error-doc .error-fix { font-size:0.92rem; color:var(--text-secondary); margin:0; }
+    .error-doc .error-fix strong { color:var(--text-primary); }
+    .prereq-check { display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0; }
+    .prereq-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.65rem 1rem; background:var(--bg-card); border:1px solid var(--border-dim); }
+    .prereq-icon { font-family:var(--font-mono); font-size:0.75rem; color:var(--lab-accent); margin-top:0.05rem; flex-shrink:0; }
+    .prereq-item p { margin:0; color:var(--text-secondary); line-height:1.5; font-size:0.9rem; }
+    .prereq-item code { font-family:var(--font-mono); font-size:0.82rem; color:var(--accent-primary); }
+    .theory-link { background:rgba(255,183,0,0.03); border:1px solid rgba(255,183,0,0.15); border-left:3px solid var(--accent-amber); padding:1rem 1.2rem; margin:1.5rem 0; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .theory-link-label { font-family:var(--font-mono); font-size:0.6rem; color:var(--accent-amber); letter-spacing:0.15em; text-transform:uppercase; white-space:nowrap; }
+    .theory-link p { margin:0; color:var(--text-secondary); font-size:0.92rem; flex:1; min-width:200px; }
+    .theory-link a { color:var(--accent-amber); text-decoration:underline; }
+    .arch-diagram { margin:2rem 0; background:rgba(0,255,157,0.015); border:1px solid var(--lab-border-dim); padding:1.5rem; overflow-x:auto; }
+    .arch-diagram svg { display:block; margin:0 auto; }
+    .file-tree { background:#020c14; border:1px solid var(--border-dim); border-left:3px solid var(--lab-accent); padding:1.2rem 1.5rem; font-family:var(--font-mono); font-size:0.83rem; line-height:1.9; margin:1rem 0; }
+    .ft-dir { color:var(--lab-accent); } .ft-file { color:#c8e6f0; } .ft-note { color:#3d6b7a; font-style:italic; } .ft-new { color:var(--accent-amber); }
+    .port-table { width:100%; border-collapse:collapse; margin:1rem 0; }
+    .port-table th { font-family:var(--font-mono); font-size:0.68rem; color:var(--lab-accent); letter-spacing:0.1em; text-transform:uppercase; padding:0.5rem 0.8rem; border-bottom:1px solid var(--lab-border-dim); text-align:left; }
+    .port-table td { padding:0.55rem 0.8rem; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.88rem; color:var(--text-secondary); vertical-align:top; }
+    .port-table td:first-child { font-family:var(--font-mono); color:var(--accent-primary); font-size:0.82rem; }
+    .callout.lab-note { border-color:var(--lab-accent); background:rgba(0,255,157,0.04); }
+    .callout.lab-note .callout-title { color:var(--lab-accent); }
+    .extension-box { background:rgba(0,255,157,0.025); border:1px solid var(--lab-border-dim); padding:1.5rem; margin-top:1.5rem; }
+    .extension-box::before { content:'◈ EXTENSION CHALLENGES'; font-family:var(--font-mono); font-size:0.65rem; color:var(--lab-accent); letter-spacing:0.15em; display:block; margin-bottom:1rem; }
+    .extension-box ol { padding-left:1.5rem; }
+    .extension-box li { margin-bottom:0.75rem; font-size:0.97rem; color:var(--text-secondary); line-height:1.65; }
+    /* completion banner */
+    .completion-banner {
+      background:linear-gradient(135deg,rgba(0,212,255,0.06) 0%,rgba(0,255,157,0.04) 100%);
+      border:1px solid var(--border-bright); padding:2rem; margin:3rem 0 1rem; text-align:center;
+    }
+    .completion-banner::before { content:'◈ PRACTICAL TRACK COMPLETE ◈'; font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.25em; color:var(--lab-accent); display:block; margin-bottom:0.75rem; }
+    .completion-banner h3 { font-family:var(--font-display); font-size:1.5rem; color:var(--text-primary); margin-bottom:0.5rem; }
+    .completion-banner p { color:var(--text-secondary); font-size:0.95rem; margin:0; }
+    .lab-nav { display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--lab-border-dim); }
+    .btn-lab { background:transparent; border:1px solid var(--lab-accent); color:var(--lab-accent); font-family:var(--font-mono); font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; padding:0.8rem 1.8rem; text-decoration:none; display:inline-block; transition:var(--transition); position:relative; overflow:hidden; }
+    .btn-lab::before { content:''; position:absolute; inset:0; background:var(--lab-accent); transform:scaleX(0); transform-origin:left; transition:var(--transition); z-index:-1; }
+    .btn-lab:hover { color:var(--bg-void); box-shadow:var(--lab-accent-glow); text-shadow:none; }
+    .btn-lab:hover::before { transform:scaleX(1); }
+    .btn-lab.prev::before { transform-origin:right; }
+    @media (max-width:768px) { .lab-page { padding:1rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump">
+  <div class="jump-inner">
+    <span class="jump-label">L08 · JUMP TO</span>
+    <button class="jump-btn active" onclick="jumpTo('s-overview')"><span class="jb-num">00</span>Overview</button>
+    <button class="jump-btn" onclick="jumpTo('s-prereqs')"><span class="jb-num">01</span>Prerequisites</button>
+    <button class="jump-btn" onclick="jumpTo('s-multi-sitl')"><span class="jb-num">02</span>Multi-Vehicle SITL</button>
+    <button class="jump-btn" onclick="jumpTo('s-launcher')"><span class="jb-num">03</span>Swarm Launcher</button>
+    <button class="jump-btn" onclick="jumpTo('s-flocking')"><span class="jb-num">04</span>Flocking Node</button>
+    <button class="jump-btn" onclick="jumpTo('s-cbba')"><span class="jb-num">05</span>CBBA Allocator</button>
+    <button class="jump-btn" onclick="jumpTo('s-monitor')"><span class="jb-num">06</span>Swarm Monitor</button>
+    <button class="jump-btn" onclick="jumpTo('s-launch')"><span class="jb-num">07</span>Launch &amp; Demo</button>
+    <button class="jump-btn" onclick="jumpTo('s-errors')"><span class="jb-num">ERR</span>Common Errors</button>
+    <button class="jump-btn" onclick="jumpTo('s-extend')"><span class="jb-num">+</span>Extend</button>
+  </div>
+</div>
+
+<div class="lab-page">
+
+  <!-- HERO -->
+  <div class="lab-hero" id="s-overview">
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner br"></div>
+    <span class="lab-track-label">Practical Track · Lab 08 of 08</span>
+    <h1>Multi-Agent Swarm Simulation</h1>
+    <p class="lead">
+      The final lab. Five PX4 instances run simultaneously in one Gazebo world.
+      Each drone runs its own MAVROS2 bridge under a unique namespace
+      (<code>/drone_1/</code> through <code>/drone_5/</code>).
+      A flocking node implements Reynolds' rules and the formation attraction term
+      from Module 09 — live, on real moving simulated vehicles. A CBBA allocator
+      distributes five waypoint targets across the swarm using distributed auction.
+      A monitor prints all five drones' states to one terminal.
+      By the end, the swarm takes off, forms a V-shape, allocates targets,
+      and each drone flies to its assigned waypoint.
+    </p>
+    <div class="lab-meta">
+      <div class="lab-meta-item">⏱ <strong>~3–4 hours</strong>&nbsp;wall clock</div>
+      <div class="lab-meta-item">📋 <strong>4 nodes built</strong></div>
+      <div class="lab-meta-item">🔧 <strong>Builds on</strong>&nbsp;all prior labs</div>
+      <div class="lab-meta-item">🚁 <strong>5 simultaneous drones</strong></div>
+      <span class="label label-green">PX4 Multi-Vehicle</span>
+      <span class="label label-primary">Reynolds Flocking</span>
+      <span class="label label-amber">CBBA Allocation</span>
+      <span class="label label-red">Swarm Monitor</span>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="lab-section" id="s-arch">
+    <h2>What You Are Building</h2>
+    <p>
+      Five independent PX4+MAVROS2 stacks, each in its own namespace.
+      Three swarm-level nodes that operate across all five drones simultaneously.
+      The <code>swarm_launcher.py</code> is the orchestrator that starts everything.
+    </p>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 860 310" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:860px;min-width:480px;">
+        <defs>
+          <marker id="arr"   markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,255,157,0.5)"/></marker>
+          <marker id="arr-c" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(0,212,255,0.5)"/></marker>
+          <marker id="arr-a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(255,183,0,0.5)"/></marker>
+        </defs>
+
+        <!-- Five drone stacks -->
+        <text x="5" y="18" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.5)">PX4 SITL + MAVROS2 (×5)</text>
+        <rect x="5" y="25" width="130" height="260" rx="2" fill="rgba(0,212,255,0.02)" stroke="rgba(0,212,255,0.1)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="70" y="48"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/drone_1/</text>
+        <text x="70" y="62"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">UDP 14540</text>
+        <line x1="20" y1="68" x2="120" y2="68" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+        <text x="70" y="84"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/drone_2/</text>
+        <text x="70" y="98"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">UDP 14541</text>
+        <line x1="20" y1="104" x2="120" y2="104" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+        <text x="70" y="120" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/drone_3/</text>
+        <text x="70" y="134" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">UDP 14542</text>
+        <line x1="20" y1="140" x2="120" y2="140" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+        <text x="70" y="156" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/drone_4/</text>
+        <text x="70" y="170" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">UDP 14543</text>
+        <line x1="20" y1="176" x2="120" y2="176" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+        <text x="70" y="192" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="#00d4ff">/drone_5/</text>
+        <text x="70" y="206" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">UDP 14544</text>
+        <text x="70" y="240" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.4)">each publishes:</text>
+        <text x="70" y="255" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="6.5" fill="#3d6b7a">/drone_N/mavros/state</text>
+        <text x="70" y="268" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="6.5" fill="#3d6b7a">/drone_N/mavros/local…</text>
+        <text x="70" y="281" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="6.5" fill="#3d6b7a">/drone_N/swarm/state</text>
+
+        <!-- Swarm-level nodes -->
+        <rect x="180" y="40"  width="175" height="80" rx="2" fill="#050d14" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+        <text x="267" y="63"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d">flocking_node</text>
+        <text x="267" y="79"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">Reynolds rules + V-formation</text>
+        <text x="267" y="94"  text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">runs once per drone</text>
+        <text x="267" y="109" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,255,157,0.45)">Step 04</text>
+
+        <rect x="180" y="145" width="175" height="80" rx="2" fill="#050d14" stroke="rgba(255,183,0,0.4)" stroke-width="1.5"/>
+        <text x="267" y="168" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#ffb700">cbba_allocator</text>
+        <text x="267" y="184" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">distributed auction</text>
+        <text x="267" y="199" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">one instance per drone</text>
+        <text x="267" y="214" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(255,183,0,0.45)">Step 05</text>
+
+        <rect x="180" y="250" width="175" height="50" rx="2" fill="#050d14" stroke="rgba(0,212,255,0.35)" stroke-width="1.2"/>
+        <text x="267" y="271" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00d4ff">swarm_monitor</text>
+        <text x="267" y="287" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">single terminal overview</text>
+        <text x="267" y="295" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(0,212,255,0.45)">Step 06</text>
+
+        <!-- Arrows from drone stacks -->
+        <line x1="135" y1="100" x2="178" y2="80"  stroke="rgba(0,212,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-c)"/>
+        <line x1="135" y1="150" x2="178" y2="185" stroke="rgba(0,212,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-c)"/>
+        <line x1="135" y1="220" x2="178" y2="270" stroke="rgba(0,212,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-c)"/>
+
+        <!-- swarm_launcher -->
+        <rect x="415" y="110" width="155" height="90" rx="2" fill="#050d14" stroke="rgba(179,136,255,0.4)" stroke-width="1.5"/>
+        <text x="492" y="132" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="#b388ff">swarm_launcher</text>
+        <text x="492" y="148" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">spawns 5 PX4 processes</text>
+        <text x="492" y="163" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">5 MAVROS2 nodes</text>
+        <text x="492" y="178" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">5 flocking nodes</text>
+        <text x="492" y="193" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#3d6b7a">5 allocators + monitor</text>
+        <text x="492" y="203" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7" fill="rgba(179,136,255,0.45)">Step 03</text>
+
+        <line x1="355" y1="80"  x2="413" y2="140" stroke="rgba(179,136,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+        <line x1="355" y1="185" x2="413" y2="165" stroke="rgba(179,136,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+        <line x1="355" y1="270" x2="413" y2="195" stroke="rgba(179,136,255,0.3)" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+
+        <!-- Published swarm topics (right) -->
+        <rect x="630" y="40" width="220" height="230" rx="2" fill="rgba(0,255,157,0.01)" stroke="rgba(0,255,157,0.07)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="740" y="58" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,255,157,0.4)" letter-spacing="1">SWARM TOPICS</text>
+        <text x="642" y="78"  font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00ff9d">/drone_N/swarm/state</text>
+        <text x="642" y="96"  font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00ff9d">/drone_N/swarm/velocity_cmd</text>
+        <text x="642" y="114" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#ffb700">/cbba/bids</text>
+        <text x="642" y="132" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#ffb700">/cbba/assignments</text>
+        <text x="642" y="150" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="#00d4ff">/swarm/monitor</text>
+        <text x="642" y="170" font-family="'Share Tech Mono',monospace" font-size="7" fill="#3d6b7a">  (all 5 drone states)</text>
+        <line x1="570" y1="155" x2="628" y2="120" stroke="rgba(0,255,157,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+
+        <!-- Package label -->
+        <rect x="168" y="25" width="430" height="285" rx="2" fill="none" stroke="rgba(0,255,157,0.05)" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="383" y="307" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="7.5" fill="rgba(0,255,157,0.3)" letter-spacing="1">aeroknow_swarm · new package in L08</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- PREREQUISITES -->
+  <div class="lab-section" id="s-prereqs">
+    <h2>Prerequisites</h2>
+
+    <div class="prereq-check">
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L03 complete.</strong> The single-drone MAVROS2 flight stack must work reliably.
+        Multi-vehicle SITL is exactly 5× the single-vehicle stack — any fragility in L03 will
+        be amplified × 5. Run the L03 mission cleanly before continuing.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>Sufficient RAM.</strong> 5 PX4 instances + 5 MAVROS2 nodes + Gazebo + ROS2 nodes ≈ 6–8 GB RAM.
+        Check: <code>free -h</code>. If your machine has less than 8 GB, reduce to 3 drones by setting
+        <code>N_DRONES = 3</code> in <code>swarm_launcher.py</code>.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L04 custom world and model registered.</strong>
+        <code>echo $GZ_SIM_RESOURCE_PATH</code> must include the models directory, and
+        <code>sitl_aeroknow</code> alias must work.</p>
+      </div>
+      <div class="prereq-item">
+        <span class="prereq-icon">✓</span>
+        <p><strong>L02 bringup_launch.py runs cleanly</strong> — the launch file's namespace
+        hook (<code>vehicle_id</code> parameter) is used in L08 to namespace all per-drone nodes.</p>
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <span class="theory-link-label">⟐ Theory Link</span>
+      <p>
+        L08 is the direct implementation of
+        <a href="../modules/m09-swarm-systems.html">Module 09 — Swarm Systems §9.3–9.5</a>.
+        The Reynolds flocking rules (§9.4), formation offsets (V-shape geometry), and
+        the CBBA distributed auction algorithm (§9.5) are all implemented here as live ROS2 nodes.
+        Before coding, re-read §9.4 (behaviour-based formation) and §9.5 (CBBA convergence)
+        — the code structure maps directly to the mathematical descriptions in those sections.
+      </p>
+    </div>
+  </div>
+
+  <!-- MULTI-VEHICLE SITL -->
+  <div class="lab-section" id="s-multi-sitl">
+    <h2>Multi-Vehicle SITL — How PX4 Runs 5 Drones</h2>
+    <p>
+      PX4 SITL supports multi-vehicle operation by running multiple instances of the PX4
+      binary simultaneously, each on different UDP ports and each spawning a separate
+      Gazebo model instance. Understanding the port scheme is essential before writing
+      any launch code.
+    </p>
+
+    <h3>Port Assignment Scheme</h3>
+    <table class="port-table">
+      <thead><tr><th>Drone ID</th><th>PX4 Instance</th><th>MAVLink GCS Port</th><th>MAVROS2 FCU URL</th><th>Gazebo Model Name</th></tr></thead>
+      <tbody>
+        <tr><td>1 (lead)</td><td>0</td><td>14550</td><td><code>udp://:14540@127.0.0.1:14557</code></td><td>x500_sensors_0</td></tr>
+        <tr><td>2</td><td>1</td><td>14560</td><td><code>udp://:14541@127.0.0.1:14558</code></td><td>x500_sensors_1</td></tr>
+        <tr><td>3</td><td>2</td><td>14570</td><td><code>udp://:14542@127.0.0.1:14559</code></td><td>x500_sensors_2</td></tr>
+        <tr><td>4</td><td>3</td><td>14580</td><td><code>udp://:14543@127.0.0.1:14560</code></td><td>x500_sensors_3</td></tr>
+        <tr><td>5</td><td>4</td><td>14590</td><td><code>udp://:14544@127.0.0.1:14561</code></td><td>x500_sensors_4</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      Each PX4 instance is launched with an instance number that offsets all its ports.
+      The formula: <code>GCS_port = 14550 + (instance × 10)</code>,
+      <code>MAVROS_listen_port = 14540 + instance</code>.
+    </p>
+
+    <h3>ROS2 Namespacing</h3>
+    <p>
+      Without namespacing, five MAVROS2 nodes would all publish to the same
+      <code>/mavros/state</code> topic — they would overwrite each other.
+      Namespacing prefixes every topic with the drone ID:
+    </p>
+
+    <div class="callout lab-note">
+      <span class="callout-title">Namespacing in ROS2 — The One-Line Version</span>
+      Every ROS2 node launched with <code>namespace='/drone_1'</code> automatically prefixes
+      all its topics, services, and actions with <code>/drone_1/</code>.
+      Your code doesn't change — MAVROS2's <code>/mavros/state</code> becomes
+      <code>/drone_1/mavros/state</code> automatically.
+      The flocking node for drone 1 subscribes to <code>/drone_1/mavros/local_position/pose</code>
+      and publishes to <code>/drone_1/mavros/setpoint_velocity/cmd_vel_unstamped</code>.
+      Five identical flocking nodes, five namespaces, five independent control loops.
+    </div>
+  </div>
+
+  <!-- STEP 03 — SWARM LAUNCHER -->
+  <div class="lab-section" id="s-launcher">
+    <h2>Step 01–02: Package Setup and swarm_launcher.py</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 01</span>
+        <span class="step-title">Create the aeroknow_swarm package</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws/src
+<span class="prompt">$ </span>ros2 pkg create aeroknow_swarm \
+    --build-type ament_python \
+    --dependencies rclpy std_msgs sensor_msgs geometry_msgs mavros_msgs nav_msgs
+<span class="prompt">$ </span>mkdir -p ~/aeroknow_ws/src/aeroknow_swarm/launch</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · aeroknow_swarm/setup.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="kw">from</span> setuptools <span class="kw">import</span> setup, find_packages
+<span class="kw">import</span> os
+<span class="kw">from</span> glob <span class="kw">import</span> glob
+
+package_name = <span class="st">'aeroknow_swarm'</span>
+setup(
+    name=package_name, version=<span class="st">'0.1.0'</span>,
+    packages=find_packages(exclude=[<span class="st">'test'</span>]),
+    data_files=[
+        (<span class="st">'share/ament_index/resource_index/packages'</span>, [<span class="st">'resource/'</span> + package_name]),
+        (<span class="st">'share/'</span> + package_name, [<span class="st">'package.xml'</span>]),
+        (os.path.join(<span class="st">'share'</span>, package_name, <span class="st">'launch'</span>), glob(<span class="st">'launch/*.py'</span>)),
+    ],
+    install_requires=[<span class="st">'setuptools'</span>],
+    zip_safe=<span class="kw">True</span>,
+    maintainer=<span class="st">'aeroknow'</span>,
+    description=<span class="st">'AEROKNOW 5-drone swarm simulation'</span>,
+    license=<span class="st">'MIT'</span>,
+    entry_points={<span class="st">'console_scripts'</span>: [
+        <span class="st">'swarm_launcher   = aeroknow_swarm.swarm_launcher:main'</span>,
+        <span class="st">'flocking_node    = aeroknow_swarm.flocking_node:main'</span>,
+        <span class="st">'cbba_allocator   = aeroknow_swarm.cbba_allocator:main'</span>,
+        <span class="st">'swarm_monitor    = aeroknow_swarm.swarm_monitor:main'</span>,
+    ]},
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 02</span>
+        <span class="step-title">Write swarm_launcher.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why Python subprocess instead of a ROS2 launch file</span>
+          <p>
+            Launching 5 PX4 binaries requires setting different environment variables
+            (<code>PX4_SIM_MODEL</code>, <code>PX4_INSTANCE</code>) per process and managing
+            their working directories individually. ROS2 launch files can do this, but the
+            conditional logic (same command, different env vars, different ports) is cleaner
+            in Python with a loop. The launcher uses <code>subprocess.Popen</code> to start
+            each PX4 process non-blocking, waits for them to initialise, then starts
+            the ROS2 nodes via a standard launch description.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_swarm/aeroknow_swarm/swarm_launcher.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · swarm_launcher.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+swarm_launcher.py
+─────────────────
+Launches N PX4 SITL instances + N MAVROS2 nodes, each in its own namespace.
+Arms all drones and initiates the swarm takeoff sequence.
+
+Usage: ros2 run aeroknow_swarm swarm_launcher
+       (set N_DRONES=3 on machines with <8GB RAM)
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node  <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos   <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> mavros_msgs.msg <span class="kw">import</span> State
+<span class="kw">from</span> mavros_msgs.srv <span class="kw">import</span> CommandBool, SetMode
+<span class="kw">from</span> geometry_msgs.msg <span class="kw">import</span> PoseStamped
+
+<span class="kw">import</span> subprocess
+<span class="kw">import</span> os
+<span class="kw">import</span> time
+<span class="kw">import</span> threading
+<span class="kw">import</span> signal
+<span class="kw">import</span> sys
+
+N_DRONES      = <span class="nm">5</span>
+PX4_DIR       = os.path.expanduser(<span class="st">'~/PX4-Autopilot'</span>)
+WORLD_FILE    = os.path.expanduser(<span class="st">'~/aeroknow_ws/src/aeroknow_sim/worlds/aeroknow.world'</span>)
+TAKEOFF_ALT_M = <span class="nm">15.0</span>   <span class="cm"># formation cruise altitude</span>
+
+<span class="cm"># Staggered spawn positions — drones start in a row (ENU x = East)</span>
+SPAWN_OFFSETS = [
+    (<span class="nm">0</span>,   <span class="nm">0</span>,  <span class="nm">0</span>),   <span class="cm"># drone 1 — centre</span>
+    (-<span class="nm">5</span>,  <span class="nm">5</span>,  <span class="nm">0</span>),   <span class="cm"># drone 2 — 5m west, 5m north</span>
+    (-<span class="nm">5</span>, -<span class="nm">5</span>,  <span class="nm">0</span>),   <span class="cm"># drone 3 — 5m west, 5m south</span>
+    (-<span class="nm">10</span>, <span class="nm">10</span>, <span class="nm">0</span>),   <span class="cm"># drone 4 — V arm left</span>
+    (-<span class="nm">10</span>,-<span class="nm">10</span>, <span class="nm">0</span>),   <span class="cm"># drone 5 — V arm right</span>
+]
+
+_px4_procs = []
+
+
+<span class="kw">def</span> <span class="fn">launch_px4_instance</span>(instance: int):
+    <span class="st">"""Launch one PX4 SITL process."""</span>
+    env = os.environ.copy()
+    env[<span class="st">'PX4_SIM_HOST_ADDR'</span>] = <span class="st">'127.0.0.1'</span>
+    env[<span class="st">'PX4_GZ_MODEL'</span>]      = <span class="st">'x500_sensors'</span>
+    env[<span class="st">'PX4_GZ_WORLD'</span>]      = WORLD_FILE
+    env[<span class="st">'PX4_INSTANCE'</span>]      = str(instance)
+
+    <span class="cm"># Stagger spawn positions in the world</span>
+    ox, oy, _ = SPAWN_OFFSETS[instance]
+    env[<span class="st">'PX4_GZ_MODEL_POSE'</span>] = <span class="st">f'{ox},{oy},0,0,0,0'</span>
+
+    cmd = [<span class="st">'make'</span>, <span class="st">'-C'</span>, PX4_DIR, <span class="st">f'px4_sitl'</span>, <span class="st">f'gz_x500_sensors_{instance}'</span>]
+    proc = subprocess.Popen(cmd, env=env,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL)
+    _px4_procs.append(proc)
+    <span class="kw">return</span> proc
+
+
+<span class="kw">def</span> <span class="fn">cleanup</span>(signum=<span class="kw">None</span>, frame=<span class="kw">None</span>):
+    <span class="st">"""Kill all PX4 processes on exit."""</span>
+    print(<span class="st">'\n[swarm_launcher] Shutting down all PX4 instances...'</span>)
+    <span class="kw">for</span> p <span class="kw">in</span> _px4_procs:
+        <span class="kw">try</span>: p.terminate()
+        <span class="kw">except</span>: <span class="kw">pass</span>
+    sys.exit(<span class="nm">0</span>)
+
+
+<span class="kw">class</span> <span class="tp">DroneArmController</span>(Node):
+    <span class="st">"""
+    Arms and takes off all N drones sequentially.
+    Each drone must enter OFFBOARD mode and arm before its neighbours.
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'swarm_arm_controller'</span>)
+        rel = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+        sen = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+
+        self.states = {}   <span class="cm"># drone_id → State msg</span>
+
+        <span class="cm"># Subscribe to each drone's state and pose</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>):
+            ns = <span class="st">f'/drone_{i}'</span>
+            self.create_subscription(State, <span class="st">f'{ns}/mavros/state'</span>,
+                <span class="kw">lambda</span> msg, idx=i: self.states.update({idx: msg}), rel)
+
+        <span class="cm"># Service clients per drone</span>
+        self._arm_clis  = {i: self.create_client(CommandBool, <span class="st">f'/drone_{i}/mavros/cmd/arming'</span>)
+                           <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>)}
+        self._mode_clis = {i: self.create_client(SetMode, <span class="st">f'/drone_{i}/mavros/set_mode'</span>)
+                           <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>)}
+
+        <span class="cm"># Setpoint publishers — must stream before OFFBOARD switch</span>
+        self._sp_pubs = {i: self.create_publisher(
+            PoseStamped, <span class="st">f'/drone_{i}/mavros/setpoint_position/local'</span>, <span class="nm">10</span>)
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>)}
+
+        self._sp_timer = self.create_timer(<span class="nm">0.1</span>, self.<span class="fn">_stream_setpoints</span>)
+        self._stream_count = <span class="nm">0</span>
+        self._phase = <span class="st">'streaming'</span>
+
+    <span class="kw">def</span> <span class="fn">_stream_setpoints</span>(self):
+        <span class="st">"""Publish hover setpoints to all drones continuously."""</span>
+        sp = PoseStamped()
+        sp.header.stamp = self.get_clock().now().to_msg()
+        sp.pose.position.z = TAKEOFF_ALT_M
+        sp.pose.orientation.w = <span class="nm">1.0</span>
+        <span class="kw">for</span> pub <span class="kw">in</span> self._sp_pubs.values():
+            pub.publish(sp)
+        self._stream_count += <span class="nm">1</span>
+
+        <span class="kw">if</span> self._stream_count == <span class="nm">20</span> <span class="kw">and</span> self._phase == <span class="st">'streaming'</span>:
+            self._phase = <span class="st">'arming'</span>
+            threading.Thread(target=self.<span class="fn">_arm_all</span>, daemon=<span class="kw">True</span>).start()
+
+    <span class="kw">def</span> <span class="fn">_arm_all</span>(self):
+        <span class="st">"""Sequentially arm all drones after streaming setpoints."""</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>):
+            self.get_logger().info(<span class="st">f'Arming drone {i}...'</span>)
+            <span class="cm"># Switch to OFFBOARD</span>
+            req_mode = SetMode.Request(); req_mode.custom_mode = <span class="st">'OFFBOARD'</span>
+            self._mode_clis[i].call_async(req_mode)
+            time.sleep(<span class="nm">0.5</span>)
+            <span class="cm"># Arm</span>
+            req_arm = CommandBool.Request(); req_arm.value = <span class="kw">True</span>
+            self._arm_clis[i].call_async(req_arm)
+            time.sleep(<span class="nm">1.0</span>)   <span class="cm"># stagger to avoid UDP flooding</span>
+
+        self.get_logger().info(<span class="st">f'All {N_DRONES} drones arm sequence complete. Takeoff climbing...'</span>)
+        self._phase = <span class="st">'flying'</span>
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    signal.signal(signal.SIGINT,  cleanup)
+    signal.signal(signal.SIGTERM, cleanup)
+
+    print(<span class="st">f'[swarm_launcher] Launching {N_DRONES} PX4 SITL instances...'</span>)
+    <span class="kw">for</span> i <span class="kw">in</span> range(N_DRONES):
+        launch_px4_instance(i)
+        time.sleep(<span class="nm">3.0</span>)   <span class="cm"># stagger startup — Gazebo needs time between spawns</span>
+        print(<span class="st">f'[swarm_launcher]   drone {i+1}/{N_DRONES} PX4 started'</span>)
+
+    print(<span class="st">f'[swarm_launcher] All PX4 instances running. Waiting 10s for init...'</span>)
+    time.sleep(<span class="nm">10.0</span>)
+
+    rclpy.init(args=args)
+    node = DroneArmController()
+    <span class="kw">try</span>:
+        rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt:
+        cleanup()
+    <span class="kw">finally</span>:
+        node.destroy_node()
+        rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 04 — FLOCKING NODE -->
+  <div class="lab-section" id="s-flocking">
+    <h2>Step 03: flocking_node.py — Reynolds Rules Live on a Drone</h2>
+    <p>
+      One instance of this node runs per drone. It subscribes to the positions of
+      all swarm members, computes the four behaviour forces (separation, alignment,
+      cohesion, formation), and publishes a velocity setpoint.
+      This is the M09 Python simulation running on a real simulated vehicle.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 03</span>
+        <span class="step-title">Write flocking_node.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">Why one node instance per drone rather than one central node</span>
+          <p>
+            A central flocking node would be a single point of failure — if it crashes,
+            all five drones lose coordination. The decentralised approach runs one
+            flocking node <em>per drone</em>. Each instance only knows about its own
+            drone's state and its neighbours' states (via <code>/drone_N/swarm/state</code> topics).
+            If one instance crashes, only that drone loses flocking — the other four continue.
+            This is exactly the decentralised architecture from Module 09 §9.4.
+          </p>
+        </div>
+
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_swarm/aeroknow_swarm/flocking_node.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · flocking_node.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+flocking_node.py
+────────────────
+Per-drone Reynolds flocking with V-formation attraction.
+One instance per drone, identified by drone_id parameter.
+
+Subscriptions:
+  /drone_{id}/mavros/local_position/pose — own position
+  /drone_N/swarm/state — all neighbours' positions (for N ≠ id)
+
+Published:
+  /drone_{id}/mavros/setpoint_velocity/cmd_vel_unstamped — velocity command
+  /drone_{id}/swarm/state — own state broadcast to neighbours
+
+Reynolds weights (from Module 09 §9.4):
+  separation: 3.0 — collision avoidance (highest priority)
+  alignment:  1.5 — velocity matching
+  cohesion:   0.8 — stay together
+  formation:  2.5 — V-shape attraction
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node   <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos    <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> geometry_msgs.msg <span class="kw">import</span> Twist, PoseStamped, PointStamped
+<span class="kw">from</span> std_msgs.msg      <span class="kw">import</span> Float32MultiArray
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> math
+
+<span class="cm"># ── Reynolds weights ──────────────────────────────────────────────</span>
+W_SEP   = <span class="nm">3.0</span>    <span class="cm"># separation — highest priority</span>
+W_ALIGN = <span class="nm">1.5</span>    <span class="cm"># velocity alignment</span>
+W_COH   = <span class="nm">0.8</span>    <span class="cm"># cohesion to centroid</span>
+W_FORM  = <span class="nm">2.5</span>    <span class="cm"># V-formation attraction</span>
+
+R_SEP   = <span class="nm">3.0</span>    <span class="cm"># separation radius [m]</span>
+R_NEIGH = <span class="nm">20.0</span>   <span class="cm"># neighbourhood radius [m]</span>
+V_MAX   = <span class="nm">4.0</span>    <span class="cm"># max velocity [m/s]</span>
+ALT_KP  = <span class="nm">0.5</span>    <span class="cm"># altitude hold proportional gain</span>
+TARGET_ALT = <span class="nm">15.0</span> <span class="cm"># cruise altitude [m]</span>
+N_DRONES   = <span class="nm">5</span>
+
+<span class="cm"># V-formation offsets relative to swarm centroid.
+# Drone 1 = tip; 2,3 = first row; 4,5 = second row.
+# [x_north_m, y_east_m] offsets</span>
+FORMATION_OFFSETS = {
+    <span class="nm">1</span>: np.array([ <span class="nm">0.0</span>,   <span class="nm">0.0</span>]),   <span class="cm"># leader at tip</span>
+    <span class="nm">2</span>: np.array([-<span class="nm">5.0</span>,  <span class="nm">5.0</span>]),   <span class="cm"># left of leader</span>
+    <span class="nm">3</span>: np.array([-<span class="nm">5.0</span>, -<span class="nm">5.0</span>]),   <span class="cm"># right of leader</span>
+    <span class="nm">4</span>: np.array([-<span class="nm">10.0</span>, <span class="nm">10.0</span>]),  <span class="cm"># outer left</span>
+    <span class="nm">5</span>: np.array([-<span class="nm">10.0</span>,-<span class="nm">10.0</span>]),  <span class="cm"># outer right</span>
+}
+
+
+<span class="kw">class</span> <span class="tp">FlockingNode</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'flocking_node'</span>)
+
+        <span class="cm"># drone_id is set via ROS2 parameter (set in launch file)</span>
+        self.declare_parameter(<span class="st">'drone_id'</span>, <span class="nm">1</span>)
+        self.drone_id = self.get_parameter(<span class="st">'drone_id'</span>).value
+        self.get_logger().info(<span class="st">f'FlockingNode started for drone {self.drone_id}'</span>)
+
+        <span class="cm"># ── Own state ────────────────────────────────────────────────</span>
+        self.own_pos = np.zeros(<span class="nm">3</span>)   <span class="cm"># [x, y, z] ENU local</span>
+        self.own_vel = np.zeros(<span class="nm">3</span>)   <span class="cm"># approx velocity from pos diff</span>
+        self._prev_pos = <span class="kw">None</span>
+        self._prev_t   = <span class="kw">None</span>
+
+        <span class="cm"># ── Neighbour states ─────────────────────────────────────────
+        # neighbours[drone_id] = {'pos': np.array, 'vel': np.array}</span>
+        self.neighbours = {}
+
+        sen = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+        rel = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+
+        <span class="cm"># ── Own position subscription ────────────────────────────────</span>
+        ns = <span class="st">f'/drone_{self.drone_id}'</span>
+        self.create_subscription(PoseStamped,
+            <span class="st">f'{ns}/mavros/local_position/pose'</span>,
+            self.<span class="fn">_own_pose_cb</span>, sen)
+
+        <span class="cm"># ── Neighbour state subscriptions ────────────────────────────</span>
+        <span class="kw">for</span> j <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>):
+            <span class="kw">if</span> j != self.drone_id:
+                self.create_subscription(Float32MultiArray,
+                    <span class="st">f'/drone_{j}/swarm/state'</span>,
+                    <span class="kw">lambda</span> msg, jj=j: self.<span class="fn">_neighbour_cb</span>(msg, jj), rel)
+
+        <span class="cm"># ── Publishers ───────────────────────────────────────────────</span>
+        self.vel_pub = self.create_publisher(Twist,
+            <span class="st">f'{ns}/mavros/setpoint_velocity/cmd_vel_unstamped'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># Broadcast own state to all other flocking nodes</span>
+        self.state_pub = self.create_publisher(Float32MultiArray,
+            <span class="st">f'{ns}/swarm/state'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># ── Control timer ────────────────────────────────────────────</span>
+        self.create_timer(<span class="nm">0.1</span>, self.<span class="fn">_control_loop</span>)   <span class="cm"># 10 Hz</span>
+
+    <span class="kw">def</span> <span class="fn">_own_pose_cb</span>(self, msg: PoseStamped):
+        pos = np.array([msg.pose.position.x,
+                        msg.pose.position.y,
+                        msg.pose.position.z])
+        t = self.get_clock().now().nanoseconds / <span class="nm">1e9</span>
+
+        <span class="cm"># Finite-difference velocity estimate</span>
+        <span class="kw">if</span> self._prev_pos <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">and</span> self._prev_t <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+            dt = t - self._prev_t
+            <span class="kw">if</span> <span class="nm">0</span> < dt < <span class="nm">0.5</span>:
+                self.own_vel = (pos - self._prev_pos) / dt
+
+        self.own_pos = pos
+        self._prev_pos = pos.copy()
+        self._prev_t   = t
+
+        <span class="cm"># Broadcast own state: [x, y, z, vx, vy, vz]</span>
+        msg_out = Float32MultiArray()
+        msg_out.data = list(self.own_pos) + list(self.own_vel)
+        self.state_pub.publish(msg_out)
+
+    <span class="kw">def</span> <span class="fn">_neighbour_cb</span>(self, msg: Float32MultiArray, drone_id: int):
+        <span class="kw">if</span> len(msg.data) >= <span class="nm">6</span>:
+            self.neighbours[drone_id] = {
+                <span class="st">'pos'</span>: np.array(msg.data[:<span class="nm">3</span>]),
+                <span class="st">'vel'</span>: np.array(msg.data[<span class="nm">3</span>:<span class="nm">6</span>]),
+            }
+
+    <span class="kw">def</span> <span class="fn">_control_loop</span>(self):
+        <span class="st">"""Reynolds flocking with V-formation attraction — 10 Hz."""</span>
+        sep_f  = np.zeros(<span class="nm">2</span>)
+        align_f= np.zeros(<span class="nm">2</span>)
+        coh_f  = np.zeros(<span class="nm">2</span>)
+        form_f = np.zeros(<span class="nm">2</span>)
+        n_sep  = <span class="nm">0</span>; n_nei = <span class="nm">0</span>
+
+        own_offset = FORMATION_OFFSETS.get(self.drone_id, np.zeros(<span class="nm">2</span>))
+        own_xy = self.own_pos[:<span class="nm">2</span>]
+
+        <span class="kw">for</span> j_id, nb <span class="kw">in</span> self.neighbours.items():
+            diff = nb[<span class="st">'pos'</span>][:<span class="nm">2</span>] - own_xy
+            dist = np.linalg.norm(diff) + <span class="nm">1e-6</span>
+
+            <span class="kw">if</span> dist < R_SEP:
+                sep_f -= diff / (dist ** <span class="nm">2</span>)
+                n_sep += <span class="nm">1</span>
+
+            <span class="kw">if</span> dist < R_NEIGH:
+                align_f += nb[<span class="st">'vel'</span>][:<span class="nm">2</span>]
+                coh_f   += nb[<span class="st">'pos'</span>][:<span class="nm">2</span>]
+                <span class="cm"># Formation: drive to correct relative offset from neighbour</span>
+                j_offset = FORMATION_OFFSETS.get(j_id, np.zeros(<span class="nm">2</span>))
+                desired_diff = j_offset - own_offset
+                form_f += (diff - desired_diff)
+                n_nei += <span class="nm">1</span>
+
+        <span class="kw">if</span> n_sep > <span class="nm">0</span>: sep_f /= n_sep
+        <span class="kw">if</span> n_nei > <span class="nm">0</span>:
+            align_f = align_f / n_nei - self.own_vel[:<span class="nm">2</span>]
+            coh_f   = coh_f   / n_nei - own_xy
+            form_f  = form_f  / n_nei
+
+        accel_xy = (W_SEP * sep_f + W_ALIGN * align_f +
+                    W_COH * coh_f  + W_FORM  * form_f)
+
+        <span class="cm"># Altitude hold</span>
+        vz = ALT_KP * (TARGET_ALT - self.own_pos[<span class="nm">2</span>])
+
+        <span class="cm"># Combine and clamp speed</span>
+        vel = np.array([accel_xy[<span class="nm">0</span>], accel_xy[<span class="nm">1</span>], vz])
+        speed = np.linalg.norm(vel[:<span class="nm">2</span>])
+        <span class="kw">if</span> speed > V_MAX:
+            vel[:<span class="nm">2</span>] *= V_MAX / speed
+
+        cmd = Twist()
+        cmd.linear.x = float(vel[<span class="nm">0</span>])
+        cmd.linear.y = float(vel[<span class="nm">1</span>])
+        cmd.linear.z = float(vel[<span class="nm">2</span>])
+        self.vel_pub.publish(cmd)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = FlockingNode()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 05 — CBBA -->
+  <div class="lab-section" id="s-cbba">
+    <h2>Step 04: cbba_allocator.py — Distributed Task Allocation</h2>
+    <p>
+      One instance per drone. Each allocator maintains a bid table and communicates
+      bids via ROS2 topics. When the swarm receives 5 waypoint targets,
+      the CBBA protocol converges to a conflict-free assignment in at most
+      <code>diam(G)</code> communication rounds — here, with a fully-connected
+      broadcast topology, that is 1 round.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 04</span>
+        <span class="step-title">Write cbba_allocator.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">The CBBA algorithm in plain English</span>
+          <p>
+            Each drone maintains a <em>bundle</em> (tasks it has won) and a
+            <em>winning bid table</em> (the best bid it has heard for each task from any drone).
+            On each communication round: (1) broadcast your winning bid table to all neighbours,
+            (2) update your table with any better bids you receive,
+            (3) rebuild your bundle greedily — add tasks to your bundle as long as the
+            marginal value exceeds the best competitor's bid.
+            Convergence is guaranteed: once no drone wants to change its bundle, the
+            assignment is final and conflict-free. Here, the reward function is simply
+            the negative travel distance — each drone bids highest on its closest task.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_swarm/aeroknow_swarm/cbba_allocator.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · cbba_allocator.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+cbba_allocator.py
+─────────────────
+Consensus-Based Bundle Algorithm — one instance per drone.
+Each instance allocates tasks from a global task list using
+a distributed auction. Conflict-free by design.
+
+Topics:
+  sub /cbba/tasks          (Float32MultiArray) — [lat1,lon1, lat2,lon2, ...]
+  sub /cbba/bids           (Float32MultiArray) — [drone_id, task_id, bid_value, ...]
+  pub /cbba/bids           (Float32MultiArray) — broadcast own bids
+  pub /drone_N/cbba/assignment (std_msgs/Int32) — assigned task index (-1=none)
+
+Reward function: -distance (closest task = highest bid)
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> std_msgs.msg      <span class="kw">import</span> Int32, String
+<span class="kw">from</span> std_msgs.msg      <span class="kw">import</span> Float32MultiArray
+<span class="kw">from</span> sensor_msgs.msg   <span class="kw">import</span> NavSatFix
+<span class="kw">from</span> geometry_msgs.msg <span class="kw">import</span> PoseStamped
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> math
+<span class="kw">import</span> time
+
+N_DRONES = <span class="nm">5</span>
+
+
+<span class="kw">def</span> <span class="fn">haversine_m</span>(lat1, lon1, lat2, lon2) -> float:
+    R = <span class="nm">6_371_000</span>
+    φ1, φ2 = math.radians(lat1), math.radians(lat2)
+    Δφ = math.radians(lat2-lat1); Δλ = math.radians(lon2-lon1)
+    a = math.sin(Δφ/<span class="nm">2</span>)**<span class="nm">2</span> + math.cos(φ1)*math.cos(φ2)*math.sin(Δλ/<span class="nm">2</span>)**<span class="nm">2</span>
+    <span class="kw">return</span> R*<span class="nm">2</span>*math.atan2(math.sqrt(a), math.sqrt(<span class="nm">1</span>-a))
+
+
+<span class="kw">class</span> <span class="tp">CBBAAllocator</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'cbba_allocator'</span>)
+
+        self.declare_parameter(<span class="st">'drone_id'</span>, <span class="nm">1</span>)
+        self.drone_id = self.get_parameter(<span class="st">'drone_id'</span>).value
+
+        <span class="cm"># Task list — populated when /cbba/tasks is received</span>
+        self.tasks      = []      <span class="cm"># list of (lat, lon)</span>
+        self.n_tasks    = <span class="nm">0</span>
+
+        <span class="cm"># CBBA state tables</span>
+        self.my_bids    = {}   <span class="cm"># task_id → my bid value</span>
+        self.best_bids  = {}   <span class="cm"># task_id → (best_value, winner_drone_id)</span>
+        self.bundle     = []   <span class="cm"># list of task_ids I have won</span>
+        self.converged  = <span class="kw">False</span>
+        self._last_bundle= []
+
+        <span class="cm"># Own GPS position</span>
+        self.own_lat = <span class="kw">None</span>; self.own_lon = <span class="kw">None</span>
+
+        rel = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+        sen = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+
+        ns = <span class="st">f'/drone_{self.drone_id}'</span>
+
+        self.create_subscription(Float32MultiArray, <span class="st">'/cbba/tasks'</span>,
+            self.<span class="fn">_tasks_cb</span>, rel)
+        self.create_subscription(Float32MultiArray, <span class="st">'/cbba/bids'</span>,
+            self.<span class="fn">_bids_cb</span>, rel)
+        self.create_subscription(NavSatFix,
+            <span class="st">f'{ns}/mavros/global_position/global'</span>,
+            self.<span class="fn">_gps_cb</span>, sen)
+
+        self.bids_pub      = self.create_publisher(Float32MultiArray, <span class="st">'/cbba/bids'</span>, <span class="nm">10</span>)
+        self.assignment_pub= self.create_publisher(Int32,
+            <span class="st">f'{ns}/cbba/assignment'</span>, <span class="nm">10</span>)
+        self.status_pub    = self.create_publisher(String,
+            <span class="st">f'{ns}/cbba/status'</span>, <span class="nm">10</span>)
+
+        <span class="cm"># Auction round timer — 2 Hz</span>
+        self.create_timer(<span class="nm">0.5</span>, self.<span class="fn">_auction_round</span>)
+
+        self.get_logger().info(<span class="st">f'CBBAAllocator drone {self.drone_id} ready'</span>)
+
+    <span class="kw">def</span> <span class="fn">_gps_cb</span>(self, msg: NavSatFix):
+        self.own_lat = msg.latitude; self.own_lon = msg.longitude
+
+    <span class="kw">def</span> <span class="fn">_tasks_cb</span>(self, msg: Float32MultiArray):
+        <span class="st">"""Receive task list: flat array [lat1, lon1, lat2, lon2, ...]"""</span>
+        data = msg.data
+        self.tasks = [(data[i], data[i+<span class="nm">1</span>]) <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">0</span>, len(data), <span class="nm">2</span>)]
+        self.n_tasks = len(self.tasks)
+        <span class="cm"># Reset CBBA state for new task set</span>
+        self.my_bids   = {j: <span class="nm">0.0</span> <span class="kw">for</span> j <span class="kw">in</span> range(self.n_tasks)}
+        self.best_bids = {j: (<span class="nm">0.0</span>, -<span class="nm">1</span>) <span class="kw">for</span> j <span class="kw">in</span> range(self.n_tasks)}
+        self.bundle    = []
+        self.converged = <span class="kw">False</span>
+        self.get_logger().info(
+            <span class="st">f'Received {self.n_tasks} tasks — starting CBBA auction'</span>)
+
+    <span class="kw">def</span> <span class="fn">_bids_cb</span>(self, msg: Float32MultiArray):
+        <span class="st">"""Receive bid broadcast: [drone_id, task_0_bid, task_1_bid, ...]"""</span>
+        <span class="kw">if</span> <span class="kw">not</span> msg.data <span class="kw">or</span> self.n_tasks == <span class="nm">0</span>: <span class="kw">return</span>
+        sender_id = int(msg.data[<span class="nm">0</span>])
+        <span class="kw">if</span> sender_id == self.drone_id: <span class="kw">return</span>   <span class="cm"># ignore own broadcasts</span>
+
+        bids = msg.data[<span class="nm">1</span>:]
+        <span class="kw">for</span> j, bid_val <span class="kw">in</span> enumerate(bids[:self.n_tasks]):
+            <span class="kw">if</span> bid_val > self.best_bids[j][<span class="nm">0</span>]:
+                self.best_bids[j] = (bid_val, sender_id)
+
+    <span class="kw">def</span> <span class="fn">_compute_my_bid</span>(self, task_id: int) -> float:
+        <span class="st">"""Reward = -distance to task (closer = higher bid)."""</span>
+        <span class="kw">if</span> self.own_lat <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> task_id >= self.n_tasks:
+            <span class="kw">return</span> <span class="nm">0.0</span>
+        lat, lon = self.tasks[task_id]
+        dist = haversine_m(self.own_lat, self.own_lon, lat, lon)
+        <span class="kw">return</span> max(<span class="nm">0.0</span>, <span class="nm">1000.0</span> - dist)   <span class="cm"># 1000 = max range; farther = lower bid</span>
+
+    <span class="kw">def</span> <span class="fn">_auction_round</span>(self):
+        <span class="st">"""One CBBA iteration: bid → broadcast → update bundle."""</span>
+        <span class="kw">if</span> self.n_tasks == <span class="nm">0</span> <span class="kw">or</span> self.own_lat <span class="kw">is</span> <span class="kw">None</span>: <span class="kw">return</span>
+
+        <span class="cm"># Step 1: compute own bids for all unallocated tasks</span>
+        <span class="kw">for</span> j <span class="kw">in</span> range(self.n_tasks):
+            self.my_bids[j] = self._compute_my_bid(j)
+            <span class="cm"># Update best bid table with my own bid</span>
+            <span class="kw">if</span> self.my_bids[j] > self.best_bids[j][<span class="nm">0</span>]:
+                self.best_bids[j] = (self.my_bids[j], self.drone_id)
+
+        <span class="cm"># Step 2: broadcast bid table</span>
+        bcast = Float32MultiArray()
+        bcast.data = [float(self.drone_id)] + [self.my_bids[j] <span class="kw">for</span> j <span class="kw">in</span> range(self.n_tasks)]
+        self.bids_pub.publish(bcast)
+
+        <span class="cm"># Step 3: build bundle — win tasks where I have the best bid</span>
+        self.bundle = [j <span class="kw">for</span> j <span class="kw">in</span> range(self.n_tasks)
+                       <span class="kw">if</span> self.best_bids[j][<span class="nm">1</span>] == self.drone_id]
+
+        <span class="cm"># Each drone should win at most one task (1:1 assignment)</span>
+        <span class="kw">if</span> self.bundle:
+            best_task = max(self.bundle, key=<span class="kw">lambda</span> j: self.my_bids[j])
+            self.bundle = [best_task]
+        <span class="kw">else</span>:
+            best_task = -<span class="nm">1</span>
+
+        <span class="cm"># Step 4: check convergence (bundle unchanged for 2 rounds)</span>
+        <span class="kw">if</span> self.bundle == self._last_bundle <span class="kw">and</span> <span class="kw">not</span> self.converged:
+            self.converged = <span class="kw">True</span>
+            self.get_logger().info(
+                <span class="st">f'Drone {self.drone_id}: converged → task {best_task}'</span>
+                + (<span class="st">f' ({self.tasks[best_task]})'</span> <span class="kw">if</span> best_task >= <span class="nm">0</span> <span class="kw">else</span> <span class="st">' (no task)'</span>)
+            )
+        self._last_bundle = list(self.bundle)
+
+        <span class="cm"># Publish assignment</span>
+        assign_msg = Int32(); assign_msg.data = int(best_task)
+        self.assignment_pub.publish(assign_msg)
+
+        status = String()
+        status.data = (
+            <span class="st">f'drone={self.drone_id} task={best_task} '</span>
+            <span class="st">f'bid={self.my_bids.get(best_task, 0):.1f} '</span>
+            <span class="st">f'converged={self.converged}'</span>
+        )
+        self.status_pub.publish(status)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = CBBAAllocator()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 06 — SWARM MONITOR -->
+  <div class="lab-section" id="s-monitor">
+    <h2>Step 05: swarm_monitor.py — One Terminal for All Five Drones</h2>
+    <p>
+      Watching five separate terminal windows simultaneously is impractical.
+      The swarm monitor aggregates all five drones' states into a single
+      continuously-updated terminal display — mode, altitude, battery,
+      CBBA assignment, and flocking status per drone.
+    </p>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 05</span>
+        <span class="step-title">Write swarm_monitor.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_swarm/aeroknow_swarm/swarm_monitor.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · swarm_monitor.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+swarm_monitor.py
+────────────────
+Single-terminal overview of all N drones.
+Subscribes to each drone's mavros/state, local_position, battery,
+and cbba/status. Refreshes display at 2 Hz.
+"""</span>
+
+<span class="kw">import</span> rclpy
+<span class="kw">from</span> rclpy.node <span class="kw">import</span> Node
+<span class="kw">from</span> rclpy.qos  <span class="kw">import</span> QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+<span class="kw">from</span> mavros_msgs.msg  <span class="kw">import</span> State
+<span class="kw">from</span> sensor_msgs.msg  <span class="kw">import</span> BatteryState
+<span class="kw">from</span> geometry_msgs.msg <span class="kw">import</span> PoseStamped
+<span class="kw">from</span> std_msgs.msg     <span class="kw">import</span> String, Int32
+
+<span class="kw">import</span> time
+
+N_DRONES = <span class="nm">5</span>
+
+
+<span class="kw">class</span> <span class="tp">SwarmMonitor</span>(Node):
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        super().__init__(<span class="st">'swarm_monitor'</span>)
+
+        rel = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">10</span>)
+        sen = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+                         history=HistoryPolicy.KEEP_LAST, depth=<span class="nm">1</span>)
+
+        <span class="cm"># Per-drone state dict</span>
+        self.drones = {i: {
+            <span class="st">'mode'</span>:   <span class="st">'—'</span>, <span class="st">'armed'</span>: <span class="kw">False</span>,
+            <span class="st">'alt'</span>:    <span class="nm">0.0</span>, <span class="st">'batt'</span>:  <span class="nm">0.0</span>,
+            <span class="st">'task'</span>:   -<span class="nm">1</span>,  <span class="st">'cbba'</span>:  <span class="st">'—'</span>,
+            <span class="st">'x'</span>: <span class="nm">0.0</span>, <span class="st">'y'</span>: <span class="nm">0.0</span>,
+        } <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>)}
+
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>):
+            ns = <span class="st">f'/drone_{i}'</span>
+            self.create_subscription(State,
+                <span class="st">f'{ns}/mavros/state'</span>,
+                <span class="kw">lambda</span> m, ii=i: self.drones[ii].update(
+                    {<span class="st">'mode'</span>: m.mode, <span class="st">'armed'</span>: m.armed}), rel)
+            self.create_subscription(BatteryState,
+                <span class="st">f'{ns}/mavros/battery'</span>,
+                <span class="kw">lambda</span> m, ii=i: self.drones[ii].update(
+                    {<span class="st">'batt'</span>: m.percentage*<span class="nm">100</span>}), sen)
+            self.create_subscription(PoseStamped,
+                <span class="st">f'{ns}/mavros/local_position/pose'</span>,
+                <span class="kw">lambda</span> m, ii=i: self.drones[ii].update({
+                    <span class="st">'alt'</span>: m.pose.position.z,
+                    <span class="st">'x'</span>:   m.pose.position.x,
+                    <span class="st">'y'</span>:   m.pose.position.y,
+                }), sen)
+            self.create_subscription(Int32,
+                <span class="st">f'{ns}/cbba/assignment'</span>,
+                <span class="kw">lambda</span> m, ii=i: self.drones[ii].update(
+                    {<span class="st">'task'</span>: m.data}), rel)
+            self.create_subscription(String,
+                <span class="st">f'{ns}/cbba/status'</span>,
+                <span class="kw">lambda</span> m, ii=i: self.drones[ii].update(
+                    {<span class="st">'cbba'</span>: m.data}), rel)
+
+        self.create_timer(<span class="nm">0.5</span>, self.<span class="fn">_display</span>)
+        self.t_start = time.time()
+        self.get_logger().info(<span class="st">'SwarmMonitor started'</span>)
+
+    <span class="kw">def</span> <span class="fn">_display</span>(self):
+        elapsed = time.time() - self.t_start
+        print(<span class="st">f'\033[2J\033[H'</span>, end=<span class="st">''</span>)   <span class="cm"># clear terminal</span>
+        print(<span class="st">f'╔{"═"*70}╗'</span>)
+        print(<span class="st">f'║  AEROKNOW SWARM MONITOR  ·  T+{elapsed:6.1f}s  ·  {N_DRONES} drones{"":18}║'</span>)
+        print(<span class="st">f'╠{"═"*70}╣'</span>)
+        print(<span class="st">f'║  {"ID":<3} {"MODE":<10} {"ARM":<6} {"ALT":>6} {"BATT":>6} {"TASK":>5} {"POSITION":>18}║'</span>)
+        print(<span class="st">f'╠{"─"*70}╣'</span>)
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>):
+            d = self.drones[i]
+            armed_s  = <span class="st">'\033[92mARMED \033[0m'</span> <span class="kw">if</span> d[<span class="st">'armed'</span>] <span class="kw">else</span> <span class="st">'\033[90mDISARMD\033[0m'</span>
+            task_s   = <span class="st">f"WP{d['task']}"</span>  <span class="kw">if</span> d[<span class="st">'task'</span>] >= <span class="nm">0</span> <span class="kw">else</span> <span class="st">'NONE'</span>
+            pos_s    = <span class="st">f"({d['x']:+6.1f}, {d['y']:+6.1f})"</span>
+            mode_col = <span class="st">'\033[93m'</span> <span class="kw">if</span> d[<span class="st">'mode'</span>] == <span class="st">'OFFBOARD'</span> <span class="kw">else</span> <span class="st">'\033[96m'</span>
+            print(<span class="st">f'║  {i:<3} {mode_col}{d["mode"]:<10}\033[0m {armed_s} {d["alt"]:>5.1f}m {d["batt"]:>5.1f}% {task_s:>5} {pos_s:>18} ║'</span>)
+        print(<span class="st">f'╚{"═"*70}╝'</span>)
+        <span class="cm"># Print CBBA status for any drone that has it</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>):
+            cbba = self.drones[i].get(<span class="st">'cbba'</span>, <span class="st">'—'</span>)
+            <span class="kw">if</span> cbba != <span class="st">'—'</span>:
+                print(<span class="st">f'  D{i}: {cbba}'</span>)
+
+
+<span class="kw">def</span> <span class="fn">main</span>(args=<span class="kw">None</span>):
+    rclpy.init(args=args)
+    node = SwarmMonitor()
+    <span class="kw">try</span>: rclpy.spin(node)
+    <span class="kw">except</span> KeyboardInterrupt: <span class="kw">pass</span>
+    <span class="kw">finally</span>: node.destroy_node(); rclpy.shutdown()
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>: main()</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 07 — LAUNCH AND DEMO -->
+  <div class="lab-section" id="s-launch">
+    <h2>Step 06–07: Launch File and Full Swarm Demo</h2>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 06</span>
+        <span class="step-title">Write l08_launch.py</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="why-box">
+          <span class="why-label">What the launch file does differently from previous labs</span>
+          <p>
+            Every node must be launched with a namespace and a <code>drone_id</code> parameter.
+            A Python loop in the launch file generates 5 flocking nodes and 5 CBBA allocators
+            automatically — adding a 6th drone is a one-line change.
+            The 5 MAVROS2 nodes are also launched from here with their unique FCU URLs.
+            The swarm_launcher handles PX4 binary management separately;
+            this launch file handles only the ROS2 layer.
+          </p>
+        </div>
+        <div class="code-block bash">
+          <span class="code-lang">bash</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>nano ~/aeroknow_ws/src/aeroknow_swarm/launch/l08_launch.py</pre>
+        </div>
+
+        <div class="code-block python">
+          <span class="code-lang">python · l08_launch.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm">#!/usr/bin/env python3
+"""
+l08_launch.py
+─────────────
+ROS2 node layer for the 5-drone swarm.
+PX4 processes are managed by swarm_launcher.py separately.
+"""</span>
+<span class="kw">from</span> launch <span class="kw">import</span> LaunchDescription
+<span class="kw">from</span> launch.actions <span class="kw">import</span> LogInfo, TimerAction
+<span class="kw">from</span> launch_ros.actions <span class="kw">import</span> Node
+
+N_DRONES = <span class="nm">5</span>
+
+<span class="cm"># MAVROS2 FCU URLs — port offset per instance</span>
+FCU_URLS = {
+    i: <span class="st">f'udp://:{14540+i-1}@127.0.0.1:{14557+i-1}'</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>)
+}
+
+
+<span class="kw">def</span> <span class="fn">generate_launch_description</span>():
+    nodes = [LogInfo(msg=<span class="st">f'[AEROKNOW L08] Starting {N_DRONES}-drone swarm ROS2 stack'</span>)]
+
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">1</span>, N_DRONES+<span class="nm">1</span>):
+        ns = <span class="st">f'drone_{i}'</span>
+
+        <span class="cm"># MAVROS2 — one per drone, unique FCU URL</span>
+        nodes.append(Node(
+            package=<span class="st">'mavros'</span>, executable=<span class="st">'mavros_node'</span>,
+            name=<span class="st">'mavros'</span>, namespace=ns, output=<span class="st">'log'</span>,
+            parameters=[{
+                <span class="st">'fcu_url'</span>:           FCU_URLS[i],
+                <span class="st">'target_system_id'</span>:  i,
+                <span class="st">'target_component_id'</span>: <span class="nm">1</span>,
+            }]
+        ))
+
+        <span class="cm"># Flocking node — per drone, started after 5s (MAVROS needs time to connect)</span>
+        nodes.append(TimerAction(period=<span class="nm">5.0</span>, actions=[Node(
+            package=<span class="st">'aeroknow_swarm'</span>, executable=<span class="st">'flocking_node'</span>,
+            name=<span class="st">'flocking_node'</span>, namespace=ns, output=<span class="st">'log'</span>,
+            parameters=[{<span class="st">'drone_id'</span>: i}]
+        )]))
+
+        <span class="cm"># CBBA allocator — per drone</span>
+        nodes.append(TimerAction(period=<span class="nm">5.0</span>, actions=[Node(
+            package=<span class="st">'aeroknow_swarm'</span>, executable=<span class="st">'cbba_allocator'</span>,
+            name=<span class="st">'cbba_allocator'</span>, namespace=ns, output=<span class="st">'log'</span>,
+            parameters=[{<span class="st">'drone_id'</span>: i}]
+        )]))
+
+    <span class="cm"># Swarm monitor — single node, no namespace</span>
+    nodes.append(TimerAction(period=<span class="nm">6.0</span>, actions=[Node(
+        package=<span class="st">'aeroknow_swarm'</span>, executable=<span class="st">'swarm_monitor'</span>,
+        name=<span class="st">'swarm_monitor'</span>, output=<span class="st">'screen'</span>,
+    )]))
+
+    <span class="kw">return</span> LaunchDescription(nodes)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-step">
+      <div class="lab-step-header">
+        <span class="step-num">STEP 07</span>
+        <span class="step-title">Build and run the complete swarm demo</span>
+      </div>
+      <div class="lab-step-body">
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — build</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>cd ~/aeroknow_ws
+<span class="prompt">$ </span>colcon build --symlink-install --packages-select aeroknow_swarm
+<span class="prompt">$ </span>source install/setup.bash</pre>
+        </div>
+
+        <p><strong>Terminal 1:</strong> Launch all 5 PX4 instances via swarm_launcher.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 1</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 run aeroknow_swarm swarm_launcher</pre>
+        </div>
+
+        <p><strong>Terminal 2:</strong> Launch the ROS2 swarm stack (wait for PX4 to fully start — watch Terminal 1 for "All 5/5 PX4 started").</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 2</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="prompt">$ </span>source ~/aeroknow_ws/install/setup.bash
+<span class="prompt">$ </span>ros2 launch aeroknow_swarm l08_launch.py</pre>
+        </div>
+
+        <p><strong>Terminal 3:</strong> Once all 5 drones are in OFFBOARD and armed — publish the task list to trigger CBBA allocation.</p>
+        <div class="code-block bash">
+          <span class="code-lang">bash · Terminal 3 — publish 5 waypoint targets</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="cm"># 5 waypoints: [lat1, lon1, lat2, lon2, ...] flat array
+# These are ~50–200m from the default SITL GPS origin</span>
+<span class="prompt">$ </span>ros2 topic pub --once /cbba/tasks std_msgs/msg/Float32MultiArray \
+    "data: [47.3985, 8.5461,
+            47.3979, 8.5470,
+            47.3972, 8.5455,
+            47.3968, 8.5468,
+            47.3990, 8.5475]"</pre>
+        </div>
+
+        <div class="terminal-output">
+          <span class="terminal-label">Expected swarm monitor output — 5 drones in formation, tasks allocated</span>
+          <pre>╔══════════════════════════════════════════════════════════════════════╗
+║  AEROKNOW SWARM MONITOR  ·  T+  45.2s  ·  5 drones                  ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  ID  MODE       ARM    ALT   BATT  TASK           POSITION           ║
+╠──────────────────────────────────────────────────────────────────────╣
+║  1   <span class="t-warn">OFFBOARD</span>   <span class="t-ok">ARMED</span>  14.8m  82.1%  WP2  (+0.4, +0.1)            ║
+║  2   <span class="t-warn">OFFBOARD</span>   <span class="t-ok">ARMED</span>  14.6m  81.8%  WP0  (-4.8, +4.9)            ║
+║  3   <span class="t-warn">OFFBOARD</span>   <span class="t-ok">ARMED</span>  14.9m  82.3%  WP4  (-5.1, -5.0)            ║
+║  4   <span class="t-warn">OFFBOARD</span>   <span class="t-ok">ARMED</span>  14.5m  81.6%  WP1  (-9.7, +9.8)            ║
+║  5   <span class="t-warn">OFFBOARD</span>   <span class="t-ok">ARMED</span>  14.7m  82.0%  WP3  (-9.9, -10.1)           ║
+╚══════════════════════════════════════════════════════════════════════╝
+  D1: drone=1 task=2 bid=847.3 converged=True
+  D2: drone=2 task=0 bid=912.1 converged=True
+  D3: drone=3 task=4 bid=891.4 converged=True
+  D4: drone=4 task=1 bid=863.7 converged=True
+  D5: drone=5 task=3 bid=878.2 converged=True</pre>
+        </div>
+
+        <p>
+          In Gazebo, all five drones should be visible hovering at 15 m in the V-formation,
+          then slowly drifting toward their allocated waypoints. The CBBA allocation assigns
+          each drone to its geographically nearest waypoint — no two drones share a task.
+        </p>
+
+        <h3>Final Workspace State — Complete Practical Track</h3>
+        <div class="file-tree">
+<span class="ft-dir">aeroknow_ws/src/</span>
+├── <span class="ft-dir">aeroknow_utils/</span>       <span class="ft-note"># L01 — sanity_check</span>
+├── <span class="ft-dir">aeroknow_bringup/</span>     <span class="ft-note"># L02–L05 — flight stack + EKF nav</span>
+├── <span class="ft-dir">aeroknow_sim/</span>         <span class="ft-note"># L04 — Gazebo world + sensors</span>
+├── <span class="ft-dir">aeroknow_vision/</span>      <span class="ft-note"># L06 — YOLOv8n + tracker</span>
+├── <span class="ft-dir">aeroknow_gcs/</span>         <span class="ft-note"># L07 — PyQt5 GCS</span>
+└── <span class="ft-dir">aeroknow_swarm/</span>       <span class="ft-new"># L08 — 5-drone swarm</span>
+    ├── <span class="ft-file">package.xml</span>
+    ├── <span class="ft-file">setup.py</span>
+    ├── <span class="ft-dir">launch/</span>
+    │   └── <span class="ft-new">l08_launch.py</span>
+    └── <span class="ft-dir">aeroknow_swarm/</span>
+        ├── <span class="ft-file">__init__.py</span>
+        ├── <span class="ft-new">swarm_launcher.py</span>   <span class="ft-note"># PX4 process management + arm</span>
+        ├── <span class="ft-new">flocking_node.py</span>    <span class="ft-note"># Reynolds + V-formation per drone</span>
+        ├── <span class="ft-new">cbba_allocator.py</span>   <span class="ft-note"># distributed auction per drone</span>
+        └── <span class="ft-new">swarm_monitor.py</span>    <span class="ft-note"># single terminal overview</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMON ERRORS -->
+  <div class="lab-section" id="s-errors">
+    <h2>Common Errors &amp; Fixes</h2>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 01 — PX4 instances start but drones occupy the same position</span>
+      <code class="error-msg">Gazebo shows all 5 drones spawned at (0,0,0) stacked on top of each other</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> <code>PX4_GZ_MODEL_POSE</code> is not being passed to the PX4 process,
+        or Gazebo is ignoring it for the multi-vehicle case.
+        <strong>Fix:</strong> Verify the environment variable is set in <code>swarm_launcher.py</code>:
+        print <code>env['PX4_GZ_MODEL_POSE']</code> before <code>Popen</code> to confirm.
+        If poses are correct but drones still stack, add an explicit Gazebo model spawn offset
+        via the <code>PX4_GZ_MODEL_POSE</code> format: <code>x,y,z,roll,pitch,yaw</code>.
+        Also confirm that each instance uses a unique model name —
+        Gazebo rejects spawning a second model with the same name silently.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 02 — MAVROS2 nodes all connect to drone 1</span>
+      <code class="error-msg">All /drone_N/mavros/state topics show identical data — drone 1's state</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The FCU URLs in <code>l08_launch.py</code> are wrong — all five
+        MAVROS2 nodes are connecting to port 14540 (drone 1's port).
+        <strong>Fix:</strong> Verify the <code>FCU_URLS</code> dict in the launch file.
+        The listen port increments: drone 1 = <code>:14540</code>, drone 2 = <code>:14541</code>, etc.
+        Confirm PX4 is actually listening on those ports:
+        <code>ss -ulnp | grep 1454</code> should show 5 different UDP sockets.
+        If fewer are shown, some PX4 instances failed to start — check Terminal 1 output.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 03 — Flocking causes drones to collide</span>
+      <code class="error-msg">Two drones fly toward each other and pass through (Gazebo has no collision between dynamic bodies by default)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The separation radius <code>R_SEP = 3.0</code> m may be too small
+        for the spawn separation (5 m between adjacent formation positions).
+        If drones overshoot their formation positions, they can pass through each other before
+        the separation force activates.
+        <strong>Fix:</strong> Increase <code>R_SEP</code> to 5.0 m and reduce
+        <code>W_FORM</code> from 2.5 to 1.5. This gives more separation priority relative to
+        formation attraction. Also increase <code>V_MAX</code> to 6.0 if the swarm
+        converges too slowly after startup.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 04 — CBBA converges but two drones get the same task</span>
+      <code class="error-msg">D2: task=0  D4: task=0  (same task allocated to two drones)</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> The CBBA convergence check is seeing stale bid data — drone 4's
+        bid for task 0 arrived before drone 2's higher bid was broadcast.
+        This is a timing issue when the communication rate is slower than the auction round rate.
+        <strong>Fix:</strong> Increase the auction timer period from 0.5 s to 1.0 s —
+        giving more time for bid messages to propagate before the next round.
+        Also confirm the <code>/cbba/bids</code> topic is using <code>RELIABLE</code> QoS —
+        if any bid message is dropped, conflicts can result.
+      </p>
+    </div>
+
+    <div class="error-doc">
+      <span class="error-doc-label">Error 05 — System runs out of memory, one or more PX4 instances crash</span>
+      <code class="error-msg">Killed (signal 9) — one PX4 process terminated by OOM killer</code>
+      <p class="error-fix">
+        <strong>Cause:</strong> 5 simultaneous PX4+Gazebo instances exceed available RAM.
+        Each PX4 SITL instance uses ~400–600 MB; Gazebo with 5 sensor models uses ~1.5–2 GB.
+        <strong>Fix:</strong> (1) Reduce to 3 drones: set <code>N_DRONES = 3</code> in all files.
+        (2) Disable the sensor model and use the lighter <code>x500</code> instead of
+        <code>x500_sensors</code> — remove camera and lidar plugins from the SDF.
+        (3) Reduce Gazebo physics rate: add <code>&lt;real_time_factor&gt;0.5&lt;/real_time_factor&gt;</code>
+        to the world file — halves CPU/RAM at the cost of simulating at half speed.
+      </p>
+    </div>
+  </div>
+
+  <!-- EXTENSION CHALLENGES -->
+  <div class="lab-section" id="s-extend">
+    <h2>Extension Challenges</h2>
+    <p>The swarm is flying. Three harder things to try — these are research-level extensions.</p>
+
+    <div class="extension-box">
+      <ol>
+        <li>
+          <strong>Implement consensus-based altitude agreement.</strong>
+          Currently all drones target the same fixed altitude (15 m) in <code>flocking_node.py</code>.
+          Replace this with the discrete-time consensus protocol from Module 09 §9.3:
+          each drone broadcasts its current altitude, computes the weighted average of its
+          neighbours' altitudes, and adjusts its altitude setpoint toward that average.
+          This is the 1D consensus problem on a real multi-agent system — watch the monitor
+          to see all five altitudes converge from different initial values after takeoff.
+          Measure the convergence time and compare it to the theoretical prediction
+          $t_{95\%} = 3/\lambda_2$ for a fully-connected graph.
+        </li>
+        <li>
+          <strong>Add a drone failure simulation to test swarm resilience.</strong>
+          After the swarm is flying in formation, kill one flocking node:
+          <code>ros2 node kill /drone_3/flocking_node</code>.
+          Observe what happens in Gazebo — drone 3 should freeze in place or drift.
+          Now implement a leader election protocol: when a drone detects that a neighbour
+          has been silent for more than 3 seconds (using the <code>/drone_N/swarm/state</code>
+          last message timestamp), it removes that drone from its neighbourhood and
+          redistributes the orphaned task via CBBA re-allocation.
+          This implements the resilience concepts from Module 09 §9.8.
+        </li>
+        <li>
+          <strong>Connect the swarm to the L07 GCS.</strong>
+          Extend <code>gcs_backend.py</code> to subscribe to all five
+          <code>/drone_N/mavros/global_position/global</code> topics and
+          emit a new signal <code>sig_swarm_positions</code> with a list of GPS dicts.
+          In <code>map_widget.py</code>, render each drone as a separate marker with
+          a different colour and label. Draw the V-formation lines between drones as a polyline.
+          Add a "Publish Tasks" button to the GCS dashboard that calls
+          <code>ros2 topic pub /cbba/tasks</code> with waypoints specified by clicking on the map.
+          This integrates all eight labs into a single unified system.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- COMPLETION BANNER -->
+  <div class="completion-banner">
+    <h3>Practical Track Complete</h3>
+    <p>
+      You have built a complete autonomous UAV system from scratch — environment setup,
+      ROS2 fundamentals, PX4 flight control, Gazebo simulation, GNSS-denied navigation,
+      computer vision, a custom GCS, and a 5-drone coordinated swarm. Every node you wrote
+      implements theory from the 10-module curriculum. The stack is yours — extend it,
+      break it, and rebuild it better.
+    </p>
+  </div>
+
+  <div class="lab-nav">
+    <a href="l07-custom-gcs.html" class="btn-lab prev">◂ Lab 07: Custom GCS</a>
+    <a href="../index.html"        class="btn-lab">↩ Return to Home</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Practical Track · Lab 08 · Multi-Agent Swarm ·
+  PX4 Multi-Vehicle SITL · Reynolds Flocking · CBBA</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    let text = pre.innerText.split('\n')
+      .map(l => l.replace(/^\$\s*/, '').replace(/^pxh>\s*/, ''))
+      .join('\n').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  const sections = ['s-overview','s-prereqs','s-multi-sitl','s-launcher',
+                    's-flocking','s-cbba','s-monitor','s-launch','s-errors','s-extend'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) { buttons.forEach(b => b.classList.remove('active')); if (buttons[idx]) buttons[idx].classList.add('active'); }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>
