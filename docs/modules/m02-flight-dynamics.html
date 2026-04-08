@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>M02: Flight Dynamics — AEROKNOW</title>
+  <title>M02: Flight Dynamics â€” AEROKNOW</title>
   <link rel="stylesheet" href="../assets/css/main.css"/>
   <script src="../assets/js/mathjax-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
@@ -104,7 +104,7 @@
     .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
     .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
     .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
-    .section-anchor { scroll-margin-top: 105px; }
+    
 
     /* Axis diagram placeholder styled card */
     .dof-grid {
@@ -157,7 +157,7 @@
     <p class="lead">
       How does a 15-tonne surveillance drone stay in the air for 32 hours without falling out of the sky?
       Why does a quadrotor flip over when one motor fails? This module builds your physical
-      intuition for how aircraft move — from the basic forces keeping them airborne, to the
+      intuition for how aircraft move â€” from the basic forces keeping them airborne, to the
       full six-degree-of-freedom equations that govern every twist and acceleration.
     </p>
     <div class="module-meta">
@@ -168,14 +168,14 @@
     </div>
     <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
       <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
-        📚 &nbsp;REFERENCES: Marqués &amp; Da Ronch §3–6 &nbsp;·&nbsp; Sadraey §4 &nbsp;·&nbsp; Bestaoui Sebbane §2
+        ðŸ“š &nbsp;REFERENCES: MarquÃ©s &amp; Da Ronch Â§3â€“6 &nbsp;Â·&nbsp; Sadraey Â§4 &nbsp;Â·&nbsp; Bestaoui Sebbane Â§2
       </p>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.1  WHY IT FLIES
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s1">
     <h2>2.1 Why an Aircraft Stays in the Air</h2>
 
@@ -185,7 +185,7 @@
         Four forces act on any flying vehicle at all times: <strong>Lift</strong> (pushes it up),
         <strong>Weight</strong> (pulls it down), <strong>Thrust</strong> (pushes it forward),
         and <strong>Drag</strong> (resists forward motion). Steady, level flight is simply the
-        condition where these four forces are perfectly balanced — lift equals weight, thrust
+        condition where these four forces are perfectly balanced â€” lift equals weight, thrust
         equals drag. The moment any of them change (engine fails, wind gust hits, pilot pulls the stick),
         the aircraft accelerates in some direction. Flight dynamics is the science of predicting
         exactly how and how fast.
@@ -193,22 +193,22 @@
     </div>
 
     <p>
-      For a UAV, these four forces are not independent — they all link back to two things:
+      For a UAV, these four forces are not independent â€” they all link back to two things:
       the aircraft's speed through the air, and its angle relative to that airflow.
-      The <span class="key-term" title="Dynamic pressure — the kinetic energy per unit volume of the air flowing past the wing. Higher speed = more dynamic pressure = more lift and drag.">dynamic pressure</span>
+      The <span class="key-term" title="Dynamic pressure â€” the kinetic energy per unit volume of the air flowing past the wing. Higher speed = more dynamic pressure = more lift and drag.">dynamic pressure</span>
       $\bar{q} = \frac{1}{2}\rho V^2$ is the fundamental link:
-      both lift and drag are proportional to $\bar{q}$. Double your speed, quadruple your dynamic pressure —
+      both lift and drag are proportional to $\bar{q}$. Double your speed, quadruple your dynamic pressure â€”
       and thus quadruple the aerodynamic forces acting on the airframe. This is why structural failures
       tend to happen at high speed, and why stalls happen at low speed.
-      <span class="cite">Marqués &amp; Da Ronch §3.1</span>
+      <span class="cite">MarquÃ©s &amp; Da Ronch Â§3.1</span>
     </p>
 
     <div class="analogy-box">
-      <span class="analogy-label">Analogy — Putting Your Hand Out a Car Window</span>
+      <span class="analogy-label">Analogy â€” Putting Your Hand Out a Car Window</span>
       <p>
         Hold your hand flat outside a moving car. At 30 km/h, you feel a gentle upward push.
-        At 100 km/h, the same flat hand gets pushed back much harder — that's drag increasing
-        with speed. Tilt your hand up (increase the angle of attack) and it flies upward —
+        At 100 km/h, the same flat hand gets pushed back much harder â€” that's drag increasing
+        with speed. Tilt your hand up (increase the angle of attack) and it flies upward â€”
         that's lift. Tilt it too far and it becomes turbulent and just stalls backwards.
         Your hand just demonstrated every aerodynamic concept that governs a UAV wing.
       </p>
@@ -220,141 +220,141 @@
       $$L = W \quad \Rightarrow \quad \tfrac{1}{2}\rho V^2 S C_L = mg$$
       $$T = D \quad \Rightarrow \quad T = \tfrac{1}{2}\rho V^2 S C_D$$
       <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.4rem;">
-        $\rho$: air density [kg/m³]; $V$: true airspeed [m/s]; $S$: wing reference area [m²];
-        $C_L$: lift coefficient (dimensionless — depends on wing shape and angle of attack);
+        $\rho$: air density [kg/mÂ³]; $V$: true airspeed [m/s]; $S$: wing reference area [mÂ²];
+        $C_L$: lift coefficient (dimensionless â€” depends on wing shape and angle of attack);
         $C_D$: drag coefficient; $m$: aircraft mass; $g$: gravity.
       </p>
       <p style="font-size:0.85rem; color:var(--text-muted);">
         From the lift equation: for a fixed aircraft weight, flying at higher altitude (lower $\rho$)
         requires either higher speed $V$ or higher $C_L$ (fly at a higher angle of attack) to maintain
-        the same lift. This is why high-altitude UAVs like the RQ-4 have enormous wings —
+        the same lift. This is why high-altitude UAVs like the RQ-4 have enormous wings â€”
         at 20 km altitude, $\rho$ is only 7% of sea-level density, so you need a huge $S$
-        to generate enough lift at reasonable speeds. <span class="cite">Sadraey §4.1</span>
+        to generate enough lift at reasonable speeds. <span class="cite">Sadraey Â§4.1</span>
       </p>
     </div>
 
     <h3>The Parabolic Drag Polar</h3>
     <p>
-      In reality, drag has two components: <span class="key-term" title="Parasitic drag — drag that exists even at zero lift, from the aircraft's shape pushing through air. Think of a car's aerodynamic resistance.">parasitic drag</span>
+      In reality, drag has two components: <span class="key-term" title="Parasitic drag â€” drag that exists even at zero lift, from the aircraft's shape pushing through air. Think of a car's aerodynamic resistance.">parasitic drag</span>
       (always present, grows with $V^2$) and
-      <span class="key-term" title="Induced drag — drag created as a by-product of generating lift. A wing creates a vortex at its tip that wastes energy. Flying slower creates more of it, because you need more angle of attack.">induced drag</span>
+      <span class="key-term" title="Induced drag â€” drag created as a by-product of generating lift. A wing creates a vortex at its tip that wastes energy. Flying slower creates more of it, because you need more angle of attack.">induced drag</span>
       (caused by generating lift, gets worse at low speed). Together they form the drag polar:
-      <span class="cite">Marqués &amp; Da Ronch §3.2</span>
+      <span class="cite">MarquÃ©s &amp; Da Ronch Â§3.2</span>
     </p>
     <div class="math-block">
       <span class="math-label">Parabolic Drag Polar Model</span>
       $$C_D = C_{D0} + K C_L^2 \qquad \text{where} \quad K = \frac{1}{\pi e AR}$$
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
-        $C_{D0}$: zero-lift drag coefficient (typical fixed-wing UAV: 0.02–0.035);
-        $e$: Oswald efficiency factor (0.75–0.90 for well-designed wings);
-        $AR$: aspect ratio (wingspan² / wing area). High AR wings (like the RQ-4's $AR\approx25$)
-        have very low $K$ — they produce lift efficiently with minimal induced drag.
+        $C_{D0}$: zero-lift drag coefficient (typical fixed-wing UAV: 0.02â€“0.035);
+        $e$: Oswald efficiency factor (0.75â€“0.90 for well-designed wings);
+        $AR$: aspect ratio (wingspanÂ² / wing area). High AR wings (like the RQ-4's $AR\approx25$)
+        have very low $K$ â€” they produce lift efficiently with minimal induced drag.
         The MQ-9 has $AR \approx 20$, giving $K \approx 0.018$.
       </p>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.2  6-DOF MECHANICS
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s2">
-    <h2>2.2 Six Degrees of Freedom — How Aircraft Really Move</h2>
+    <h2>2.2 Six Degrees of Freedom â€” How Aircraft Really Move</h2>
 
     <div class="plain-intro">
       <span class="pi-label">Plain English First</span>
       <p>
-        An aircraft in free flight can move in six independent ways — three translations
+        An aircraft in free flight can move in six independent ways â€” three translations
         (sliding forward/back, left/right, up/down) and three rotations (rolling, pitching, yawing).
         Engineers call these "degrees of freedom" or DOF. Every bump of turbulence, every gust of wind,
         every control input simultaneously affects all six. The 6-DOF equations of motion are the
-        mathematical rules that describe all of this at once — and they're what autopilots and
+        mathematical rules that describe all of this at once â€” and they're what autopilots and
         simulators are built on.
       </p>
     </div>
 
     <div class="dof-grid">
       <div class="dof-card">
-        <span class="dof-icon">↔</span>
+        <span class="dof-icon">â†”</span>
         <div class="dof-name">Surge</div>
         <div class="dof-desc">Forward/backward translation along body X-axis. Controlled by thrust.</div>
       </div>
       <div class="dof-card">
-        <span class="dof-icon">↕</span>
+        <span class="dof-icon">â†•</span>
         <div class="dof-name">Sway</div>
         <div class="dof-desc">Left/right lateral translation along body Y-axis. Driven by sideslip.</div>
       </div>
       <div class="dof-card">
-        <span class="dof-icon">⇅</span>
+        <span class="dof-icon">â‡…</span>
         <div class="dof-name">Heave</div>
         <div class="dof-desc">Up/down translation along body Z-axis. Controlled by lift (throttle + pitch).</div>
       </div>
       <div class="dof-card">
-        <span class="dof-icon">↻</span>
-        <div class="dof-name">Roll (φ)</div>
+        <span class="dof-icon">â†»</span>
+        <div class="dof-name">Roll (Ï†)</div>
         <div class="dof-desc">Rotation about body X-axis. Controlled by ailerons or differential rotor thrust.</div>
       </div>
       <div class="dof-card">
-        <span class="dof-icon">↗</span>
-        <div class="dof-name">Pitch (θ)</div>
+        <span class="dof-icon">â†—</span>
+        <div class="dof-name">Pitch (Î¸)</div>
         <div class="dof-desc">Nose up/down rotation about body Y-axis. Controlled by elevator or differential fore/aft thrust.</div>
       </div>
       <div class="dof-card">
-        <span class="dof-icon">⤾</span>
-        <div class="dof-name">Yaw (ψ)</div>
+        <span class="dof-icon">â¤¾</span>
+        <div class="dof-name">Yaw (Ïˆ)</div>
         <div class="dof-desc">Left/right nose rotation about body Z-axis. Controlled by rudder or differential torque.</div>
       </div>
     </div>
 
-    <h3>The Body Frame — Why We Don't Use Ground Coordinates</h3>
+    <h3>The Body Frame â€” Why We Don't Use Ground Coordinates</h3>
     <p>
       You might ask: why not just write the equations in the ground frame (North-East-Down)?
-      The answer is the <span class="key-term" title="Moment of inertia tensor — describes how mass is distributed around each axis. Heavier mass far from the axis = large moment of inertia = harder to rotate. This tensor is constant only when expressed in body-fixed coordinates.">moment of inertia tensor</span>
+      The answer is the <span class="key-term" title="Moment of inertia tensor â€” describes how mass is distributed around each axis. Heavier mass far from the axis = large moment of inertia = harder to rotate. This tensor is constant only when expressed in body-fixed coordinates.">moment of inertia tensor</span>
       $\mathbf{I}$. When a UAV pitches, rolls, and yaws, the distribution of mass relative to a
-      ground-fixed axis changes constantly — making the equations impossibly complicated.
+      ground-fixed axis changes constantly â€” making the equations impossibly complicated.
       In the body-fixed frame (axes attached to the aircraft), $\mathbf{I}$ is constant
       for a rigid body, and the equations become tractable.
-      <span class="cite">Marqués &amp; Da Ronch §3.3</span>
+      <span class="cite">MarquÃ©s &amp; Da Ronch Â§3.3</span>
     </p>
 
     <h3>Translational Equations of Motion</h3>
     <p>
       Newton's second law applied in the body frame, accounting for the fact that the frame
-      itself is rotating (the Coriolis effect): <span class="cite">Marqués &amp; Da Ronch §3.4</span>
+      itself is rotating (the Coriolis effect): <span class="cite">MarquÃ©s &amp; Da Ronch Â§3.4</span>
     </p>
 
     <div class="math-block">
-      <span class="math-label">Force Equations — Body Frame (Newton's 2nd Law in Rotating Frame)</span>
+      <span class="math-label">Force Equations â€” Body Frame (Newton's 2nd Law in Rotating Frame)</span>
       $$m\begin{pmatrix}\dot{u}\\\dot{v}\\\dot{w}\end{pmatrix} =
         \begin{pmatrix}F_x\\F_y\\F_z\end{pmatrix} -
         m\underbrace{\begin{pmatrix}qw - rv\\ru - pw\\pv - qu\end{pmatrix}}_{\text{Coriolis terms}}$$
       <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.4rem;">
         <strong>What each variable means:</strong>
         $u, v, w$ = velocity components in body X, Y, Z (surge, sway, heave speeds).
-        $p, q, r$ = angular rates — roll rate, pitch rate, yaw rate [rad/s].
+        $p, q, r$ = angular rates â€” roll rate, pitch rate, yaw rate [rad/s].
         $F_x, F_y, F_z$ = total external forces (aerodynamic + gravity + thrust) in body frame.
       </p>
       <p style="font-size:0.85rem; color:var(--text-muted);">
         <strong>The Coriolis terms</strong> $(qw - rv)$ etc. arise because the body frame is rotating.
-        Imagine sitting on a spinning office chair throwing a ball straight ahead — from the ground,
+        Imagine sitting on a spinning office chair throwing a ball straight ahead â€” from the ground,
         the ball curves. From your perspective, there's a "fictitious force" curving it. These terms
         are that fictitious force for the aircraft body frame. They are responsible for the coupled
         motion you see in aircraft: a pitched-up, rolling aircraft yaws even with no rudder input.
       </p>
     </div>
 
-    <h3>Rotational Equations of Motion — Euler's Equations</h3>
+    <h3>Rotational Equations of Motion â€” Euler's Equations</h3>
     <p>
-      The rotational counterpart — how angular velocity changes due to applied torques,
-      with cross-coupling between axes: <span class="cite">Marqués &amp; Da Ronch §3.5</span>
+      The rotational counterpart â€” how angular velocity changes due to applied torques,
+      with cross-coupling between axes: <span class="cite">MarquÃ©s &amp; Da Ronch Â§3.5</span>
     </p>
 
     <div class="math-block">
-      <span class="math-label">Euler's Moment Equations (Diagonal Inertia Tensor — Symmetric Aircraft)</span>
+      <span class="math-label">Euler's Moment Equations (Diagonal Inertia Tensor â€” Symmetric Aircraft)</span>
       $$I_{xx}\dot{p} = L + (I_{yy} - I_{zz})\,qr$$
       $$I_{yy}\dot{q} = M + (I_{zz} - I_{xx})\,pr$$
       $$I_{zz}\dot{r} = N + (I_{xx} - I_{yy})\,pq$$
       <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.3rem;">
-        $I_{xx}, I_{yy}, I_{zz}$: moments of inertia about roll, pitch, yaw axes [kg·m²].
+        $I_{xx}, I_{yy}, I_{zz}$: moments of inertia about roll, pitch, yaw axes [kgÂ·mÂ²].
         $L, M, N$: applied moments (roll, pitch, yaw) from aerodynamic forces and control surfaces.
       </p>
       <p style="font-size:0.85rem; color:var(--text-muted);">
@@ -362,13 +362,13 @@
         If you have a fast pitching rate $q$ and a fast yaw rate $r$, they generate a
         <em>roll</em> acceleration $\dot{p}$ even with no aileron input. This is the mathematical
         origin of dangerous coupled motions like spin entry, and why fly-by-wire UAVs
-        need high-bandwidth roll/pitch/yaw controllers running simultaneously — not one at a time.
-        <span class="cite">Bestaoui Sebbane §2.2</span>
+        need high-bandwidth roll/pitch/yaw controllers running simultaneously â€” not one at a time.
+        <span class="cite">Bestaoui Sebbane Â§2.2</span>
       </p>
     </div>
 
     <div class="worked-example">
-      <span class="we-label">Worked Example 2.1 — Gyroscopic Coupling on a Fast-Turning MALE UAV</span>
+      <span class="we-label">Worked Example 2.1 â€” Gyroscopic Coupling on a Fast-Turning MALE UAV</span>
       <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
         An MQ-9 class UAV enters an evasive manoeuvre with pitch rate $q = 0.3$ rad/s and yaw rate $r = 0.2$ rad/s.
         Estimate the parasitic roll acceleration generated by gyroscopic coupling.
@@ -376,52 +376,52 @@
       <table class="spec-table">
         <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
         <tbody>
-          <tr><td>$I_{xx}$ (roll)</td><td>3,000 kg·m²</td><td>Mass concentrated in fuselage, narrow wingspan mass</td></tr>
-          <tr><td>$I_{yy}$ (pitch)</td><td>45,000 kg·m²</td><td>Long fuselage + wing mass</td></tr>
-          <tr><td>$I_{zz}$ (yaw)</td><td>47,000 kg·m²</td><td>Similar to pitch for conventional layout</td></tr>
-          <tr><td>$q$</td><td>0.3 rad/s</td><td>≈ 17°/s pitch rate during pull-up</td></tr>
-          <tr><td>$r$</td><td>0.2 rad/s</td><td>≈ 11°/s yaw rate during coordinated turn</td></tr>
+          <tr><td>$I_{xx}$ (roll)</td><td>3,000 kgÂ·mÂ²</td><td>Mass concentrated in fuselage, narrow wingspan mass</td></tr>
+          <tr><td>$I_{yy}$ (pitch)</td><td>45,000 kgÂ·mÂ²</td><td>Long fuselage + wing mass</td></tr>
+          <tr><td>$I_{zz}$ (yaw)</td><td>47,000 kgÂ·mÂ²</td><td>Similar to pitch for conventional layout</td></tr>
+          <tr><td>$q$</td><td>0.3 rad/s</td><td>â‰ˆ 17Â°/s pitch rate during pull-up</td></tr>
+          <tr><td>$r$</td><td>0.2 rad/s</td><td>â‰ˆ 11Â°/s yaw rate during coordinated turn</td></tr>
         </tbody>
       </table>
       <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
         From Euler's roll equation with no applied roll moment ($L = 0$):
-        $$I_{xx}\dot{p} = (I_{yy} - I_{zz})\,qr = (45000 - 47000) \times 0.3 \times 0.2 = -120 \text{ N·m}$$
+        $$I_{xx}\dot{p} = (I_{yy} - I_{zz})\,qr = (45000 - 47000) \times 0.3 \times 0.2 = -120 \text{ NÂ·m}$$
         $$\dot{p} = -120/3000 = \mathbf{-0.04 \text{ rad/s}^2}$$
-        The aircraft rolls at $-0.04$ rad/s² (about $2.3°/\text{s}^2$) with no aileron input at all.
+        The aircraft rolls at $-0.04$ rad/sÂ² (about $2.3Â°/\text{s}^2$) with no aileron input at all.
         After just 2 seconds of combined pitch+yaw manoeuvre, the parasitic roll rate reaches $0.08$ rad/s.
-        This is why autopilots on MALE UAVs must cross-feed pitch/yaw commands into the roll axis —
+        This is why autopilots on MALE UAVs must cross-feed pitch/yaw commands into the roll axis â€”
         failing to do so causes the aircraft to roll out of the intended flight path.
       </p>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.3  ATTITUDE REPRESENTATION
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s3">
-    <h2>2.3 Representing Attitude — Euler Angles vs. Quaternions</h2>
+    <h2>2.3 Representing Attitude â€” Euler Angles vs. Quaternions</h2>
 
     <div class="plain-intro">
       <span class="pi-label">Plain English First</span>
       <p>
-        "Attitude" in aerospace means the orientation of the aircraft — which way is it pointing?
+        "Attitude" in aerospace means the orientation of the aircraft â€” which way is it pointing?
         The most intuitive way to describe it is with three angles: roll (how tilted sideways),
         pitch (nose up or down), and yaw (compass direction it's pointing). These are called
         Euler angles. The problem is that at certain extreme orientations, the math breaks down
-        completely — a phenomenon called "gimbal lock." UAV autopilots use a more complex
+        completely â€” a phenomenon called "gimbal lock." UAV autopilots use a more complex
         but reliable alternative called quaternions to avoid this.
       </p>
     </div>
 
-    <h3>Euler Angles — Intuitive but Flawed</h3>
+    <h3>Euler Angles â€” Intuitive but Flawed</h3>
     <p>
       Euler angles describe orientation as three sequential rotations:
       first yaw $\psi$ (rotate about vertical), then pitch $\theta$ (tilt nose up/down),
       then roll $\phi$ (tilt sideways). The standard aerospace convention is <strong>3-2-1 (ZYX)</strong>:
-      <span class="cite">Marqués &amp; Da Ronch §3.6</span>
+      <span class="cite">MarquÃ©s &amp; Da Ronch Â§3.6</span>
     </p>
     <div class="math-block">
-      <span class="math-label">ZYX Euler Rotation Matrix (Body → NED)</span>
+      <span class="math-label">ZYX Euler Rotation Matrix (Body â†’ NED)</span>
       $$R_{B}^{NED} = R_z(\psi)\,R_y(\theta)\,R_x(\phi)$$
       $$= \begin{bmatrix}
         c_\theta c_\psi & s_\phi s_\theta c_\psi - c_\phi s_\psi & c_\phi s_\theta c_\psi + s_\phi s_\psi \\
@@ -431,11 +431,11 @@
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
         Shorthand: $c_\phi = \cos\phi$, $s_\phi = \sin\phi$, etc.
         This matrix transforms a vector from the body frame to the NED (North-East-Down) ground frame.
-        To go the other direction (NED → body), take the transpose: $R_{NED}^B = (R_B^{NED})^T$.
+        To go the other direction (NED â†’ body), take the transpose: $R_{NED}^B = (R_B^{NED})^T$.
       </p>
     </div>
 
-    <h3>Gimbal Lock — When Euler Angles Break</h3>
+    <h3>Gimbal Lock â€” When Euler Angles Break</h3>
     <p>
       The Euler angle kinematic equations (how $\dot{\phi}, \dot{\theta}, \dot{\psi}$ relate to body rates $p, q, r$) are:
     </p>
@@ -449,40 +449,40 @@
         \end{bmatrix}
         \begin{pmatrix}p\\q\\r\end{pmatrix}$$
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
-        <strong>Spot the problem:</strong> At $\theta = \pm 90°$ (vertical climb or dive),
+        <strong>Spot the problem:</strong> At $\theta = \pm 90Â°$ (vertical climb or dive),
         $\tan\theta$ and $1/\cos\theta$ both become <em>infinite</em>. The equations blow up.
-        Even for a standard fixed-wing UAV this matters — aggressive evasive manoeuvres or
-        steep dive attacks routinely approach $\theta = 80°+$. Any autopilot using Euler angles
+        Even for a standard fixed-wing UAV this matters â€” aggressive evasive manoeuvres or
+        steep dive attacks routinely approach $\theta = 80Â°+$. Any autopilot using Euler angles
         will fail numerically in these conditions.
-        <span class="cite">Marqués &amp; Da Ronch §3.7</span>
+        <span class="cite">MarquÃ©s &amp; Da Ronch Â§3.7</span>
       </p>
     </div>
 
     <div class="analogy-box">
-      <span class="analogy-label">Analogy — What Gimbal Lock Feels Like</span>
+      <span class="analogy-label">Analogy â€” What Gimbal Lock Feels Like</span>
       <p>
         Imagine a camera mounted on three rotating rings (a gimbal) to keep it level.
-        When the middle ring rotates 90°, two of the outer rings suddenly align and act as one —
+        When the middle ring rotates 90Â°, two of the outer rings suddenly align and act as one â€”
         you've lost a degree of freedom. Now you can't tilt the camera in one direction no matter
         how you turn the rings. This is gimbal lock. It was a real problem on the Apollo spacecraft
         and remains a real problem for any attitude system using Euler angles at extreme orientations.
       </p>
     </div>
 
-    <h3>Quaternions — The Engineering Solution</h3>
+    <h3>Quaternions â€” The Engineering Solution</h3>
     <p>
-      A <span class="key-term" title="Quaternion — a 4-dimensional number q = [q0, q1, q2, q3] that represents a rotation as a single rotation about an arbitrary axis. No singularities, computationally efficient, but harder to interpret physically.">quaternion</span>
+      A <span class="key-term" title="Quaternion â€” a 4-dimensional number q = [q0, q1, q2, q3] that represents a rotation as a single rotation about an arbitrary axis. No singularities, computationally efficient, but harder to interpret physically.">quaternion</span>
       $\mathbf{q} = [q_0, q_1, q_2, q_3]^T$ encodes orientation as a single rotation
       of angle $\theta_r$ about an arbitrary unit axis $\hat{\mathbf{n}}$:
-      <span class="cite">Bestaoui Sebbane §2.3</span>
+      <span class="cite">Bestaoui Sebbane Â§2.3</span>
     </p>
     <div class="math-block">
-      <span class="math-label">Quaternion — Definition and Unit Constraint</span>
+      <span class="math-label">Quaternion â€” Definition and Unit Constraint</span>
       $$\mathbf{q} = \begin{bmatrix}q_0\\q_1\\q_2\\q_3\end{bmatrix} =
         \begin{bmatrix}\cos(\theta_r/2)\\\hat{n}_x\sin(\theta_r/2)\\\hat{n}_y\sin(\theta_r/2)\\\hat{n}_z\sin(\theta_r/2)\end{bmatrix},
         \qquad \|\mathbf{q}\|^2 = q_0^2 + q_1^2 + q_2^2 + q_3^2 = 1$$
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
-        Four numbers, one constraint — leaves 3 effective degrees of freedom, same as Euler angles,
+        Four numbers, one constraint â€” leaves 3 effective degrees of freedom, same as Euler angles,
         but <strong>no singularities anywhere</strong>. The quaternion kinematics are:
       </p>
       $$\dot{\mathbf{q}} = \frac{1}{2}\,\Xi(\mathbf{q})\,\boldsymbol{\omega}_B, \quad
@@ -495,27 +495,27 @@
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
         This matrix never has a singularity. Every UAV autopilot (PX4, ArduPilot, military FCCs)
         uses quaternions internally for attitude tracking. Euler angles are only computed for
-        display purposes — then converted back to quaternions before any control calculation.
+        display purposes â€” then converted back to quaternions before any control calculation.
       </p>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.4  AERODYNAMIC FORCES
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s4">
     <h2>2.4 Aerodynamic Forces and Stability Derivatives</h2>
 
     <div class="plain-intro">
       <span class="pi-label">Plain English First</span>
       <p>
-        The aerodynamic forces on a UAV — lift, drag, and side force, plus the rolling,
-        pitching, and yawing moments — are all functions of how the aircraft is moving
+        The aerodynamic forces on a UAV â€” lift, drag, and side force, plus the rolling,
+        pitching, and yawing moments â€” are all functions of how the aircraft is moving
         through the air. Rather than trying to model all this from first principles
         (complex CFD), engineers parameterise the forces using dimensionless coefficients
         that are measured in wind tunnels or computed. These coefficients, and how they
         change with small perturbations in speed or angle, are called
-        <strong>stability derivatives</strong> — the "sensitivities" of the forces.
+        <strong>stability derivatives</strong> â€” the "sensitivities" of the forces.
       </p>
     </div>
 
@@ -523,11 +523,11 @@
     <p>
       All aerodynamic forces and moments are expressed as dimensionless coefficients
       multiplied by dynamic pressure, reference area, and reference length:
-      <span class="cite">Sadraey §4.2</span>
+      <span class="cite">Sadraey Â§4.2</span>
     </p>
 
     <div class="math-block">
-      <span class="math-label">Aerodynamic Force and Moment Equations — Sadraey §4.2</span>
+      <span class="math-label">Aerodynamic Force and Moment Equations â€” Sadraey Â§4.2</span>
       $$\mathbf{F}^{aero} = \bar{q}S\begin{pmatrix}-C_D \\ C_Y \\ -C_L\end{pmatrix}, \qquad
         \boldsymbol{\tau}^{aero} = \bar{q}S\begin{pmatrix}b\,C_l \\ \bar{c}\,C_m \\ b\,C_n\end{pmatrix}$$
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
@@ -539,63 +539,63 @@
       </p>
     </div>
 
-    <h3>Stability Derivatives — The Key Aerodynamic Sensitivities</h3>
+    <h3>Stability Derivatives â€” The Key Aerodynamic Sensitivities</h3>
     <p>
       Near a steady flight condition (trim), each coefficient is linearised as a function of
-      small perturbations. The partial derivatives are the stability derivatives —
+      small perturbations. The partial derivatives are the stability derivatives â€”
       the core aerodynamic data set for any UAV flight dynamics model:
-      <span class="cite">Marqués &amp; Da Ronch §4.1</span>
+      <span class="cite">MarquÃ©s &amp; Da Ronch Â§4.1</span>
     </p>
 
     <div class="math-block">
-      <span class="math-label">Linearised Pitch Moment Coefficient (Marqués §4.1)</span>
+      <span class="math-label">Linearised Pitch Moment Coefficient (MarquÃ©s Â§4.1)</span>
       $$C_m = C_{m_0} + C_{m_\alpha}\,\alpha + C_{m_q}\,\frac{q\bar{c}}{2V} + C_{m_{\dot\alpha}}\,\frac{\dot{\alpha}\bar{c}}{2V} + C_{m_{\delta_e}}\,\delta_e$$
       <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.3rem;">
         <strong>Term-by-term explanation:</strong><br>
         $C_{m_0}$: pitching moment at zero angle of attack (trim offset).<br>
         $C_{m_\alpha}$: how much pitching moment changes per degree of angle of attack.
         <strong>Must be negative for static pitch stability</strong> (if nose pitches up, a restoring nose-down moment is generated).<br>
-        $C_{m_q}$: pitch damping derivative — pitching rapidly creates a restoring moment (like a weather vane slowing down).<br>
-        $C_{m_{\dot\alpha}}$: lag derivative — effect of angle-of-attack rate (important for fast manoeuvres).<br>
-        $C_{m_{\delta_e}}$: elevator effectiveness — how much moment per degree of elevator deflection.
+        $C_{m_q}$: pitch damping derivative â€” pitching rapidly creates a restoring moment (like a weather vane slowing down).<br>
+        $C_{m_{\dot\alpha}}$: lag derivative â€” effect of angle-of-attack rate (important for fast manoeuvres).<br>
+        $C_{m_{\delta_e}}$: elevator effectiveness â€” how much moment per degree of elevator deflection.
       </p>
     </div>
 
     <table>
       <thead><tr><th>Derivative</th><th>Sign for Stability</th><th>Physical Meaning</th><th>Typical Range (MALE UAV)</th></tr></thead>
       <tbody>
-        <tr><td>$C_{m_\alpha}$</td><td>Negative (&lt;0)</td><td>Static pitch stability — nose-up generates nose-down moment</td><td>−0.5 to −2.0 /rad</td></tr>
-        <tr><td>$C_{l_\beta}$</td><td>Negative (&lt;0)</td><td>Dihedral effect — sideslip generates restoring roll</td><td>−0.05 to −0.2 /rad</td></tr>
-        <tr><td>$C_{n_\beta}$</td><td>Positive (&gt;0)</td><td>Weathercock stability — sideslip generates restoring yaw</td><td>+0.05 to +0.15 /rad</td></tr>
-        <tr><td>$C_{m_q}$</td><td>Negative (&lt;0)</td><td>Pitch damping — pitch rate is damped out</td><td>−5 to −20 /rad</td></tr>
-        <tr><td>$C_{l_p}$</td><td>Negative (&lt;0)</td><td>Roll damping — roll rate is damped out</td><td>−0.3 to −0.8 /rad</td></tr>
-        <tr><td>$C_{n_r}$</td><td>Negative (&lt;0)</td><td>Yaw damping — yaw rate is damped out</td><td>−0.05 to −0.3 /rad</td></tr>
+        <tr><td>$C_{m_\alpha}$</td><td>Negative (&lt;0)</td><td>Static pitch stability â€” nose-up generates nose-down moment</td><td>âˆ’0.5 to âˆ’2.0 /rad</td></tr>
+        <tr><td>$C_{l_\beta}$</td><td>Negative (&lt;0)</td><td>Dihedral effect â€” sideslip generates restoring roll</td><td>âˆ’0.05 to âˆ’0.2 /rad</td></tr>
+        <tr><td>$C_{n_\beta}$</td><td>Positive (&gt;0)</td><td>Weathercock stability â€” sideslip generates restoring yaw</td><td>+0.05 to +0.15 /rad</td></tr>
+        <tr><td>$C_{m_q}$</td><td>Negative (&lt;0)</td><td>Pitch damping â€” pitch rate is damped out</td><td>âˆ’5 to âˆ’20 /rad</td></tr>
+        <tr><td>$C_{l_p}$</td><td>Negative (&lt;0)</td><td>Roll damping â€” roll rate is damped out</td><td>âˆ’0.3 to âˆ’0.8 /rad</td></tr>
+        <tr><td>$C_{n_r}$</td><td>Negative (&lt;0)</td><td>Yaw damping â€” yaw rate is damped out</td><td>âˆ’0.05 to âˆ’0.3 /rad</td></tr>
       </tbody>
     </table>
 
     <div class="callout info">
       <span class="callout-title">Why Negative Derivatives Mean Stability</span>
       A <em>stable</em> aircraft self-corrects disturbances. If the nose pitches up (positive $\alpha$ perturbation),
-      a stable aircraft needs a nose-down pitching moment to push it back — meaning $\Delta C_m$ must be
+      a stable aircraft needs a nose-down pitching moment to push it back â€” meaning $\Delta C_m$ must be
       <em>negative</em> for a positive $\Delta\alpha$. So $C_{m_\alpha} = \partial C_m / \partial \alpha < 0$ is
       the mathematical condition for static pitch stability. The same logic applies to the other axes.
       Many modern military UAVs are designed to be <em>slightly</em> unstable (mildly positive $C_{m_\alpha}$)
-      because it allows more agile manoeuvring — with the flight computer providing artificial stability.
-      <span class="cite">Marqués &amp; Da Ronch §4.3</span>
+      because it allows more agile manoeuvring â€” with the flight computer providing artificial stability.
+      <span class="cite">MarquÃ©s &amp; Da Ronch Â§4.3</span>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.5  STABILITY ANALYSIS
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s5">
-    <h2>2.5 Dynamic Stability — The Natural Modes of Motion</h2>
+    <h2>2.5 Dynamic Stability â€” The Natural Modes of Motion</h2>
 
     <div class="plain-intro">
       <span class="pi-label">Plain English First</span>
       <p>
         Even a statically stable aircraft doesn't just smoothly return to straight-and-level flight
-        after a disturbance — it oscillates, like a pendulum. Some oscillations die out quickly
+        after a disturbance â€” it oscillates, like a pendulum. Some oscillations die out quickly
         (well-damped). Others persist for a long time (lightly damped). Some are fast and obvious;
         others are so slow a pilot might not even notice. These natural oscillatory patterns are
         called <strong>dynamic modes</strong>, and every fixed-wing aircraft has the same four of them.
@@ -607,7 +607,7 @@
       The linearised equations of motion (decoupled into longitudinal and lateral-directional sets)
       are solved as eigenvalue problems. The eigenvalues $\lambda = \sigma \pm j\omega$ give the
       natural frequencies and damping of each mode.
-      <span class="cite">Marqués &amp; Da Ronch §5.1</span>
+      <span class="cite">MarquÃ©s &amp; Da Ronch Â§5.1</span>
     </p>
 
     <h3>The Four Dynamic Modes</h3>
@@ -617,21 +617,21 @@
         <tr>
           <td><strong>Short period</strong></td>
           <td>Fast pitch oscillation at roughly constant speed</td>
-          <td>1–5 seconds</td>
+          <td>1â€“5 seconds</td>
           <td>Well-damped (good)</td>
           <td>Must be stable for pilot/autopilot handling; bandwidth limits missile-avoidance manoeuvres</td>
         </tr>
         <tr>
           <td><strong>Phugoid</strong></td>
-          <td>Slow altitude/speed trade-off oscillation (nose up → slow → nose down → speed up → repeat)</td>
-          <td>30–200 seconds</td>
+          <td>Slow altitude/speed trade-off oscillation (nose up â†’ slow â†’ nose down â†’ speed up â†’ repeat)</td>
+          <td>30â€“200 seconds</td>
           <td>Lightly damped (tricky)</td>
           <td>Phugoid instability causes altitude excursions that can bring UAV into terrain or threat envelopes</td>
         </tr>
         <tr>
           <td><strong>Dutch roll</strong></td>
           <td>Coupled rolling and yawing oscillation</td>
-          <td>3–10 seconds</td>
+          <td>3â€“10 seconds</td>
           <td>Lightly damped (often problematic)</td>
           <td>Causes sensor-pointing jitter on ISR platforms; suppressed by yaw damper in FCC</td>
         </tr>
@@ -640,13 +640,13 @@
           <td>Slow diverging or converging bank angle change</td>
           <td>Very slow (100s+ seconds)</td>
           <td>Often mildly unstable</td>
-          <td>MALE UAVs often have unstable spiral — autopilot wing-leveller required for any unattended straight flight</td>
+          <td>MALE UAVs often have unstable spiral â€” autopilot wing-leveller required for any unattended straight flight</td>
         </tr>
       </tbody>
     </table>
 
     <div class="theorem-block">
-      <span class="theorem-label">Theorem 2.1 — Phugoid Frequency from Breguet's Approximation</span>
+      <span class="theorem-label">Theorem 2.1 â€” Phugoid Frequency from Breguet's Approximation</span>
       <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
         Lanchester's classical approximation for the phugoid natural frequency $\omega_{ph}$ depends
         only on trim speed, not on aerodynamic derivatives:
@@ -655,29 +655,29 @@
       <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
         <strong>Why it matters:</strong> At MQ-9 cruise speed $V_e \approx 70$ m/s:
         $\omega_{ph} \approx 9.81\sqrt{2}/70 \approx 0.198$ rad/s, giving $T_{ph} \approx 31.7$ s.
-        The phugoid period is very long — the aircraft slowly heaves up and down every 30 seconds.
+        The phugoid period is very long â€” the aircraft slowly heaves up and down every 30 seconds.
         For a 27-hour ISR mission, an unstabilised phugoid means the aircraft's altitude drifts
         by hundreds of metres repeatedly. The altitude hold autopilot loop must have a bandwidth
         well below 0.2 rad/s to close around this mode without exciting it.
-        <span class="cite">Marqués &amp; Da Ronch §5.2</span>
+        <span class="cite">MarquÃ©s &amp; Da Ronch Â§5.2</span>
       </p>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.6  TRIM CONDITIONS
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s6">
-    <h2>2.6 Trim Analysis — Finding Steady Flight Conditions</h2>
+    <h2>2.6 Trim Analysis â€” Finding Steady Flight Conditions</h2>
 
     <div class="plain-intro">
       <span class="pi-label">Plain English First</span>
       <p>
-        "Trim" means the aircraft is in a steady, unaccelerated flight condition — all forces
+        "Trim" means the aircraft is in a steady, unaccelerated flight condition â€” all forces
         and moments are exactly balanced so nothing is changing. Before you can design an autopilot,
         you must know the trim condition: what speed, what angle of attack, what elevator deflection,
         what throttle setting produce straight-and-level flight at the target altitude and airspeed?
-        Finding trim is a nonlinear root-finding problem — you're solving for the combination of
+        Finding trim is a nonlinear root-finding problem â€” you're solving for the combination of
         inputs that makes all six equations of motion equal to zero simultaneously.
       </p>
     </div>
@@ -685,24 +685,24 @@
     <p>
       Trim is defined by setting all accelerations and angular rates to zero in the 6-DOF equations.
       For steady wings-level flight at speed $V_e$ and altitude $h$:
-      <span class="cite">Marqués &amp; Da Ronch §6.1</span>
+      <span class="cite">MarquÃ©s &amp; Da Ronch Â§6.1</span>
     </p>
 
     <div class="math-block">
-      <span class="math-label">Trim Conditions — Steady Level Flight</span>
+      <span class="math-label">Trim Conditions â€” Steady Level Flight</span>
       $$\dot{u} = \dot{v} = \dot{w} = 0, \quad \dot{p} = \dot{q} = \dot{r} = 0$$
       $$\Rightarrow \quad C_L = \frac{2W}{\rho V_e^2 S}, \quad C_D = \frac{T_{trim}}{qS}, \quad C_m = 0$$
       $$\alpha_{trim} = \frac{C_L - C_{L_0}}{C_{L_\alpha}}, \quad \delta_{e,trim} = \frac{-C_{m_0} - C_{m_\alpha}\alpha_{trim}}{C_{m_{\delta_e}}}$$
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
         <strong>Interpretation:</strong> The trim lift coefficient is set by weight and speed (we need
         exactly enough lift). The trim elevator deflection is whatever is needed to make pitching
-        moment $C_m = 0$. Both depend on $\alpha_{trim}$ — the angle of attack at which the wing
+        moment $C_m = 0$. Both depend on $\alpha_{trim}$ â€” the angle of attack at which the wing
         produces the required lift. The trim algorithm solves these simultaneously.
       </p>
     </div>
 
     <div class="worked-example">
-      <span class="we-label">Worked Example 2.2 — Trim Computation for MQ-9 at 25,000 ft Cruise</span>
+      <span class="we-label">Worked Example 2.2 â€” Trim Computation for MQ-9 at 25,000 ft Cruise</span>
       <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
         Find the trim angle of attack and elevator deflection for the MQ-9 at $V_e = 70$ m/s,
         $h = 7620$ m, using representative aerodynamic coefficients.
@@ -713,42 +713,42 @@
           <tr><td>$C_{L_0}$</td><td>0.10</td><td>Estimated (camber effect at zero AoA)</td></tr>
           <tr><td>$C_{L_\alpha}$</td><td>5.5 /rad</td><td>Estimated from AR=20, $e$=0.85</td></tr>
           <tr><td>$C_{m_0}$</td><td>0.04</td><td>Estimated (slight nose-down at zero AoA)</td></tr>
-          <tr><td>$C_{m_\alpha}$</td><td>−0.85 /rad</td><td>Stable aircraft; cg aft of aerodynamic center</td></tr>
-          <tr><td>$C_{m_{\delta_e}}$</td><td>−1.2 /rad</td><td>Elevator effectiveness</td></tr>
-          <tr><td>Wing loading $W/S$</td><td>$4760\times9.81/16.84 = 2773$ N/m²</td><td>From published specs</td></tr>
-          <tr><td>$\rho$ at 7620 m</td><td>0.549 kg/m³</td><td>ISA table</td></tr>
+          <tr><td>$C_{m_\alpha}$</td><td>âˆ’0.85 /rad</td><td>Stable aircraft; cg aft of aerodynamic center</td></tr>
+          <tr><td>$C_{m_{\delta_e}}$</td><td>âˆ’1.2 /rad</td><td>Elevator effectiveness</td></tr>
+          <tr><td>Wing loading $W/S$</td><td>$4760\times9.81/16.84 = 2773$ N/mÂ²</td><td>From published specs</td></tr>
+          <tr><td>$\rho$ at 7620 m</td><td>0.549 kg/mÂ³</td><td>ISA table</td></tr>
         </tbody>
       </table>
       <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.75rem;">
-        <strong>Step 1 — Required lift coefficient:</strong>
+        <strong>Step 1 â€” Required lift coefficient:</strong>
         $$C_{L,trim} = \frac{2W/S}{\rho V_e^2} = \frac{2\times2773}{0.549\times70^2} = \frac{5546}{2690.1} = \mathbf{0.661}$$
-        <strong>Step 2 — Trim angle of attack:</strong>
-        $$\alpha_{trim} = \frac{C_{L,trim} - C_{L_0}}{C_{L_\alpha}} = \frac{0.661 - 0.10}{5.5} = \frac{0.561}{5.5} = \mathbf{0.102 \text{ rad} \approx 5.8°}$$
-        <strong>Step 3 — Trim elevator deflection:</strong>
-        $$\delta_{e,trim} = \frac{-C_{m_0} - C_{m_\alpha}\alpha_{trim}}{C_{m_{\delta_e}}} = \frac{-0.04 - (-0.85)(0.102)}{-1.2} = \frac{-0.04 + 0.0867}{-1.2} = \frac{0.0467}{-1.2} = \mathbf{-0.039 \text{ rad} \approx -2.2°}$$
-        <strong>Interpretation:</strong> The MQ-9 at 25,000 ft cruise needs about 5.8° nose-up
-        angle of attack (typical for efficient cruise) and about 2.2° elevator trailing-edge-up
-        deflection to maintain level flight. The elevator deflection is small — well within the
-        ±20° range — indicating a well-designed aircraft in its intended operating envelope.
+        <strong>Step 2 â€” Trim angle of attack:</strong>
+        $$\alpha_{trim} = \frac{C_{L,trim} - C_{L_0}}{C_{L_\alpha}} = \frac{0.661 - 0.10}{5.5} = \frac{0.561}{5.5} = \mathbf{0.102 \text{ rad} \approx 5.8Â°}$$
+        <strong>Step 3 â€” Trim elevator deflection:</strong>
+        $$\delta_{e,trim} = \frac{-C_{m_0} - C_{m_\alpha}\alpha_{trim}}{C_{m_{\delta_e}}} = \frac{-0.04 - (-0.85)(0.102)}{-1.2} = \frac{-0.04 + 0.0867}{-1.2} = \frac{0.0467}{-1.2} = \mathbf{-0.039 \text{ rad} \approx -2.2Â°}$$
+        <strong>Interpretation:</strong> The MQ-9 at 25,000 ft cruise needs about 5.8Â° nose-up
+        angle of attack (typical for efficient cruise) and about 2.2Â° elevator trailing-edge-up
+        deflection to maintain level flight. The elevator deflection is small â€” well within the
+        Â±20Â° range â€” indicating a well-designed aircraft in its intended operating envelope.
       </p>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.7  MULTIROTOR DYNAMICS
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s7">
-    <h2>2.7 Multirotor Dynamics — The Quadrotor Model</h2>
+    <h2>2.7 Multirotor Dynamics â€” The Quadrotor Model</h2>
 
     <div class="plain-intro">
       <span class="pi-label">Plain English First</span>
       <p>
         A quadrotor has four propellers and no control surfaces. It manoeuvres entirely
-        by changing how fast each rotor spins — spin some faster, others slower.
+        by changing how fast each rotor spins â€” spin some faster, others slower.
         This is much simpler mechanically than a helicopter with collective pitch and swashplates,
         but the control problem is tricky: you need to control 6 degrees of freedom with only
         4 independent actuators. The good news is that three of the six (altitude, roll, pitch)
-        are directly controllable. The bad news is that the platform is inherently unstable —
+        are directly controllable. The bad news is that the platform is inherently unstable â€”
         without active control updating at 100+ Hz, it flips over in about 0.1 seconds.
       </p>
     </div>
@@ -757,28 +757,28 @@
     <p>
       Each rotor $i$ spinning at rate $\Omega_i$ [rad/s] produces thrust $T_i$ upward and
       a reaction torque $\tau_i$ opposing rotation. These are modelled as:
-      <span class="cite">Bestaoui Sebbane §2.4</span>
+      <span class="cite">Bestaoui Sebbane Â§2.4</span>
     </p>
     <div class="math-block">
       <span class="math-label">Rotor Thrust and Torque Model</span>
       $$T_i = k_T \Omega_i^2, \qquad \tau_i = k_M \Omega_i^2$$
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
-        $k_T$: thrust coefficient [N·s²/rad²] — depends on rotor geometry and blade pitch.
-        $k_M$: torque coefficient [N·m·s²/rad²] — typically $k_M/k_T \approx 0.01$–$0.02$.
-        Both scale with $\Omega^2$ — doubling rotor speed quadruples thrust. This nonlinear
+        $k_T$: thrust coefficient [NÂ·sÂ²/radÂ²] â€” depends on rotor geometry and blade pitch.
+        $k_M$: torque coefficient [NÂ·mÂ·sÂ²/radÂ²] â€” typically $k_M/k_T \approx 0.01$â€“$0.02$.
+        Both scale with $\Omega^2$ â€” doubling rotor speed quadruples thrust. This nonlinear
         relationship means the control inputs (desired thrust/torque) must be square-rooted
         to get the commanded motor speeds. This is the "control allocation" problem.
       </p>
     </div>
 
-    <h3>Control Allocation — X-Configuration Quadrotor</h3>
+    <h3>Control Allocation â€” X-Configuration Quadrotor</h3>
     <p>
       In an X-configuration quadrotor, opposite rotors spin in the same direction.
       The full mapping from rotor speeds to vehicle forces and moments is:
-      <span class="cite">Bestaoui Sebbane §2.5</span>
+      <span class="cite">Bestaoui Sebbane Â§2.5</span>
     </p>
     <div class="math-block">
-      <span class="math-label">Control Allocation Matrix — X-Configuration Quadrotor</span>
+      <span class="math-label">Control Allocation Matrix â€” X-Configuration Quadrotor</span>
       $$\begin{pmatrix}T_{total}\\L\\M\\N\end{pmatrix} =
         \underbrace{\begin{pmatrix}
           k_T  & k_T  & k_T  & k_T \\
@@ -789,19 +789,19 @@
         \begin{pmatrix}\Omega_1^2\\\Omega_2^2\\\Omega_3^2\\\Omega_4^2\end{pmatrix}$$
       <p style="font-size:0.88rem; color:var(--text-secondary); margin:0.6rem 0 0.4rem;">
         $l$: arm length from centre to rotor [m]. Row 1: total thrust (all rotors contribute equally).
-        Rows 2–3: roll and pitch moments (differential thrust between opposing pairs).
-        Row 4: yaw moment (differential reaction torque — clockwise vs counter-clockwise pairs).
+        Rows 2â€“3: roll and pitch moments (differential thrust between opposing pairs).
+        Row 4: yaw moment (differential reaction torque â€” clockwise vs counter-clockwise pairs).
       </p>
       <p style="font-size:0.85rem; color:var(--text-muted);">
         <strong>Inversion:</strong> To find the rotor speeds needed for a desired $(T, L, M, N)$:
         $\boldsymbol{\Omega}^2 = \mathbf{B}^{-1}(T, L, M, N)^T$. Then take element-wise square roots.
         If any $\Omega_i^2 < 0$, the demanded force/moment combination is physically impossible
-        for this platform — it cannot be achieved.
+        for this platform â€” it cannot be achieved.
       </p>
     </div>
 
     <div class="worked-example">
-      <span class="we-label">Worked Example 2.3 — Single Rotor Failure: What Remains Controllable?</span>
+      <span class="we-label">Worked Example 2.3 â€” Single Rotor Failure: What Remains Controllable?</span>
       <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
         Rotor 1 ($\Omega_1 = 0$) fails completely. What force/moment combinations are still achievable?
         This matters for military UAVs operating in environments where rotors are vulnerable to hits.
@@ -809,20 +809,20 @@
       <p style="font-size:0.9rem; color:var(--text-secondary);">
         With $\Omega_1 = 0$, the control matrix effectively loses its first column. The remaining
         three rotors $(\Omega_2, \Omega_3, \Omega_4)$ provide only <em>three</em> independent
-        inputs for <em>four</em> outputs — the system is now under-actuated.
+        inputs for <em>four</em> outputs â€” the system is now under-actuated.
       </p>
       <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
         <strong>What's lost:</strong> The ability to independently control roll, pitch, yaw, and
         altitude simultaneously. Specifically: with $\Omega_1 = 0$, generating roll left (reducing
         rotor 4, increasing rotor 2) simultaneously changes the yaw moment in a fixed relationship.
-        Roll and yaw become coupled — you cannot change one without changing the other.
+        Roll and yaw become coupled â€” you cannot change one without changing the other.
       </p>
       <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
         <strong>What remains possible:</strong> Research (notably Mueller &amp; D'Andrea 2014) shows
         that a quadrotor can still land safely with one rotor failed if it accepts continuous
-        spinning about the yaw axis (body spin). The vehicle descends while spinning — controllable
+        spinning about the yaw axis (body spin). The vehicle descends while spinning â€” controllable
         altitude and lateral position, but not heading. This is implemented in PX4 as the
-        "motor failure landing" mode. <span class="cite">Bestaoui Sebbane §2.6</span>
+        "motor failure landing" mode. <span class="cite">Bestaoui Sebbane Â§2.6</span>
       </p>
     </div>
 
@@ -836,18 +836,18 @@
       $$T_{hover} = mg \quad \Rightarrow \quad 4k_T\Omega_{hover}^2 = mg
         \quad \Rightarrow \quad \Omega_{hover} = \sqrt{\frac{mg}{4k_T}}$$
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
-        For a 1.5 kg quadrotor with $k_T = 2.9\times10^{-5}$ N·s²/rad²:
+        For a 1.5 kg quadrotor with $k_T = 2.9\times10^{-5}$ NÂ·sÂ²/radÂ²:
         $\Omega_{hover} = \sqrt{1.5\times9.81/(4\times2.9\times10^{-5})} \approx 356$ rad/s $\approx 3,400$ RPM.
         The linearised hover dynamics show that the translational modes are <strong>unstable</strong>
-        (a displaced quadrotor accelerates away from its position unless actively corrected) —
+        (a displaced quadrotor accelerates away from its position unless actively corrected) â€”
         hence the need for position hold loops running at 100+ Hz.
       </p>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.8  PYTHON SIMULATION
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s8">
     <h2>2.8 Python: Full 6-DOF Quadrotor Simulator with Trim Solver</h2>
 
@@ -863,19 +863,19 @@
     <div class="code-block">
       <span class="code-lang">Python</span>
       <pre><span class="cm"># quadrotor_6dof.py
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Full 6-DOF quadrotor flight dynamics simulator.
-# Implements: Bestaoui Sebbane §2.4–2.6, Marqués & Da Ronch §3.3–3.5
+# Implements: Bestaoui Sebbane Â§2.4â€“2.6, MarquÃ©s & Da Ronch Â§3.3â€“3.5
 # Attitude representation: unit quaternions (singularity-free)
 # Integrator: scipy RK45 (adaptive step-size)
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 </span>
 <span class="kw">import</span> numpy <span class="kw">as</span> np
 <span class="kw">from</span> scipy.integrate <span class="kw">import</span> solve_ivp
 <span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
 
 
-<span class="cm"># ── Physical Parameters ──────────────────────────────────────────</span>
+<span class="cm"># â”€â”€ Physical Parameters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</span>
 <span class="kw">@dataclass</span>
 <span class="kw">class</span> <span class="tp">QuadrotorParams</span>:
     <span class="st">"""
@@ -883,21 +883,21 @@
     Representative of a military Group 1 platform.
     """</span>
     m:     float = <span class="nm">1.5</span>      <span class="cm"># mass [kg]</span>
-    g:     float = <span class="nm">9.80665</span> <span class="cm"># gravity [m/s²]</span>
-    Ixx:   float = <span class="nm">0.0348</span>  <span class="cm"># roll moment of inertia [kg·m²]</span>
-    Iyy:   float = <span class="nm">0.0348</span>  <span class="cm"># pitch moment of inertia [kg·m²]</span>
-    Izz:   float = <span class="nm">0.0717</span>  <span class="cm"># yaw moment of inertia [kg·m²]</span>
-    k_T:   float = <span class="nm">2.9e-5</span>  <span class="cm"># thrust coefficient [N·s²/rad²]</span>
-    k_M:   float = <span class="nm">5.0e-7</span>  <span class="cm"># torque coefficient [N·m·s²/rad²]</span>
+    g:     float = <span class="nm">9.80665</span> <span class="cm"># gravity [m/sÂ²]</span>
+    Ixx:   float = <span class="nm">0.0348</span>  <span class="cm"># roll moment of inertia [kgÂ·mÂ²]</span>
+    Iyy:   float = <span class="nm">0.0348</span>  <span class="cm"># pitch moment of inertia [kgÂ·mÂ²]</span>
+    Izz:   float = <span class="nm">0.0717</span>  <span class="cm"># yaw moment of inertia [kgÂ·mÂ²]</span>
+    k_T:   float = <span class="nm">2.9e-5</span>  <span class="cm"># thrust coefficient [NÂ·sÂ²/radÂ²]</span>
+    k_M:   float = <span class="nm">5.0e-7</span>  <span class="cm"># torque coefficient [NÂ·mÂ·sÂ²/radÂ²]</span>
     l_arm: float = <span class="nm">0.23</span>    <span class="cm"># arm length (centre to rotor) [m]</span>
 
 
 <span class="kw">def</span> <span class="fn">control_allocation_matrix</span>(p: QuadrotorParams) -> np.ndarray:
     <span class="st">"""
-    Build 4×4 control allocation matrix B.
-    Maps [Ω1², Ω2², Ω3², Ω4²] → [Thrust, Roll moment, Pitch moment, Yaw moment].
+    Build 4Ã—4 control allocation matrix B.
+    Maps [Î©1Â², Î©2Â², Î©3Â², Î©4Â²] â†’ [Thrust, Roll moment, Pitch moment, Yaw moment].
     X-configuration: rotors 1,3 CW; rotors 2,4 CCW.
-    Bestaoui Sebbane §2.5
+    Bestaoui Sebbane Â§2.5
     """</span>
     kT, kM, l = p.k_T, p.k_M, p.l_arm
     B = np.array([
@@ -912,7 +912,7 @@
 <span class="kw">def</span> <span class="fn">hover_trim</span>(p: QuadrotorParams) -> np.ndarray:
     <span class="st">"""
     Compute hover trim rotor speeds (all equal).
-    From: 4*k_T*Ω² = m*g  →  Ω = sqrt(m*g / (4*k_T))
+    From: 4*k_T*Î©Â² = m*g  â†’  Î© = sqrt(m*g / (4*k_T))
     """</span>
     omega_sq_each = p.m * p.g / (<span class="nm">4</span> * p.k_T)
     <span class="kw">return</span> np.sqrt(omega_sq_each) * np.ones(<span class="nm">4</span>)   <span class="cm"># [rad/s]</span>
@@ -921,7 +921,7 @@
 <span class="kw">def</span> <span class="fn">quat_kinematics</span>(q: np.ndarray, omega: np.ndarray) -> np.ndarray:
     <span class="st">"""
     Quaternion kinematics: dq/dt = 0.5 * Xi(q) * omega
-    Marqués & Da Ronch §3.7 — singularity-free attitude propagation.
+    MarquÃ©s & Da Ronch Â§3.7 â€” singularity-free attitude propagation.
 
     q     : unit quaternion [q0, q1, q2, q3]
     omega : body angular velocity [p, q, r] rad/s
@@ -929,7 +929,7 @@
     q0, q1, q2, q3 = q
     p_r, q_r, r_r  = omega
 
-    <span class="cm"># Xi matrix (4×3)</span>
+    <span class="cm"># Xi matrix (4Ã—3)</span>
     Xi = np.array([
         [-q1, -q2, -q3],
         [ q0, -q3,  q2],
@@ -940,7 +940,7 @@
 
 
 <span class="kw">def</span> <span class="fn">quat_to_rotation_matrix</span>(q: np.ndarray) -> np.ndarray:
-    <span class="st">"""Convert unit quaternion to 3×3 rotation matrix (body → world)."""</span>
+    <span class="st">"""Convert unit quaternion to 3Ã—3 rotation matrix (body â†’ world)."""</span>
     q0, q1, q2, q3 = q
     <span class="kw">return</span> np.array([
         [<span class="nm">1</span>-<span class="nm">2</span>*(q2**<span class="nm">2</span>+q3**<span class="nm">2</span>),   <span class="nm">2</span>*(q1*q2-q0*q3),   <span class="nm">2</span>*(q1*q3+q0*q2)],
@@ -954,11 +954,11 @@
     6-DOF quadrotor equations of motion in body frame.
     State vector (13 elements):
       [0:3]  = position (x, y, z) in world NED frame [m]
-      [3:7]  = quaternion (q0, q1, q2, q3) — body → world rotation
+      [3:7]  = quaternion (q0, q1, q2, q3) â€” body â†’ world rotation
       [7:10] = velocity (vx, vy, vz) in world frame [m/s]
       [10:13]= angular velocity (p, q, r) in body frame [rad/s]
 
-    Marqués & Da Ronch §3.4–3.5, Bestaoui Sebbane §2.4
+    MarquÃ©s & Da Ronch Â§3.4â€“3.5, Bestaoui Sebbane Â§2.4
     """</span>
     p_state = params
 
@@ -967,16 +967,16 @@
     vel_w = state[<span class="nm">7</span>:<span class="nm">10</span>]  <span class="cm"># velocity in world</span>
     omega = state[<span class="nm">10</span>:<span class="nm">13</span>] <span class="cm"># angular velocity in body [p, q, r]</span>
 
-    <span class="cm"># ── Control allocation ───────────────────────────────────────</span>
+    <span class="cm"># â”€â”€ Control allocation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</span>
     B      = control_allocation_matrix(p_state)
     omega2 = rotor_speeds**<span class="nm">2</span>                  <span class="cm"># square of each rotor speed</span>
     forces = B @ omega2                         <span class="cm"># [Thrust, L, M, N]</span>
     T_total, L_mom, M_mom, N_mom = forces
 
-    <span class="cm"># ── Rotation matrix body → world ─────────────────────────────</span>
+    <span class="cm"># â”€â”€ Rotation matrix body â†’ world â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</span>
     R = quat_to_rotation_matrix(q_att)
 
-    <span class="cm"># ── Translational dynamics (world frame) ─────────────────────</span>
+    <span class="cm"># â”€â”€ Translational dynamics (world frame) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</span>
     <span class="cm"># Thrust vector acts along body z-axis (upward in body = -z in NED)</span>
     thrust_world = R @ np.array([<span class="nm">0</span>, <span class="nm">0</span>, T_total])  <span class="cm"># rotate to world</span>
     gravity_world = np.array([<span class="nm">0</span>, <span class="nm">0</span>, p_state.m * p_state.g])  <span class="cm"># downward</span>
@@ -984,11 +984,11 @@
     d_pos = vel_w
     d_vel = (thrust_world - gravity_world) / p_state.m
 
-    <span class="cm"># ── Quaternion kinematics ────────────────────────────────────</span>
+    <span class="cm"># â”€â”€ Quaternion kinematics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</span>
     d_q = quat_kinematics(q_att, omega)
 
-    <span class="cm"># ── Rotational dynamics — Euler's equations (body frame) ─────</span>
-    <span class="cm"># Marqués & Da Ronch §3.5</span>
+    <span class="cm"># â”€â”€ Rotational dynamics â€” Euler's equations (body frame) â”€â”€â”€â”€â”€</span>
+    <span class="cm"># MarquÃ©s & Da Ronch Â§3.5</span>
     p_r, q_r, r_r = omega
     Ixx, Iyy, Izz = p_state.Ixx, p_state.Iyy, p_state.Izz
 
@@ -1012,7 +1012,7 @@
     q0_init = np.array([<span class="nm">1.0</span>, <span class="nm">0.0</span>, <span class="nm">0.0</span>, <span class="nm">0.0</span>])  <span class="cm"># identity quaternion = level</span>
 
     <span class="kw">if</span> perturb:
-        <span class="cm"># 5° roll perturbation to show open-loop instability</span>
+        <span class="cm"># 5Â° roll perturbation to show open-loop instability</span>
         phi_perturb = np.radians(<span class="nm">5.0</span>)
         q0_init = np.array([np.cos(phi_perturb/<span class="nm">2</span>), np.sin(phi_perturb/<span class="nm">2</span>), <span class="nm">0</span>, <span class="nm">0</span>])
 
@@ -1033,7 +1033,7 @@
         state0,
         args=(omega_trim, params),
         method=<span class="st">'RK45'</span>,
-        max_step=<span class="nm">0.01</span>,     <span class="cm"># 100 Hz max — matches flight controller rate</span>
+        max_step=<span class="nm">0.01</span>,     <span class="cm"># 100 Hz max â€” matches flight controller rate</span>
         rtol=<span class="nm">1e-6</span>,
         atol=<span class="nm">1e-8</span>,
         dense_output=<span class="kw">True</span>,
@@ -1050,12 +1050,12 @@
     theta_f = np.degrees(np.arcsin(<span class="nm">2</span>*(q0*q2-q3*q1)))
     psi_f   = np.degrees(np.arctan2(<span class="nm">2</span>*(q0*q3+q1*q2), <span class="nm">1</span>-<span class="nm">2</span>*(q2**<span class="nm">2</span>+q3**<span class="nm">2</span>)))
 
-    print(<span class="st">f"Simulation: {'PERTURBED (5° roll)' if perturb else 'NOMINAL HOVER'}"</span>)
+    print(<span class="st">f"Simulation: {'PERTURBED (5Â° roll)' if perturb else 'NOMINAL HOVER'}"</span>)
     print(<span class="st">f"  Duration:         {t_end} s  ({len(sol.t)} solver steps)"</span>)
     print(<span class="st">f"  Final position:   x={pos_final[0]:.4f}, y={pos_final[1]:.4f}, z={pos_final[2]:.4f} m"</span>)
-    print(<span class="st">f"  Final attitude:   φ={phi_f:.3f}°, θ={theta_f:.3f}°, ψ={psi_f:.3f}°"</span>)
+    print(<span class="st">f"  Final attitude:   Ï†={phi_f:.3f}Â°, Î¸={theta_f:.3f}Â°, Ïˆ={psi_f:.3f}Â°"</span>)
     print(<span class="st">f"  Quaternion norm:  {q_norm:.8f}  (should be 1.0)"</span>)
-    print(<span class="st">f"  Altitude drift:   {abs(pos_final[2]):.4f} m  (should be ≈ 0)"</span>)
+    print(<span class="st">f"  Altitude drift:   {abs(pos_final[2]):.4f} m  (should be â‰ˆ 0)"</span>)
     <span class="kw">return</span> sol
 
 
@@ -1063,57 +1063,57 @@
     p = QuadrotorParams()
 
     print(<span class="st">"\n" + "="*52</span>)
-    print(<span class="st">"  QUADROTOR 6-DOF SIMULATION — HOVER VALIDATION"</span>)
+    print(<span class="st">"  QUADROTOR 6-DOF SIMULATION â€” HOVER VALIDATION"</span>)
     print(<span class="st">"="*52</span>)
 
-    <span class="cm"># Test 1: Perfect hover — should stay at origin</span>
-    print(<span class="st">"\n[TEST 1 — Perfect Hover Trim]"</span>)
+    <span class="cm"># Test 1: Perfect hover â€” should stay at origin</span>
+    print(<span class="st">"\n[TEST 1 â€” Perfect Hover Trim]"</span>)
     sol1 = run_simulation(p, t_end=<span class="nm">5.0</span>, perturb=<span class="kw">False</span>)
 
-    <span class="cm"># Test 2: Perturbed hover — shows open-loop instability</span>
-    print(<span class="st">"\n[TEST 2 — 5° Roll Perturbation, No Controller]"</span>)
+    <span class="cm"># Test 2: Perturbed hover â€” shows open-loop instability</span>
+    print(<span class="st">"\n[TEST 2 â€” 5Â° Roll Perturbation, No Controller]"</span>)
     sol2 = run_simulation(p, t_end=<span class="nm">2.0</span>, perturb=<span class="kw">True</span>)
 
-    print(<span class="st">"\n[GYROSCOPIC COUPLING CHECK — Euler's Equations]"</span>)
+    print(<span class="st">"\n[GYROSCOPIC COUPLING CHECK â€” Euler's Equations]"</span>)
     p_rate = <span class="nm">0.3</span>   <span class="cm"># pitch rate [rad/s]</span>
     r_rate = <span class="nm">0.2</span>   <span class="cm"># yaw rate [rad/s]</span>
     roll_accel = (p.Iyy - p.Izz) * p_rate * r_rate / p.Ixx
     print(<span class="st">f"  With q={p_rate} rad/s, r={r_rate} rad/s (no applied roll moment):"</span>)
-    print(<span class="st">f"  Parasitic roll acceleration = {roll_accel:.4f} rad/s²  ({np.degrees(roll_accel):.2f} °/s²)"</span>)
-    print(<span class="st">f"  Roll rate after 2s = {roll_accel*2:.3f} rad/s  ({np.degrees(roll_accel*2):.1f} °/s)"</span>)
-    print(<span class="st">f"  → This is why pitch+yaw manoeuvres MUST cross-feed the roll axis."</span>)</pre>
+    print(<span class="st">f"  Parasitic roll acceleration = {roll_accel:.4f} rad/sÂ²  ({np.degrees(roll_accel):.2f} Â°/sÂ²)"</span>)
+    print(<span class="st">f"  Roll rate after 2s = {roll_accel*2:.3f} rad/s  ({np.degrees(roll_accel*2):.1f} Â°/s)"</span>)
+    print(<span class="st">f"  â†’ This is why pitch+yaw manoeuvres MUST cross-feed the roll axis."</span>)</pre>
     </div>
 
     <div class="callout success">
       <span class="callout-title">Expected Output</span>
-      Hover trim speed: ~356 rad/s (3,400 RPM) ·
-      Test 1 final position: ≈ (0, 0, 0) m · Altitude drift &lt;0.001 m · Quaternion norm: 1.00000000 ·
-      Test 2 (perturbed): position drifts noticeably within 2s — demonstrating open-loop instability ·
-      Gyroscopic roll accel: −0.0400 rad/s² (−2.29 °/s²)
+      Hover trim speed: ~356 rad/s (3,400 RPM) Â·
+      Test 1 final position: â‰ˆ (0, 0, 0) m Â· Altitude drift &lt;0.001 m Â· Quaternion norm: 1.00000000 Â·
+      Test 2 (perturbed): position drifts noticeably within 2s â€” demonstrating open-loop instability Â·
+      Gyroscopic roll accel: âˆ’0.0400 rad/sÂ² (âˆ’2.29 Â°/sÂ²)
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        2.9  REFLECTION
-       ═══════════════════════════════════════════════ -->
+       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="module-section section-anchor" id="s9">
     <div class="reflection-box"
-      data-guidance="Q1: The Coriolis terms arise because we're writing Newton's 2nd law in a rotating (non-inertial) frame. In an inertial frame, F=ma is simple. In a rotating frame, there are fictitious forces. For the body frame of a pitching+rolling aircraft, the term (qw-rv) in the x-equation represents how yaw rate r and heave velocity w combine to produce a 'virtual' forward force, and how pitch rate q and heave velocity couple. Physically: if you have heave velocity w (sinking) and you're yawing at rate r, the nose of the aircraft swings through an arc, creating a forward acceleration component. This coupling is what makes 6-DOF aircraft dynamics fundamentally nonlinear — you can't design roll/pitch/yaw controllers independently.
+      data-guidance="Q1: The Coriolis terms arise because we're writing Newton's 2nd law in a rotating (non-inertial) frame. In an inertial frame, F=ma is simple. In a rotating frame, there are fictitious forces. For the body frame of a pitching+rolling aircraft, the term (qw-rv) in the x-equation represents how yaw rate r and heave velocity w combine to produce a 'virtual' forward force, and how pitch rate q and heave velocity couple. Physically: if you have heave velocity w (sinking) and you're yawing at rate r, the nose of the aircraft swings through an arc, creating a forward acceleration component. This coupling is what makes 6-DOF aircraft dynamics fundamentally nonlinear â€” you can't design roll/pitch/yaw controllers independently.
 
-Q2: Gimbal lock at theta=90 degrees. tan(90°)=infinity and 1/cos(90°)=infinity. For a UAV performing a vertical climb or a steep ISR dive, theta can easily reach 85-90 degrees. The quaternion avoids this because it represents orientation as a rotation about an axis — a concept that has no singularity, just as you can always describe any orientation of a sphere by saying 'rotate the reference by angle X about axis [nx,ny,nz]'. The unit norm constraint (sum of squares = 1) keeps the representation consistent.
+Q2: Gimbal lock at theta=90 degrees. tan(90Â°)=infinity and 1/cos(90Â°)=infinity. For a UAV performing a vertical climb or a steep ISR dive, theta can easily reach 85-90 degrees. The quaternion avoids this because it represents orientation as a rotation about an axis â€” a concept that has no singularity, just as you can always describe any orientation of a sphere by saying 'rotate the reference by angle X about axis [nx,ny,nz]'. The unit norm constraint (sum of squares = 1) keeps the representation consistent.
 
-Q3: From the control allocation matrix, yaw is controlled by differential torque (row 4). For a symmetric X-config, yaw = k_M*(−Ω1²−Ω2²+Ω3²+Ω4²). With Ω1=0 forced, the remaining degrees of freedom are Ω2, Ω3, Ω4 — three unknowns for four equations. The system is underdetermined for independent roll/pitch/yaw/thrust control. The Mueller&D'Andrea solution: sacrifice heading (allow free spin) and use the three remaining rotors to control only altitude, x-position, and y-position. Heading becomes uncontrolled but predictably spinning.">
+Q3: From the control allocation matrix, yaw is controlled by differential torque (row 4). For a symmetric X-config, yaw = k_M*(âˆ’Î©1Â²âˆ’Î©2Â²+Î©3Â²+Î©4Â²). With Î©1=0 forced, the remaining degrees of freedom are Î©2, Î©3, Î©4 â€” three unknowns for four equations. The system is underdetermined for independent roll/pitch/yaw/thrust control. The Mueller&D'Andrea solution: sacrifice heading (allow free spin) and use the three remaining rotors to control only altitude, x-position, and y-position. Heading becomes uncontrolled but predictably spinning.">
       <ol>
         <li>
           The Coriolis terms $(qw-rv)$, $(ru-pw)$, $(pv-qu)$ appear in the body-frame
-          force equations. Explain physically why these terms exist — what does each product
+          force equations. Explain physically why these terms exist â€” what does each product
           of velocity and angular rate represent? Why does this mean roll, pitch, and yaw
           controllers on a UAV cannot be designed independently? Trace through one specific
           term and explain its physical origin using your own words.
         </li>
         <li>
           Show algebraically why the Euler angle kinematic equations develop a singularity at
-          $\theta = \pm90°$. Then explain geometrically why quaternions do not have this problem.
+          $\theta = \pm90Â°$. Then explain geometrically why quaternions do not have this problem.
           For a military UAV performing a vertical dive attack (terminal phase of a loitering
           munition), at what pitch angle does gimbal lock first become numerically dangerous
           in practice, and what failsafe do flight computers implement?
@@ -1131,28 +1131,38 @@ Q3: From the control allocation matrix, yaw is controlled by differential torque
 
   <!-- MODULE NAVIGATION -->
   <div style="display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
-    <a href="m01-uav-systems.html" class="btn-secondary" style="font-size:0.75rem;">◂ Module 01: UAV Systems</a>
-    <a href="m03-gnc-fundamentals.html" class="btn-primary" style="font-size:0.75rem;">Module 03: GNC Fundamentals ▸</a>
+    <a href="m01-uav-systems.html" class="btn-secondary" style="font-size:0.75rem;">â—‚ Module 01: UAV Systems</a>
+    <a href="m03-gnc-fundamentals.html" class="btn-primary" style="font-size:0.75rem;">Module 03: GNC Fundamentals â–¸</a>
   </div>
 
 </div><!-- end module-page -->
 
 <footer>
-  <p>AEROKNOW · Module 02 · Flight Dynamics ·
-  Marqués &amp; Da Ronch §3–6 · Sadraey §4 · Bestaoui Sebbane §2</p>
+  <p>AEROKNOW Â· Module 02 Â· Flight Dynamics Â·
+  MarquÃ©s &amp; Da Ronch Â§3â€“6 Â· Sadraey Â§4 Â· Bestaoui Sebbane Â§2</p>
 </footer>
 
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/quiz.js"></script>
 <script>
-  /* ── Section Jump Bar ── */
+  function runAfterMathJaxTypeset(callback) {
+    const mj = window.MathJax;
+    if (!mj || !mj.startup || !mj.startup.promise) {
+      callback();
+      return;
+    }
+
+    mj.startup.promise.then(() => callback()).catch(() => callback());
+  }
+
+  /* â”€â”€ Section Jump Bar â”€â”€ */
   function jumpTo(id) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
     event.currentTarget.classList.add('active');
   }
 
-  /* ── Auto-highlight active section on scroll ── */
+  /* â”€â”€ Auto-highlight active section on scroll â”€â”€ */
   const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
   const buttons  = document.querySelectorAll('.jump-btn');
 
@@ -1171,6 +1181,13 @@ Q3: From the control allocation matrix, yaw is controlled by differential torque
   sections.forEach(id => {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
+  });
+
+  // Hook for equation visualizers to start after MathJax typesetting.
+  runAfterMathJaxTypeset(() => {
+    window.dispatchEvent(new CustomEvent('aeroknow:mathjax-ready', {
+      detail: { page: 'm02-flight-dynamics' }
+    }));
   });
 </script>
 </body>

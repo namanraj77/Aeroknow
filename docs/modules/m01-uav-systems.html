@@ -114,8 +114,8 @@
 
     .jump-label {
       font-family: var(--font-mono);
-      font-size: 0.58rem;
-      color: var(--text-muted);
+      font-size: 0.64rem;
+      color: var(--text-secondary);
       letter-spacing: 0.15em;
       text-transform: uppercase;
       padding: 0 0.75rem 0 0;
@@ -129,9 +129,9 @@
       background: transparent;
       border: none;
       border-bottom: 2px solid transparent;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       font-family: var(--font-mono);
-      font-size: 0.65rem;
+      font-size: 0.72rem;
       letter-spacing: 0.06em;
       padding: 0 0.85rem;
       height: 42px;
@@ -151,7 +151,20 @@
     .jump-btn .jb-num {
       color: var(--accent-green);
       margin-right: 0.3rem;
-      font-size: 0.58rem;
+      font-size: 0.62rem;
+    }
+
+    html[data-theme="light"] .section-jump {
+      background: rgba(248, 252, 255, 0.96);
+      border-bottom-color: rgba(0,126,167,0.22);
+    }
+    html[data-theme="light"] .jump-label,
+    html[data-theme="light"] .jump-btn {
+      color: #1f4250;
+    }
+    html[data-theme="light"] .jump-btn.active {
+      color: #007ea7;
+      border-bottom-color: #007ea7;
     }
 
     /* ── Analogy highlight ── */
@@ -184,6 +197,106 @@
     /* ── Section scroll target offset ── */
     .section-anchor {
       scroll-margin-top: 105px;
+    }
+
+    /* ── Interactive subsystem explorer ── */
+    .subsystem-explorer {
+      margin: 1.4rem 0 1.8rem;
+      border: 1px solid var(--border-dim);
+      background: rgba(0, 212, 255, 0.02);
+      padding: 1rem;
+    }
+    .subsystem-explorer-title {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .subsystem-explorer-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .subsystem-figure {
+      background: #020b12;
+      border: 1px solid var(--border-panel);
+      padding: 0.7rem;
+    }
+    .subsystem-figure svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .subsystem-body { fill: rgba(0, 212, 255, 0.1); stroke: rgba(0, 212, 255, 0.4); stroke-width: 1.5; }
+    .subsystem-panel-line { stroke: rgba(0, 212, 255, 0.24); stroke-width: 1; }
+    .subsystem-detail { fill: rgba(0, 255, 157, 0.08); stroke: rgba(0, 255, 157, 0.45); stroke-width: 1.2; }
+    .subsystem-hotspot {
+      fill: rgba(0, 212, 255, 0.16);
+      stroke: rgba(0, 212, 255, 0.88);
+      stroke-width: 1.6;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .subsystem-hotspot:hover,
+    .subsystem-hotspot.active {
+      fill: rgba(0, 255, 157, 0.2);
+      stroke: rgba(0, 255, 157, 0.95);
+    }
+    .subsystem-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.7rem;
+    }
+    .subsystem-chip {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-dim);
+      background: transparent;
+      padding: 0.22rem 0.48rem;
+      cursor: pointer;
+    }
+    .subsystem-chip:hover,
+    .subsystem-chip.active {
+      color: var(--accent-primary);
+      border-color: var(--border-bright);
+      background: rgba(0, 212, 255, 0.07);
+    }
+    .subsystem-panel {
+      border: 1px solid var(--border-dim);
+      background: rgba(0, 212, 255, 0.03);
+      padding: 0.9rem 1rem;
+    }
+    .subsystem-panel h4 {
+      margin: 0 0 0.45rem;
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-family: var(--font-display);
+    }
+    .subsystem-role {
+      margin: 0.38rem 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+    .subsystem-role strong {
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-right: 0.3rem;
+    }
+    @media (max-width: 900px) {
+      .subsystem-explorer-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -555,6 +668,46 @@
         For ISR UAVs, the primary design goal is <em>endurance</em> (staying up as long as possible)
         and <em>sensor coverage</em> (seeing as much ground as possible). Speed matters much less.
       </p>
+    </div>
+
+    <div class="subsystem-explorer">
+      <div class="subsystem-explorer-title">Interactive Subsystem Explorer</div>
+      <div class="subsystem-explorer-grid">
+        <div class="subsystem-figure">
+          <svg viewBox="0 0 780 320" role="img" aria-label="Generic military UAV subsystem diagram">
+            <title>Generic Military UAV</title>
+            <path class="subsystem-body" d="M85 170 L180 150 L360 145 L590 140 L680 150 L710 160 L680 170 L592 180 L360 176 L180 186 Z"></path>
+            <path class="subsystem-detail" d="M300 155 L430 152 L430 169 L300 171 Z"></path>
+            <path class="subsystem-detail" d="M146 168 L185 157 L185 181 L146 192 Z"></path>
+            <path class="subsystem-detail" d="M606 152 L655 150 L672 160 L655 170 L606 168 Z"></path>
+            <path class="subsystem-body" d="M245 145 L360 72 L520 72 L598 145 Z"></path>
+            <path class="subsystem-body" d="M255 176 L360 246 L500 246 L592 176 Z"></path>
+            <line class="subsystem-panel-line" x1="545" y1="88" x2="640" y2="55"></line>
+            <line class="subsystem-panel-line" x1="208" y1="176" x2="86" y2="244"></line>
+            <line class="subsystem-panel-line" x1="343" y1="158" x2="312" y2="36"></line>
+            <line class="subsystem-panel-line" x1="645" y1="161" x2="748" y2="255"></line>
+            <circle class="subsystem-hotspot active" data-component="wings" cx="544" cy="88" r="11"></circle>
+            <circle class="subsystem-hotspot" data-component="gimbal" cx="208" cy="176" r="11"></circle>
+            <circle class="subsystem-hotspot" data-component="internal-bay" cx="343" cy="158" r="11"></circle>
+            <circle class="subsystem-hotspot" data-component="engine" cx="645" cy="161" r="11"></circle>
+            <text x="646" y="48" fill="var(--text-muted)" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;">WINGS</text>
+            <text x="28" y="247" fill="var(--text-muted)" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;">GIMBAL</text>
+            <text x="252" y="34" fill="var(--text-muted)" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;">INTERNAL BAY</text>
+            <text x="670" y="257" fill="var(--text-muted)" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;">ENGINE</text>
+          </svg>
+          <div class="subsystem-legend">
+            <button class="subsystem-chip active" data-component="wings" type="button">Wings</button>
+            <button class="subsystem-chip" data-component="gimbal" type="button">Gimbal</button>
+            <button class="subsystem-chip" data-component="internal-bay" type="button">Internal Bay</button>
+            <button class="subsystem-chip" data-component="engine" type="button">Engine</button>
+          </div>
+        </div>
+        <aside class="subsystem-panel" id="subsystem-panel" aria-live="polite">
+          <h4 id="subsystem-title">High-Aspect-Ratio Wings</h4>
+          <p class="subsystem-role"><strong>ISR:</strong><span id="subsystem-isr">Maximize lift-to-drag ratio for 24+ hour loiter, wide-area persistence, and lower fuel burn at altitude.</span></p>
+          <p class="subsystem-role"><strong>Strike:</strong><span id="subsystem-strike">Provide stable weapons release geometry and support longer standoff routes before committing to a strike pass.</span></p>
+        </aside>
+      </div>
     </div>
 
     <h3>Endurance — How Long Can It Stay Up?</h3>
@@ -1256,6 +1409,54 @@ Q3: J/S in dB = (P_j + G_j) - (P_s + G_s) + 20×log10(R_s/R_j). P_j = +50 dBm, G
   sections.forEach(id => {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
+  });
+
+  /* ── Interactive subsystem explorer ── */
+  const subsystemInfo = {
+    wings: {
+      title: 'High-Aspect-Ratio Wings',
+      isr: 'Maximize lift-to-drag ratio for 24+ hour loiter, wide-area persistence, and lower fuel burn at altitude.',
+      strike: 'Provide stable weapons release geometry and support longer standoff routes before committing to a strike pass.'
+    },
+    gimbal: {
+      title: 'EO/IR Gimbal',
+      isr: 'Delivers stabilized day/night observation, target tracking, and positive identification while the airframe maneuvers.',
+      strike: 'Feeds terminal guidance and battle damage assessment, ensuring weapons are cued with real-time line-of-sight data.'
+    },
+    'internal-bay': {
+      title: 'Internal Mission Bay',
+      isr: 'Hosts modular payloads such as SIGINT processors, storage, and relay nodes without external drag penalties.',
+      strike: 'Can carry protected munitions or mission kits with lower radar visibility than external hardpoints.'
+    },
+    engine: {
+      title: 'Propulsion Module (Engine + Intake)',
+      isr: 'Sets endurance envelope by specific fuel consumption and altitude performance during long surveillance sorties.',
+      strike: 'Provides sprint power for ingress/egress and reserve margin for evasive maneuvers after weapons release.'
+    }
+  };
+
+  const panelTitle = document.getElementById('subsystem-title');
+  const panelIsr = document.getElementById('subsystem-isr');
+  const panelStrike = document.getElementById('subsystem-strike');
+  const hotspots = document.querySelectorAll('.subsystem-hotspot');
+  const chips = document.querySelectorAll('.subsystem-chip');
+
+  function setSubsystem(component) {
+    const data = subsystemInfo[component];
+    if (!data) return;
+    panelTitle.textContent = data.title;
+    panelIsr.textContent = data.isr;
+    panelStrike.textContent = data.strike;
+
+    hotspots.forEach(el => el.classList.toggle('active', el.dataset.component === component));
+    chips.forEach(el => el.classList.toggle('active', el.dataset.component === component));
+  }
+
+  hotspots.forEach(el => {
+    el.addEventListener('click', () => setSubsystem(el.dataset.component));
+  });
+  chips.forEach(el => {
+    el.addEventListener('click', () => setSubsystem(el.dataset.component));
   });
 </script>
 </body>
