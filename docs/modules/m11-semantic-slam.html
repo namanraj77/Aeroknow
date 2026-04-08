@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M11: Semantic SLAM — AEROKNOW</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/js/mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    .cite {
+      font-family: var(--font-mono); font-size: 0.70rem;
+      color: var(--accent-amber); background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem; margin-left: 0.25rem;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono); font-size: 0.62rem; color: var(--accent-primary);
+      letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+    .theorem-block {
+      background: rgba(179,136,255,0.04); border: 1px solid rgba(179,136,255,0.2);
+      border-left: 3px solid #b388ff; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .theorem-block .theorem-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: #b388ff;
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .worked-example {
+      background: rgba(0,255,157,0.03); border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green); padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    }
+    .worked-example .we-label {
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-green);
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;
+    }
+    .analogy-box {
+      background: rgba(255,183,0,0.04); border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber); padding: 1rem 1.2rem; margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-amber);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; display: block;
+    }
+    .analogy-box p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+    .key-term {
+      color: var(--accent-primary); font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4); cursor: help;
+    }
+    .spec-table td:first-child { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary); }
+    .spec-table td:nth-child(2) { color: var(--text-secondary); }
+    .spec-table td:nth-child(3) { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* Jump bar */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.06em;
+      padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* SLAM pipeline diagram cards */
+    .pipeline-strip {
+      display: flex; gap: 0; margin: 1.5rem 0;
+      border: 1px solid var(--border-dim); overflow-x: auto;
+    }
+    .pipe-block {
+      flex: 1; min-width: 110px; padding: 0.9rem 0.8rem;
+      background: var(--bg-card); border-right: 1px solid var(--border-dim);
+      text-align: center;
+    }
+    .pipe-block:last-child { border-right: none; }
+    .pipe-block:hover { background: var(--bg-card-hover); }
+    .pipe-num  { font-family: var(--font-mono); font-size: 0.58rem; color: var(--accent-green); display: block; margin-bottom: 0.3rem; }
+    .pipe-name { font-family: var(--font-display); font-size: 0.82rem; color: var(--text-primary); margin-bottom: 0.3rem; }
+    .pipe-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Semantic label taxonomy */
+    .taxonomy-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .tax-card {
+      background: var(--bg-card); border: 1px solid var(--border-dim);
+      border-top: 2px solid var(--accent-primary); padding: 1rem 1.1rem;
+    }
+    .tax-card-title { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .tax-card p { font-size: 0.86rem; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- SECTION JUMP BAR -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">11.1</span>Why Semantic SLAM?</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">11.2</span>Geometric SLAM</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">11.3</span>Adding Semantics</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">11.4</span>Factor Graphs</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">11.5</span>Object-Level SLAM</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">11.6</span>NeRF &amp; 3DGS</span></button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">11.7</span>Loop Closure</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">11.8</span>UAV Applications</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">11.9</span>Python Code</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">11.10</span>Reflection</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- HERO -->
+  <div class="module-hero">
+    <span class="module-num">MODULE 11 // SEMANTIC SLAM</span>
+    <h1>Semantic SLAM</h1>
+    <p class="lead">
+      A drone that knows where it is but not <em>what it is looking at</em> is blind
+      to the world's meaning. Semantic SLAM fuses the geometry of classical SLAM —
+      where am I, what does the structure around me look like — with the perception
+      of deep learning — what <em>are</em> these structures, and what do they imply?
+      The result is a map that answers not just "there is a wall here" but
+      "there is a building here, it is probably occupied, this is a doorway,
+      that is a vehicle." This is the enabling technology for truly autonomous
+      operation in complex, unstructured environments.
+    </p>
+    <div class="module-meta">
+      <span class="label label-primary">Factor Graphs</span>
+      <span class="label label-green">Object-Level Mapping</span>
+      <span class="label label-amber">NeRF / 3D Gaussian Splatting</span>
+      <span class="label label-red">Semantic Loop Closure</span>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem 1.2rem; background:rgba(0,212,255,0.04); border:1px solid var(--border-dim); display:inline-block;">
+      <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin:0;">
+        📚 &nbsp;REFERENCES: Bestaoui Sebbane §12 &nbsp;·&nbsp; MDPI Autonomous Control Ch.6 &nbsp;·&nbsp; Marqués &amp; Da Ronch Ch.8 &nbsp;·&nbsp; Cadena et al. 2016 (SLAM Survey)
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.1  WHY SEMANTIC SLAM?
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>11.1 Why Semantic SLAM? The Gap Classical SLAM Leaves Open</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Classical SLAM — the kind in Module 04 and Module 05 — builds a geometric map:
+        a point cloud, a voxel grid, or a set of feature landmarks with XYZ coordinates.
+        This map tells the drone <em>where things are</em>. It does not tell the drone
+        <em>what those things are</em>. A point cloud of a building looks exactly like
+        a point cloud of a cliff face. A voxel map of a car park looks exactly like
+        a voxel map of a flat roof. Semantic SLAM attaches meaning to geometry —
+        each region of the map is labelled with an object class, and each object class
+        carries domain knowledge: buildings have entrances, vehicles can move, trees
+        are not structural obstacles, humans require special consideration.
+        This is the difference between a robot that navigates and a robot that
+        <em>understands</em> its environment.
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">Analogy — The Difference Between a Surveyor and a Soldier</span>
+      <p>
+        A surveyor maps a city with extreme geometric precision — every building's
+        footprint, every road width, every elevation. But the surveyor's map does not
+        tell you which buildings are hospitals (protected), which roads can support
+        heavy vehicles, which structures are likely to collapse under stress.
+        A soldier interpreting the same city has semantic knowledge overlaid on geometry:
+        "that large open area is a parade ground — likely observed," "that cluster of
+        low buildings is residential — non-combatants likely." Semantic SLAM gives a
+        UAV the soldier's understanding, not just the surveyor's precision.
+      </p>
+    </div>
+
+    <h3>The Three Levels of Environmental Understanding</h3>
+    <table>
+      <thead><tr><th>Level</th><th>What it provides</th><th>Enabling Technology</th><th>UAV Use Case</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Metric (geometric)</strong></td>
+          <td>XYZ position of obstacles, surfaces, features</td>
+          <td>LiDAR SLAM, Visual Odometry, EKF (M04–M05)</td>
+          <td>Obstacle avoidance, waypoint navigation</td>
+        </tr>
+        <tr>
+          <td><strong>Topological</strong></td>
+          <td>Graph of connected places and transitions</td>
+          <td>Place recognition, loop closure</td>
+          <td>Room-level navigation, re-localisation</td>
+        </tr>
+        <tr>
+          <td><strong>Semantic</strong></td>
+          <td>Object identity, class, attributes, relationships</td>
+          <td>Deep learning (M07), factor graphs, object SLAM</td>
+          <td>Target recognition, mission planning, HRI</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Real-world autonomous UAV operation requires all three levels simultaneously.
+      The SLAM community has converged on this view — the "SLAM dunk" paper by Cadena et al.
+      (2016) defines the goal as a <em>metric-semantic</em> world model that supports
+      all tasks the robot must perform. <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </p>
+
+    <h3>The Semantic SLAM Pipeline</h3>
+    <div class="pipeline-strip">
+      <div class="pipe-block">
+        <span class="pipe-num">STEP 1</span>
+        <div class="pipe-name">Sensing</div>
+        <div class="pipe-desc">RGB-D camera, LiDAR, stereo, IMU — raw sensor streams</div>
+      </div>
+      <div class="pipe-block">
+        <span class="pipe-num">STEP 2</span>
+        <div class="pipe-name">Perception</div>
+        <div class="pipe-desc">2D/3D object detection, panoptic segmentation, instance masks</div>
+      </div>
+      <div class="pipe-block">
+        <span class="pipe-num">STEP 3</span>
+        <div class="pipe-name">Data Association</div>
+        <div class="pipe-desc">Match detected objects across frames — same car in frame 10 and frame 25?</div>
+      </div>
+      <div class="pipe-block">
+        <span class="pipe-num">STEP 4</span>
+        <div class="pipe-name">Pose Estimation</div>
+        <div class="pipe-desc">Visual / LiDAR odometry — camera motion between frames</div>
+      </div>
+      <div class="pipe-block">
+        <span class="pipe-num">STEP 5</span>
+        <div class="pipe-name">Joint Optimisation</div>
+        <div class="pipe-desc">Factor graph: jointly refine poses AND object positions AND labels</div>
+      </div>
+      <div class="pipe-block">
+        <span class="pipe-num">STEP 6</span>
+        <div class="pipe-name">Semantic Map</div>
+        <div class="pipe-desc">3D object-level map: each landmark has pose + class + shape</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.2  GEOMETRIC SLAM REVIEW
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>11.2 Geometric SLAM — The Foundation</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Before semantics can be added, you need to understand what classical geometric
+        SLAM actually optimises. The core problem is: given a sequence of sensor
+        measurements and controls, find the most likely trajectory of the robot
+        <em>and</em> the most likely positions of the landmarks in the environment,
+        jointly. This is not two separate problems — they are coupled. Your position
+        estimate depends on where you think the landmarks are; your landmark estimate
+        depends on where you think you were when you observed them.
+      </p>
+    </div>
+
+    <h3>The SLAM Posterior</h3>
+    <p>
+      The formal SLAM problem estimates the joint posterior over robot poses
+      $\mathbf{x}_{1:T}$ and landmark map $\mathbf{m}$ given all measurements
+      $\mathbf{z}_{1:T}$ and controls $\mathbf{u}_{1:T}$:
+      <span class="cite">Bestaoui Sebbane §12.1</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Full SLAM Posterior</span>
+      $$p(\mathbf{x}_{1:T},\, \mathbf{m} \mid \mathbf{z}_{1:T},\, \mathbf{u}_{1:T})$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{x}_{1:T} = \{x_1, x_2, \ldots, x_T\}$: full robot trajectory (all poses).
+        $\mathbf{m} = \{m_1, m_2, \ldots, m_N\}$: map (all landmark positions).
+        $\mathbf{z}_{1:T}$: all measurements (images, LiDAR scans, IMU).
+        $\mathbf{u}_{1:T}$: all controls (velocity commands, odometry).
+        The full SLAM problem keeps the entire trajectory in memory — necessary for
+        global consistency but expensive. Online SLAM marginalises over past poses and only
+        maintains the current pose.
+      </p>
+    </div>
+
+    <h3>Maximum A Posteriori (MAP) Estimation</h3>
+    <p>
+      Most modern SLAM systems solve the MAP estimate — the trajectory and map that
+      maximises the posterior — rather than maintaining the full distribution:
+      <span class="cite">Bestaoui Sebbane §12.1</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">MAP-SLAM as a Nonlinear Least-Squares Problem</span>
+      $$(\mathbf{x}^*, \mathbf{m}^*) = \arg\min_{\mathbf{x},\mathbf{m}}
+        \sum_{t} \|\mathbf{z}_t - h(\mathbf{x}_t, \mathbf{m})\|^2_{\Sigma_z}
+        + \sum_t \|\mathbf{x}_t - f(\mathbf{x}_{t-1}, \mathbf{u}_t)\|^2_{\Sigma_u}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $h(\mathbf{x}_t, \mathbf{m})$: measurement model — predicted observation of
+        landmark $\mathbf{m}$ from pose $\mathbf{x}_t$.
+        $f(\mathbf{x}_{t-1}, \mathbf{u}_t)$: motion model.
+        $\|\cdot\|^2_{\Sigma}$: Mahalanobis distance weighted by covariance $\Sigma$.
+        This is a nonlinear least squares problem solved by Gauss-Newton or
+        Levenberg-Marquardt iteration. Graph-based SLAM (Section 11.4) is the
+        dominant modern approach to solving this efficiently.
+      </p>
+    </div>
+
+    <h3>Classical SLAM Systems — The Landscape</h3>
+    <table>
+      <thead><tr><th>System</th><th>Sensor</th><th>Map Type</th><th>Backend</th><th>UAV Use</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ORB-SLAM3</strong></td><td>Mono/Stereo/RGB-D + IMU</td><td>Sparse feature points</td><td>g2o graph optimisation</td><td>Indoor navigation, loop closure</td></tr>
+        <tr><td><strong>RTAB-Map</strong></td><td>RGB-D / Stereo / LiDAR</td><td>Dense point cloud + graph</td><td>TORO/g2o</td><td>3D environment reconstruction</td></tr>
+        <tr><td><strong>LIO-SAM</strong></td><td>LiDAR + IMU + GPS</td><td>3D point cloud</td><td>GTSAM factor graph</td><td>Outdoor mapping, search areas</td></tr>
+        <tr><td><strong>LOAM / LeGO-LOAM</strong></td><td>LiDAR</td><td>Feature-based point cloud</td><td>Scan matching</td><td>Large-scale outdoor mapping</td></tr>
+        <tr><td><strong>ElasticFusion</strong></td><td>RGB-D</td><td>Dense surfel map</td><td>ICP + deformation graph</td><td>Indoor dense reconstruction</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Each of these systems outputs a <em>geometric</em> map — positions without meaning.
+      Semantic SLAM extends them by adding a parallel perception thread and a joint
+      optimisation that couples geometry with labels.
+      <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.3  ADDING SEMANTICS
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>11.3 Adding Semantics — What Labels Enable</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        There are three ways to add semantics to a SLAM map, and they operate at
+        different levels of the pipeline. The simplest paints semantic labels onto an
+        already-built geometric map — a post-processing step. The more powerful approach
+        integrates semantic predictions into the SLAM optimisation itself — labels
+        improve geometry, and geometry improves labels. The most powerful approach
+        represents each object as a unified geometric-semantic entity in the map, so
+        the map contains "car at this pose with this shape" rather than "points at these
+        coordinates" labelled "car."
+      </p>
+    </div>
+
+    <h3>Three Integration Architectures</h3>
+    <div class="taxonomy-grid">
+      <div class="tax-card">
+        <div class="tax-card-title">Post-hoc Labelling</div>
+        <p>
+          Run geometric SLAM to completion, then run a semantic segmentation network
+          over keyframes and project labels into the 3D map.
+          Fast. Robust. But semantics don't help SLAM.
+          Used in: SemanticFusion, Kimera (basic mode).
+        </p>
+      </div>
+      <div class="tax-card">
+        <div class="tax-card-title">Coupled Optimisation</div>
+        <p>
+          Include semantic predictions as factors in the SLAM graph —
+          e.g., "two observations labelled 'door' at similar positions are
+          more likely to be the same door than two observations labelled
+          differently." Labels constrain data association and loop closure.
+          Used in: Kimera, SuMa++.
+        </p>
+      </div>
+      <div class="tax-card">
+        <div class="tax-card-title">Object-Level SLAM</div>
+        <p>
+          Replace point landmarks with object landmarks — each map element
+          is a detected object with a pose, a shape model, and a class label.
+          The SLAM state vector includes object poses.
+          Most expressive; most computationally demanding.
+          Used in: EAO-SLAM, CubeSLAM, NodeSLAM.
+        </p>
+      </div>
+      <div class="tax-card">
+        <div class="tax-card-title">Neural Implicit Maps</div>
+        <p>
+          Represent the scene as a continuous neural field (NeRF or 3D Gaussian Splatting)
+          that encodes geometry, appearance, and semantics jointly.
+          Supports novel view synthesis and semantic queries.
+          Emerging; very high quality; slow to train.
+          Used in: Semantic-NeRF, LERF, LangSplat.
+        </p>
+      </div>
+    </div>
+
+    <h3>Semantic Representation Choices</h3>
+    <p>
+      How semantics are represented in the map determines what questions the map can answer:
+      <span class="cite">Marqués &amp; Da Ronch Ch.8</span>
+    </p>
+    <table>
+      <thead><tr><th>Representation</th><th>What it Stores</th><th>Map Query Supported</th><th>Example System</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Dense semantic voxel</strong></td>
+          <td>Class probability vector per voxel</td>
+          <td>"What class is at position (x,y,z)?"</td>
+          <td>SemanticFusion, Kimera-Semantics</td>
+        </tr>
+        <tr>
+          <td><strong>Object node graph</strong></td>
+          <td>Object pose + class + shape + attributes</td>
+          <td>"Where are all vehicles? What is behind building B?"</td>
+          <td>3D Scene Graphs (Rosinol et al.), Hydra</td>
+        </tr>
+        <tr>
+          <td><strong>Panoptic point cloud</strong></td>
+          <td>Point cloud with per-point instance + class label</td>
+          <td>"How many instances of class X? Show me building 3."</td>
+          <td>Panoptic LiDAR SLAM, SPVCNN-SLAM</td>
+        </tr>
+        <tr>
+          <td><strong>Language-embedded field</strong></td>
+          <td>CLIP/language embedding per scene point</td>
+          <td>Natural language: "find the red fire hydrant near the entrance"</td>
+          <td>LERF, LangSplat, OpenScene</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.4  FACTOR GRAPHS
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>11.4 Factor Graphs — The Unified SLAM Optimisation Framework</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        A factor graph is a way of writing down a joint probability distribution
+        as a product of simpler functions — each function (called a <em>factor</em>)
+        involves only a small subset of the variables. In SLAM, every pose estimate,
+        every landmark observation, every odometry measurement, and every semantic
+        prediction becomes a factor. The entire SLAM problem — including semantics —
+        is represented as one graph, and optimised jointly. This framework is what
+        allows geometric constraints (IMU, LiDAR scan match) and semantic constraints
+        (two observations of the same object class at nearby positions) to be
+        optimised together in the same system.
+      </p>
+    </div>
+
+    <h3>Factor Graph Definition</h3>
+    <div class="math-block">
+      <span class="math-label">Factor Graph Factorisation of the SLAM Posterior</span>
+      $$p(\mathbf{X}, \mathbf{L} \mid \mathbf{Z}) \propto \prod_i \phi_i(\mathcal{X}_i)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{X} = \{x_1, \ldots, x_T\}$: robot pose variables.
+        $\mathbf{L} = \{l_1, \ldots, l_N\}$: landmark/object variables (geometric + semantic).
+        $\phi_i(\mathcal{X}_i)$: a factor — a non-negative function over a small variable subset $\mathcal{X}_i$.
+        The graph has two node types: <strong>variable nodes</strong> (circles — poses, landmarks)
+        and <strong>factor nodes</strong> (squares — measurements, constraints).
+        An edge connects a factor to each variable it involves.
+        The MAP estimate minimises the sum of negative log-factor values — a sparse
+        nonlinear least squares problem exploitable by Cholesky factorisation.
+      </p>
+    </div>
+
+    <h3>Factor Types in Semantic SLAM</h3>
+    <table>
+      <thead><tr><th>Factor Type</th><th>Variables Involved</th><th>Residual</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Odometry factor</strong></td>
+          <td>$(x_t, x_{t+1})$</td>
+          <td>$\|x_{t+1} - f(x_t, u_t)\|^2_{\Sigma_u}$</td>
+          <td>IMU preintegration, wheel odometry</td>
+        </tr>
+        <tr>
+          <td><strong>Landmark observation factor</strong></td>
+          <td>$(x_t, l_j)$</td>
+          <td>$\|z_{tj} - h(x_t, l_j)\|^2_{\Sigma_z}$</td>
+          <td>Feature point, LiDAR point</td>
+        </tr>
+        <tr>
+          <td><strong>Loop closure factor</strong></td>
+          <td>$(x_i, x_j)$</td>
+          <td>$\|x_j - T_{ij} x_i\|^2_{\Sigma_{lc}}$</td>
+          <td>Place recognition (geometric or semantic)</td>
+        </tr>
+        <tr>
+          <td><strong>Semantic observation factor</strong></td>
+          <td>$(x_t, l_j^{sem})$</td>
+          <td>$-\log p(c_{tj} \mid \text{class}(l_j))$</td>
+          <td>Object detector output (class + confidence)</td>
+        </tr>
+        <tr>
+          <td><strong>Object shape factor</strong></td>
+          <td>$(l_j^{pose}, l_j^{shape})$</td>
+          <td>$\|p_k - s(l_j^{pose}, l_j^{shape})\|^2$</td>
+          <td>Shape model (ellipsoid, CAD, learned)</td>
+        </tr>
+        <tr>
+          <td><strong>Semantic consistency factor</strong></td>
+          <td>$(l_i, l_j)$</td>
+          <td>$-\log p(\text{adjacent} \mid \text{class}(l_i), \text{class}(l_j))$</td>
+          <td>Scene ontology (cars near roads, not rooftops)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 11.1 — Information Matrix Sparsity</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        The Hessian (information matrix) $\mathbf{H}$ of the MAP-SLAM least squares problem
+        has the same sparsity pattern as the factor graph adjacency structure:
+      </p>
+      $$\mathbf{H}_{ij} \neq 0 \quad \Leftrightarrow \quad \exists \text{ factor } \phi_k
+        \text{ connecting variable } i \text{ and variable } j$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        For a robot visiting $T$ poses and observing $N$ landmarks where each pose
+        observes $k \ll N$ landmarks: $\mathbf{H}$ is $(6T + 3N) \times (6T + 3N)$ but with
+        only $O(Tk)$ non-zero off-diagonal blocks. Cholesky factorisation of a
+        sparse matrix costs $O(n \cdot s^2)$ where $s$ is the fill-in — far cheaper than
+        the $O(n^3)$ cost of dense factorisation.
+        This sparsity is what makes graph SLAM tractable for large maps:
+        a 10,000-pose, 100,000-landmark map with $k=5$ is solved in seconds on a CPU.
+        Adding semantic factors increases $N$ (each object is a new variable) but
+        the sparsity structure is maintained — semantic SLAM is as tractable as geometric SLAM
+        when factors are local. <span class="cite">Bestaoui Sebbane §12.2</span>
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 11.1 — Building the Factor Graph for a 3-Pose UAV Mission</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        A UAV flies 3 poses ($x_1, x_2, x_3$). It observes geometric landmark $l_1$ from
+        $x_1$ and $x_2$, and detects object $o_1$ (a vehicle) from $x_2$ and $x_3$.
+        Count variables, factors, and the Hessian dimension.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Variables:</strong> $x_1, x_2, x_3$ (poses, 6-DOF each) +
+        $l_1$ (geometric landmark, 3D) + $o_1^{pos}$ (object position, 3D) +
+        $o_1^{sem}$ (object class, categorical) = 3×6 + 3 + 3 + 1 = <strong>25 variables</strong>.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Factors:</strong>
+        (1) Prior on $x_1$ — 1 factor.
+        (2) Odometry $(x_1,x_2)$, $(x_2,x_3)$ — 2 factors.
+        (3) Landmark observation $(x_1,l_1)$, $(x_2,l_1)$ — 2 factors.
+        (4) Object observation $(x_2,o_1^{pos})$, $(x_3,o_1^{pos})$ — 2 factors.
+        (5) Semantic factor $(x_2,o_1^{sem})$, $(x_3,o_1^{sem})$ — 2 factors.
+        Total: <strong>9 factors</strong>.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Hessian:</strong> 25×25 = 625 entries total.
+        Non-zero blocks: only variables connected by a factor have non-zero cross-terms.
+        Sparsity ≈ 85% — most of the matrix is zero. This is what enables real-time
+        optimisation.
+        <span class="cite">Bestaoui Sebbane §12.2</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.5  OBJECT-LEVEL SLAM
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>11.5 Object-Level SLAM — Landmarks with Meaning</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Instead of tracking thousands of anonymous feature points, object-level SLAM
+        tracks a small number of named objects — "car #3", "building entrance #7",
+        "barrel #12". Each object has a pose (6-DOF position and orientation), a shape
+        (parameterised by an ellipsoid, a bounding box, or a learned latent code),
+        and a semantic class (vehicle, structure, landmark). The drone observes these
+        objects across many frames, and the SLAM optimiser simultaneously refines
+        where the drone was when it saw them and where the objects actually are.
+        The resulting map is compact (tens of objects instead of millions of points),
+        semantically queryable ("find all vehicles"), and robust to dynamic objects
+        (moving cars can be excluded from the map by their class label).
+      </p>
+    </div>
+
+    <h3>Object Representation: The Ellipsoidal Model</h3>
+    <p>
+      The simplest object shape model that supports 3D SLAM is the ellipsoid:
+      a second-order surface parametrised by a 4×4 dual quadric matrix.
+      <span class="cite">Marqués &amp; Da Ronch Ch.8</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Dual Quadric Object Representation</span>
+      $$\mathcal{Q}^* = \begin{pmatrix} \mathbf{U}\mathbf{U}^\top + \mathbf{t}\mathbf{t}^\top - \mathbf{t}\mathbf{t}^\top & \mathbf{t} \\ \mathbf{t}^\top & -1 \end{pmatrix}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{U} = \text{diag}(a, b, c)$: semi-axes of the ellipsoid.
+        $\mathbf{t} \in \mathbb{R}^3$: centre position.
+        A 2D bounding box observation $\mathbf{B}$ from camera pose $\mathbf{P}$
+        constrains $\mathcal{Q}^*$ via the projection:
+        $\mathbf{C}^* = \mathbf{P}\,\mathcal{Q}^*\,\mathbf{P}^\top$
+        where $\mathbf{C}^*$ is the dual conic of the projected ellipse,
+        and the bounding box provides 4 linear constraints on $\mathbf{C}^*$.
+        Three non-degenerate views from different camera poses fully constrain
+        the ellipsoid (9 DOF = semi-axes 3 + position 3 + orientation 3).
+      </p>
+    </div>
+
+    <h3>Data Association — The Hard Problem</h3>
+    <p>
+      Before optimising object poses, each new detection must be associated with an
+      existing map object or spawned as a new one. Wrong associations corrupt the map.
+      Three approaches of increasing sophistication:
+      <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </p>
+    <table>
+      <thead><tr><th>Method</th><th>Association Criterion</th><th>Pros</th><th>Cons</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Nearest Neighbour</strong></td>
+          <td>IoU of projected bounding boxes + class match</td>
+          <td>Fast, simple</td>
+          <td>Fails when objects overlap or are briefly occluded</td>
+        </tr>
+        <tr>
+          <td><strong>Hungarian (optimal)</strong></td>
+          <td>Minimum cost bipartite matching on IoU + distance + class</td>
+          <td>Globally optimal for current frame</td>
+          <td>$O(N^3)$; assumes detections are independent</td>
+        </tr>
+        <tr>
+          <td><strong>Probabilistic (JCBB)</strong></td>
+          <td>Joint compatibility branch-and-bound on Mahalanobis distance</td>
+          <td>Correct under uncertainty; handles ambiguity</td>
+          <td>Exponential worst case; needs covariance estimates</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="theorem-block">
+      <span class="theorem-label">Theorem 11.2 — Data Association as Maximum Likelihood</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+        The optimal data association $\mathbf{a}^*$ between detections $\mathbf{d}_{1:K}$
+        and existing map objects $\mathbf{o}_{1:M}$ maximises the joint likelihood:
+      </p>
+      $$\mathbf{a}^* = \arg\max_{\mathbf{a}} \prod_{k=1}^K
+        p(\mathbf{d}_k \mid \mathbf{o}_{a(k)}, \mathbf{x}_t)
+        \cdot p(\mathbf{a} \mid \mathbf{d}_{1:K})$$
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        $p(\mathbf{d}_k \mid \mathbf{o}_{a(k)}, \mathbf{x}_t)$: likelihood of detection $k$
+        given object $a(k)$ at pose $\mathbf{x}_t$ — depends on IoU, semantic class match,
+        and distance in the projected ellipsoid.
+        $p(\mathbf{a})$: prior penalising many new object hypotheses (Occam's razor).
+        This MAP assignment is NP-hard in general — practical systems use Hungarian or
+        greedy nearest-neighbour with a gating threshold (reject associations where
+        Mahalanobis distance $> \chi^2_{0.99}$ for the observation dimension).
+        <span class="cite">Marqués &amp; Da Ronch Ch.8</span>
+      </p>
+    </div>
+
+    <div class="worked-example">
+      <span class="we-label">Worked Example 11.2 — Object SLAM Data Association: Vehicle Tracking</span>
+      <p style="font-size:0.92rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+        A UAV at altitude 30 m detects 3 vehicles across two consecutive frames.
+        Frame 1: detections D1, D2 at pixel positions (320,240), (480,360).
+        Frame 2 (drone has moved 5 m east): D3, D4, D5 at (290,220), (440,330), (600,280).
+        Apply IoU + class-based Hungarian assignment. All detections are class "car."
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        <strong>Step 1 — Project map objects to frame 2:</strong>
+        Using the drone's odometry (5 m east), project the two existing objects O1 (from D1)
+        and O2 (from D2) into frame 2's camera. Projected positions: O1→(285,218), O2→(435,328).
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Step 2 — Build IoU cost matrix:</strong>
+        IoU between projected bounding boxes and new detections. Assume 50×50 px bounding boxes.
+        C[D3,O1] = 0.82 (high overlap), C[D4,O2] = 0.79, C[D5,O1] = 0.12, C[D5,O2] = 0.15.
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Step 3 — Hungarian assignment:</strong>
+        Maximise total IoU → D3→O1, D4→O2 (confirmed), D5 → new object O3 (IoU with any existing &lt; 0.3 threshold).
+      </p>
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0.5rem;">
+        <strong>Result:</strong> Two existing vehicles tracked, one new vehicle spawned.
+        The new vehicle O3 gets an initial ellipsoid from the pixel bounding box back-projected
+        to 3D using altitude 30 m + camera intrinsics.
+        After 3 views of O3 from different angles, the ellipsoid is fully constrained.
+        <span class="cite">MDPI Autonomous Control Ch.6</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.6  NeRF AND 3DGS
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>11.6 Neural Implicit Representations — NeRF and 3D Gaussian Splatting</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Neural Radiance Fields (NeRF) and 3D Gaussian Splatting (3DGS) represent a
+        completely different paradigm for scene reconstruction. Instead of building
+        an explicit point cloud or mesh, they train a neural network (or a set of
+        Gaussian primitives) to encode the entire scene's appearance and geometry.
+        The network takes a 3D position and a viewing direction as input and outputs
+        colour and density. To render an image, you query the network along rays from
+        the camera. To add semantics, you extend the output to include class labels —
+        every point in 3D space now carries both appearance and semantic meaning.
+        The result supports photorealistic novel view synthesis <em>and</em> semantic
+        queries, making it the most expressive scene representation ever built.
+      </p>
+    </div>
+
+    <h3>Neural Radiance Fields (NeRF)</h3>
+    <p>
+      NeRF represents the scene as a continuous function approximated by an MLP:
+      <span class="cite">Marqués &amp; Da Ronch Ch.8</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">NeRF Radiance Field — Scene Function</span>
+      $$F_\theta: (\mathbf{x}, \mathbf{d}) \mapsto (\mathbf{c}, \sigma)$$
+      $$\mathbf{x} \in \mathbb{R}^3 \text{ (3D position)}, \quad
+        \mathbf{d} \in \mathbb{S}^2 \text{ (viewing direction)}, \quad
+        \mathbf{c} \in [0,1]^3 \text{ (RGB colour)}, \quad
+        \sigma \in \mathbb{R}_{\geq 0} \text{ (volume density)}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        Volume rendering: the colour of a ray $\mathbf{r}(t) = \mathbf{o} + t\mathbf{d}$
+        is computed by integrating along the ray:
+        $\hat{\mathbf{C}}(\mathbf{r}) = \int_{t_n}^{t_f}
+        T(t)\,\sigma(\mathbf{r}(t))\,\mathbf{c}(\mathbf{r}(t), \mathbf{d})\,dt$
+        where $T(t) = \exp\!\left(-\int_{t_n}^t \sigma(\mathbf{r}(s))\,ds\right)$
+        is the accumulated transmittance.
+        Training minimises the photometric loss: $\mathcal{L} = \sum_{\mathbf{r}} \|\hat{\mathbf{C}}(\mathbf{r}) - \mathbf{C}(\mathbf{r})\|^2$.
+      </p>
+    </div>
+
+    <h3>Semantic NeRF — Adding Labels to the Field</h3>
+    <p>
+      Semantic NeRF extends the output to include a class label per point:
+      <span class="cite">Marqués &amp; Da Ronch Ch.8</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Semantic NeRF Output Extension</span>
+      $$F_\theta^{sem}: (\mathbf{x}, \mathbf{d}) \mapsto (\mathbf{c}, \sigma, \mathbf{s})$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\mathbf{s} \in \mathbb{R}^C$: logit vector over $C$ semantic classes.
+        The semantic label of a ray is rendered by the same volume integral:
+        $\hat{\mathbf{S}}(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\,\sigma(\mathbf{r}(t))\,\mathbf{s}(\mathbf{r}(t))\,dt$.
+        Supervision: cross-entropy loss on predicted vs. ground-truth 2D semantic segmentation.
+        The network learns to associate geometry (density $\sigma$) with semantics ($\mathbf{s}$) —
+        a wall point carries "building" label; a tree point carries "vegetation."
+        <em>Semantic consistency across views comes for free</em> — the 3D field
+        inherently propagates labels from labelled views to unlabelled viewpoints.
+      </p>
+    </div>
+
+    <h3>3D Gaussian Splatting (3DGS) — Real-Time Alternative</h3>
+    <p>
+      NeRF is photorealistic but slow to render — 30 s per frame at full resolution.
+      3DGS achieves real-time rendering by replacing the implicit MLP with explicit
+      anisotropic Gaussian primitives:
+    </p>
+    <div class="math-block">
+      <span class="math-label">3DGS Gaussian Primitive</span>
+      $$\mathcal{G}_k = \{\boldsymbol{\mu}_k,\, \mathbf{\Sigma}_k,\, \alpha_k,\, \mathbf{c}_k\}$$
+      $$\mathbf{\Sigma}_k = \mathbf{R}_k \mathbf{S}_k \mathbf{S}_k^\top \mathbf{R}_k^\top, \quad
+        \mathbf{S}_k = \text{diag}(s_x, s_y, s_z)$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $\boldsymbol{\mu}_k \in \mathbb{R}^3$: Gaussian centre.
+        $\mathbf{\Sigma}_k$: covariance (shape and orientation).
+        $\alpha_k \in [0,1]$: opacity.
+        $\mathbf{c}_k$: view-dependent colour (spherical harmonics).
+        Rendering: sort Gaussians by depth, splat each into image plane via 2D projection,
+        alpha-composite front-to-back. GPU rasterisation: 100+ FPS at HD resolution.
+        Semantic 3DGS (LangSplat, SAGA) adds a language feature vector $\mathbf{f}_k \in \mathbb{R}^d$
+        per Gaussian, enabling text-queried semantic search in real time.
+      </p>
+    </div>
+
+    <table>
+      <thead><tr><th>Method</th><th>Representation</th><th>Render FPS</th><th>Semantic?</th><th>SLAM integration</th></tr></thead>
+      <tbody>
+        <tr><td>NeRF (original)</td><td>MLP</td><td>~0.03</td><td>Extension: Semantic-NeRF</td><td>iMAP, NICE-SLAM</td></tr>
+        <tr><td>Instant-NGP</td><td>Hash grid + tiny MLP</td><td>~10</td><td>Extension possible</td><td>Instant-NGP SLAM</td></tr>
+        <tr><td>3DGS</td><td>Explicit Gaussians</td><td>100+</td><td>Extension: LangSplat, SAGA</td><td>SplatSLAM, MonoGS</td></tr>
+        <tr><td>Semantic-3DGS</td><td>Gaussians + feature vectors</td><td>~30–60</td><td>Yes — language queries</td><td>Active research (2024)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.7  LOOP CLOSURE
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>11.7 Semantic Loop Closure — Closing the Map Correctly</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Loop closure is when the robot recognises that it has returned to a previously
+        visited location. This recognition allows the SLAM system to constrain all
+        the accumulated drift in the trajectory — suddenly the map "snaps" into global
+        consistency. Without loop closure, drift is unbounded; with it, long-duration
+        missions can maintain centimetre-level accuracy.
+        Classical loop closure uses visual appearance (bag-of-words descriptors like DBoW).
+        Semantic loop closure is more powerful: "I recognise this place because it has
+        a building with a red door, a parked van, and a junction" — semantic landmarks
+        are more distinctive than geometric features and more robust to lighting changes
+        and seasonal variation.
+      </p>
+    </div>
+
+    <h3>Appearance vs Semantic Place Recognition</h3>
+    <table>
+      <thead><tr><th>Method</th><th>Descriptor</th><th>Invariance</th><th>Distinctiveness</th><th>System</th></tr></thead>
+      <tbody>
+        <tr><td><strong>DBoW2/3</strong></td><td>ORB feature bag-of-words</td><td>Illumination changes (moderate)</td><td>Medium — ambiguous in repetitive environments</td><td>ORB-SLAM2/3</td></tr>
+        <tr><td><strong>NetVLAD</strong></td><td>CNN global descriptor</td><td>Weather, season (good)</td><td>High</td><td>Kimera-Multi</td></tr>
+        <tr><td><strong>Semantic bag-of-words</strong></td><td>Distribution over object classes at location</td><td>Illumination, weather (excellent)</td><td>High in structured environments</td><td>X-View, SeqSLAM</td></tr>
+        <tr><td><strong>Scene graph matching</strong></td><td>Graph isomorphism on object relationships</td><td>Viewpoint (good)</td><td>Very high — structural not appearance</td><td>Hydra, 3DSG</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Semantic Descriptor for Loop Closure</h3>
+    <p>
+      A simple but effective semantic place descriptor counts the histogram of
+      object classes observed from each viewpoint:
+      <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </p>
+    <div class="math-block">
+      <span class="math-label">Semantic Histogram Descriptor — Place Representation</span>
+      $$\mathbf{h}(x_t) = \frac{1}{K} \sum_{k=1}^{K} \mathbf{e}_{c_k}
+        \in \mathbb{R}^C, \quad \|\mathbf{h}\|_1 = 1$$
+      $$\text{similarity}(x_i, x_j) = \cos(\mathbf{h}(x_i), \mathbf{h}(x_j))
+        = \frac{\mathbf{h}(x_i) \cdot \mathbf{h}(x_j)}{\|\mathbf{h}(x_i)\|\,\|\mathbf{h}(x_j)\|}$$
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+        $K$: number of detected objects in view at pose $x_t$.
+        $\mathbf{e}_{c_k}$: one-hot class vector for object $k$.
+        $\mathbf{h}(x_t)$: normalised class frequency histogram.
+        A loop closure candidate is proposed when cosine similarity $> \tau$ (typically 0.85).
+        Advantage over BoW: completely invariant to illumination and texture.
+        Weakness: ambiguous in scenes with uniform class distribution
+        (all-grass field, featureless warehouse).
+        Extension: weight by object rarity —
+        $w_{c_k} \propto -\log p(c_k)$ (IDF weighting, analogous to TF-IDF in text retrieval).
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.8  UAV APPLICATIONS
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>11.8 Semantic SLAM for Military UAV Operations</h2>
+
+    <div class="plain-intro">
+      <span class="pi-label">Plain English First</span>
+      <p>
+        Semantic SLAM is not an academic exercise for military UAVs —
+        it is the difference between a platform that can follow a pre-programmed route
+        and one that can adapt to a dynamic battlespace.
+        A drone building a semantic map knows which structures are occupied, which
+        vehicles are military vs civilian, which areas have changed since the last
+        pass, and which targets have been confirmed vs suspected.
+        It can use that knowledge to replanning missions, adjusting threat assessments,
+        and communicating actionable intelligence to human operators —
+        not just raw sensor data.
+      </p>
+    </div>
+
+    <h3>Key Military Applications</h3>
+    <table>
+      <thead><tr><th>Application</th><th>Semantic SLAM Capability Required</th><th>Theory Module</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Battle Damage Assessment (BDA)</strong></td>
+          <td>Before/after map comparison at object level — identify changed structures, destroyed vehicles, new fortifications</td>
+          <td>M11 §11.5 (object-level SLAM), M07 (change detection)</td>
+        </tr>
+        <tr>
+          <td><strong>GNSS-denied urban navigation</strong></td>
+          <td>Semantic landmarks (building corners, distinctive structures) for re-localisation when GPS is jammed</td>
+          <td>M04 (GNSS-denied), M11 §11.7 (semantic loop closure)</td>
+        </tr>
+        <tr>
+          <td><strong>Target geolocation</strong></td>
+          <td>Object-level map with vehicle tracks — estimate target GPS from semantic object pose + uncertainty</td>
+          <td>M11 §11.5, M06 (detection), Lab 06</td>
+        </tr>
+        <tr>
+          <td><strong>Route planning</strong></td>
+          <td>Semantic cost map — avoid "open ground" (exposed), prefer "building shadow" (concealed), route around "civilian area" (ROE)</td>
+          <td>M08 (planning), M11 §11.3</td>
+        </tr>
+        <tr>
+          <td><strong>Multi-drone ISR coordination</strong></td>
+          <td>Shared semantic map across swarm — each drone contributes observations, all benefit from a unified object-level map</td>
+          <td>M09 (swarm), M11 (shared map)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>3D Scene Graphs — The Hierarchical Semantic Map</h3>
+    <p>
+      The state-of-the-art representation for military UAV semantic mapping is the
+      <span class="key-term" title="3D Scene Graph: hierarchical semantic map with layers from metric/dense to topological/symbolic. Developed at MIT and ETH.">3D Scene Graph</span>,
+      a hierarchical data structure with multiple abstraction levels:
+      <span class="cite">MDPI Autonomous Control Ch.6</span>
+    </p>
+    <table>
+      <thead><tr><th>Layer</th><th>Nodes</th><th>Edges</th><th>Military Relevance</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Metric/Dense</strong></td><td>Voxels / surfels</td><td>Spatial adjacency</td><td>Obstacle avoidance, landing zone assessment</td></tr>
+        <tr><td><strong>Object</strong></td><td>Detected objects with pose + class</td><td>Spatial proximity, "on-top-of"</td><td>Vehicle tracking, target identification</td></tr>
+        <tr><td><strong>Place</strong></td><td>Room/zone nodes</td><td>Topology, transitions</td><td>Area classification, ingress/egress routing</td></tr>
+        <tr><td><strong>Building</strong></td><td>Structural units</td><td>Contains, adjacent-to</td><td>Building clearance, entry point analysis</td></tr>
+        <tr><td><strong>Environment</strong></td><td>Compound/area nodes</td><td>Part-of, near</td><td>Compound mapping, perimeter definition</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.9  PYTHON CODE
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>11.9 Python: Semantic SLAM Components</h2>
+
+    <div class="callout info">
+      <span class="callout-title">What This Code Covers</span>
+      Three simulations:
+      (1) A 2D factor graph SLAM simulation using Gauss-Newton optimisation —
+      poses + landmarks, then extended with semantic class factors.
+      (2) A semantic place descriptor (class histogram) with cosine-similarity loop closure detection.
+      (3) An object-level data association module implementing Hungarian assignment with IoU gating.
+      Run with: <code>pip install numpy scipy</code>
+    </div>
+
+    <div class="code-block">
+      <span class="code-lang">Python</span>
+      <pre><span class="cm"># semantic_slam.py
+# ─────────────────────────────────────────────────────────────────
+# Part 1: 2D factor graph SLAM with semantic class factors
+#         Bestaoui Sebbane §12.2, Theorem 11.1
+# Part 2: Semantic place descriptor + loop closure detection
+#         MDPI Autonomous Control Ch.6
+# Part 3: Object data association (Hungarian + IoU gating)
+#         Marqués & Da Ronch Ch.8, Theorem 11.2
+# ─────────────────────────────────────────────────────────────────
+</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span>   scipy.optimize  <span class="kw">import</span> linear_sum_assignment
+<span class="kw">from</span>   scipy.spatial   <span class="kw">import</span> distance_matrix
+<span class="kw">from</span>   collections     <span class="kw">import</span> defaultdict
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 1 — 2D Factor Graph SLAM
+# Bestaoui Sebbane §12.2
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">class</span> <span class="tp">FactorGraphSLAM2D</span>:
+    <span class="st">"""
+    Minimal 2D SLAM with Gauss-Newton optimisation.
+    State: [x1, y1, θ1, x2, y2, θ2, ..., lx1, ly1, lx2, ly2, ...]
+    Factors: odometry, landmark observations, semantic class factors.
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, n_poses: int, n_landmarks: int):
+        self.n_poses     = n_poses
+        self.n_landmarks = n_landmarks
+        self.n_vars      = n_poses * <span class="nm">3</span> + n_landmarks * <span class="nm">2</span>
+        self.state       = np.zeros(self.n_vars)
+
+        self.factors = []   <span class="cm"># list of (type, indices, residual_fn, jacobian_fn, Σ_inv)</span>
+
+    <span class="kw">def</span> <span class="fn">pose_slice</span>(self, i: int): <span class="kw">return</span> slice(i*<span class="nm">3</span>, i*<span class="nm">3</span>+<span class="nm">3</span>)
+    <span class="kw">def</span> <span class="fn">lmk_slice</span>(self,  j: int): <span class="kw">return</span> slice(self.n_poses*<span class="nm">3</span> + j*<span class="nm">2</span>,
+                                              self.n_poses*<span class="nm">3</span> + j*<span class="nm">2</span>+<span class="nm">2</span>)
+
+    <span class="kw">def</span> <span class="fn">add_odometry</span>(self, i: int, j: int, Δx: float, Δy: float, Δθ: float,
+                      σ_trans=<span class="nm">0.1</span>, σ_rot=<span class="nm">0.05</span>):
+        <span class="st">"""Add odometry factor between poses i and j."""</span>
+        z    = np.array([Δx, Δy, Δθ])
+        Σ_inv= np.diag([<span class="nm">1</span>/σ_trans**<span class="nm">2</span>, <span class="nm">1</span>/σ_trans**<span class="nm">2</span>, <span class="nm">1</span>/σ_rot**<span class="nm">2</span>])
+
+        <span class="kw">def</span> <span class="fn">residual</span>(state):
+            xi = state[self.pose_slice(i)]
+            xj = state[self.pose_slice(j)]
+            <span class="cm"># Relative pose in frame i</span>
+            cθ, sθ = np.cos(xi[<span class="nm">2</span>]), np.sin(xi[<span class="nm">2</span>])
+            R = np.array([[cθ, sθ], [-sθ, cθ]])
+            Δpos = R @ (xj[:<span class="nm">2</span>] - xi[:<span class="nm">2</span>])
+            Δrot = xj[<span class="nm">2</span>] - xi[<span class="nm">2</span>]
+            <span class="kw">return</span> np.array([Δpos[<span class="nm">0</span>]-z[<span class="nm">0</span>], Δpos[<span class="nm">1</span>]-z[<span class="nm">1</span>], Δrot-z[<span class="nm">2</span>]])
+
+        self.factors.append((<span class="st">'odom'</span>, (i, j), residual, Σ_inv))
+
+    <span class="kw">def</span> <span class="fn">add_landmark_obs</span>(self, i: int, j: int, rx: float, ry: float,
+                           σ_obs=<span class="nm">0.2</span>):
+        <span class="st">"""Add landmark observation factor: pose i observes landmark j at (rx,ry) in body frame."""</span>
+        z    = np.array([rx, ry])
+        Σ_inv= np.eye(<span class="nm">2</span>) / σ_obs**<span class="nm">2</span>
+
+        <span class="kw">def</span> <span class="fn">residual</span>(state):
+            xi = state[self.pose_slice(i)]
+            lj = state[self.lmk_slice(j)]
+            cθ, sθ = np.cos(xi[<span class="nm">2</span>]), np.sin(xi[<span class="nm">2</span>])
+            R = np.array([[cθ, sθ], [-sθ, cθ]])
+            pred = R @ (lj - xi[:<span class="nm">2</span>])
+            <span class="kw">return</span> pred - z
+
+        self.factors.append((<span class="st">'lmk'</span>, (i, j), residual, Σ_inv))
+
+    <span class="kw">def</span> <span class="fn">add_semantic_factor</span>(self, i: int, j: int, k: int,
+                             class_match: bool, σ_sem=<span class="nm">0.3</span>):
+        <span class="st">"""
+        Semantic consistency factor: landmarks j and k are the same class.
+        If class_match=True: they should be close (same semantic object).
+        If class_match=False: weak repulsion (different class, shouldn't overlap).
+        Bestaoui Sebbane §12.2
+        """</span>
+        sign = <span class="nm">-1.0</span> <span class="kw">if</span> class_match <span class="kw">else</span> <span class="nm">1.0</span>   <span class="cm"># attract or repel</span>
+        Σ_inv= np.eye(<span class="nm">2</span>) / σ_sem**<span class="nm">2</span>
+
+        <span class="kw">def</span> <span class="fn">residual</span>(state):
+            lj = state[self.lmk_slice(j)]
+            lk = state[self.lmk_slice(k)]
+            <span class="kw">return</span> sign * (lk - lj)
+
+        self.factors.append((<span class="st">'sem'</span>, (j, k), residual, Σ_inv))
+
+    <span class="kw">def</span> <span class="fn">total_cost</span>(self) -> float:
+        cost = <span class="nm">0.0</span>
+        <span class="kw">for</span> _, _, res_fn, Σ_inv <span class="kw">in</span> self.factors:
+            r = res_fn(self.state)
+            cost += float(r @ Σ_inv @ r)
+        <span class="kw">return</span> cost
+
+    <span class="kw">def</span> <span class="fn">optimise</span>(self, n_iter: int = <span class="nm">20</span>, lr: float = <span class="nm">0.5</span>) -> list:
+        <span class="st">"""Gauss-Newton with numerical Jacobian (for clarity; production uses analytical)."""</span>
+        costs = []
+        eps   = <span class="nm">1e-5</span>
+        <span class="cm"># Fix first pose (anchor — removes gauge freedom)</span>
+        fixed = list(range(<span class="nm">3</span>))
+
+        <span class="kw">for</span> it <span class="kw">in</span> range(n_iter):
+            H = np.zeros((self.n_vars, self.n_vars))
+            g = np.zeros(self.n_vars)
+
+            <span class="kw">for</span> _, indices, res_fn, Σ_inv <span class="kw">in</span> self.factors:
+                r = res_fn(self.state)
+                m = len(r)
+                <span class="cm"># Numerical Jacobian</span>
+                J = np.zeros((m, self.n_vars))
+                <span class="kw">for</span> k <span class="kw">in</span> range(self.n_vars):
+                    s_plus  = self.state.copy(); s_plus[k]  += eps
+                    s_minus = self.state.copy(); s_minus[k] -= eps
+                    J[:, k] = (res_fn(s_plus) - res_fn(s_minus)) / (<span class="nm">2</span>*eps)
+
+                H += J.T @ Σ_inv @ J
+                g += J.T @ Σ_inv @ r
+
+            <span class="cm"># Anchor: fix first pose by removing from system</span>
+            <span class="kw">for</span> idx <span class="kw">in</span> fixed:
+                H[idx, :] = <span class="nm">0</span>; H[:, idx] = <span class="nm">0</span>; H[idx, idx] = <span class="nm">1</span>
+                g[idx] = <span class="nm">0</span>
+
+            <span class="kw">try</span>:
+                Δ = np.linalg.solve(H, -g)
+            <span class="kw">except</span> np.linalg.LinAlgError:
+                <span class="kw">break</span>
+
+            self.state += lr * Δ
+            c = self.total_cost()
+            costs.append(c)
+
+            <span class="kw">if</span> len(costs) > <span class="nm">2</span> <span class="kw">and</span> abs(costs[-<span class="nm">1</span>] - costs[-<span class="nm">2</span>]) < <span class="nm">1e-6</span>:
+                <span class="kw">break</span>
+
+        <span class="kw">return</span> costs
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 2 — Semantic Place Descriptor + Loop Closure
+# MDPI Autonomous Control Ch.6
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">class</span> <span class="tp">SemanticPlaceDescriptor</span>:
+    <span class="st">"""
+    Class-histogram place descriptor with IDF weighting.
+    MDPI Autonomous Control Ch.6
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, class_names: list, idf_weight: bool = <span class="kw">True</span>):
+        self.class_names = class_names
+        self.C           = len(class_names)
+        self.class_idx   = {c: i <span class="kw">for</span> i, c <span class="kw">in</span> enumerate(class_names)}
+        self.idf_weight  = idf_weight
+        self._desc_db    = {}       <span class="cm"># pose_id → descriptor vector</span>
+        self._class_freq = np.zeros(self.C)   <span class="cm"># for IDF computation</span>
+        self._n_poses    = <span class="nm">0</span>
+
+    <span class="kw">def</span> <span class="fn">add_observation</span>(self, pose_id: int, detections: list):
+        <span class="st">"""
+        detections: list of class name strings seen from this pose.
+        Compute normalised class histogram → store as descriptor.
+        """</span>
+        hist = np.zeros(self.C)
+        <span class="kw">for</span> cls <span class="kw">in</span> detections:
+            idx = self.class_idx.get(cls)
+            <span class="kw">if</span> idx <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+                hist[idx] += <span class="nm">1</span>
+                self._class_freq[idx] += <span class="nm">1</span>
+        self._n_poses += <span class="nm">1</span>
+
+        <span class="kw">if</span> hist.sum() > <span class="nm">0</span>:
+            hist /= hist.sum()   <span class="cm"># L1 normalise</span>
+
+        self._desc_db[pose_id] = hist
+
+    <span class="kw">def</span> <span class="fn">_idf_weights</span>(self) -> np.ndarray:
+        <span class="st">"""IDF: rare classes get higher weight. -log(class_freq / n_poses)."""</span>
+        freq = np.maximum(self._class_freq, <span class="nm">1</span>) / max(self._n_poses, <span class="nm">1</span>)
+        <span class="kw">return</span> -np.log(freq + <span class="nm">1e-9</span>)
+
+    <span class="kw">def</span> <span class="fn">find_loop_closures</span>(self, query_id: int, threshold: float = <span class="nm">0.85</span>,
+                            min_gap: int = <span class="nm">10</span>) -> list:
+        <span class="st">"""
+        Find all past poses similar to query_id.
+        Returns list of (pose_id, similarity) sorted by similarity descending.
+        min_gap: minimum index distance to avoid short-term revisits.
+        """</span>
+        <span class="kw">if</span> query_id <span class="kw">not</span> <span class="kw">in</span> self._desc_db:
+            <span class="kw">return</span> []
+
+        q = self._desc_db[query_id].copy()
+        idf = self._idf_weights() <span class="kw">if</span> self.idf_weight <span class="kw">else</span> np.ones(self.C)
+
+        <span class="cm"># Weight by IDF</span>
+        q_w = q * idf
+
+        candidates = []
+        <span class="kw">for</span> pid, hist <span class="kw">in</span> self._desc_db.items():
+            <span class="kw">if</span> abs(pid - query_id) < min_gap: <span class="kw">continue</span>
+            h_w = hist * idf
+            nq  = np.linalg.norm(q_w); nh = np.linalg.norm(h_w)
+            <span class="kw">if</span> nq < <span class="nm">1e-8</span> <span class="kw">or</span> nh < <span class="nm">1e-8</span>: <span class="kw">continue</span>
+            sim = float(q_w @ h_w) / (nq * nh)
+            <span class="kw">if</span> sim >= threshold:
+                candidates.append((pid, sim))
+
+        <span class="kw">return</span> sorted(candidates, key=<span class="kw">lambda</span> x: -x[<span class="nm">1</span>])
+
+
+<span class="cm"># ════════════════════════════════════════════════════════════════
+# PART 3 — Object Data Association (Hungarian + IoU gating)
+# Marqués & Da Ronch Ch.8, Theorem 11.2
+# ════════════════════════════════════════════════════════════════</span>
+
+<span class="kw">def</span> <span class="fn">box_iou</span>(b1, b2) -> float:
+    <span class="st">"""IoU between two [x_centre, y_centre, w, h] boxes."""</span>
+    x1m, y1m = b1[<span class="nm">0</span>]-b1[<span class="nm">2</span>]/<span class="nm">2</span>, b1[<span class="nm">1</span>]-b1[<span class="nm">3</span>]/<span class="nm">2</span>
+    x1M, y1M = b1[<span class="nm">0</span>]+b1[<span class="nm">2</span>]/<span class="nm">2</span>, b1[<span class="nm">1</span>]+b1[<span class="nm">3</span>]/<span class="nm">2</span>
+    x2m, y2m = b2[<span class="nm">0</span>]-b2[<span class="nm">2</span>]/<span class="nm">2</span>, b2[<span class="nm">1</span>]-b2[<span class="nm">3</span>]/<span class="nm">2</span>
+    x2M, y2M = b2[<span class="nm">0</span>]+b2[<span class="nm">2</span>]/<span class="nm">2</span>, b2[<span class="nm">1</span>]+b2[<span class="nm">3</span>]/<span class="nm">2</span>
+    inter_w = max(<span class="nm">0</span>, min(x1M,x2M) - max(x1m,x2m))
+    inter_h = max(<span class="nm">0</span>, min(y1M,y2M) - max(y1m,y2m))
+    inter   = inter_w * inter_h
+    union   = b1[<span class="nm">2</span>]*b1[<span class="nm">3</span>] + b2[<span class="nm">2</span>]*b2[<span class="nm">3</span>] - inter
+    <span class="kw">return</span> inter / union <span class="kw">if</span> union > <span class="nm">0</span> <span class="kw">else</span> <span class="nm">0</span>
+
+
+<span class="kw">def</span> <span class="fn">associate_objects</span>(detections: list, map_objects: list,
+                        iou_threshold: float = <span class="nm">0.3</span>,
+                        class_match_required: bool = <span class="kw">True</span>) -> dict:
+    <span class="st">"""
+    Hungarian-based data association between new detections and existing map objects.
+
+    detections:   list of {'box': [cx,cy,w,h], 'class': str, 'conf': float}
+    map_objects:  list of {'id': int, 'proj_box': [cx,cy,w,h], 'class': str}
+    Returns:      dict {detection_idx → map_object_id or None (new object)}
+
+    Marqués & Da Ronch Ch.8, Theorem 11.2
+    """</span>
+    D, M = len(detections), len(map_objects)
+    assignment = {i: <span class="kw">None</span> <span class="kw">for</span> i <span class="kw">in</span> range(D)}
+
+    <span class="kw">if</span> D == <span class="nm">0</span> <span class="kw">or</span> M == <span class="nm">0</span>:
+        <span class="kw">return</span> assignment
+
+    <span class="cm"># Build cost matrix: 1 - IoU (Hungarian minimises cost)</span>
+    cost = np.ones((D, M))
+    <span class="kw">for</span> i, det <span class="kw">in</span> enumerate(detections):
+        <span class="kw">for</span> j, obj <span class="kw">in</span> enumerate(map_objects):
+            <span class="cm"># Gate: class must match (if required)</span>
+            <span class="kw">if</span> class_match_required <span class="kw">and</span> det[<span class="st">'class'</span>] != obj[<span class="st">'class'</span>]:
+                cost[i, j] = <span class="nm">1.0</span>   <span class="cm"># maximum cost → won't be assigned</span>
+                <span class="kw">continue</span>
+            iou = box_iou(det[<span class="st">'box'</span>], obj[<span class="st">'proj_box'</span>])
+            cost[i, j] = <span class="nm">1.0</span> - iou
+
+    <span class="cm"># Hungarian assignment (minimise cost)</span>
+    row_ind, col_ind = linear_sum_assignment(cost)
+
+    <span class="kw">for</span> r, c <span class="kw">in</span> zip(row_ind, col_ind):
+        iou = <span class="nm">1.0</span> - cost[r, c]
+        <span class="kw">if</span> iou >= iou_threshold:
+            assignment[r] = map_objects[c][<span class="st">'id'</span>]
+        <span class="cm"># else: detection r is a new object (assignment[r] stays None)</span>
+
+    <span class="kw">return</span> assignment
+
+
+<span class="kw">def</span> <span class="fn">demo_semantic_slam</span>():
+    print(<span class="st">f'\n{"="*60}'</span>)
+    print(<span class="st">'  PART 1 — 2D Factor Graph SLAM'</span>)
+    print(<span class="st">f'{"="*60}'</span>)
+
+    <span class="cm"># 3 poses in a rough triangle, 2 landmarks</span>
+    slam = FactorGraphSLAM2D(n_poses=<span class="nm">3</span>, n_landmarks=<span class="nm">2</span>)
+
+    <span class="cm"># Initial guess (noisy)</span>
+    slam.state[slam.pose_slice(<span class="nm">0</span>)] = [<span class="nm">0.0</span>,  <span class="nm">0.0</span>,  <span class="nm">0.0</span>]
+    slam.state[slam.pose_slice(<span class="nm">1</span>)] = [<span class="nm">1.3</span>,  <span class="nm">0.1</span>,  <span class="nm">0.05</span>]   <span class="cm"># true: (1,0,0)</span>
+    slam.state[slam.pose_slice(<span class="nm">2</span>)] = [<span class="nm">1.2</span>,  <span class="nm">0.9</span>,  <span class="nm">1.5</span>]   <span class="cm"># true: (1,1,π/2)</span>
+    slam.state[slam.lmk_slice(<span class="nm">0</span>)]  = [<span class="nm">0.4</span>,  <span class="nm">0.5</span>]           <span class="cm"># true: (0.5, 0.5)</span>
+    slam.state[slam.lmk_slice(<span class="nm">1</span>)]  = [<span class="nm">1.6</span>,  <span class="nm">0.6</span>]           <span class="cm"># true: (1.5, 0.5)</span>
+
+    <span class="cm"># Add factors</span>
+    slam.add_odometry(<span class="nm">0</span>, <span class="nm">1</span>,  <span class="nm">1.0</span>, <span class="nm">0.0</span>,  <span class="nm">0.0</span>)
+    slam.add_odometry(<span class="nm">1</span>, <span class="nm">2</span>,  <span class="nm">0.0</span>, <span class="nm">1.0</span>,  np.pi/<span class="nm">2</span>)
+    slam.add_landmark_obs(<span class="nm">0</span>, <span class="nm">0</span>,  <span class="nm">0.5</span>,  <span class="nm">0.5</span>)
+    slam.add_landmark_obs(<span class="nm">1</span>, <span class="nm">0</span>, -<span class="nm">0.5</span>,  <span class="nm">0.5</span>)
+    slam.add_landmark_obs(<span class="nm">1</span>, <span class="nm">1</span>,  <span class="nm">0.5</span>,  <span class="nm">0.5</span>)
+    slam.add_landmark_obs(<span class="nm">2</span>, <span class="nm">1</span>,  <span class="nm">0.5</span>, -<span class="nm">0.5</span>)
+    <span class="cm"># Semantic factor: landmarks 0 and 1 are the same class → weakly attract</span>
+    slam.add_semantic_factor(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">1</span>, class_match=<span class="kw">True</span>, σ_sem=<span class="nm">1.0</span>)
+
+    cost_before = slam.total_cost()
+    costs = slam.optimise(n_iter=<span class="nm">30</span>)
+    cost_after  = slam.total_cost()
+
+    print(<span class="st">f'  Cost before optimisation: {cost_before:.4f}'</span>)
+    print(<span class="st">f'  Cost after  optimisation: {cost_after:.4f}'</span>)
+    print(<span class="st">f'  Iterations to convergence: {len(costs)}'</span>)
+    print(<span class="st">f'  Final poses:'</span>)
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="nm">3</span>):
+        p = slam.state[slam.pose_slice(i)]
+        print(<span class="st">f'    x{i}: ({p[0]:+.3f}, {p[1]:+.3f}, θ={np.degrees(p[2]):+.1f}°)'</span>)
+    print(<span class="st">f'  Final landmarks:'</span>)
+    <span class="kw">for</span> j <span class="kw">in</span> range(<span class="nm">2</span>):
+        l = slam.state[slam.lmk_slice(j)]
+        print(<span class="st">f'    l{j}: ({l[0]:+.3f}, {l[1]:+.3f})'</span>)
+
+    print(<span class="st">f'\n{"="*60}'</span>)
+    print(<span class="st">'  PART 2 — Semantic Loop Closure Detection'</span>)
+    print(<span class="st">f'{"="*60}'</span>)
+
+    classes = [<span class="st">'building'</span>, <span class="st">'vehicle'</span>, <span class="st">'tree'</span>, <span class="st">'person'</span>, <span class="st">'sign'</span>]
+    desc    = SemanticPlaceDescriptor(classes, idf_weight=<span class="kw">True</span>)
+
+    <span class="cm"># Simulate 30 poses along a loop; pose 28 ≈ pose 3</span>
+    observations = [
+        [<span class="st">'building'</span>, <span class="st">'vehicle'</span>, <span class="st">'tree'</span>],   <span class="cm"># pose 0</span>
+        [<span class="st">'building'</span>, <span class="st">'building'</span>, <span class="st">'sign'</span>],   <span class="cm"># pose 1 (unique sign)</span>
+        [<span class="st">'tree'</span>, <span class="st">'tree'</span>, <span class="st">'person'</span>],         <span class="cm"># pose 2</span>
+        [<span class="st">'vehicle'</span>, <span class="st">'sign'</span>, <span class="st">'building'</span>],   <span class="cm"># pose 3 ← loop target</span>
+    ] + [[<span class="st">'building'</span>, <span class="st">'tree'</span>]] * <span class="nm">24</span>        <span class="cm"># poses 4–27 (generic)</span>
+    observations.append([<span class="st">'vehicle'</span>, <span class="st">'sign'</span>, <span class="st">'building'</span>])  <span class="cm"># pose 28 ≈ pose 3</span>
+
+    <span class="kw">for</span> t, obs <span class="kw">in</span> enumerate(observations):
+        desc.add_observation(t, obs)
+
+    loops = desc.find_loop_closures(<span class="nm">28</span>, threshold=<span class="nm">0.80</span>, min_gap=<span class="nm">5</span>)
+    print(<span class="st">f'  Query pose 28 detections: vehicle, sign, building'</span>)
+    print(<span class="st">f'  Loop closure candidates (similarity ≥ 0.80):'</span>)
+    <span class="kw">for</span> pid, sim <span class="kw">in</span> loops[:<span class="nm">5</span>]:
+        marker = <span class="st">'  ← CORRECT'</span> <span class="kw">if</span> pid == <span class="nm">3</span> <span class="kw">else</span> <span class="st">''</span>
+        print(<span class="st">f'    Pose {pid:3d}: cosine similarity = {sim:.4f}{marker}'</span>)
+
+    print(<span class="st">f'\n{"="*60}'</span>)
+    print(<span class="st">'  PART 3 — Object Data Association'</span>)
+    print(<span class="st">f'{"="*60}'</span>)
+
+    detections = [
+        {<span class="st">'box'</span>: [<span class="nm">100</span>, <span class="nm">100</span>, <span class="nm">40</span>, <span class="nm">30</span>], <span class="st">'class'</span>: <span class="st">'car'</span>,      <span class="st">'conf'</span>: <span class="nm">0.82</span>},
+        {<span class="st">'box'</span>: [<span class="nm">300</span>, <span class="nm">200</span>, <span class="nm">60</span>, <span class="nm">50</span>], <span class="st">'class'</span>: <span class="st">'building'</span>, <span class="st">'conf'</span>: <span class="nm">0.91</span>},
+        {<span class="st">'box'</span>: [<span class="nm">450</span>, <span class="nm">150</span>, <span class="nm">35</span>, <span class="nm">25</span>], <span class="st">'class'</span>: <span class="st">'car'</span>,      <span class="st">'conf'</span>: <span class="nm">0.74</span>},
+    ]
+    map_objs = [
+        {<span class="st">'id'</span>: <span class="nm">1</span>, <span class="st">'proj_box'</span>: [<span class="nm">98</span>,  <span class="nm">101</span>, <span class="nm">40</span>, <span class="nm">30</span>], <span class="st">'class'</span>: <span class="st">'car'</span>},
+        {<span class="st">'id'</span>: <span class="nm">2</span>, <span class="st">'proj_box'</span>: [<span class="nm">295</span>, <span class="nm">198</span>, <span class="nm">58</span>, <span class="nm">48</span>], <span class="st">'class'</span>: <span class="st">'building'</span>},
+    ]
+
+    result = associate_objects(detections, map_objs, iou_threshold=<span class="nm">0.3</span>)
+    print(<span class="st">f'  Detections: {len(detections)}   Map objects: {len(map_objs)}'</span>)
+    print(<span class="st">f'  {"Det":>4} {"Class":<10} {"Assigned to":>12}'</span>)
+    <span class="kw">for</span> i, det <span class="kw">in</span> enumerate(detections):
+        obj_id = result[i]
+        status = <span class="st">f'Object {obj_id}'</span> <span class="kw">if</span> obj_id <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">else</span> <span class="st">'NEW OBJECT'</span>
+        print(<span class="st">f'  D{i+1}  {det["class"]:<10} {status:>12}'</span>)
+    print()
+
+
+<span class="kw">if</span> __name__ == <span class="st">'__main__'</span>:
+    demo_semantic_slam()</pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-title">Expected Output</span>
+      Part 1: Cost drops from ~80–120 to &lt;5 over 15–25 Gauss-Newton iterations.
+      Final poses converge close to ground truth (errors &lt;0.1 m).
+      Part 2: Pose 3 appears as top loop closure candidate (similarity ≈ 0.92+) for query pose 28.
+      IDF weighting gives extra weight to "sign" (rare class) — distinguishing the correct match.
+      Part 3: D1→Object 1 (car match, IoU≈0.96), D2→Object 2 (building, IoU≈0.93), D3→NEW OBJECT (no map car near pixel 450).
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       11.10  REFLECTION
+       ═══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s10">
+    <div class="reflection-box"
+      data-guidance="Q1: The sparsity of the Hessian comes from the factor graph structure: H_ij ≠ 0 only if variables i and j share a factor. In a robot with T=100 poses, N=500 landmarks where each pose observes k=5 landmarks: the total state dimension is 100×6 + 500×3 = 2100. The Hessian is 2100×2100 = 4.41 million entries. Non-zero off-diagonal blocks: each odometry factor creates one 6×6 block between consecutive poses = 99 blocks. Each landmark observation creates one 6×3 block between pose and landmark = 100×5 = 500 blocks. Total non-zeros ≈ 2×(99×36 + 500×18) = ~25,000 values out of 4.41 million = ~0.57% fill. Cholesky on this takes O(n) effectively rather than O(n^3). Adding 50 semantic factors each involving 2 landmarks: 50 extra 3×3 blocks = 450 more non-zeros — negligible overhead. This is why semantic SLAM is not fundamentally harder than geometric SLAM: both are sparse problems of similar structure. The semantic factors don't change the computational class of the problem.
+
+Q2: Data association errors are catastrophic because wrong associations introduce spurious constraints into the factor graph. If detection D1 is incorrectly associated with map object O2 (which is in a different location), the factor graph now contains a residual that wants to pull x_t toward a wrong position to explain the observation. The Gauss-Newton optimiser will compromise: it will move both the current pose estimate AND the wrongly-associated object toward each other, corrupting both. This is known as 'catastrophic data association'. Unlike a single wrong measurement which can be down-weighted, a systematic wrong association creates a structural error in the graph that persists and corrupts subsequent estimates. The solution in practice: use RANSAC-like outer loop rejection (if an association consistently produces large residuals after optimisation, reject it and re-associate), or use robust cost functions (Huber, DCS) that limit the influence of large residuals.
+
+Q3: 3DGS and NeRF represent the scene implicitly as a density field / Gaussians rather than as discrete feature points or voxels. Standard loop closure algorithms (DBoW, ORB feature matching) require explicit keypoints — they can't directly query a neural field. Solutions: (1) Render explicit keyframe images from the neural field at known poses, then use standard appearance-based loop closure on those rendered images — this is the approach of NeRF-based SLAM systems like NICE-SLAM. (2) Distill semantic features from the neural field into a compact descriptor at each pose (integrate the semantic field along camera rays to get a semantic histogram, then apply the Part 2 approach from this module). (3) Use the latent feature vectors of LangSplat/LERF directly as place descriptors — cosine similarity in CLIP embedding space gives illumination-invariant place recognition. Option 3 is the most elegant: the language-embedded field is already a semantic descriptor; loop closure is just nearest-neighbour search in CLIP space.">
+      <ol>
+        <li>
+          The Hessian of the MAP-SLAM least squares problem is sparse when represented
+          as a factor graph (Theorem 11.1). For a trajectory of $T=100$ poses, $N=500$ landmarks
+          where each pose observes $k=5$ landmarks, compute:
+          (a) the total state dimension, (b) the theoretical Hessian size,
+          (c) the approximate number of non-zero blocks, and (d) the fill percentage.
+          Now add 50 semantic factors each connecting two landmark variables.
+          How does this change the fill percentage, and what does this tell you
+          about the computational cost of adding semantics to a geometric SLAM system?
+        </li>
+        <li>
+          Data association errors are often described as "catastrophic" in SLAM literature.
+          Using the factor graph framework (Section 11.4), explain precisely
+          why a single wrong data association — associating detection $D_1$ with the wrong
+          map object $O_2$ — corrupts the map globally, not just locally.
+          Show with a concrete example of the residual structure what happens to the
+          estimated poses and landmark positions after several Gauss-Newton iterations
+          with the wrong association. What is the standard practical mitigation, and why
+          doesn't robust cost function weighting fully solve the problem?
+        </li>
+        <li>
+          Neural representations (NeRF, 3DGS) encode scenes implicitly and continuously.
+          Standard geometric loop closure algorithms rely on explicit keypoint matching
+          (ORB, DBoW2) that require discrete feature locations.
+          Explain why standard loop closure algorithms cannot be directly applied
+          to a NeRF or 3DGS map, and propose three concrete approaches
+          (at increasing levels of sophistication) that would enable loop closure
+          in a neural-implicit SLAM system. For each approach, state what
+          additional data structure or algorithm is required and what invariance
+          properties the resulting descriptor would have.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- MODULE NAVIGATION -->
+  <div style="display:flex; justify-content:space-between; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-dim);">
+    <a href="m10-systems-engineering.html" class="btn-secondary" style="font-size:0.75rem;">◂ Module 10: Systems Engineering</a>
+    <a href="../index.html"                class="btn-primary"   style="font-size:0.75rem;">↩ Return to Home</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>AEROKNOW · Module 11 · Semantic SLAM ·
+  Bestaoui Sebbane §12 · MDPI Autonomous Control Ch.6 · Marqués &amp; Da Ronch Ch.8 · Cadena et al. 2016</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/quiz.js"></script>
+<script>
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+  const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  const buttons  = document.querySelectorAll('.jump-btn');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        if (idx !== -1) {
+          buttons.forEach(b => b.classList.remove('active'));
+          buttons[idx]?.classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+</script>
+</body>
+</html>
