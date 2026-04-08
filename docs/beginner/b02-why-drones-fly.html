@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>B02: Why Drones Fly — AEROKNOW Beginner Track</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+
+  <style>
+    /* ── Beginner Track Badge ── */
+    .beginner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-amber);
+      background: rgba(255,183,0,0.07);
+      border: 1px solid rgba(255,183,0,0.25);
+      padding: 0.25rem 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .beginner-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-amber);
+      box-shadow: var(--glow-amber);
+      animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ── Plain-English intro box ── */
+    .plain-intro {
+      background: rgba(0,212,255,0.03);
+      border-left: 3px solid var(--accent-primary);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .plain-intro .pi-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .plain-intro p { font-size: 1rem; color: var(--text-secondary); margin: 0; line-height: 1.75; }
+
+    /* ── Analogy box ── */
+    .analogy-box {
+      background: rgba(255,183,0,0.04);
+      border: 1px solid rgba(255,183,0,0.15);
+      border-left: 3px solid var(--accent-amber);
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0;
+    }
+    .analogy-box .analogy-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-amber);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    .analogy-box p { margin: 0 0 0.5rem; font-size: 0.95rem; color: var(--text-secondary); }
+    .analogy-box p:last-child { margin-bottom: 0; }
+
+    /* ── Story box ── */
+    .story-box {
+      background: rgba(179,136,255,0.04);
+      border: 1px solid rgba(179,136,255,0.18);
+      border-left: 3px solid #b388ff;
+      padding: 1.2rem 1.5rem;
+      margin: 1.8rem 0;
+    }
+    .story-box .story-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: #b388ff;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+    .story-box p { margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.97rem; line-height: 1.75; }
+    .story-box p:last-child { margin-bottom: 0; }
+
+    /* ── Key term ── */
+    .key-term {
+      color: var(--accent-primary);
+      font-weight: 600;
+      border-bottom: 1px dashed rgba(0,212,255,0.4);
+      cursor: help;
+    }
+
+    /* ── Fact block ── */
+    .fact-block {
+      background: rgba(0,255,157,0.03);
+      border: 1px solid rgba(0,255,157,0.14);
+      border-left: 3px solid var(--accent-green);
+      padding: 1.1rem 1.4rem;
+      margin: 1.4rem 0;
+    }
+    .fact-block .fact-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-green);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    .fact-block p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
+
+    /* ── Warning / caution block ── */
+    .caution-block {
+      background: rgba(255,58,58,0.03);
+      border: 1px solid rgba(255,58,58,0.15);
+      border-left: 3px solid var(--accent-red);
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0;
+    }
+    .caution-block .caution-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-red);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    .caution-block p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
+
+    /* ── Diagram / visual container ── */
+    .diagram-wrap {
+      background: rgba(5,13,20,0.9);
+      border: 1px solid var(--border-dim);
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+    .diagram-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 1rem;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .diagram-title {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .diagram-sub {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Comparison table ── */
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.4rem 0;
+    }
+    .comp-table th {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--accent-primary);
+      text-align: left;
+      padding: 0.5rem 0.85rem;
+      border-bottom: 1px solid var(--border-dim);
+      background: rgba(0,212,255,0.03);
+    }
+    .comp-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-panel);
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+    .comp-table td:first-child {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent-primary);
+      white-space: nowrap;
+    }
+    .comp-table tr:hover td { background: rgba(0,212,255,0.02); }
+
+    /* ── Drag and drop ── */
+    .dnd-wrap {
+      background: rgba(0,255,157,0.02);
+      border: 1px solid rgba(0,255,157,0.12);
+      border-top: 2px solid var(--accent-green);
+      padding: 1.5rem 1.8rem;
+      margin: 2rem 0;
+    }
+    .dnd-title { font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-green); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 0.4rem; }
+    .dnd-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.2rem; }
+    .dnd-bank {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 1.4rem; min-height: 2.5rem;
+      padding: 0.6rem;
+      background: rgba(0,0,0,0.3);
+      border: 1px dashed rgba(0,255,157,0.2);
+    }
+    .dnd-chip {
+      font-family: var(--font-mono); font-size: 0.72rem;
+      color: var(--accent-green);
+      background: rgba(0,255,157,0.08);
+      border: 1px solid rgba(0,255,157,0.3);
+      padding: 0.3rem 0.8rem;
+      cursor: grab; user-select: none;
+      transition: var(--transition);
+    }
+    .dnd-chip:hover { background: rgba(0,255,157,0.15); box-shadow: var(--glow-green); }
+    .dnd-chip.dragging { opacity: 0.4; cursor: grabbing; }
+    .dnd-chip.placed   { opacity: 0.3; cursor: default; pointer-events: none; }
+    .dnd-targets { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; }
+    .dnd-target {
+      border: 1px dashed var(--border-dim);
+      padding: 0.5rem 0.75rem;
+      min-height: 2.8rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      transition: var(--transition);
+      background: rgba(0,0,0,0.2);
+    }
+    .dnd-target.drag-over { border-color: var(--accent-green); background: rgba(0,255,157,0.05); }
+    .dnd-target.correct   { border-color: var(--accent-green); background: rgba(0,255,157,0.07); }
+    .dnd-target.wrong     { border-color: var(--accent-red);   background: rgba(255,58,58,0.07); }
+    .dnd-target-num  { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); flex-shrink: 0; }
+    .dnd-target-hint { font-size: 0.83rem; color: var(--text-muted); flex: 1; line-height: 1.4; }
+    .dnd-target-drop { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); min-width: 90px; text-align: right; }
+    .dnd-controls { display: flex; gap: 0.75rem; margin-top: 1rem; }
+    .dnd-btn {
+      background: transparent; border: 1px solid var(--border-dim);
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.5rem 1.2rem; cursor: pointer; transition: var(--transition);
+    }
+    .dnd-btn.primary { border-color: var(--accent-green); color: var(--accent-green); }
+    .dnd-btn.primary:hover { background: var(--accent-green); color: var(--bg-void); box-shadow: var(--glow-green); }
+    .dnd-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+    .dnd-result { margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.75rem; display: none; }
+
+    /* ── Scenario ── */
+    .scenario-box {
+      background: rgba(255,58,58,0.03);
+      border: 1px solid rgba(255,58,58,0.15);
+      border-left: 3px solid var(--accent-red);
+      padding: 1.4rem 1.6rem;
+      margin: 2rem 0;
+    }
+    .scenario-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--accent-red); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.75rem; display: block; }
+    .scenario-q { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem; line-height: 1.55; }
+    .scenario-choices { display: flex; flex-direction: column; gap: 0.5rem; }
+    .scenario-choice {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border-dim);
+      color: var(--text-secondary); font-family: var(--font-ui); font-size: 0.95rem;
+      padding: 0.7rem 1rem; cursor: pointer; text-align: left; transition: var(--transition);
+    }
+    .scenario-choice:hover:not(:disabled) { border-color: var(--accent-primary); background: rgba(0,212,255,0.05); color: var(--text-primary); }
+    .scenario-choice:disabled { cursor: default; }
+    .scenario-choice.s-correct { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0,255,157,0.06); }
+    .scenario-choice.s-wrong   { border-color: var(--accent-red);   color: var(--accent-red);   background: rgba(255,58,58,0.06); opacity:0.7; }
+    .scenario-feedback {
+      margin-top: 0.9rem; padding: 0.8rem 1rem;
+      background: rgba(0,0,0,0.3); border-left: 2px solid var(--accent-amber);
+      font-size: 0.92rem; color: var(--text-secondary); line-height: 1.65; display: none;
+    }
+
+    /* ── Interactive slider sim ── */
+    .sim-wrap {
+      background: rgba(1,8,16,0.95);
+      border: 1px solid var(--border-dim);
+      margin: 1.5rem 0;
+    }
+    .sim-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 1rem; border-bottom: 1px solid var(--border-dim);
+    }
+    .sim-title { font-family: var(--font-mono); font-size: 0.62rem; color: var(--accent-primary); letter-spacing: 0.15em; text-transform: uppercase; }
+    .sim-status { font-family: var(--font-mono); font-size: 0.58rem; color: var(--accent-green); letter-spacing: 0.1em; }
+    .sim-controls-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      padding: 1rem 1.2rem;
+      border-top: 1px solid var(--border-dim);
+    }
+    .sim-slider-row { display: flex; flex-direction: column; gap: 0.35rem; }
+    .sim-slider-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; display: flex; justify-content: space-between; }
+    input[type=range].force-slider {
+      -webkit-appearance: none;
+      width: 100%; height: 3px;
+      border-radius: 0; outline: none; cursor: pointer;
+    }
+    input[type=range].force-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border: 2px solid currentColor;
+      background: var(--bg-void);
+      cursor: pointer;
+    }
+    .slider-lift   { background: linear-gradient(to right, rgba(0,255,157,0.2), rgba(0,255,157,0.8)); }
+    .slider-weight { background: linear-gradient(to right, rgba(255,58,58,0.2),  rgba(255,58,58,0.8));  }
+    .slider-thrust { background: linear-gradient(to right, rgba(0,212,255,0.2), rgba(0,212,255,0.8)); }
+    .slider-drag   { background: linear-gradient(to right, rgba(255,183,0,0.2), rgba(255,183,0,0.8)); }
+    input[type=range].force-slider.slider-lift::-webkit-slider-thumb   { color: var(--accent-green); }
+    input[type=range].force-slider.slider-weight::-webkit-slider-thumb { color: var(--accent-red); }
+    input[type=range].force-slider.slider-thrust::-webkit-slider-thumb { color: var(--accent-primary); }
+    input[type=range].force-slider.slider-drag::-webkit-slider-thumb   { color: var(--accent-amber); }
+
+    .sim-readout {
+      padding: 0.75rem 1.2rem;
+      border-top: 1px solid var(--border-dim);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;
+    }
+    .readout-val { display: flex; flex-direction: column; gap: 0.1rem; }
+    .readout-val span:first-child { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .readout-val span:last-child  { font-size: 0.9rem; font-weight: 600; }
+
+    /* ── Section jump bar ── */
+    .section-jump {
+      position: sticky; top: 60px; z-index: 100;
+      background: rgba(2,4,8,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-dim);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .section-jump::-webkit-scrollbar { display: none; }
+    .jump-inner { display: flex; align-items: center; gap: 0; padding: 0 1rem; min-width: max-content; }
+    .jump-label {
+      font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0 0.75rem 0 0; border-right: 1px solid var(--border-dim);
+      margin-right: 0.25rem; white-space: nowrap; line-height: 42px;
+    }
+    .jump-btn {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--font-mono); font-size: 0.65rem;
+      letter-spacing: 0.06em; padding: 0 0.85rem; height: 42px; cursor: pointer;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .jump-btn:hover { color: var(--text-secondary); border-bottom-color: var(--border-bright); }
+    .jump-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .jump-btn .jb-num { color: var(--accent-green); margin-right: 0.3rem; font-size: 0.58rem; }
+    .section-anchor { scroll-margin-top: 105px; }
+
+    /* ── Stepping stone ── */
+    .advance-panel {
+      background: rgba(0,212,255,0.03); border: 1px solid var(--border-dim);
+      border-top: 2px solid var(--accent-primary);
+      padding: 1.5rem 1.8rem; margin: 3rem 0 1rem;
+      display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;
+    }
+    .advance-icon { font-family: var(--font-display); font-size: 2rem; color: var(--accent-primary); opacity: 0.5; flex-shrink: 0; }
+    .advance-text h3 { font-family: var(--font-display); font-size: 0.9rem; color: var(--accent-primary); margin-bottom: 0.3rem; letter-spacing: 0.05em; }
+    .advance-text p  { font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+    .advance-link {
+      margin-left: auto; display: inline-block;
+      background: transparent; border: 1px solid var(--accent-primary);
+      color: var(--accent-primary); font-family: var(--font-mono); font-size: 0.68rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.7rem 1.5rem; text-decoration: none; transition: var(--transition);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .advance-link:hover { background: var(--accent-primary); color: var(--bg-void); box-shadow: var(--glow-primary); }
+
+    .cite {
+      font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent-amber);
+      background: rgba(255,183,0,0.07); border: 1px solid rgba(255,183,0,0.18);
+      padding: 0.08rem 0.4rem; margin-left: 0.25rem; vertical-align: middle; white-space: nowrap;
+    }
+
+    /* ── Wing shape labels ── */
+    .aerofoil-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      fill: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav-bar" id="main-nav"></nav>
+
+<!-- ── SECTION JUMP BAR ── -->
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">2.1</span>The Crash</button>
+    <button class="jump-btn"        onclick="jumpTo('s2')"><span class="jb-num">2.2</span>Newton's Laws</button>
+    <button class="jump-btn"        onclick="jumpTo('s3')"><span class="jb-num">2.3</span>How Rotors Work</button>
+    <button class="jump-btn"        onclick="jumpTo('s4')"><span class="jb-num">2.4</span>Fixed-Wing vs Rotor</button>
+    <button class="jump-btn"        onclick="jumpTo('s5')"><span class="jb-num">2.5</span>Aerofoil & Lift</button>
+    <button class="jump-btn"        onclick="jumpTo('s6')"><span class="jb-num">2.6</span>Force Lab</button>
+    <button class="jump-btn"        onclick="jumpTo('s7')"><span class="jb-num">2.7</span>Label the Forces</button>
+    <button class="jump-btn"        onclick="jumpTo('s8')"><span class="jb-num">2.8</span>Mission Decision</button>
+    <button class="jump-btn"        onclick="jumpTo('s9')"><span class="jb-num">2.9</span>Knowledge Check</button>
+    <button class="jump-btn"        onclick="jumpTo('s10')"><span class="jb-num">2.10</span>Go Deeper</button>
+  </div>
+</div>
+
+<div class="module-page">
+
+  <!-- ── HERO ── -->
+  <div class="module-hero">
+    <span class="beginner-badge">Beginner Track — Module B02</span>
+    <span class="module-num">MODULE B02 // WHY DRONES FLY</span>
+    <h1>Why Drones Fly</h1>
+    <p class="lead">
+      In B01 we named the four forces. Now we go deeper — how does a spinning rotor actually produce lift?
+      Why does a wing generate more lift at higher speeds? What's the real difference between a quadcopter
+      and a fixed-wing military drone? By the end of this module, you'll understand the physics of flight
+      well enough to explain it to anyone.
+    </p>
+    <div class="module-meta">
+      <span class="label label-amber">Beginner Friendly</span>
+      <span class="label label-primary">Builds on B01</span>
+      <span class="label label-green">35 Min Read</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.1  THE CRASH — STORY OPENING
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>2.1 The Paper Plane That Wouldn't Fly</h2>
+
+    <div class="story-box">
+      <span class="story-label">📖 Mission Log — Day 4</span>
+      <p>
+        Three days after the airshow, Arjun was in the school workshop trying to build a paper plane.
+        He had launched it a dozen times. Every time it nosed down and hit the floor within two seconds.
+      </p>
+      <p>
+        He tried folding the nose heavier. Then lighter. Then he added fins. Then removed them.
+        Nothing worked — it just kept crashing. He was about to give up when his physics teacher,
+        Mr. Sharma, walked past.
+      </p>
+      <p>
+        "You're adding weight to fix a lift problem," said Mr. Sharma, picking up the plane and
+        bending the trailing edge of the wings slightly upward. He threw it gently. It glided
+        perfectly across the room.
+      </p>
+      <p>
+        "How did you do that?" Arjun asked.
+      </p>
+      <p>
+        "I gave the wing an angle," said Mr. Sharma. "Lift isn't magic. It's geometry and air.
+        Everything a drone does in the sky comes down to the same three ideas: Newton, Bernoulli,
+        and angle of attack. Learn those, and you'll understand why anything flies."
+      </p>
+    </div>
+
+    <div class="plain-intro">
+      <span class="pi-label">What You'll Know After This Module</span>
+      <p>
+        You will understand Newton's three laws as they apply to flight, how a spinning rotor generates
+        lift using the same physics as a wing, what angle of attack means and why it matters, and the
+        fundamental differences between rotary-wing and fixed-wing military UAVs.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.2  NEWTON'S THREE LAWS
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>2.2 Newton's Three Laws — The Engine of Flight</h2>
+
+    <p>
+      Every single thing a drone does in the air is governed by three laws published by Isaac Newton
+      in 1687. They are not complicated — but they are the foundation of all aerospace engineering.
+    </p>
+
+    <!-- Law 1 -->
+    <div class="fact-block">
+      <span class="fact-label">Newton's First Law — Inertia</span>
+      <p>
+        <strong>An object at rest stays at rest. An object in motion stays in motion —
+        unless an unbalanced force acts on it.</strong>
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">What this means for a drone</span>
+      <p>
+        A hovering drone wants to stay hovering. A flying drone wants to keep flying in the same
+        direction at the same speed. To change anything — speed, direction, altitude — the autopilot
+        must deliberately create an unbalanced force. Every manoeuvre is a controlled violation of
+        this law.
+      </p>
+    </div>
+
+    <!-- Law 2 -->
+    <div class="fact-block">
+      <span class="fact-label">Newton's Second Law — Force = Mass × Acceleration</span>
+      <p>
+        <strong>The acceleration of an object depends on the force applied and its mass.
+        Double the force → double the acceleration. Double the mass → half the acceleration.</strong>
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">What this means for a drone</span>
+      <p>
+        This is why military engineers obsess over weight. A heavier drone needs more force (more
+        rotor power) to accelerate to the same speed as a lighter one. Every gram of payload, armour,
+        or battery added means the rotors must work harder. The entire field of UAV design is
+        essentially a battle against F = ma.
+      </p>
+    </div>
+
+    <!-- Law 3 -->
+    <div class="fact-block">
+      <span class="fact-label">Newton's Third Law — Action and Reaction</span>
+      <p>
+        <strong>For every action there is an equal and opposite reaction.</strong>
+      </p>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">What this means for a drone — this is the big one</span>
+      <p>
+        A rotor blade pushes air <em>downward</em>. By Newton's Third Law, the air pushes the
+        drone <em>upward</em> with equal force. That upward push is lift. This is the entire secret
+        of how a drone flies — there is no magic, no mystery. It is just air being pushed in one
+        direction and the drone being pushed in the other.
+      </p>
+      <p>
+        A rocket works the same way: it pushes burning gas downward, and the reaction pushes the
+        rocket upward. A swimmer pushes water backward, and the reaction pushes them forward.
+        Newton's Third Law is everywhere.
+      </p>
+    </div>
+
+    <div class="story-box">
+      <span class="story-label">📖 Mission Log — Mr. Sharma Explains</span>
+      <p>
+        "Here's the test," said Mr. Sharma. He placed his hand flat in front of a desk fan.
+        "Feel the air on your palm? That's the fan pushing air at you. Now put your hand behind the fan."
+        Arjun felt suction. "That's the reaction — the air being pulled from behind. The rotor does
+        exactly this, but faster, and pointed downward. The reaction lifts the drone."
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.3  HOW ROTORS ACTUALLY WORK
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>2.3 How a Rotor Actually Works</h2>
+
+    <p>
+      A rotor blade is not just a flat paddle spinning in the air. It is a
+      <span class="key-term" title="A cross-sectional shape designed to generate lift when air flows over it">wing in disguise</span>
+      — specifically, it is a rotating wing. Understanding the rotor means understanding the wing.
+    </p>
+
+    <h3>Angle of Attack — The Single Most Important Concept in Flight</h3>
+
+    <p>
+      <span class="key-term" title="The angle between the chord line of a wing and the oncoming airflow">Angle of attack (AoA)</span>
+      is the angle at which a wing or rotor blade meets the oncoming air. It is the lever that controls how much lift is generated.
+    </p>
+
+    <!-- Aerofoil SVG diagram -->
+    <div class="diagram-wrap">
+      <div class="diagram-header">
+        <span class="diagram-title">▸ AEROFOIL CROSS-SECTION — Angle of Attack</span>
+        <span class="diagram-sub">Side view of a rotor blade / wing</span>
+      </div>
+      <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#010810;">
+        <defs>
+          <marker id="arr-b02-r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,1 L6,4 L0,7" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+          </marker>
+          <marker id="arr-b02-g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,1 L6,4 L0,7" fill="none" stroke="#00ff9d" stroke-width="1.5"/>
+          </marker>
+          <marker id="arr-b02-a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,1 L6,4 L0,7" fill="none" stroke="#ffb700" stroke-width="1.5"/>
+          </marker>
+          <filter id="glow2"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+
+        <!-- Background grid -->
+        <rect width="700" height="280" fill="#010810"/>
+        <g stroke="rgba(0,212,255,0.05)" stroke-width="1">
+          <line x1="0" y1="70"  x2="700" y2="70"/>
+          <line x1="0" y1="140" x2="700" y2="140"/>
+          <line x1="0" y1="210" x2="700" y2="210"/>
+        </g>
+
+        <!-- Airflow arrows coming from left -->
+        <g stroke="#00d4ff" stroke-width="1.5" opacity="0.4">
+          <line x1="20" y1="60"  x2="120" y2="60"  marker-end="url(#arr-b02-r)"/>
+          <line x1="20" y1="90"  x2="120" y2="90"  marker-end="url(#arr-b02-r)"/>
+          <line x1="20" y1="120" x2="120" y2="120" marker-end="url(#arr-b02-r)"/>
+          <line x1="20" y1="155" x2="120" y2="155" marker-end="url(#arr-b02-r)"/>
+          <line x1="20" y1="185" x2="120" y2="185" marker-end="url(#arr-b02-r)"/>
+          <line x1="20" y1="215" x2="120" y2="215" marker-end="url(#arr-b02-r)"/>
+        </g>
+        <text x="22" y="50" font-family="'Share Tech Mono',monospace" font-size="9" fill="rgba(0,212,255,0.5)" letter-spacing="1">AIRFLOW</text>
+
+        <!-- Wing / aerofoil shape — tilted slightly (angle of attack ~8deg) -->
+        <g transform="translate(250,140) rotate(-8)">
+          <!-- Aerofoil outline -->
+          <path d="M -120,0 C -80,-28 0,-32 80,-12 C 110,-4 120,0 120,2 C 100,12 60,16 -20,8 C -70,4 -110,2 -120,0 Z"
+                fill="rgba(0,212,255,0.12)" stroke="rgba(0,212,255,0.7)" stroke-width="1.5" filter="url(#glow2)"/>
+          <!-- Chord line -->
+          <line x1="-120" y1="1" x2="120" y2="1" stroke="rgba(0,212,255,0.3)" stroke-width="1" stroke-dasharray="4 3"/>
+        </g>
+
+        <!-- Chord line extended for AoA angle label -->
+        <line x1="130" y1="139" x2="375" y2="127" stroke="rgba(0,212,255,0.2)" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="130" y1="139" x2="375" y2="139" stroke="rgba(0,212,255,0.15)" stroke-width="1" stroke-dasharray="3 3"/>
+        <!-- AoA arc -->
+        <path d="M 230,139 A 100,100 0 0,1 233,127" fill="none" stroke="var(--accent-amber)" stroke-width="1.5"/>
+        <text x="240" y="137" font-family="'Share Tech Mono',monospace" font-size="9" fill="#ffb700">AoA</text>
+
+        <!-- Airflow that BENDS over the top of the wing (faster = lower pressure) -->
+        <g stroke="#00d4ff" stroke-width="1.5" opacity="0.7">
+          <!-- Upper flow — curves up and accelerates -->
+          <path d="M 130,105 Q 200,75 300,82 Q 380,88 430,100" fill="none" marker-end="url(#arr-b02-r)"/>
+          <path d="M 130,115 Q 200,88 300,93 Q 380,98 430,110" fill="none" marker-end="url(#arr-b02-r)"/>
+        </g>
+
+        <!-- Lower flow — barely bends -->
+        <g stroke="#00d4ff" stroke-width="1.5" opacity="0.4">
+          <path d="M 130,158 Q 200,158 300,155 Q 380,153 430,155" fill="none" marker-end="url(#arr-b02-r)"/>
+          <path d="M 130,172 Q 200,172 300,170 Q 380,168 430,170" fill="none" marker-end="url(#arr-b02-r)"/>
+        </g>
+
+        <!-- Lift arrow (up from wing) -->
+        <line x1="250" y1="112" x2="250" y2="48" stroke="#00ff9d" stroke-width="2.5" marker-end="url(#arr-b02-g)" filter="url(#glow2)"/>
+        <text x="258" y="70" font-family="'Share Tech Mono',monospace" font-size="9" fill="#00ff9d" letter-spacing="1">LIFT</text>
+
+        <!-- Drag arrow (trailing back) -->
+        <line x1="370" y1="130" x2="450" y2="130" stroke="#ffb700" stroke-width="2" marker-end="url(#arr-b02-a)"/>
+        <text x="460" y="134" font-family="'Share Tech Mono',monospace" font-size="9" fill="#ffb700">DRAG</text>
+
+        <!-- Labels -->
+        <text x="200" y="72"  font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(0,212,255,0.6)">Fast airflow (low pressure)</text>
+        <text x="200" y="200" font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(0,212,255,0.4)">Slow airflow (high pressure)</text>
+        <text x="135" y="148" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.4)">LEADING EDGE</text>
+        <text x="370" y="148" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,212,255,0.4)">TRAILING EDGE</text>
+
+        <!-- Pressure difference annotation -->
+        <line x1="310" y1="85" x2="310" y2="165" stroke="rgba(0,255,157,0.3)" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="315" y="130" font-family="'Share Tech Mono',monospace" font-size="8" fill="rgba(0,255,157,0.5)">ΔP</text>
+      </svg>
+    </div>
+
+    <p>
+      Look at the diagram closely. Air hits the wing and splits — some goes over the top,
+      some goes under the bottom. Here's the key: <strong>the curved upper surface forces
+      the air to travel a longer path</strong>, so it speeds up to meet the air coming under
+      the wing at the trailing edge.
+    </p>
+
+    <div class="fact-block">
+      <span class="fact-label">Bernoulli's Principle</span>
+      <p>
+        Faster-moving air has <strong>lower pressure</strong>. Slower-moving air has
+        <strong>higher pressure</strong>. The high pressure under the wing pushes up.
+        The low pressure above the wing pulls up. Both effects combine to produce lift.
+        <span class="cite">Anderson & Eberhardt, 2001</span>
+      </p>
+    </div>
+
+    <p>
+      <strong>Angle of attack amplifies this effect.</strong> Tilt the wing more steeply
+      into the airflow and more air is deflected downward, increasing lift. But tilt too
+      far and the airflow over the top separates from the surface —
+      this is called a <span class="key-term" title="A sudden loss of lift when the angle of attack exceeds the critical angle, causing airflow to separate from the wing surface">stall</span>,
+      and lift collapses suddenly. Every pilot — human or AI — must stay below the stall angle.
+    </p>
+
+    <div class="caution-block">
+      <span class="caution-label">⚠ Critical Concept — The Stall</span>
+      <p>
+        A stall has nothing to do with the engine stopping. It is purely an aerodynamic event —
+        the wing loses lift because the angle of attack is too high and airflow separates.
+        Military UAVs have stall-prevention algorithms in their autopilots that monitor angle
+        of attack continuously and intervene before a stall occurs.
+      </p>
+    </div>
+
+    <h3>How the Rotor Uses These Same Principles</h3>
+    <p>
+      A quadcopter rotor blade is an aerofoil — the same cross-sectional shape as a wing —
+      but instead of moving forward through the air, it <em>rotates</em> through the air.
+      The rotation creates the same relative airflow over the blade as a wing moving forward,
+      generating the same lift. The rotor spins at up to
+      <span class="key-term" title="Revolutions per minute — how fast the rotor spins">8,000 RPM</span>
+      in small military drones. At those speeds, the blade tips are moving at hundreds of kilometres
+      per hour — fast enough to generate substantial lift even from a small disc area.
+    </p>
+
+    <div class="analogy-box">
+      <span class="analogy-label">The Helicopter Analogy</span>
+      <p>
+        A helicopter and a quadcopter use identical physics. Both use rotating aerofoils to
+        generate lift. The difference is that a helicopter uses one large rotor (and a tail
+        rotor to counteract the torque), while a quadcopter uses four smaller rotors spinning
+        in alternating directions — two clockwise, two counter-clockwise — which cancels the
+        torque without needing a tail rotor.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.4  FIXED-WING VS ROTARY
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>2.4 Fixed-Wing vs Rotary — Choosing the Right Airframe</h2>
+
+    <p>
+      Military UAVs come in two fundamental configurations: <strong>fixed-wing</strong> (like a
+      conventional aeroplane) and <strong>rotary-wing</strong> (like a helicopter or quadcopter).
+      Each has a physics-driven reason to exist, and understanding which one to use is one of the
+      first decisions in any UAV mission plan.
+    </p>
+
+    <div class="story-box">
+      <span class="story-label">📖 Mission Log — The Hangar Argument</span>
+      <p>
+        Two officers were standing in front of two very different drones. One looked like a
+        miniature aeroplane — sleek, long-winged, engine at the front. The other was a quadcopter
+        the size of a dining table.
+      </p>
+      <p>
+        "Fixed-wing goes further," said one officer. "Same battery, three times the range."
+      </p>
+      <p>
+        "But it can't hover," said the other. "How do you hold position over a target? How do
+        you land in a 10-metre clearing?"
+      </p>
+      <p>
+        Neither was wrong. Arjun was beginning to understand: the physics forces the choice.
+      </p>
+    </div>
+
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Fixed-Wing UAV</th>
+          <th>Rotary-Wing UAV</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>How lift is generated</td>
+          <td>Wings moving forward through air at speed — requires continuous forward motion</td>
+          <td>Rotors spinning in place — can generate lift while stationary</td>
+        </tr>
+        <tr>
+          <td>Hover capability</td>
+          <td>❌ Cannot hover — must keep moving to maintain lift</td>
+          <td>✓ Can hover indefinitely over a point</td>
+        </tr>
+        <tr>
+          <td>Endurance / range</td>
+          <td>Much greater — wings are aerodynamically efficient, require less power for cruise</td>
+          <td>Limited — rotors consume more power per km than wings</td>
+        </tr>
+        <tr>
+          <td>Takeoff / landing</td>
+          <td>Needs runway, catapult launcher, or net catch system</td>
+          <td>Vertical takeoff and landing (VTOL) — any flat surface</td>
+        </tr>
+        <tr>
+          <td>Speed</td>
+          <td>Faster — can fly at 150–300+ km/h</td>
+          <td>Slower — typically under 100 km/h for military types</td>
+        </tr>
+        <tr>
+          <td>Typical military role</td>
+          <td>Long-range ISR, strike, deep penetration missions</td>
+          <td>Urban operations, close support, precision hovering sensors</td>
+        </tr>
+        <tr>
+          <td>Military example</td>
+          <td>MQ-9 Reaper, RQ-4 Global Hawk</td>
+          <td>Tactical quadcopters, Black Hornet Nano</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="fact-block">
+      <span class="fact-label">The Hybrid Solution — VTOL Fixed-Wing</span>
+      <p>
+        Modern military engineers have developed a third category: <strong>VTOL fixed-wing UAVs</strong>.
+        These take off and land like a rotary drone (vertical), then transition mid-flight to fixed-wing
+        mode for efficient cruise. They get the best of both worlds — but at the cost of significantly
+        higher engineering complexity and weight. You'll see these increasingly in next-generation
+        military programmes.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.5  AEROFOIL DEEP DIVE — WHY SHAPE MATTERS
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>2.5 Why the Shape of the Wing Matters</h2>
+
+    <p>
+      Not all wings are the same shape — and the shape is a deliberate engineering choice
+      that determines how the aircraft performs.
+      <span class="key-term" title="The cross-sectional shape of a wing or rotor blade">Aerofoil geometry</span>
+      controls how much lift is generated, how much drag is created, and how the aircraft behaves at
+      different speeds and angles.
+    </p>
+
+    <!-- Wing types SVG comparison -->
+    <div class="diagram-wrap">
+      <div class="diagram-header">
+        <span class="diagram-title">▸ AEROFOIL TYPES — Military UAV Applications</span>
+        <span class="diagram-sub">Cross-section comparison</span>
+      </div>
+      <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#010810;">
+        <rect width="700" height="320" fill="#010810"/>
+        <g stroke="rgba(0,212,255,0.05)" stroke-width="1">
+          <line x1="0" y1="106" x2="700" y2="106"/>
+          <line x1="0" y1="212" x2="700" y2="212"/>
+          <line x1="233" y1="0" x2="233" y2="320"/>
+          <line x1="466" y1="0" x2="466" y2="320"/>
+        </g>
+
+        <!-- Type 1: Symmetric (rotor blade) -->
+        <g transform="translate(116,80)">
+          <path d="M -90,0 C -60,-16 0,-18 60,-8 C 80,-3 90,0 90,0 C 70,8 30,10 -30,5 C -65,2 -85,1 -90,0 Z"
+                fill="rgba(0,212,255,0.1)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5"/>
+          <text x="-90" y="30" font-family="'Share Tech Mono',monospace" font-size="9" fill="rgba(0,212,255,0.7)" letter-spacing="1">SYMMETRIC</text>
+          <text x="-90" y="44" font-family="'Rajdhani',sans-serif" font-size="10" fill="var(--text-muted)">Rotor blades, aerobatic UAVs</text>
+          <text x="-90" y="56" font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(0,255,157,0.5)">Low drag · Works at negative AoA</text>
+        </g>
+
+        <!-- Type 2: Cambered (fixed-wing ISR) -->
+        <g transform="translate(350,80)">
+          <path d="M -90,5 C -60,-22 0,-28 60,-10 C 80,-3 90,0 90,2 C 70,12 20,16 -30,12 C -65,9 -85,7 -90,5 Z"
+                fill="rgba(0,255,157,0.08)" stroke="rgba(0,255,157,0.6)" stroke-width="1.5"/>
+          <text x="-90" y="30" font-family="'Share Tech Mono',monospace" font-size="9" fill="rgba(0,255,157,0.7)" letter-spacing="1">CAMBERED</text>
+          <text x="-90" y="44" font-family="'Rajdhani',sans-serif" font-size="10" fill="var(--text-muted)">Long-endurance ISR fixed-wing</text>
+          <text x="-90" y="56" font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(0,255,157,0.5)">High lift · Best for slow cruise</text>
+        </g>
+
+        <!-- Type 3: Thin / delta (fast strike drones) -->
+        <g transform="translate(583,80)">
+          <path d="M -90,2 C -40,-8 20,-10 70,-4 C 82,-1 90,0 90,0 C 60,4 10,6 -40,4 C -72,3 -86,3 -90,2 Z"
+                fill="rgba(255,58,58,0.08)" stroke="rgba(255,58,58,0.6)" stroke-width="1.5"/>
+          <text x="-90" y="30" font-family="'Share Tech Mono',monospace" font-size="9" fill="rgba(255,58,58,0.7)" letter-spacing="1">THIN / LAMINAR</text>
+          <text x="-90" y="44" font-family="'Rajdhani',sans-serif" font-size="10" fill="var(--text-muted)">High-speed strike UAVs</text>
+          <text x="-90" y="56" font-family="'Rajdhani',sans-serif" font-size="10" fill="rgba(255,58,58,0.5)">Low drag · Built for speed</text>
+        </g>
+
+        <!-- Divider lines -->
+        <line x1="233" y1="20" x2="233" y2="180" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+        <line x1="466" y1="20" x2="466" y2="180" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+
+        <!-- Key insight text -->
+        <text x="350" y="230" text-anchor="middle" font-family="'Share Tech Mono',monospace" font-size="9" fill="rgba(0,212,255,0.3)" letter-spacing="2">AEROFOIL SHAPE IS A MISSION DECISION — NOT AN AESTHETIC ONE</text>
+        <text x="350" y="260" text-anchor="middle" font-family="'Rajdhani',sans-serif" font-size="11" fill="var(--text-muted)">More lift = more drag. Engineers balance these for each specific mission.</text>
+      </svg>
+    </div>
+
+    <p>
+      The engineering trade-off is always the same: <strong>more lift = more drag</strong>.
+      A thick, highly curved (cambered) wing generates a lot of lift at low speeds — perfect for
+      a slow surveillance drone that needs to loiter for hours. But it creates drag that would
+      cripple a high-speed strike drone. A thin, flat wing creates much less drag — perfect for
+      speed — but needs to fly faster to generate enough lift to stay airborne.
+    </p>
+    <p>
+      This is not a problem to solve — it is a constraint to understand. The mission defines
+      the wing, and the wing defines the mission envelope.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.6  INTERACTIVE FORCE LAB
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>2.6 Interactive Force Lab</h2>
+
+    <p>
+      Adjust the sliders to change each of the four forces and observe what happens to the drone.
+      This is exactly how an autopilot thinks — it continuously adjusts force outputs to achieve
+      the desired flight state.
+    </p>
+
+    <div class="sim-wrap">
+      <div class="sim-header">
+        <span class="sim-title">▸ FOUR FORCES LABORATORY — B02</span>
+        <span class="sim-status" id="lab-state-txt">● BALANCED — HOVER</span>
+      </div>
+
+      <canvas id="force-lab-canvas" height="280" style="display:block;width:100%;"></canvas>
+
+      <div class="sim-controls-panel">
+        <div class="sim-slider-row">
+          <label class="sim-slider-label" style="color:var(--accent-green);">
+            <span>LIFT</span><span id="lift-val">100%</span>
+          </label>
+          <input type="range" class="force-slider slider-lift" id="sl-lift" min="0" max="200" value="100" oninput="updateLab()"/>
+        </div>
+        <div class="sim-slider-row">
+          <label class="sim-slider-label" style="color:var(--accent-red);">
+            <span>WEIGHT</span><span id="weight-val">100%</span>
+          </label>
+          <input type="range" class="force-slider slider-weight" id="sl-weight" min="50" max="200" value="100" oninput="updateLab()"/>
+        </div>
+        <div class="sim-slider-row">
+          <label class="sim-slider-label" style="color:var(--accent-primary);">
+            <span>THRUST</span><span id="thrust-val">0%</span>
+          </label>
+          <input type="range" class="force-slider slider-thrust" id="sl-thrust" min="0" max="150" value="0" oninput="updateLab()"/>
+        </div>
+        <div class="sim-slider-row">
+          <label class="sim-slider-label" style="color:var(--accent-amber);">
+            <span>DRAG</span><span id="drag-val">0%</span>
+          </label>
+          <input type="range" class="force-slider slider-drag" id="sl-drag" min="0" max="150" value="0" oninput="updateLab()"/>
+        </div>
+      </div>
+
+      <div class="sim-readout">
+        <div class="readout-val" style="color:var(--accent-green);">
+          <span>Vertical Net</span>
+          <span id="net-vert">0 N</span>
+        </div>
+        <div class="readout-val" style="color:var(--accent-primary);">
+          <span>Horizontal Net</span>
+          <span id="net-horiz">0 N</span>
+        </div>
+        <div class="readout-val" style="color:var(--text-muted);">
+          <span>Flight State</span>
+          <span id="flight-state-txt">Hover</span>
+        </div>
+        <button class="dnd-btn" style="margin-left:auto;" onclick="resetLab()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="fact-block">
+      <span class="fact-label">Try These Experiments</span>
+      <p>
+        <strong>Experiment 1 — Climb:</strong> Increase Lift above 100% while keeping Weight at 100%. Watch the drone climb.<br/>
+        <strong>Experiment 2 — Forward flight:</strong> Increase Thrust while also increasing Drag to match it — what happens?<br/>
+        <strong>Experiment 3 — Heavy payload:</strong> Increase Weight to 180%. How much Lift do you need just to hover?<br/>
+        <strong>Experiment 4 — Maximum speed:</strong> Push Thrust to max and reduce Drag to minimum. What's the flight state?
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.7  DRAG AND DROP — LABEL THE FORCES
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>2.7 Match the Scenario to the Force</h2>
+
+    <p>Match each flight scenario on the right to the force that is dominant or being changed in that moment.</p>
+
+    <div class="dnd-wrap" id="dnd-b02">
+      <div class="dnd-title">▸ DRAG-AND-DROP — FORCES IN ACTION</div>
+      <div class="dnd-subtitle">Drag each force name to the scenario it best describes.</div>
+
+      <div class="dnd-bank" id="dnd-bank-b02">
+        <div class="dnd-chip" draggable="true" data-label="Lift">Lift</div>
+        <div class="dnd-chip" draggable="true" data-label="Weight">Weight</div>
+        <div class="dnd-chip" draggable="true" data-label="Thrust">Thrust</div>
+        <div class="dnd-chip" draggable="true" data-label="Drag">Drag</div>
+        <div class="dnd-chip" draggable="true" data-label="Stall">Stall</div>
+        <div class="dnd-chip" draggable="true" data-label="Bernoulli">Bernoulli</div>
+      </div>
+
+      <div class="dnd-targets">
+        <div class="dnd-target" data-answer="Lift">
+          <span class="dnd-target-num">①</span>
+          <span class="dnd-target-hint">Rotors spin faster — drone rises from the ground</span>
+          <span class="dnd-target-drop" id="b02-drop-0">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Weight">
+          <span class="dnd-target-num">②</span>
+          <span class="dnd-target-hint">Engineers add a heavier camera — rotors must work harder to hover</span>
+          <span class="dnd-target-drop" id="b02-drop-1">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Thrust">
+          <span class="dnd-target-num">③</span>
+          <span class="dnd-target-hint">Drone tilts forward — horizontal speed increases toward the target</span>
+          <span class="dnd-target-drop" id="b02-drop-2">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Drag">
+          <span class="dnd-target-num">④</span>
+          <span class="dnd-target-hint">Flying into a headwind — the drone must increase power just to maintain speed</span>
+          <span class="dnd-target-drop" id="b02-drop-3">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Stall">
+          <span class="dnd-target-num">⑤</span>
+          <span class="dnd-target-hint">A fixed-wing UAV pitches up too steeply — airflow separates and lift collapses</span>
+          <span class="dnd-target-drop" id="b02-drop-4">— drop here —</span>
+        </div>
+        <div class="dnd-target" data-answer="Bernoulli">
+          <span class="dnd-target-num">⑥</span>
+          <span class="dnd-target-hint">Air travels faster over the curved top of the wing, creating lower pressure above</span>
+          <span class="dnd-target-drop" id="b02-drop-5">— drop here —</span>
+        </div>
+      </div>
+
+      <div class="dnd-controls">
+        <button class="dnd-btn primary" onclick="checkDnD_b02()">▸ CHECK ANSWERS</button>
+        <button class="dnd-btn" onclick="resetDnD_b02()">↺ Reset</button>
+      </div>
+      <div class="dnd-result" id="dnd-result-b02"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.8  MISSION DECISION
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>2.8 Mission Decision — What Would You Do, Cadet?</h2>
+
+    <div class="story-box">
+      <span class="story-label">📖 Mission Log — The Planning Cell</span>
+      <p>
+        Arjun is sitting in on his first UAV mission planning session. The task: surveil
+        a mountain pass 200 km away for a minimum of 8 continuous hours, transmitting
+        live video. The terrain is rugged — no flat ground within 50 km of the target.
+        There is no road access. The drone must be man-portable, carried in by a 4-person team.
+      </p>
+      <p>
+        Two options are on the table.
+      </p>
+    </div>
+
+    <div class="scenario-box">
+      <span class="scenario-label">⚠ Cadet Decision — Airframe Selection</span>
+      <p class="scenario-q">
+        Based on the physics you've learned, which platform is better suited for this mission?
+        Consider: range, endurance efficiency, hover requirement, and portability.
+      </p>
+      <div class="scenario-choices" id="sc2-choices">
+        <button class="scenario-choice" onclick="scenarioB02(this, true)">
+          <strong>A.</strong> Fixed-wing UAV — launched by hand catapult, 8-hour endurance, lands via parachute onto any terrain.
+          Wings make it 3× more fuel-efficient than a rotary drone at cruise.
+        </button>
+        <button class="scenario-choice" onclick="scenarioB02(this, false)">
+          <strong>B.</strong> Large military quadcopter — VTOL capable, can hover over the pass, but has only 90-minute battery life and weighs 18 kg.
+        </button>
+      </div>
+      <div class="scenario-feedback" id="sc2-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.9  KNOWLEDGE CHECK
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>2.9 Knowledge Check</h2>
+    <p>Five questions. Apply what you've learned — don't guess.</p>
+
+    <div class="bq-quiz" id="quiz-b02">
+
+      <div class="bq-question"
+           data-question="Newton's Third Law states 'every action has an equal and opposite reaction.' How does this directly explain how a drone rotor generates lift?"
+           data-options='["The rotor creates a magnetic field that repels the ground","The rotor pushes air downward, and the reaction force pushes the drone upward","The rotor creates a vacuum above the drone, sucking it into the air","The rotor spins so fast it heats the air, making the drone buoyant"]'
+           data-correct="1"
+           data-explanation="The rotor blades push air downward. By Newton's Third Law, the air exerts an equal and opposite force upward on the rotor — and therefore on the entire drone. This reaction force is lift. The drone doesn't fly despite gravity — it flies because of physics.">
+      </div>
+
+      <div class="bq-question"
+           data-question="What is angle of attack, and what happens if it gets too large on a fixed-wing UAV?"
+           data-options='["The compass bearing of the drone — too large means it flies in circles","The angle between the wing chord and oncoming airflow — too large causes a stall where lift collapses","The bank angle of the drone — too large causes it to spin","The pitch angle of the rotors — too large causes overheating"]'
+           data-correct="1"
+           data-explanation="Angle of attack is the angle between the wing's chord line and the direction of oncoming air. Increasing it increases lift — up to a point. Beyond the critical angle of attack, the airflow separates from the upper wing surface. Lift drops suddenly. This is a stall, and it is purely aerodynamic — unrelated to engine power.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A military UAV needs to loiter motionless over a target for 3 hours and transmit live video. A fixed-wing UAV and a quadcopter are available. Which is more suitable and why?"
+           data-options='["Fixed-wing — it is faster and can cover more ground","Quadcopter — it can hover in place, which a fixed-wing cannot do","Fixed-wing — it has lower drag so it is more efficient","Quadcopter — it is always more efficient than fixed-wing"]'
+           data-correct="1"
+           data-explanation="A fixed-wing UAV cannot hover — it must keep moving to generate lift from its wings. For a task requiring stationary surveillance over a fixed point, a rotary-wing drone is the only option. The fixed-wing would have to fly repeated circles over the target, making it harder to maintain a stable camera view and wasting energy on unnecessary turns.">
+      </div>
+
+      <div class="bq-question"
+           data-question="Bernoulli's Principle explains part of how wings generate lift. What does it state?"
+           data-options='["Heavier aircraft fall faster than lighter ones","Faster-moving air has lower pressure — so the low pressure above a wing pulls it upward","Lift always equals weight in level flight","Drag increases with altitude"]'
+           data-correct="1"
+           data-explanation="Bernoulli's Principle states that in a flowing fluid, faster movement corresponds to lower pressure. The curved upper surface of a wing causes air to accelerate over it, creating lower pressure above the wing. The higher pressure below the wing pushes up. Combined with Newton's Third Law (air deflected downward = drone pushed upward), these two effects produce lift.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A quadcopter has four rotors — two spin clockwise, two spin counter-clockwise. Why?"
+           data-options='["To make the drone more stable in crosswinds","To cancel out the rotational torque — otherwise the drone body would spin in the opposite direction to the rotors","To allow the drone to fly upside down","To increase lift by 4x compared to a single rotor"]'
+           data-correct="1"
+           data-explanation="When a rotor spins, it creates torque — a rotational force. By Newton's Third Law, this torque is also applied to the drone body, which would make it spin in the opposite direction. Two rotors spinning clockwise and two spinning counter-clockwise produce equal and opposite torques that cancel each other out, keeping the drone body stable. A helicopter uses a tail rotor to achieve the same effect.">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       2.10  GO DEEPER — STEPPING STONE
+       ══════════════════════════════════════════ -->
+  <div class="module-section section-anchor" id="s10">
+    <h2>2.10 You've Mastered the Physics of Flight</h2>
+
+    <p>
+      Newton's laws, angle of attack, Bernoulli's principle, rotor physics, fixed vs rotary
+      configurations — you now have the physical intuition that underpins every UAV design
+      decision. That's not trivial. Most people who operate drones professionally never develop
+      this level of conceptual clarity.
+    </p>
+    <p>
+      The next step is to go into the mathematics. Module M02 treats flight dynamics rigorously —
+      the full equations of motion, stability derivatives, control theory, and how autopilots
+      implement the physics you've just learned as differential equations that run at 400 Hz
+      inside the flight controller.
+    </p>
+
+    <div class="advance-panel">
+      <div class="advance-icon">▸▸</div>
+      <div class="advance-text">
+        <h3>READY TO GO DEEPER?</h3>
+        <p>
+          Module M02 covers the full 6-DOF equations of motion, Euler angles, PID control theory,
+          stability analysis, and the mathematical relationship between throttle input and rotor
+          thrust — the engineering core behind everything you've just learned conceptually.
+        </p>
+      </div>
+      <a href="../modules/m02-flight-dynamics.html" class="advance-link">M02: Flight Dynamics ▸</a>
+    </div>
+
+    <!-- Module nav -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-dim); flex-wrap:wrap; gap:1rem;">
+      <a href="b01-what-is-a-drone.html" class="btn-primary" style="font-size:0.75rem; border-color:var(--border-dim); color:var(--text-muted);">◂ B01: What Is a Drone?</a>
+      <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);">BEGINNER TRACK · MODULE B02 OF 10</span>
+      <a href="b03-autopilots-sensors.html" class="btn-primary" style="font-size:0.75rem;">B03: The Brain of a Drone ▸</a>
+    </div>
+  </div>
+
+</div><!-- end module-page -->
+
+<footer>
+  <p>AEROKNOW · Beginner Module B02 · Why Drones Fly · Beginner Track</p>
+</footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/beginner-quiz.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════
+   SECTION JUMP BAR
+   ══════════════════════════════════════════════ */
+function jumpTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.jump-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+const buttons  = document.querySelectorAll('.jump-btn');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = sections.indexOf(entry.target.id);
+      if (idx !== -1) {
+        buttons.forEach(b => b.classList.remove('active'));
+        if (buttons[idx]) buttons[idx].classList.add('active');
+      }
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+
+
+/* ══════════════════════════════════════════════
+   FORCE LAB CANVAS SIMULATION
+   ══════════════════════════════════════════════ */
+(function () {
+  const canvas = document.getElementById('force-lab-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  let droneX, droneY, velX = 0, velY = 0;
+  let rotorAngle = 0;
+
+  let forces = { lift: 100, weight: 100, thrust: 0, drag: 0 };
+
+  function resize() {
+    W = canvas.parentElement.clientWidth || 700;
+    H = 280;
+    canvas.width = W;
+    canvas.height = H;
+    droneX = W / 2;
+    droneY = H / 2;
+  }
+
+  window.updateLab = function() {
+    forces.lift   = parseInt(document.getElementById('sl-lift').value);
+    forces.weight = parseInt(document.getElementById('sl-weight').value);
+    forces.thrust = parseInt(document.getElementById('sl-thrust').value);
+    forces.drag   = parseInt(document.getElementById('sl-drag').value);
+
+    document.getElementById('lift-val').textContent   = forces.lift   + '%';
+    document.getElementById('weight-val').textContent = forces.weight + '%';
+    document.getElementById('thrust-val').textContent = forces.thrust + '%';
+    document.getElementById('drag-val').textContent   = forces.drag   + '%';
+
+    const netV = forces.lift - forces.weight;
+    const netH = forces.thrust - forces.drag;
+    document.getElementById('net-vert').textContent  = (netV >= 0 ? '+' : '') + netV + ' units';
+    document.getElementById('net-horiz').textContent = (netH >= 0 ? '+' : '') + netH + ' units';
+
+    let state = 'Hover';
+    if      (netV > 15 && Math.abs(netH) < 10) state = 'Climbing';
+    else if (netV < -15 && Math.abs(netH) < 10) state = 'Descending';
+    else if (netH > 15 && Math.abs(netV) < 20) state = 'Forward Flight';
+    else if (netH > 15 && netV > 15)  state = 'Climbing Forward';
+    else if (netH > 40) state = 'High Speed';
+    else if (forces.lift < 30) state = 'DANGER — Low Lift';
+    else if (Math.abs(netV) < 10 && Math.abs(netH) < 10) state = 'Hover';
+
+    document.getElementById('flight-state-txt').textContent = state;
+
+    const statusEl = document.getElementById('lab-state-txt');
+    const balanced = Math.abs(netV) < 10 && Math.abs(netH) < 10;
+    statusEl.textContent = balanced ? '● BALANCED — HOVER' : '● ' + state.toUpperCase();
+    statusEl.style.color = balanced ? 'var(--accent-green)' :
+                           state.includes('DANGER') ? 'var(--accent-red)' : 'var(--accent-primary)';
+  };
+
+  window.resetLab = function() {
+    document.getElementById('sl-lift').value   = 100;
+    document.getElementById('sl-weight').value = 100;
+    document.getElementById('sl-thrust').value = 0;
+    document.getElementById('sl-drag').value   = 0;
+    forces = { lift:100, weight:100, thrust:0, drag:0 };
+    velX = 0; velY = 0;
+    droneX = W / 2; droneY = H / 2;
+    updateLab();
+  };
+
+  function drawGrid() {
+    ctx.strokeStyle = 'rgba(0,212,255,0.05)'; ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  }
+
+  function drawDrone(x, y) {
+    ctx.save(); ctx.translate(x, y);
+    ctx.strokeStyle = 'rgba(0,212,255,0.6)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([dx,dy]) => {
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(dx*25, dy*25); ctx.stroke();
+    });
+    ctx.fillStyle = 'rgba(0,212,255,0.12)'; ctx.strokeStyle = 'rgba(0,212,255,0.7)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.rect(-9,-9,18,18); ctx.fill(); ctx.stroke();
+    [[-25,-25],[25,-25],[-25,25],[25,25]].forEach(([rx,ry], i) => {
+      ctx.save(); ctx.translate(rx, ry); ctx.rotate(rotorAngle * (i%2===0?1:-1));
+      ctx.strokeStyle = 'rgba(0,212,255,0.9)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-13,0); ctx.lineTo(13,0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,-13); ctx.lineTo(0,13); ctx.stroke();
+      ctx.strokeStyle = 'rgba(0,212,255,0.25)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(0,0,13,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+  function drawForceArrows(x, y) {
+    const scale = 0.4;
+    const lift   = forces.lift   * scale;
+    const weight = forces.weight * scale;
+    const thrust = forces.thrust * scale;
+    const drag   = forces.drag   * scale;
+
+    // Lift up
+    if (lift > 2) {
+      ctx.strokeStyle = '#00ff9d'; ctx.fillStyle = '#00ff9d'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y-lift); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x-5,y-lift+8); ctx.lineTo(x,y-lift); ctx.lineTo(x+5,y-lift+8); ctx.stroke();
+      ctx.font = '9px Share Tech Mono'; ctx.fillText('L:'+forces.lift+'%', x+5, y-lift+4);
+    }
+    // Weight down
+    ctx.strokeStyle = '#ff3a3a'; ctx.fillStyle = '#ff3a3a'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y+weight); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x-5,y+weight-8); ctx.lineTo(x,y+weight); ctx.lineTo(x+5,y+weight-8); ctx.stroke();
+    ctx.font = '9px Share Tech Mono'; ctx.fillText('W:'+forces.weight+'%', x+5, y+weight-4);
+    // Thrust right
+    if (thrust > 2) {
+      ctx.strokeStyle = '#00d4ff'; ctx.fillStyle = '#00d4ff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+thrust, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x+thrust-8,y-5); ctx.lineTo(x+thrust,y); ctx.lineTo(x+thrust-8,y+5); ctx.stroke();
+      ctx.font = '9px Share Tech Mono'; ctx.fillText('T:'+forces.thrust+'%', x+thrust-24, y-6);
+    }
+    // Drag left
+    if (drag > 2) {
+      ctx.strokeStyle = '#ffb700'; ctx.fillStyle = '#ffb700'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x-drag, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x-drag+8,y-5); ctx.lineTo(x-drag,y); ctx.lineTo(x-drag+8,y+5); ctx.stroke();
+      ctx.font = '9px Share Tech Mono'; ctx.fillText('D:'+forces.drag+'%', x-drag+4, y-6);
+    }
+  }
+
+  function tick() {
+    rotorAngle += 0.15 + forces.thrust * 0.001;
+    const netV = (forces.weight - forces.lift)  * 0.015;
+    const netH = (forces.thrust - forces.drag)  * 0.015;
+    velY += netV; velX += netH;
+    velY *= 0.9; velX *= 0.9;
+    droneY += velY; droneX += netH * 0.5;
+    droneY = Math.max(50, Math.min(H - 50, droneY));
+    droneX = Math.max(80, Math.min(W - 80, droneX));
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#010810'; ctx.fillRect(0,0,W,H);
+    drawGrid();
+    // Ground
+    ctx.strokeStyle='rgba(0,212,255,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(0,H-16); ctx.lineTo(W,H-16); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(0,212,255,0.2)'; ctx.font='9px Share Tech Mono';
+    ctx.fillText('GROUND',8,H-4);
+    // Alt
+    const alt = Math.round(((H-droneY)/H)*100);
+    ctx.fillStyle='rgba(0,255,157,0.5)'; ctx.fillText('ALT:'+alt+'%', W-60, 14);
+
+    drawForceArrows(droneX, droneY);
+    drawDrone(droneX, droneY);
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  updateLab();
+  tick();
+})();
+
+
+/* ══════════════════════════════════════════════
+   DRAG AND DROP — B02
+   ══════════════════════════════════════════════ */
+let draggedChipB02 = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const chips   = document.querySelectorAll('#dnd-b02 .dnd-chip');
+  const targets = document.querySelectorAll('#dnd-b02 .dnd-target');
+
+  chips.forEach(chip => {
+    chip.addEventListener('dragstart', e => {
+      draggedChipB02 = chip; chip.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+  });
+
+  targets.forEach((target) => {
+    target.addEventListener('dragover', e => { e.preventDefault(); target.classList.add('drag-over'); });
+    target.addEventListener('dragleave', () => target.classList.remove('drag-over'));
+    target.addEventListener('drop', e => {
+      e.preventDefault(); target.classList.remove('drag-over');
+      if (!draggedChipB02) return;
+      const existing = target.getAttribute('data-placed');
+      if (existing) {
+        const bank = document.getElementById('dnd-bank-b02');
+        const oldChip = [...bank.querySelectorAll('.dnd-chip.placed')].find(c => c.getAttribute('data-label') === existing);
+        if (oldChip) oldChip.classList.remove('placed');
+      }
+      const label = draggedChipB02.getAttribute('data-label');
+      target.setAttribute('data-placed', label);
+      const dropEl = target.querySelector('.dnd-target-drop');
+      dropEl.textContent = label; dropEl.style.color = 'var(--accent-primary)';
+      target.classList.remove('correct','wrong');
+      draggedChipB02.classList.add('placed');
+      draggedChipB02 = null;
+      document.getElementById('dnd-result-b02').style.display = 'none';
+    });
+  });
+});
+
+function checkDnD_b02() {
+  const targets = document.querySelectorAll('#dnd-b02 .dnd-target');
+  let correct = 0;
+  targets.forEach(t => {
+    t.classList.remove('correct','wrong');
+    const placed = t.getAttribute('data-placed');
+    if (!placed) return;
+    if (placed === t.getAttribute('data-answer')) { t.classList.add('correct'); correct++; }
+    else t.classList.add('wrong');
+  });
+  const resultEl = document.getElementById('dnd-result-b02');
+  resultEl.style.display = 'block';
+  const total = targets.length;
+  const color = correct===total ? 'var(--accent-green)' : correct>=total/2 ? 'var(--accent-amber)' : 'var(--accent-red)';
+  resultEl.style.color = color;
+  resultEl.textContent = correct+'/'+total+' correct — '+(correct===total?'All matched correctly. ✓':'Review incorrect answers and try again.');
+}
+
+function resetDnD_b02() {
+  document.querySelectorAll('#dnd-b02 .dnd-target').forEach(t => {
+    t.classList.remove('correct','wrong'); t.removeAttribute('data-placed');
+    const d = t.querySelector('.dnd-target-drop'); d.textContent='— drop here —'; d.style.color='';
+  });
+  document.querySelectorAll('#dnd-b02 .dnd-chip').forEach(c => c.classList.remove('placed'));
+  document.getElementById('dnd-result-b02').style.display = 'none';
+}
+
+
+/* ══════════════════════════════════════════════
+   SCENARIO DECISION — B02
+   ══════════════════════════════════════════════ */
+function scenarioB02(btn, isCorrect) {
+  const choices = document.querySelectorAll('#sc2-choices .scenario-choice');
+  const feedback = document.getElementById('sc2-feedback');
+  choices.forEach(c => { c.disabled = true; c.classList.remove('s-correct','s-wrong'); });
+  btn.classList.add(isCorrect ? 's-correct' : 's-wrong');
+  choices[0].classList.add('s-correct'); // A is correct
+
+  feedback.style.display = 'block';
+  if (isCorrect) {
+    feedback.style.borderLeftColor = 'var(--accent-green)';
+    feedback.innerHTML = `<strong style="color:var(--accent-green);">Correct, Cadet.</strong>
+      The physics are decisive here: fixed-wing UAVs generate lift from their wings moving through air,
+      not from constantly spinning rotors. This is far more efficient — the MQ-1 Raven family, for example,
+      achieves 6–8 hours endurance on a battery that would give a comparably-sized quadcopter under 45 minutes.
+      The parachute recovery removes the need for a landing strip. The only thing a fixed-wing can't do
+      is hover — but nothing in this mission requires hovering. Physics dictates the platform.`;
+  } else {
+    feedback.style.borderLeftColor = 'var(--accent-red)';
+    feedback.innerHTML = `<strong style="color:var(--accent-red);">Incorrect, Cadet.</strong>
+      Review the physics: a rotary drone spends enormous energy keeping its rotors spinning just to
+      stay airborne — it fights gravity every second of the mission. An 18 kg quadcopter with 90-minute
+      endurance cannot complete an 8-hour mission. No number of battery swaps fixes this in the field.
+      The correct answer is <strong style="color:var(--accent-green);">A — the fixed-wing</strong>.
+      Wings are passive lift generators during cruise. Rotors are active — and the difference in efficiency
+      is not marginal: it is 3–5× in endurance for the same energy budget.`;
+  }
+}
+</script>
+
+</body>
+</html>
