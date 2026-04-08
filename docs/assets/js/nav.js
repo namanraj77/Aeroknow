@@ -14,6 +14,7 @@
     { num: '08', title: 'Autonomy & Decision-Making', href: 'modules/m08-autonomy-decision.html' },
     { num: '09', title: 'Swarm Systems',              href: 'modules/m09-swarm-systems.html' },
     { num: '10', title: 'Systems Engineering',        href: 'modules/m10-systems-engineering.html' },
+    { num: '11', title: 'Semantic SLAM',               href: '../modules/m11-semantic-slam.html' },
   ];
 
   const LABS = [
