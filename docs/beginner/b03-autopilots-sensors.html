@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>B03: The Brain of a Drone — AEROKNOW Beginner Track</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    .beginner-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.25);padding:.25rem .75rem;margin-bottom:1rem}
+    .beginner-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent-amber);box-shadow:var(--glow-amber);animation:pulse-dot 1.8s ease-in-out infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .plain-intro{background:rgba(0,212,255,.03);border-left:3px solid var(--accent-primary);padding:1rem 1.2rem;margin-bottom:1.5rem;border-radius:0 4px 4px 0}
+    .plain-intro .pi-label{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:.4rem}
+    .plain-intro p{font-size:1rem;color:var(--text-secondary);margin:0;line-height:1.75}
+    .analogy-box{background:rgba(255,183,0,.04);border:1px solid rgba(255,183,0,.15);border-left:3px solid var(--accent-amber);padding:1rem 1.2rem;margin:1.2rem 0}
+    .analogy-box .analogy-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-amber);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .analogy-box p{margin:0 0 .5rem;font-size:.95rem;color:var(--text-secondary)}
+    .analogy-box p:last-child{margin-bottom:0}
+    .story-box{background:rgba(179,136,255,.04);border:1px solid rgba(179,136,255,.18);border-left:3px solid #b388ff;padding:1.2rem 1.5rem;margin:1.8rem 0}
+    .story-box .story-label{font-family:var(--font-mono);font-size:.58rem;color:#b388ff;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:.6rem}
+    .story-box p{margin:0 0 .5rem;color:var(--text-secondary);font-size:.97rem;line-height:1.75}
+    .story-box p:last-child{margin-bottom:0}
+    .key-term{color:var(--accent-primary);font-weight:600;border-bottom:1px dashed rgba(0,212,255,.4);cursor:help}
+    .fact-block{background:rgba(0,255,157,.03);border:1px solid rgba(0,255,157,.14);border-left:3px solid var(--accent-green);padding:1.1rem 1.4rem;margin:1.4rem 0}
+    .fact-block .fact-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-green);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .fact-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .caution-block{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1rem 1.2rem;margin:1.2rem 0}
+    .caution-block .caution-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .caution-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .cite{font-family:var(--font-mono);font-size:.68rem;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.18);padding:.08rem .4rem;margin-left:.25rem;vertical-align:middle;white-space:nowrap}
+    .diagram-wrap{background:rgba(5,13,20,.9);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .diagram-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .diagram-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .diagram-sub{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted)}
+    .sensor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;margin:1.5rem 0}
+    .sensor-card{background:var(--bg-card);border:1px solid var(--border-dim);padding:1.1rem 1.2rem;transition:var(--transition)}
+    .sensor-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+    .sensor-card-icon{font-size:1.4rem;margin-bottom:.5rem;display:block}
+    .sensor-card-type{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .sensor-card h4{font-family:var(--font-display);font-size:.9rem;margin-bottom:.4rem}
+    .sensor-card p{font-size:.83rem;color:var(--text-muted);margin:0;line-height:1.5}
+    .sensor-military{font-family:var(--font-mono);font-size:.6rem;margin-top:.5rem;padding-top:.4rem;border-top:1px solid var(--border-panel);color:var(--text-muted)}
+    .pid-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}
+    .pid-card{background:var(--bg-card);border:1px solid var(--border-dim);padding:1rem 1.2rem;text-align:center}
+    .pid-letter{font-family:var(--font-display);font-size:2.5rem;font-weight:900;display:block;margin-bottom:.3rem;line-height:1}
+    .pid-name{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem;display:block}
+    .pid-desc{font-size:.85rem;color:var(--text-secondary);line-height:1.5}
+    .pid-drone{font-family:var(--font-mono);font-size:.65rem;margin-top:.5rem;display:block}
+    .loop-flow{display:flex;align-items:center;gap:0;overflow-x:auto;padding:.5rem 0}
+    .loop-node{background:var(--bg-card);border:1px solid var(--border-dim);padding:.6rem .75rem;text-align:center;flex-shrink:0;min-width:75px}
+    .loop-node-label{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);letter-spacing:.1em;display:block;text-transform:uppercase}
+    .loop-node-val{font-size:.72rem;margin-top:.2rem;display:block;color:var(--text-secondary)}
+    .loop-arrow{font-family:var(--font-mono);font-size:.9rem;color:var(--accent-primary);padding:0 .3rem;flex-shrink:0;opacity:.6}
+    .dnd-wrap{background:rgba(0,255,157,.02);border:1px solid rgba(0,255,157,.12);border-top:2px solid var(--accent-green);padding:1.5rem 1.8rem;margin:2rem 0}
+    .dnd-title{font-family:var(--font-mono);font-size:.65rem;color:var(--accent-green);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.4rem}
+    .dnd-subtitle{font-size:.9rem;color:var(--text-muted);margin-bottom:1.2rem}
+    .dnd-bank{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.4rem;min-height:2.5rem;padding:.6rem;background:rgba(0,0,0,.3);border:1px dashed rgba(0,255,157,.2)}
+    .dnd-chip{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-green);background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.3);padding:.3rem .8rem;cursor:grab;user-select:none;transition:var(--transition)}
+    .dnd-chip:hover{background:rgba(0,255,157,.15);box-shadow:var(--glow-green)}
+    .dnd-chip.dragging{opacity:.4;cursor:grabbing}
+    .dnd-chip.placed{opacity:.3;cursor:default;pointer-events:none}
+    .dnd-targets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem}
+    .dnd-target{border:1px dashed var(--border-dim);padding:.5rem .75rem;min-height:2.8rem;display:flex;align-items:center;gap:.5rem;transition:var(--transition);background:rgba(0,0,0,.2)}
+    .dnd-target.drag-over{border-color:var(--accent-green);background:rgba(0,255,157,.05)}
+    .dnd-target.correct{border-color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .dnd-target.wrong{border-color:var(--accent-red);background:rgba(255,58,58,.07)}
+    .dnd-target-num{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);flex-shrink:0}
+    .dnd-target-hint{font-size:.83rem;color:var(--text-muted);flex:1;line-height:1.4}
+    .dnd-target-drop{font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);min-width:90px;text-align:right}
+    .dnd-controls{display:flex;gap:.75rem;margin-top:1rem}
+    .dnd-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem 1.2rem;cursor:pointer;transition:var(--transition)}
+    .dnd-btn.primary{border-color:var(--accent-green);color:var(--accent-green)}
+    .dnd-btn.primary:hover{background:var(--accent-green);color:var(--bg-void);box-shadow:var(--glow-green)}
+    .dnd-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .dnd-result{margin-top:.75rem;font-family:var(--font-mono);font-size:.75rem;display:none}
+    .scenario-box{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1.4rem 1.6rem;margin:2rem 0}
+    .scenario-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.75rem;display:block}
+    .scenario-q{font-size:1.05rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;line-height:1.55}
+    .scenario-choices{display:flex;flex-direction:column;gap:.5rem}
+    .scenario-choice{background:rgba(255,255,255,.02);border:1px solid var(--border-dim);color:var(--text-secondary);font-family:var(--font-ui);font-size:.95rem;padding:.7rem 1rem;cursor:pointer;text-align:left;transition:var(--transition)}
+    .scenario-choice:hover:not(:disabled){border-color:var(--accent-primary);background:rgba(0,212,255,.05);color:var(--text-primary)}
+    .scenario-choice:disabled{cursor:default}
+    .scenario-choice.s-correct{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.06)}
+    .scenario-choice.s-wrong{border-color:var(--accent-red);color:var(--accent-red);background:rgba(255,58,58,.06);opacity:.7}
+    .scenario-feedback{margin-top:.9rem;padding:.8rem 1rem;background:rgba(0,0,0,.3);border-left:2px solid var(--accent-amber);font-size:.92rem;color:var(--text-secondary);line-height:1.65;display:none}
+    .sim-wrap{background:rgba(1,8,16,.95);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .sim-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .sim-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .sim-status{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em}
+    .autopilot-hud{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--border-dim)}
+    .hud-panel{padding:.9rem 1rem;border-right:1px solid var(--border-dim)}
+    .hud-panel:last-child{border-right:none}
+    .hud-panel-label{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.5rem;display:block}
+    .hud-reading{font-family:var(--font-display);font-size:1.5rem;font-weight:700;line-height:1;margin-bottom:.2rem}
+    .hud-unit{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted)}
+    .hud-bar-wrap{height:3px;background:rgba(255,255,255,.06);margin-top:.5rem}
+    .hud-bar{height:100%;transition:width .3s ease,background .3s}
+    .autopilot-controls{padding:.75rem 1rem;border-top:1px solid var(--border-dim);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+    .ap-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .9rem;cursor:pointer;transition:var(--transition)}
+    .ap-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .ap-btn.active{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .ap-btn.danger{border-color:var(--accent-red);color:var(--accent-red)}
+    .ap-log{padding:.6rem 1rem;border-top:1px solid var(--border-dim);font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);min-height:2rem;letter-spacing:.05em}
+    .section-jump{position:sticky;top:60px;z-index:100;background:rgba(2,4,8,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-dim);overflow-x:auto;scrollbar-width:none}
+    .section-jump::-webkit-scrollbar{display:none}
+    .jump-inner{display:flex;align-items:center;gap:0;padding:0 1rem;min-width:max-content}
+    .jump-label{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;padding:0 .75rem 0 0;border-right:1px solid var(--border-dim);margin-right:.25rem;white-space:nowrap;line-height:42px}
+    .jump-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.06em;padding:0 .85rem;height:42px;cursor:pointer;white-space:nowrap;transition:var(--transition)}
+    .jump-btn:hover{color:var(--text-secondary);border-bottom-color:var(--border-bright)}
+    .jump-btn.active{color:var(--accent-primary);border-bottom-color:var(--accent-primary)}
+    .jump-btn .jb-num{color:var(--accent-green);margin-right:.3rem;font-size:.58rem}
+    .section-anchor{scroll-margin-top:105px}
+    .advance-panel{background:rgba(0,212,255,.03);border:1px solid var(--border-dim);border-top:2px solid var(--accent-primary);padding:1.5rem 1.8rem;margin:3rem 0 1rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+    .advance-icon{font-family:var(--font-display);font-size:2rem;color:var(--accent-primary);opacity:.5;flex-shrink:0}
+    .advance-text h3{font-family:var(--font-display);font-size:.9rem;color:var(--accent-primary);margin-bottom:.3rem;letter-spacing:.05em}
+    .advance-text p{font-size:.88rem;color:var(--text-muted);margin:0;line-height:1.55}
+    .advance-link{margin-left:auto;display:inline-block;background:transparent;border:1px solid var(--accent-primary);color:var(--accent-primary);font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;padding:.7rem 1.5rem;text-decoration:none;transition:var(--transition);white-space:nowrap;flex-shrink:0}
+    .advance-link:hover{background:var(--accent-primary);color:var(--bg-void);box-shadow:var(--glow-primary)}
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo(&apos;s1&apos;)"><span class="jb-num">3.1</span>Signal Lost</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s2&apos;)"><span class="jb-num">3.2</span>Flight Controller</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s3&apos;)"><span class="jb-num">3.3</span>The Sensors</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s4&apos;)"><span class="jb-num">3.4</span>PID Control</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s5&apos;)"><span class="jb-num">3.5</span>Control Loop</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s6&apos;)"><span class="jb-num">3.6</span>Autopilot Sim</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s7&apos;)"><span class="jb-num">3.7</span>Match Sensor</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s8&apos;)"><span class="jb-num">3.8</span>Mission Decision</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s9&apos;)"><span class="jb-num">3.9</span>Knowledge Check</button>
+    <button class="jump-btn" onclick="jumpTo(&apos;s10&apos;)"><span class="jb-num">3.10</span>Go Deeper</button>
+  </div>
+</div>
+
+<div class="module-page">
+  <div class="module-hero">
+    <span class="beginner-badge">Beginner Track &mdash; Module B03</span>
+    <span class="module-num">MODULE B03 // THE BRAIN OF A DRONE</span>
+    <h1>The Brain of a Drone</h1>
+    <p class="lead">You lose the radio signal. The drone is 40 kilometres away, flying over hostile terrain. What happens next? In this module you will learn how a flight controller, a suite of sensors, and a control algorithm called PID work together to keep a drone flying &mdash; even when no human is touching the controls.</p>
+    <div class="module-meta">
+      <span class="label label-amber">Beginner Friendly</span>
+      <span class="label label-primary">Builds on B01 + B02</span>
+      <span class="label label-green">35 Min Read</span>
+    </div>
+  </div>
+
+  <!-- 3.1 STORY -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>3.1 Signal Lost</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Day 12</span>
+      <p>Arjun was watching over the operator&apos;s shoulder during a live training exercise. The drone was holding steady at 800 metres, camera locked on a simulated target 40 kilometres out, when the data link light on the ground control station turned red.</p>
+      <p><em>LINK LOST.</em></p>
+      <p>Arjun tensed. The operator didn&apos;t move. She watched the screen calmly. On the map display, the drone icon kept moving &mdash; not erratically, not falling. It was turning. Slowly, deliberately, banking back toward the home waypoint.</p>
+      <p>&ldquo;It&apos;s not crashing,&rdquo; Arjun said.</p>
+      <p>&ldquo;Why would it?&rdquo; said the operator. &ldquo;I wasn&apos;t flying it. The autopilot was. I just tell it <em>where</em> to go. The flight controller handles the <em>how</em>. When it loses my signal, it falls back on its own programming. Return to home. Land safely. No panic.&rdquo;</p>
+      <p>&ldquo;So the drone can fly itself?&rdquo;</p>
+      <p>&ldquo;It always was,&rdquo; she said. &ldquo;You just didn&apos;t notice.&rdquo;</p>
+    </div>
+    <div class="plain-intro">
+      <span class="pi-label">What You&apos;ll Know After This Module</span>
+      <p>You will understand what a flight controller is and what it does every millisecond, the six core sensors that feed it data, how the PID algorithm turns sensor readings into rotor commands, and why modern military drones can complete entire missions without a human ever touching the controls.</p>
+    </div>
+  </div>
+
+  <!-- 3.2 FLIGHT CONTROLLER -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>3.2 What Is a Flight Controller?</h2>
+    <p>A <span class="key-term" title="The onboard computer that reads sensor data and commands the motors to keep the drone stable and on course">flight controller (FC)</span> is a small computer &mdash; often no larger than a credit card &mdash; mounted at the centre of the drone. It is the single most important component on the aircraft. Remove the engines and the drone is grounded. Remove the flight controller and the drone is not just grounded &mdash; it is uncontrollable.</p>
+    <div class="analogy-box">
+      <span class="analogy-label">Think of It Like Your Inner Ear</span>
+      <p>Close your eyes and stand on one foot. You don&apos;t fall &mdash; your inner ear senses your balance and your muscles make hundreds of tiny corrections every second without you consciously commanding them. That is exactly what a flight controller does.</p>
+      <p>It reads sensors 400 to 8,000 times per second &mdash; measuring tilt, acceleration, rotation, altitude, and position &mdash; then sends tiny adjustments to each motor to keep the drone level, stable, and on course. All of this happens without any human input.</p>
+    </div>
+    <p>Every time the wind pushes the drone sideways, every time a rotor speed varies by a fraction, every time the drone drifts from its intended path &mdash; the flight controller notices within a millisecond and corrects. The human operator only sets the destination. The flight controller handles the physics, constantly, silently, at machine speed.</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-header">
+        <span class="diagram-title">&#9658; FLIGHT CONTROLLER ARCHITECTURE</span>
+        <span class="diagram-sub">Data flow through the system</span>
+      </div>
+      <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#010810;">
+        <defs>
+          <marker id="afc" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,1 L5,3.5 L0,6" fill="none" stroke="#00d4ff" stroke-width="1.5"/></marker>
+          <marker id="afcg" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,1 L5,3.5 L0,6" fill="none" stroke="#00ff9d" stroke-width="1.5"/></marker>
+          <marker id="afca" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,1 L5,3.5 L0,6" fill="none" stroke="#ffb700" stroke-width="1.5"/></marker>
+          <filter id="gfc"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="700" height="280" fill="#010810"/>
+        <g stroke="rgba(0,212,255,0.04)" stroke-width="1">
+          <line x1="0" y1="70" x2="700" y2="70"/><line x1="0" y1="140" x2="700" y2="140"/><line x1="0" y1="210" x2="700" y2="210"/>
+          <line x1="175" y1="0" x2="175" y2="280"/><line x1="350" y1="0" x2="350" y2="280"/><line x1="525" y1="0" x2="525" y2="280"/>
+        </g>
+        <rect x="20" y="55" width="130" height="170" rx="2" fill="rgba(0,212,255,0.05)" stroke="rgba(0,212,255,0.3)" stroke-width="1"/>
+        <text x="85" y="48" text-anchor="middle" font-family="monospace" font-size="9" fill="rgba(0,212,255,0.6)" letter-spacing="2">SENSORS</text>
+        <text x="85" y="75"  text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">IMU</text>
+        <text x="85" y="95"  text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">Barometer</text>
+        <text x="85" y="115" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">GPS / GNSS</text>
+        <text x="85" y="135" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">Magnetometer</text>
+        <text x="85" y="155" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">Optical Flow</text>
+        <text x="85" y="175" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">Lidar / Sonar</text>
+        <text x="85" y="218" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,212,255,0.35)">400-8000 Hz</text>
+        <line x1="153" y1="140" x2="237" y2="140" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#afc)"/>
+        <text x="160" y="133" font-family="monospace" font-size="8" fill="rgba(0,212,255,0.5)">raw data</text>
+        <rect x="240" y="75" width="150" height="130" rx="2" fill="rgba(0,212,255,0.08)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#gfc)"/>
+        <text x="315" y="68" text-anchor="middle" font-family="monospace" font-size="8" fill="#00d4ff" letter-spacing="2">FLIGHT CONTROLLER</text>
+        <text x="315" y="102" text-anchor="middle" font-family="monospace" font-size="9" fill="rgba(0,212,255,0.7)">Sensor Fusion</text>
+        <text x="315" y="122" text-anchor="middle" font-family="monospace" font-size="9" fill="rgba(0,212,255,0.7)">PID Controller</text>
+        <text x="315" y="142" text-anchor="middle" font-family="monospace" font-size="9" fill="rgba(0,212,255,0.7)">State Estimator</text>
+        <text x="315" y="162" text-anchor="middle" font-family="monospace" font-size="9" fill="rgba(0,212,255,0.7)">Mission Logic</text>
+        <text x="315" y="196" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,212,255,0.35)">PX4 / ArduPilot</text>
+        <line x1="315" y1="35" x2="315" y2="73" stroke="#ffb700" stroke-width="1.5" marker-end="url(#afca)"/>
+        <rect x="248" y="10" width="134" height="24" rx="2" fill="rgba(255,183,0,0.07)" stroke="rgba(255,183,0,0.3)" stroke-width="1"/>
+        <text x="315" y="26" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,183,0,0.8)" letter-spacing="1">GROUND OPERATOR</text>
+        <line x1="392" y1="140" x2="460" y2="140" stroke="#00ff9d" stroke-width="1.5" marker-end="url(#afcg)"/>
+        <text x="400" y="133" font-family="monospace" font-size="8" fill="rgba(0,255,157,0.5)">PWM signals</text>
+        <rect x="462" y="75" width="130" height="130" rx="2" fill="rgba(0,255,157,0.05)" stroke="rgba(0,255,157,0.3)" stroke-width="1"/>
+        <text x="527" y="68" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,255,157,0.7)" letter-spacing="2">MOTORS / ESCs</text>
+        <text x="527" y="100" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">Motor 1 (CW)</text>
+        <text x="527" y="120" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">Motor 2 (CCW)</text>
+        <text x="527" y="140" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">Motor 3 (CW)</text>
+        <text x="527" y="160" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7ab8cc">Motor 4 (CCW)</text>
+        <path d="M 594,207 Q 350,258 86,207" fill="none" stroke="#ffb700" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#afca)"/>
+        <text x="315" y="255" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,183,0,0.4)">actual drone state feeds back to sensors</text>
+      </svg>
+    </div>
+    <div class="fact-block">
+      <span class="fact-label">Real Flight Controllers You Will Encounter</span>
+      <p><strong>PX4</strong> and <strong>ArduPilot</strong> are the two dominant open-source flight controller platforms. The same software powers student research drones, commercial inspection UAVs, and military derivatives. <span class="cite">PX4 Dev Guide</span></p>
+    </div>
+  </div>
+
+  <!-- 3.3 SENSORS -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>3.3 The Six Core Sensors</h2>
+    <p>The flight controller is only as good as the data it receives. Six sensors form the essential sensing suite of any serious UAV &mdash; each measuring something different, each contributing a piece of the drone&apos;s self-awareness.</p>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Opening the Drone</span>
+      <p>The technician cracked open the drone&apos;s body panel and pointed to components on the flight controller board. &ldquo;That one&apos;s the IMU,&rdquo; she said, tapping a chip smaller than a fingernail. &ldquo;It knows if you&apos;re tilting, spinning, or accelerating. Faster than you can blink.&rdquo; She closed the panel. &ldquo;Six sensors. Together they give the autopilot a complete picture of where it is and how it&apos;s moving &mdash; twenty times per second, minimum.&rdquo;</p>
+    </div>
+    <div class="sensor-grid">
+      <div class="sensor-card">
+        <span class="sensor-card-icon" style="color:var(--accent-primary);">&#9672;</span>
+        <span class="sensor-card-type" style="color:var(--accent-primary);">IMU</span>
+        <h4 style="color:var(--text-primary);">Inertial Measurement Unit</h4>
+        <p>Contains a <strong>gyroscope</strong> (rotation rate) and <strong>accelerometer</strong> (linear acceleration). Runs at up to 8,000 Hz. The backbone of all stabilisation.</p>
+        <div class="sensor-military">&#9889; Works with zero external signals &mdash; fastest sensor on the drone</div>
+      </div>
+      <div class="sensor-card">
+        <span class="sensor-card-icon" style="color:var(--accent-green);">&#9650;</span>
+        <span class="sensor-card-type" style="color:var(--accent-green);">Barometer</span>
+        <h4 style="color:var(--text-primary);">Barometric Altimeter</h4>
+        <p>Measures <strong>air pressure</strong>, which drops with altitude. Accurate to ~30 cm in calm conditions. Fully GPS-independent.</p>
+        <div class="sensor-military">&#9889; Holds altitude in GPS-denied zones</div>
+      </div>
+      <div class="sensor-card">
+        <span class="sensor-card-icon" style="color:var(--accent-amber);">&#10022;</span>
+        <span class="sensor-card-type" style="color:var(--accent-amber);">GPS / GNSS</span>
+        <h4 style="color:var(--text-primary);">Satellite Navigation</h4>
+        <p>Receives signals from GPS, GLONASS, Galileo, or BeiDou satellites to compute <strong>latitude, longitude, altitude</strong>. Accurate to ~1&ndash;3 m in open sky.</p>
+        <div class="sensor-military">&#9888; Vulnerable to jamming and spoofing &mdash; see B04</div>
+      </div>
+      <div class="sensor-card">
+        <span class="sensor-card-icon" style="color:#b388ff;">&#8853;</span>
+        <span class="sensor-card-type" style="color:#b388ff;">Magnetometer</span>
+        <h4 style="color:var(--text-primary);">Electronic Compass</h4>
+        <p>Detects Earth&apos;s magnetic field to determine <strong>heading direction</strong>. Without it, the drone cannot reliably hold a course.</p>
+        <div class="sensor-military">&#9888; Disrupted by metal structures and RF interference</div>
+      </div>
+      <div class="sensor-card">
+        <span class="sensor-card-icon" style="color:var(--accent-primary);">&#8862;</span>
+        <span class="sensor-card-type" style="color:var(--accent-primary);">Optical Flow</span>
+        <h4 style="color:var(--text-primary);">Ground-Tracking Camera</h4>
+        <p>A downward-facing camera measuring <strong>ground movement</strong> to determine horizontal drift. Works like an optical mouse &mdash; GPS-free at low altitude.</p>
+        <div class="sensor-military">&#9889; GPS-free position hold under 50 m altitude</div>
+      </div>
+      <div class="sensor-card">
+        <span class="sensor-card-icon" style="color:var(--accent-green);font-size:1rem;line-height:2;">&raquo;&raquo;</span>
+        <span class="sensor-card-type" style="color:var(--accent-green);">Lidar / Sonar</span>
+        <h4 style="color:var(--text-primary);">Range Finder</h4>
+        <p>Emits laser (Lidar) or sound (sonar) pulses and times the echo return to measure <strong>exact distance</strong> to a surface below or ahead.</p>
+        <div class="sensor-military">&#9889; Precision landing, terrain following, obstacle avoidance</div>
+      </div>
+    </div>
+    <div class="caution-block">
+      <span class="caution-label">&#9888; Military Vulnerability &mdash; GPS is Not Guaranteed</span>
+      <p>In a contested environment, enemy forces can jam or spoof GPS signals within hundreds of kilometres. A drone that depends entirely on GPS becomes useless the moment a jammer activates. This is why military drones carry multiple redundant sensors. The IMU, barometer, optical flow, and magnetometer can all maintain basic flight with GPS completely denied. Module B04 goes deep on this.</p>
+    </div>
+  </div>
+
+  <!-- 3.4 PID -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>3.4 PID Control &mdash; How the Brain Makes Decisions</h2>
+    <p>Knowing where you are is one thing. Knowing how to get back to where you want to be &mdash; smoothly, quickly, without overshooting &mdash; is another. The algorithm that solves this is called <span class="key-term" title="Proportional-Integral-Derivative &mdash; the control algorithm that calculates motor corrections from sensor error">PID control</span>. It runs inside every flight controller ever made.</p>
+    <div class="analogy-box">
+      <span class="analogy-label">The Shower Analogy</span>
+      <p>You step into a shower and the water is too cold. You turn the hot tap. Too little &mdash; still cold. Too much &mdash; it scalds. You overshoot, undershoot, then settle. A PID controller does this automatically, faster, and for six axes simultaneously: it considers how far off you are, how fast you&apos;re approaching the target, and whether you&apos;ve been drifting for a long time.</p>
+    </div>
+    <div class="pid-row">
+      <div class="pid-card">
+        <span class="pid-letter" style="color:var(--accent-primary);">P</span>
+        <span class="pid-name">Proportional</span>
+        <p class="pid-desc">Reacts to <strong>how far</strong> from target. 10&deg; off level &rarr; apply a correction proportional to 10&deg;. Big error = big correction.</p>
+        <span class="pid-drone" style="color:var(--accent-primary);">Drone: &ldquo;I am 10&deg; off. Apply force.&rdquo;</span>
+      </div>
+      <div class="pid-card">
+        <span class="pid-letter" style="color:var(--accent-amber);">I</span>
+        <span class="pid-name">Integral</span>
+        <p class="pid-desc">Reacts to <strong>how long</strong> error has persisted. Drifting left for 2 seconds &rarr; add extra correction to cancel accumulated drift.</p>
+        <span class="pid-drone" style="color:var(--accent-amber);">Drone: &ldquo;I&apos;ve been off a while. Add more.&rdquo;</span>
+      </div>
+      <div class="pid-card">
+        <span class="pid-letter" style="color:var(--accent-green);">D</span>
+        <span class="pid-name">Derivative</span>
+        <p class="pid-desc">Reacts to <strong>how fast</strong> error is changing. Correcting rapidly toward level &rarr; ease off before overshooting. The braking term.</p>
+        <span class="pid-drone" style="color:var(--accent-green);">Drone: &ldquo;I&apos;m correcting fast &mdash; slow down.&rdquo;</span>
+      </div>
+    </div>
+    <div class="fact-block">
+      <span class="fact-label">PID in Numbers</span>
+      <p>A quadcopter runs <strong>separate PID loops</strong> for roll, pitch, yaw, altitude, and position &mdash; at 400 Hz or higher. That is 400 sense-think-act cycles per second, per axis. Simultaneously. <span class="cite">Beard &amp; McLain, 2012</span></p>
+    </div>
+  </div>
+
+  <!-- 3.5 CONTROL LOOP -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>3.5 The Control Loop &mdash; Sense, Think, Act, Repeat</h2>
+    <p>PID runs continuously &mdash; a closed loop that never stops. Every iteration: check where you are, compare to target, calculate correction, apply it, check again.</p>
+    <div class="diagram-wrap" style="padding-bottom:.5rem;">
+      <div class="diagram-header">
+        <span class="diagram-title">&#9658; THE PID CONTROL LOOP</span>
+        <span class="diagram-sub">Runs 400&ndash;8,000 times per second</span>
+      </div>
+      <div style="padding:1rem .5rem .5rem;overflow-x:auto;">
+        <div class="loop-flow">
+          <div class="loop-node" style="border-color:rgba(255,183,0,0.4);"><span class="loop-node-label" style="color:var(--accent-amber);">Target</span><span class="loop-node-val" style="color:var(--accent-amber);">Setpoint</span></div>
+          <div class="loop-arrow">&rarr;</div>
+          <div class="loop-node" style="border-color:rgba(255,58,58,0.4);"><span class="loop-node-label" style="color:var(--accent-red);">Compare</span><span class="loop-node-val" style="color:var(--accent-red);">Error</span></div>
+          <div class="loop-arrow">&rarr;</div>
+          <div class="loop-node" style="border-color:rgba(0,212,255,0.6);background:rgba(0,212,255,0.05);"><span class="loop-node-label" style="color:var(--accent-primary);">PID</span><span class="loop-node-val" style="color:var(--accent-primary);">P+I+D</span></div>
+          <div class="loop-arrow">&rarr;</div>
+          <div class="loop-node" style="border-color:rgba(0,255,157,0.4);"><span class="loop-node-label" style="color:var(--accent-green);">Output</span><span class="loop-node-val" style="color:var(--accent-green);">Motor RPM</span></div>
+          <div class="loop-arrow">&rarr;</div>
+          <div class="loop-node"><span class="loop-node-label">Physical</span><span class="loop-node-val">Drone Motion</span></div>
+          <div class="loop-arrow">&rarr;</div>
+          <div class="loop-node" style="border-color:rgba(179,136,255,0.4);"><span class="loop-node-label" style="color:#b388ff;">Sensors</span><span class="loop-node-val" style="color:#b388ff;">Actual State</span></div>
+          <div class="loop-arrow" style="color:var(--accent-amber);">&#8617;</div>
+        </div>
+        <p style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);text-align:center;margin-top:.4rem;">&#8617; FEEDBACK: Actual state returns to Compare &mdash; the loop never opens</p>
+      </div>
+    </div>
+    <div class="analogy-box">
+      <span class="analogy-label">Open Loop vs Closed Loop</span>
+      <p><strong>Open-loop:</strong> send a command, assume it worked, no checking. <strong>Closed-loop:</strong> continuously measure the outcome and correct. Every serious autonomous system &mdash; drone, missile, self-driving car &mdash; is closed-loop. Without feedback, any disturbance compounds into failure.</p>
+    </div>
+    <h3>Failsafe Modes</h3>
+    <p>Military flight controllers are programmed with hierarchical <span class="key-term" title="Pre-programmed safe behaviours triggered automatically when something fails">failsafe modes</span>:</p>
+    <div style="overflow-x:auto;margin:1.2rem 0;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="border-bottom:1px solid var(--border-dim);"><th style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent-primary);text-align:left;padding:.5rem .75rem;letter-spacing:.1em;">Trigger</th><th style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent-primary);text-align:left;padding:.5rem .75rem;letter-spacing:.1em;">Response</th><th style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent-primary);text-align:left;padding:.5rem .75rem;letter-spacing:.1em;">Reason</th></tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-panel);"><td style="padding:.6rem .75rem;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-amber);">Link lost &lt; 3 sec</td><td style="padding:.6rem .75rem;color:var(--text-secondary);font-size:.9rem;">Continue mission, attempt re-link</td><td style="padding:.6rem .75rem;color:var(--text-muted);font-size:.82rem;">Short dropout may recover</td></tr>
+          <tr style="border-bottom:1px solid var(--border-panel);"><td style="padding:.6rem .75rem;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-amber);">Link lost &gt; 30 sec</td><td style="padding:.6rem .75rem;color:var(--text-secondary);font-size:.9rem;">Return to home (RTH) autonomously</td><td style="padding:.6rem .75rem;color:var(--text-muted);font-size:.82rem;">Recover the aircraft</td></tr>
+          <tr style="border-bottom:1px solid var(--border-panel);"><td style="padding:.6rem .75rem;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-red);">Battery critical</td><td style="padding:.6rem .75rem;color:var(--text-secondary);font-size:.9rem;">Emergency land at current position</td><td style="padding:.6rem .75rem;color:var(--text-muted);font-size:.82rem;">Land before power = zero</td></tr>
+          <tr><td style="padding:.6rem .75rem;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-red);">GPS + IMU fail</td><td style="padding:.6rem .75rem;color:var(--text-secondary);font-size:.9rem;">Controlled descent &mdash; best effort</td><td style="padding:.6rem .75rem;color:var(--text-muted);font-size:.82rem;">Minimise damage</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3.6 AUTOPILOT SIM -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>3.6 Autopilot Simulator</h2>
+    <p>Watch the PID controller in action. Inject disturbances and observe how the autopilot fights to recover. Try the wind gust, then watch the HUD readings settle back to zero.</p>
+    <div class="sim-wrap">
+      <div class="sim-header">
+        <span class="sim-title">&#9658; AUTOPILOT / PID SIMULATOR &mdash; B03</span>
+        <span class="sim-status" id="ap-status" style="color:var(--accent-green);">&#9679; HOVERING &mdash; AUTOPILOT ACTIVE</span>
+      </div>
+      <canvas id="ap-canvas" height="220" style="display:block;width:100%;"></canvas>
+      <div class="autopilot-hud">
+        <div class="hud-panel">
+          <span class="hud-panel-label">Roll (left/right tilt)</span>
+          <div class="hud-reading" id="hud-roll" style="color:var(--accent-primary);">0.0&deg;</div>
+          <div class="hud-unit">Target: 0.0&deg;</div>
+          <div class="hud-bar-wrap"><div class="hud-bar" id="bar-roll" style="width:50%;background:var(--accent-primary);"></div></div>
+        </div>
+        <div class="hud-panel">
+          <span class="hud-panel-label">Pitch (forward/back tilt)</span>
+          <div class="hud-reading" id="hud-pitch" style="color:var(--accent-green);">0.0&deg;</div>
+          <div class="hud-unit">Target: 0.0&deg;</div>
+          <div class="hud-bar-wrap"><div class="hud-bar" id="bar-pitch" style="width:50%;background:var(--accent-green);"></div></div>
+        </div>
+        <div class="hud-panel">
+          <span class="hud-panel-label">Altitude</span>
+          <div class="hud-reading" id="hud-alt" style="color:var(--accent-amber);">50 m</div>
+          <div class="hud-unit">Target: 50 m</div>
+          <div class="hud-bar-wrap"><div class="hud-bar" id="bar-alt" style="width:50%;background:var(--accent-amber);"></div></div>
+        </div>
+      </div>
+      <div class="autopilot-controls">
+        <button class="ap-btn" onclick="apDisturb(&apos;wind&apos;)">&#128168; Wind Gust</button>
+        <button class="ap-btn" onclick="apDisturb(&apos;roll&apos;)">&#8596; Roll Kick</button>
+        <button class="ap-btn" onclick="apDisturb(&apos;pitch&apos;)">&#8597; Pitch Kick</button>
+        <button class="ap-btn" onclick="apDisturb(&apos;drop&apos;)">&#8595; Altitude Drop</button>
+        <button class="ap-btn danger" onclick="apDisturb(&apos;heavy&apos;)">&#9888; Heavy Payload</button>
+        <button class="ap-btn" onclick="apSetMode(&apos;rtl&apos;)" id="btn-rtl">RTL Mode</button>
+        <button class="ap-btn active" onclick="apSetMode(&apos;hover&apos;)" id="btn-hover">Hover</button>
+      </div>
+      <div class="ap-log" id="ap-log">Autopilot online. All sensors nominal. Awaiting disturbance input&hellip;</div>
+    </div>
+  </div>
+
+  <!-- 3.7 DRAG AND DROP -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>3.7 Match the Sensor to Its Job</h2>
+    <p>Each sensor has one primary function. Drag the sensor name to the scenario it handles.</p>
+    <div class="dnd-wrap" id="dnd-b03">
+      <div class="dnd-title">&#9658; DRAG-AND-DROP &mdash; SENSOR IDENTIFICATION</div>
+      <div class="dnd-subtitle">Drag each sensor to the situation it is primarily responsible for detecting.</div>
+      <div class="dnd-bank" id="dnd-bank-b03">
+        <div class="dnd-chip" draggable="true" data-label="IMU">IMU</div>
+        <div class="dnd-chip" draggable="true" data-label="Barometer">Barometer</div>
+        <div class="dnd-chip" draggable="true" data-label="GPS">GPS</div>
+        <div class="dnd-chip" draggable="true" data-label="Magnetometer">Magnetometer</div>
+        <div class="dnd-chip" draggable="true" data-label="Optical Flow">Optical Flow</div>
+        <div class="dnd-chip" draggable="true" data-label="Lidar">Lidar</div>
+      </div>
+      <div class="dnd-targets">
+        <div class="dnd-target" data-answer="IMU"><span class="dnd-target-num">&#9312;</span><span class="dnd-target-hint">Wind tilts the drone 8&deg; &mdash; this sensor detects the rotation in under 1 ms</span><span class="dnd-target-drop" id="b03-drop-0">&mdash; drop here &mdash;</span></div>
+        <div class="dnd-target" data-answer="Barometer"><span class="dnd-target-num">&#9313;</span><span class="dnd-target-hint">GPS is jammed &mdash; the drone still knows its altitude to 30 cm using air pressure</span><span class="dnd-target-drop" id="b03-drop-1">&mdash; drop here &mdash;</span></div>
+        <div class="dnd-target" data-answer="GPS"><span class="dnd-target-num">&#9314;</span><span class="dnd-target-hint">Navigate to a waypoint 40 km away &mdash; satellite signals give position</span><span class="dnd-target-drop" id="b03-drop-2">&mdash; drop here &mdash;</span></div>
+        <div class="dnd-target" data-answer="Magnetometer"><span class="dnd-target-num">&#9315;</span><span class="dnd-target-hint">Fly north toward target &mdash; reads Earth&apos;s magnetic field for heading</span><span class="dnd-target-drop" id="b03-drop-3">&mdash; drop here &mdash;</span></div>
+        <div class="dnd-target" data-answer="Optical Flow"><span class="dnd-target-num">&#9316;</span><span class="dnd-target-hint">Flying at 10 m indoors with no GPS &mdash; prevents sideways drift</span><span class="dnd-target-drop" id="b03-drop-4">&mdash; drop here &mdash;</span></div>
+        <div class="dnd-target" data-answer="Lidar"><span class="dnd-target-num">&#9317;</span><span class="dnd-target-hint">Approaching a rooftop landing pad &mdash; measures exact distance to surface</span><span class="dnd-target-drop" id="b03-drop-5">&mdash; drop here &mdash;</span></div>
+      </div>
+      <div class="dnd-controls">
+        <button class="dnd-btn primary" onclick="checkDnD_b03()">&#9658; CHECK ANSWERS</button>
+        <button class="dnd-btn" onclick="resetDnD_b03()">&#8634; Reset</button>
+      </div>
+      <div class="dnd-result" id="dnd-result-b03"></div>
+    </div>
+  </div>
+
+  <!-- 3.8 SCENARIO -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>3.8 Mission Decision &mdash; What Would You Do, Cadet?</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; The Jammed Zone</span>
+      <p>Arjun&apos;s unit is planning a reconnaissance mission into a valley where enemy forces operate a GPS jammer with a confirmed 30 km effective radius. The target is 15 km inside the jammed zone. The drone must fly in, loiter at low altitude (under 50 m) for 20 minutes over the target, then return.</p>
+      <p>The UAV operator turns to Arjun: &ldquo;GPS is completely unavailable inside the target area. Which sensor combination do we rely on?&rdquo;</p>
+    </div>
+    <div class="scenario-box">
+      <span class="scenario-label">&#9888; Cadet Decision &mdash; GPS-Denied Sensor Strategy</span>
+      <p class="scenario-q">GPS is completely unavailable. Which sensor combination gives the best ability to maintain stable low-altitude loiter for 20 minutes?</p>
+      <div class="scenario-choices" id="sc3-choices">
+        <button class="scenario-choice" onclick="scenarioB03(this,false)"><strong>A.</strong> GPS only &mdash; wait for the jammer to switch off, then proceed.</button>
+        <button class="scenario-choice" onclick="scenarioB03(this,true)"><strong>B.</strong> IMU + Barometer + Optical Flow + Magnetometer &mdash; full GPS-denied navigation using inertial and optical sensors.</button>
+        <button class="scenario-choice" onclick="scenarioB03(this,false)"><strong>C.</strong> Magnetometer only &mdash; compass heading is enough to hold position.</button>
+        <button class="scenario-choice" onclick="scenarioB03(this,false)"><strong>D.</strong> Switch to manual control &mdash; let the human operator fly it with a joystick.</button>
+      </div>
+      <div class="scenario-feedback" id="sc3-feedback"></div>
+    </div>
+  </div>
+
+  <!-- 3.9 QUIZ -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>3.9 Knowledge Check</h2>
+    <p>Five questions. Think carefully &mdash; some require combining concepts from across the module.</p>
+    <div class="bq-quiz" id="quiz-b03">
+
+      <div class="bq-question"
+           data-question="A flight controller runs its PID loop 400 times per second. Why is such a high frequency necessary?"
+           data-options='["To impress the operator with processing power","Physical disturbances like wind gusts happen in milliseconds &mdash; slow correction means the drone crashes before recovery","To drain the battery faster for safety","High frequency makes GPS work better"]'
+           data-correct="1"
+           data-explanation="A drone is physically unstable &mdash; without constant correction it will tip within fractions of a second. Wind gusts, rotor speed variations, and turbulence happen faster than a human can react. 400 Hz means a correction every 2.5 milliseconds. That is the only way to keep ahead of the physics.">
+      </div>
+
+      <div class="bq-question"
+           data-question="What does the Derivative (D) term in PID control do and why is it necessary?"
+           data-options='["It doubles the correction when the error is large","It measures how fast the error is changing and applies a braking effect to prevent overshooting","It integrates all past errors to remove long-term drift","It sets the maximum motor speed"]'
+           data-correct="1"
+           data-explanation="The D term monitors the rate of change of the error. If the drone is rapidly correcting back to level, D detects this fast change and reduces the correction force &mdash; preventing the drone from swinging past the target and oscillating. Without D, a drone would oscillate continuously. D is the damping term.">
+      </div>
+
+      <div class="bq-question"
+           data-question="GPS is jammed. Which sensor combination can maintain stable hover at low altitude?"
+           data-options='["Magnetometer only &mdash; compass heading is sufficient","IMU + Barometer + Optical Flow &mdash; attitude stability, altitude hold, and horizontal drift detection","Lidar only &mdash; range to ground replaces all other sensors","No sensors work without GPS &mdash; mission must abort"]'
+           data-correct="1"
+           data-explanation="GPS provides position but is not required for stable hover. The IMU handles attitude stabilisation (the most critical function), the barometer maintains altitude, and optical flow detects horizontal drift by tracking ground movement. Together these allow position hold at low altitude with no GPS whatsoever.">
+      </div>
+
+      <div class="bq-question"
+           data-question="What is the difference between open-loop and closed-loop control?"
+           data-options='["Open-loop is faster; closed-loop is slower","Open-loop sends commands with no feedback &mdash; closed-loop continuously checks the actual outcome and corrects","Open-loop uses GPS; closed-loop uses IMU","Closed-loop requires an internet connection"]'
+           data-correct="1"
+           data-explanation="Open-loop control sends a command and assumes it was executed correctly &mdash; no mechanism to verify. Closed-loop control continuously measures the actual outcome via sensors, compares it to the desired outcome, and adjusts. All flight controllers are closed-loop. Without feedback, the slightest disturbance would compound into a crash.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A drone loses its radio link to the ground station. What does a well-programmed military autopilot do?"
+           data-options='["Immediately cut all motors and fall","Continue the mission briefly, then return to home autonomously if the link does not recover","Wait in place forever until the operator reconnects","Fly randomly to search for the signal"]'
+           data-correct="1"
+           data-explanation="Modern flight controllers implement tiered failsafe logic. A brief link loss is treated as transient &mdash; the autopilot continues the mission. Sustained link loss triggers Return To Home: the autopilot uses its stored home waypoint, navigates back autonomously, and lands &mdash; all without human input. This is a fundamental military UAV safety requirement.">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3.10 GO DEEPER -->
+  <div class="module-section section-anchor" id="s10">
+    <h2>3.10 You Now Understand the Brain</h2>
+    <p>Flight controller, six sensors, PID control, closed-loop feedback, failsafe modes &mdash; you have just covered the conceptual architecture of every autonomous drone ever built. Most people who fly drones commercially have never thought about any of this.</p>
+    <p>The next module takes the GPS vulnerability you have now identified and goes deep on it: what exactly does a jammer do to a drone&apos;s navigation system? How do military engineers design around it? That is B04.</p>
+    <p>For the full mathematical treatment &mdash; transfer functions, state-space representation, control gains &mdash; Module M03 is where that lives.</p>
+
+    <div class="advance-panel">
+      <div class="advance-icon">&#9658;&#9658;</div>
+      <div class="advance-text">
+        <h3>READY TO GO DEEPER?</h3>
+        <p>Module M03 covers GNC fundamentals in full: rigid body dynamics, Euler angle kinematics, linear quadratic regulators, and the complete PID implementation in PX4 &mdash; including how gains are tuned for different airframes and mission profiles.</p>
+      </div>
+      <a href="../modules/m03-gnc-fundamentals.html" class="advance-link">M03: GNC Fundamentals &#9658;</a>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border-dim);flex-wrap:wrap;gap:1rem;">
+      <a href="b02-why-drones-fly.html" class="btn-primary" style="font-size:.75rem;border-color:var(--border-dim);color:var(--text-muted);">&#9668; B02: Why Drones Fly</a>
+      <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);">BEGINNER TRACK &middot; MODULE B03 OF 10</span>
+      <a href="b04-when-gps-fails.html" class="btn-primary" style="font-size:.75rem;">B04: When GPS Fails &#9658;</a>
+    </div>
+  </div>
+</div>
+
+<footer><p>AEROKNOW &middot; Beginner Module B03 &middot; The Brain of a Drone &middot; Beginner Track</p></footer>
+
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/beginner-quiz.js"></script>
+<script>
+/* JUMP BAR */
+function jumpTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:"smooth"});document.querySelectorAll(".jump-btn").forEach(b=>b.classList.remove("active"));event.currentTarget.classList.add("active")}
+const _secs=["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10"];
+const _btns=document.querySelectorAll(".jump-btn");
+new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const i=_secs.indexOf(e.target.id);if(i!==-1){_btns.forEach(b=>b.classList.remove("active"));if(_btns[i])_btns[i].classList.add("active")}}})},{rootMargin:"-20% 0px -70% 0px",threshold:0}).observe||_secs.forEach(id=>{const el=document.getElementById(id);if(el)new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const i=_secs.indexOf(e.target.id);if(i!==-1){_btns.forEach(b=>b.classList.remove("active"));if(_btns[i])_btns[i].classList.add("active")}}})},{rootMargin:"-20% 0px -70% 0px",threshold:0}).observe(el)});
+(()=>{const el=document.getElementById("s1");if(!el)return;const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const i=_secs.indexOf(e.target.id);if(i!==-1){_btns.forEach(b=>b.classList.remove("active"));if(_btns[i])_btns[i].classList.add("active")}}})},{rootMargin:"-20% 0px -70% 0px",threshold:0});_secs.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el)})})();
+
+/* AUTOPILOT SIM */
+(function(){
+  const canvas=document.getElementById("ap-canvas");
+  if(!canvas)return;
+  const ctx=canvas.getContext("2d");
+  let W,H,droneX,droneY,rotAngle=0;
+  const state={roll:0,pitch:0,alt:50,rv:0,pv:0,av:0};
+  const tgt={roll:0,pitch:0,alt:50};
+  const intg={roll:0,pitch:0,alt:0};
+  const prev={roll:0,pitch:0,alt:0};
+  const KP={roll:.18,pitch:.18,alt:.12},KI={roll:.008,pitch:.008,alt:.005},KD={roll:.22,pitch:.22,alt:.18};
+  function resize(){W=canvas.parentElement.clientWidth||700;H=220;canvas.width=W;canvas.height=H;droneX=W/2;droneY=H*.45}
+  function pid(ax){const e=tgt[ax]-state[ax];intg[ax]=Math.max(-15,Math.min(15,intg[ax]+e*.016));const d=Math.max(-30,Math.min(30,(e-prev[ax])/.016));prev[ax]=e;return KP[ax]*e+KI[ax]*intg[ax]+KD[ax]*d}
+  function tick(){
+    state.rv+=pid("roll")*.3;state.pv+=pid("pitch")*.3;state.av+=pid("alt")*.04;
+    state.rv*=.88;state.pv*=.88;state.av*=.92;
+    state.rv=Math.max(-12,Math.min(12,state.rv));state.pv=Math.max(-12,Math.min(12,state.pv));state.av=Math.max(-6,Math.min(6,state.av));
+    state.roll+=state.rv;state.pitch+=state.pv;state.alt+=state.av;
+    state.roll=Math.max(-45,Math.min(45,state.roll));
+    state.pitch=Math.max(-45,Math.min(45,state.pitch));
+    state.alt=Math.max(0,Math.min(120,state.alt));
+    droneX=W/2+state.roll*2.2;
+    droneY=Math.max(28,Math.min(H-28,H*.45-(state.alt-50)*.7));
+    rotAngle+=.14;
+    document.getElementById("hud-roll").textContent=state.roll.toFixed(1)+"°";
+    document.getElementById("hud-pitch").textContent=state.pitch.toFixed(1)+"°";
+    document.getElementById("hud-alt").textContent=Math.round(state.alt)+" m";
+    document.getElementById("bar-roll").style.width=(50+state.roll)+"%";
+    document.getElementById("bar-pitch").style.width=(50+state.pitch)+"%";
+    document.getElementById("bar-alt").style.width=(state.alt/120*100)+"%";
+    const stable=Math.abs(state.roll)<3&&Math.abs(state.pitch)<3&&Math.abs(state.alt-tgt.alt)<2;
+    const st=document.getElementById("ap-status");
+    st.textContent=stable?"● STABLE — PID HOLDING":"● CORRECTING...";
+    st.style.color=stable?"var(--accent-green)":"var(--accent-amber)";
+    draw();requestAnimationFrame(tick);
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);ctx.fillStyle="#010810";ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle="rgba(0,212,255,0.05)";ctx.lineWidth=1;
+    for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+    for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+    const tx=W/2,ty=Math.max(28,Math.min(H-28,H*.45-(tgt.alt-50)*.7));
+    ctx.strokeStyle="rgba(0,255,157,0.2)";ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(tx-18,ty);ctx.lineTo(tx+18,ty);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(tx,ty-18);ctx.lineTo(tx,ty+18);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle="rgba(0,255,157,0.3)";ctx.font="8px Share Tech Mono";ctx.fillText("TARGET",tx+6,ty-5);
+    ctx.strokeStyle="rgba(0,212,255,0.15)";ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(0,H-12);ctx.lineTo(W,H-12);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="rgba(0,212,255,0.2)";ctx.fillText("GROUND",6,H-2);
+    ctx.strokeStyle="rgba(255,58,58,0.2)";ctx.lineWidth=1;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(droneX,droneY);ctx.stroke();ctx.setLineDash([]);
+    ctx.save();ctx.translate(droneX,droneY);ctx.rotate(state.roll*Math.PI/180*.5);
+    ctx.strokeStyle="rgba(0,212,255,0.65)";ctx.lineWidth=4;ctx.lineCap="round";
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([dx,dy])=>{ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx*24,dy*24);ctx.stroke()});
+    ctx.fillStyle="rgba(0,212,255,0.12)";ctx.strokeStyle="rgba(0,212,255,0.7)";ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.rect(-8,-8,16,16);ctx.fill();ctx.stroke();
+    [[-24,-24],[24,-24],[-24,24],[24,24]].forEach(([rx,ry],i)=>{
+      ctx.save();ctx.translate(rx,ry);ctx.rotate(rotAngle*(i%2===0?1:-1));
+      ctx.strokeStyle="rgba(0,212,255,0.9)";ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(12,0);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(0,-12);ctx.lineTo(0,12);ctx.stroke();
+      ctx.strokeStyle="rgba(0,212,255,0.25)";ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.stroke();ctx.restore()
+    });
+    ctx.restore();
+    ctx.fillStyle="rgba(255,183,0,0.5)";ctx.font="9px Share Tech Mono";
+    ctx.fillText("ALT:"+Math.round(state.alt)+"m",W-65,13);
+  }
+  window.apDisturb=function(t){
+    const msgs={wind:"Wind gust! Roll+pitch disturbed. Watch PID damp the oscillation.",roll:"Roll kick +22°. Watch D term brake the recovery.",pitch:"Pitch kick +18°. Integral term engaging...",drop:"Altitude drop injected. PID climbing back to target.",heavy:"Heavy payload added. Altitude sagging &mdash; PID compensating."};
+    document.getElementById("ap-log").textContent=msgs[t]||"";
+    if(t==="wind"){state.rv+=(Math.random()-.5)*20;state.pv+=(Math.random()-.5)*14}
+    if(t==="roll") state.rv+=22;
+    if(t==="pitch")state.pv+=18;
+    if(t==="drop") state.av-=14;
+    if(t==="heavy"){state.av-=8}
+  };
+  window.apSetMode=function(m){
+    document.querySelectorAll(".ap-btn").forEach(b=>b.classList.remove("active"));
+    if(m==="hover"){tgt.roll=0;tgt.pitch=0;tgt.alt=50;document.getElementById("btn-hover").classList.add("active");document.getElementById("ap-log").textContent="Hover mode. Target: alt 50m, roll 0°, pitch 0°."}
+    if(m==="rtl"){tgt.roll=0;tgt.pitch=0;tgt.alt=85;document.getElementById("btn-rtl").classList.add("active");document.getElementById("ap-log").textContent="RETURN TO LAUNCH activated. Climbing to 85m then navigating home."}
+  };
+  window.addEventListener("resize",resize);resize();tick();
+})();
+
+/* DRAG AND DROP B03 */
+let _drag03=null;
+document.addEventListener("DOMContentLoaded",()=>{
+  document.querySelectorAll("#dnd-b03 .dnd-chip").forEach(c=>{
+    c.addEventListener("dragstart",e=>{_drag03=c;c.classList.add("dragging");e.dataTransfer.effectAllowed="move"});
+    c.addEventListener("dragend",()=>c.classList.remove("dragging"));
+  });
+  document.querySelectorAll("#dnd-b03 .dnd-target").forEach(t=>{
+    t.addEventListener("dragover",e=>{e.preventDefault();t.classList.add("drag-over")});
+    t.addEventListener("dragleave",()=>t.classList.remove("drag-over"));
+    t.addEventListener("drop",e=>{
+      e.preventDefault();t.classList.remove("drag-over");if(!_drag03)return;
+      const ex=t.getAttribute("data-placed");
+      if(ex){const old=[...document.querySelectorAll("#dnd-bank-b03 .dnd-chip.placed")].find(c=>c.getAttribute("data-label")===ex);if(old)old.classList.remove("placed")}
+      const lbl=_drag03.getAttribute("data-label");
+      t.setAttribute("data-placed",lbl);
+      const d=t.querySelector(".dnd-target-drop");d.textContent=lbl;d.style.color="var(--accent-primary)";
+      t.classList.remove("correct","wrong");_drag03.classList.add("placed");_drag03=null;
+      document.getElementById("dnd-result-b03").style.display="none";
+    });
+  });
+});
+function checkDnD_b03(){
+  const ts=document.querySelectorAll("#dnd-b03 .dnd-target");let ok=0;
+  ts.forEach(t=>{t.classList.remove("correct","wrong");const p=t.getAttribute("data-placed");if(!p)return;if(p===t.getAttribute("data-answer")){t.classList.add("correct");ok++}else t.classList.add("wrong")});
+  const r=document.getElementById("dnd-result-b03");r.style.display="block";
+  r.style.color=ok===ts.length?"var(--accent-green)":ok>=ts.length/2?"var(--accent-amber)":"var(--accent-red)";
+  r.textContent=ok+"/"+ts.length+" correct — "+(ok===ts.length?"All sensors matched correctly. ✓":"Some are mismatched — review sensor descriptions above.");
+}
+function resetDnD_b03(){
+  document.querySelectorAll("#dnd-b03 .dnd-target").forEach(t=>{t.classList.remove("correct","wrong");t.removeAttribute("data-placed");const d=t.querySelector(".dnd-target-drop");d.textContent="— drop here —";d.style.color=""});
+  document.querySelectorAll("#dnd-b03 .dnd-chip").forEach(c=>c.classList.remove("placed"));
+  document.getElementById("dnd-result-b03").style.display="none";
+}
+
+/* SCENARIO B03 */
+function scenarioB03(btn,correct){
+  const cs=document.querySelectorAll("#sc3-choices .scenario-choice");
+  const fb=document.getElementById("sc3-feedback");
+  cs.forEach(c=>{c.disabled=true;c.classList.remove("s-correct","s-wrong")});
+  btn.classList.add(correct?"s-correct":"s-wrong");
+  cs[1].classList.add("s-correct");
+  fb.style.display="block";
+  if(correct){
+    fb.style.borderLeftColor="var(--accent-green)";
+    fb.innerHTML=`<strong style='color:var(--accent-green);'>Correct, Cadet.</strong> This is exactly the sensor stack used in GPS-denied military operations. The <strong>IMU</strong> runs at up to 8,000 Hz keeping the drone level regardless of GPS. The <strong>barometer</strong> holds altitude to within ~30 cm. The <strong>optical flow</strong> sensor at 10&ndash;50 m altitude tracks ground movement to prevent horizontal drift. The <strong>magnetometer</strong> provides heading. Together these four allow stable precision loiter in fully GPS-denied environments &mdash; the subject of B04.`;
+  } else {
+    fb.style.borderLeftColor="var(--accent-red)";
+    const idx=[...cs].indexOf(btn);
+    const ex=[
+      `Waiting for the jammer to switch off is not a mission plan &mdash; it is surrender. Military drones must operate in contested EM environments. Correct answer: <strong style='color:var(--accent-green);'>B</strong>.`,
+      ``,
+      `A magnetometer gives heading only &mdash; not position, altitude, or stability. The drone would drift uncontrollably within seconds. Correct answer: <strong style='color:var(--accent-green);'>B</strong>.`,
+      `Manual control over a jammed link is likely to fail. More fundamentally, a human cannot react at 400 Hz to stabilise a drone. Correct answer: <strong style='color:var(--accent-green);'>B</strong>.`
+    ];
+    fb.innerHTML=`<strong style='color:var(--accent-red);'>Incorrect, Cadet.</strong> `+ex[idx];
+  }
+}
+</script>
+</body>
+</html>
