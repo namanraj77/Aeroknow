@@ -561,11 +561,10 @@ new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){cons
   const prev={roll:0,pitch:0,alt:0};
   const KP={roll:.18,pitch:.18,alt:.12},KI={roll:.008,pitch:.008,alt:.005},KD={roll:.22,pitch:.22,alt:.18};
   function resize(){W=canvas.parentElement.clientWidth||700;H=220;canvas.width=W;canvas.height=H;droneX=W/2;droneY=H*.45}
-  function pid(ax){const e=tgt[ax]-state[ax];intg[ax]=Math.max(-15,Math.min(15,intg[ax]+e*.016));const d=Math.max(-30,Math.min(30,(e-prev[ax])/.016));prev[ax]=e;return KP[ax]*e+KI[ax]*intg[ax]+KD[ax]*d}
+  function pid(ax){const e=tgt[ax]-state[ax];intg[ax]=Math.max(-15,Math.min(15,intg[ax]+e*.016));const d=(e-prev[ax])/.016;prev[ax]=e;return KP[ax]*e+KI[ax]*intg[ax]+KD[ax]*d}
   function tick(){
     state.rv+=pid("roll")*.3;state.pv+=pid("pitch")*.3;state.av+=pid("alt")*.04;
     state.rv*=.88;state.pv*=.88;state.av*=.92;
-    state.rv=Math.max(-12,Math.min(12,state.rv));state.pv=Math.max(-12,Math.min(12,state.pv));state.av=Math.max(-6,Math.min(6,state.av));
     state.roll+=state.rv;state.pitch+=state.pv;state.alt+=state.av;
     state.roll=Math.max(-45,Math.min(45,state.roll));
     state.pitch=Math.max(-45,Math.min(45,state.pitch));
@@ -680,17 +679,12 @@ function scenarioB03(btn,correct){
   fb.style.display="block";
   if(correct){
     fb.style.borderLeftColor="var(--accent-green)";
-    fb.innerHTML=`<strong style='color:var(--accent-green);'>Correct, Cadet.</strong> This is exactly the sensor stack used in GPS-denied military operations. The <strong>IMU</strong> runs at up to 8,000 Hz keeping the drone level regardless of GPS. The <strong>barometer</strong> holds altitude to within ~30 cm. The <strong>optical flow</strong> sensor at 10&ndash;50 m altitude tracks ground movement to prevent horizontal drift. The <strong>magnetometer</strong> provides heading. Together these four allow stable precision loiter in fully GPS-denied environments &mdash; the subject of B04.`;
+    fb.innerHTML=`<strong style="color:var(--accent-green);">Correct, Cadet.</strong> This is exactly the sensor stack used in GPS-denied military operations. The <strong>IMU</strong> runs at up to 8,000 Hz keeping the drone level regardless of GPS. The <strong>barometer</strong> holds altitude to within ~30 cm. The <strong>optical flow</strong> sensor at 10&ndash;50 m altitude tracks ground movement to prevent horizontal drift. The <strong>magnetometer</strong> provides heading. Together these four allow stable precision loiter in fully GPS-denied environments &mdash; the subject of B04.`;
   } else {
     fb.style.borderLeftColor="var(--accent-red)";
     const idx=[...cs].indexOf(btn);
-    const ex=[
-      `Waiting for the jammer to switch off is not a mission plan &mdash; it is surrender. Military drones must operate in contested EM environments. Correct answer: <strong style='color:var(--accent-green);'>B</strong>.`,
-      ``,
-      `A magnetometer gives heading only &mdash; not position, altitude, or stability. The drone would drift uncontrollably within seconds. Correct answer: <strong style='color:var(--accent-green);'>B</strong>.`,
-      `Manual control over a jammed link is likely to fail. More fundamentally, a human cannot react at 400 Hz to stabilise a drone. Correct answer: <strong style='color:var(--accent-green);'>B</strong>.`
-    ];
-    fb.innerHTML=`<strong style='color:var(--accent-red);'>Incorrect, Cadet.</strong> `+ex[idx];
+    const ex=[`Waiting for the jammer to switch off is not a mission plan &mdash; it is surrender. Military drones must operate in contested EM environments. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`,``,`A magnetometer gives heading only &mdash; not position, altitude, or stability. The drone would drift uncontrollably within seconds. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`,`Manual control over a jammed link is likely to fail. More fundamentally, a human cannot react at 400 Hz to stabilise a drone. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`];
+    fb.innerHTML=`<strong style="color:var(--accent-red);">Incorrect, Cadet.</strong> `+ex[idx];
   }
 }
 </script>
