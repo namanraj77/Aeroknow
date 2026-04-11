@@ -32,7 +32,7 @@
     { num: 'B01', title: 'What Is a Drone?',          href: 'beginner/b01-what-is-a-drone.html',      done: true  },
     { num: 'B02', title: 'Why Drones Fly',             href: 'beginner/b02-why-drones-fly.html',       done: true },
     { num: 'B03', title: 'The Brain of a Drone',       href: 'beginner/b03-autopilots-sensors.html',   done: true },
-    { num: 'B04', title: 'When GPS Fails',             href: 'beginner/b04-when-gps-fails.html',       done: false },
+    { num: 'B04', title: 'When GPS Fails',             href: 'beginner/b04-when-gps-fails.html',       done: true },
     { num: 'B05', title: 'Eyes in the Sky',            href: 'beginner/b05-eyes-in-the-sky.html',      done: false },
     { num: 'B06', title: 'Teaching Drones to Think',   href: 'beginner/b06-teaching-drones.html',      done: false },
     { num: 'B07', title: 'Drones That See',            href: 'beginner/b07-drones-that-see.html',      done: false },
