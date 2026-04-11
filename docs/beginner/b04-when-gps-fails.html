@@ -122,16 +122,16 @@
 <div class="section-jump" id="jump-bar">
   <div class="jump-inner">
     <span class="jump-label">Jump to</span>
-    <button class="jump-btn active" onclick="jumpTo(&apos;s1&apos;)"><span class="jb-num">4.1</span>The Blank Screen</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s2&apos;)"><span class="jb-num">4.2</span>How GPS Works</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s3&apos;)"><span class="jb-num">4.3</span>Jamming</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s4&apos;)"><span class="jb-num">4.4</span>Spoofing</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s5&apos;)"><span class="jb-num">4.5</span>GPS-Denied Nav</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s6&apos;)"><span class="jb-num">4.6</span>Jammer Simulator</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s7&apos;)"><span class="jb-num">4.7</span>Match the Threat</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s8&apos;)"><span class="jb-num">4.8</span>Mission Decision</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s9&apos;)"><span class="jb-num">4.9</span>Knowledge Check</button>
-    <button class="jump-btn" onclick="jumpTo(&apos;s10&apos;)"><span class="jb-num">4.10</span>Go Deeper</button>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">4.1</span>The Blank Screen</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">4.2</span>How GPS Works</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">4.3</span>Jamming</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">4.4</span>Spoofing</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">4.5</span>GPS-Denied Nav</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">4.6</span>Jammer Simulator</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">4.7</span>Match the Threat</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">4.8</span>Mission Decision</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">4.9</span>Knowledge Check</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">4.10</span>Go Deeper</button>
   </div>
 </div>
 
@@ -154,21 +154,21 @@
     <div class="story-box">
       <span class="story-label">&#128214; Mission Log &mdash; Day 19</span>
       <p>The exercise was supposed to be routine. Arjun was in the operations room watching three drone feeds simultaneously when all three map displays went blank at once. The position indicators &mdash; three small icons showing where each drone was &mdash; simply vanished.</p>
-      <p>The operators didn&apos;t panic. They had trained for this.</p>
+      <p>The operators didn't panic. They had trained for this.</p>
       <p>&ldquo;Jammer active,&rdquo; said one, already switching to the backup navigation display. &ldquo;Visual confirmed &mdash; all three are still flying. Switching to INS mode.&rdquo;</p>
       <p>Arjun leaned over. The drones were still moving on the screen &mdash; but now their positions were being calculated by something other than GPS. They were navigating using their own sensors alone, like submarines running blind underwater.</p>
       <p>&ldquo;How long can they hold position without GPS?&rdquo; Arjun asked.</p>
-      <p>&ldquo;Depends on the platform,&rdquo; said the operator. &ldquo;Best systems, maybe twenty minutes before drift becomes a problem. Worst systems, two minutes.&rdquo; She paused. &ldquo;That&apos;s why GPS-denied navigation is the hardest engineering problem in military UAV design right now.&rdquo;</p>
+      <p>&ldquo;Depends on the platform,&rdquo; said the operator. &ldquo;Best systems, maybe twenty minutes before drift becomes a problem. Worst systems, two minutes.&rdquo; She paused. &ldquo;That's why GPS-denied navigation is the hardest engineering problem in military UAV design right now.&rdquo;</p>
     </div>
     <div class="plain-intro">
-      <span class="pi-label">What You&apos;ll Know After This Module</span>
+      <span class="pi-label">What You'll Know After This Module</span>
       <p>You will understand how GPS satellites work and why the signal is so fragile, the difference between jamming and spoofing and which is more dangerous, four methods drones use to navigate without GPS, and the key engineering trade-offs in GPS-denied systems.</p>
     </div>
   </div>
 
   <!-- 4.2 HOW GPS WORKS -->
   <div class="module-section section-anchor" id="s2">
-    <h2>4.2 How GPS Actually Works &mdash; And Why It&apos;s Fragile</h2>
+    <h2>4.2 How GPS Actually Works &mdash; And Why It's Fragile</h2>
     <p>To understand why GPS fails, you first need to understand how it works. Most people know that GPS uses satellites &mdash; but the details of <em>how</em> reveal exactly why it is so easy to attack.</p>
     <div class="analogy-box">
       <span class="analogy-label">The Lighthouse Analogy</span>
@@ -244,12 +244,12 @@
   <!-- 4.3 JAMMING -->
   <div class="module-section section-anchor" id="s3">
     <h2>4.3 Jamming &mdash; Blinding the Drone</h2>
-    <p><span class="key-term" title="Broadcasting radio noise on GPS frequencies to overpower the satellite signal">GPS jamming</span> is the simplest and most common form of attack. A jammer broadcasts radio noise on the same frequencies that GPS satellites use. The drone&apos;s receiver cannot distinguish the satellite signal from the noise &mdash; it simply loses its position fix and shows no GPS.</p>
+    <p><span class="key-term" title="Broadcasting radio noise on GPS frequencies to overpower the satellite signal">GPS jamming</span> is the simplest and most common form of attack. A jammer broadcasts radio noise on the same frequencies that GPS satellites use. The drone's receiver cannot distinguish the satellite signal from the noise &mdash; it simply loses its position fix and shows no GPS.</p>
     <div class="story-box">
       <span class="story-label">&#128214; Mission Log &mdash; Understanding the Attack</span>
-      <p>&ldquo;Think of it like shouting in a library,&rdquo; the instructor explained to Arjun&apos;s group. &ldquo;The GPS satellite is whispering from 20,000 kilometres away. The jammer stands next to the drone and screams on the same frequency. The drone can&apos;t hear the whisper anymore. That&apos;s all jamming is &mdash; noise on the right frequency.&rdquo;</p>
-      <p>&ldquo;So the drone knows it&apos;s being jammed?&rdquo; asked Arjun.</p>
-      <p>&ldquo;It knows it has no GPS. It doesn&apos;t know why. Could be buildings, could be terrain, could be a jammer. That uncertainty is the problem.&rdquo;</p>
+      <p>&ldquo;Think of it like shouting in a library,&rdquo; the instructor explained to Arjun's group. &ldquo;The GPS satellite is whispering from 20,000 kilometres away. The jammer stands next to the drone and screams on the same frequency. The drone can't hear the whisper anymore. That's all jamming is &mdash; noise on the right frequency.&rdquo;</p>
+      <p>&ldquo;So the drone knows it's being jammed?&rdquo; asked Arjun.</p>
+      <p>&ldquo;It knows it has no GPS. It doesn't know why. Could be buildings, could be terrain, could be a jammer. That uncertainty is the problem.&rdquo;</p>
     </div>
     <div class="fact-block">
       <span class="fact-label">Jamming: Key Facts</span>
@@ -268,7 +268,7 @@
     <p><span class="key-term" title="Transmitting fake GPS signals that mimic real satellites, feeding the drone false position data">GPS spoofing</span> is more sophisticated and far more dangerous than jamming. Instead of drowning out the GPS signal with noise, a spoofer transmits <em>fake</em> GPS signals that mimic real satellites. The drone receives what appears to be a valid position fix &mdash; but the position is wrong.</p>
     <div class="analogy-box">
       <span class="analogy-label">The Forged Map Analogy</span>
-      <p>Jamming is like tearing the map out of the drone&apos;s hands &mdash; it knows it is lost. <strong>Spoofing is like replacing the map with a forged one.</strong> The drone confidently navigates using the fake map, heading exactly where the attacker wants it to go, with no idea anything is wrong.</p>
+      <p>Jamming is like tearing the map out of the drone's hands &mdash; it knows it is lost. <strong>Spoofing is like replacing the map with a forged one.</strong> The drone confidently navigates using the fake map, heading exactly where the attacker wants it to go, with no idea anything is wrong.</p>
       <p>This is why spoofing is considered the more serious threat: a jammed drone enters failsafe mode and returns home. A spoofed drone could be redirected to fly over a populated area, land in enemy territory, or crash into a physical obstacle.</p>
     </div>
     <div class="caution-block">
@@ -308,7 +308,7 @@
         <span class="nav-sol-icon" style="color:var(--accent-primary);">&#9670;</span>
         <span class="nav-sol-type" style="color:var(--accent-primary);">INS / Dead Reckoning</span>
         <h4 style="color:var(--text-primary);">Inertial Navigation</h4>
-        <p>Uses the IMU&apos;s accelerometers and gyroscopes to calculate position from a known starting point &mdash; just as sailors once did by tracking speed and heading over time.</p>
+        <p>Uses the IMU's accelerometers and gyroscopes to calculate position from a known starting point &mdash; just as sailors once did by tracking speed and heading over time.</p>
         <div class="sol-works" style="color:var(--accent-primary);">&#9989; Works everywhere &mdash; no external signals needed<br/>&#10060; Drift accumulates over time (~1&ndash;3 m/min for MEMS)</div>
       </div>
       <div class="nav-sol-card">
@@ -327,7 +327,7 @@
       </div>
       <div class="nav-sol-card">
         <span class="nav-sol-icon" style="color:#b388ff;">&#128268;</span>
-        <span class="nav-sol-type" style="color:#b388ff);">Alternative Signals</span>
+        <span class="nav-sol-type" style="color:#b388ff;">Alternative Signals</span>
         <h4 style="color:var(--text-primary);">Non-GPS Radio Nav</h4>
         <p>Uses eLoran, cellular towers, TV broadcast signals, or dedicated military positioning systems as GPS alternatives when satellites are unavailable.</p>
         <div class="sol-works" style="color:#b388ff;">&#9989; Works when GPS is denied<br/>&#10060; Infrastructure-dependent; not universally available</div>
@@ -356,7 +356,7 @@
   <!-- 4.6 JAMMER SIMULATOR -->
   <div class="module-section section-anchor" id="s6">
     <h2>4.6 GPS Jammer Simulator</h2>
-    <p>Watch what happens to a drone&apos;s navigation when GPS is jammed, then spoofed. Toggle the jammer and observe how the drone&apos;s position estimate degrades over time without GPS, and how a spoofing attack leads it silently off course.</p>
+    <p>Watch what happens to a drone's navigation when GPS is jammed, then spoofed. Toggle the jammer and observe how the drone's position estimate degrades over time without GPS, and how a spoofing attack leads it silently off course.</p>
     <div class="sim-wrap">
       <div class="sim-header">
         <span class="sim-title">&#9658; GPS THREAT SIMULATOR &mdash; B04</span>
@@ -364,11 +364,11 @@
       </div>
       <canvas id="b04-canvas" height="280" style="display:block;width:100%;"></canvas>
       <div class="sim-controls-row">
-        <button class="sim-btn active" id="b04-btn-clear" onclick="b04Mode(&apos;clear&apos;)">&#9679; GPS Clear</button>
-        <button class="sim-btn danger" id="b04-btn-jam"   onclick="b04Mode(&apos;jam&apos;)"  >&#128268; Jam GPS</button>
-        <button class="sim-btn danger" id="b04-btn-spoof" onclick="b04Mode(&apos;spoof&apos;)">&#128273; Spoof GPS</button>
-        <button class="sim-btn" id="b04-btn-ins" onclick="b04Mode(&apos;ins&apos;)">INS Only Mode</button>
-        <button class="sim-btn" id="b04-btn-fuse" onclick="b04Mode(&apos;fuse&apos;)">Sensor Fusion</button>
+        <button class="sim-btn active" id="b04-btn-clear" onclick="b04Mode('clear')">&#9679; GPS Clear</button>
+        <button class="sim-btn danger" id="b04-btn-jam"   onclick="b04Mode('jam')"  >&#128268; Jam GPS</button>
+        <button class="sim-btn danger" id="b04-btn-spoof" onclick="b04Mode('spoof')">&#128273; Spoof GPS</button>
+        <button class="sim-btn" id="b04-btn-ins" onclick="b04Mode('ins')">INS Only Mode</button>
+        <button class="sim-btn" id="b04-btn-fuse" onclick="b04Mode('fuse')">Sensor Fusion</button>
         <span class="sim-readout" id="b04-readout">Pos error: 0.0 m &nbsp;|&nbsp; GPS: LOCKED</span>
       </div>
     </div>
@@ -387,10 +387,10 @@
   <!-- 4.7 DRAG AND DROP -->
   <div class="module-section section-anchor" id="s7">
     <h2>4.7 Match the Threat to Its Signature</h2>
-    <p>Each GPS threat leaves a different signature in the drone&apos;s navigation data. Match the threat type to its observable effect.</p>
+    <p>Each GPS threat leaves a different signature in the drone's navigation data. Match the threat type to its observable effect.</p>
     <div class="dnd-wrap" id="dnd-b04">
       <div class="dnd-title">&#9658; DRAG-AND-DROP &mdash; GPS THREAT IDENTIFICATION</div>
-      <div class="dnd-subtitle">Drag each threat to the symptom it produces in the drone&apos;s navigation system.</div>
+      <div class="dnd-subtitle">Drag each threat to the symptom it produces in the drone's navigation system.</div>
       <div class="dnd-bank" id="dnd-bank-b04">
         <div class="dnd-chip" draggable="true" data-label="Jamming">Jamming</div>
         <div class="dnd-chip" draggable="true" data-label="Spoofing">Spoofing</div>
@@ -420,7 +420,7 @@
     <h2>4.8 Mission Decision &mdash; What Would You Do, Cadet?</h2>
     <div class="story-box">
       <span class="story-label">&#128214; Mission Log &mdash; The Navigation Crisis</span>
-      <p>Arjun&apos;s unit has launched a fixed-wing ISR drone on a 90-minute mission to surveil a bridge 60 km away. Thirty minutes into the mission, two anomalies are reported simultaneously: the drone&apos;s GPS position shows it is on course, but the IMU dead-reckoning estimate &mdash; calculated independently &mdash; disagrees by 4.2 km.</p>
+      <p>Arjun's unit has launched a fixed-wing ISR drone on a 90-minute mission to surveil a bridge 60 km away. Thirty minutes into the mission, two anomalies are reported simultaneously: the drone's GPS position shows it is on course, but the IMU dead-reckoning estimate &mdash; calculated independently &mdash; disagrees by 4.2 km.</p>
       <p>The GPS fix looks clean. No &ldquo;No Fix&rdquo; alarm. All satellites showing nominal. But something is wrong.</p>
       <p>You are the mission commander. What do you do?</p>
     </div>
@@ -430,7 +430,7 @@
       <div class="scenario-choices" id="sc4-choices">
         <button class="scenario-choice" onclick="scenarioB04(this,false)"><strong>A.</strong> Trust the GPS &mdash; it shows a clean fix with no alarms. The INS is probably drifting after 30 minutes. Continue the mission.</button>
         <button class="scenario-choice" onclick="scenarioB04(this,true)"><strong>B.</strong> Suspect spoofing &mdash; a clean GPS fix that disagrees with INS is a classic spoofing signature. Abort the mission and return via INS navigation.</button>
-        <button class="scenario-choice" onclick="scenarioB04(this,false)"><strong>C.</strong> Land immediately at the drone&apos;s current GPS-reported position.</button>
+        <button class="scenario-choice" onclick="scenarioB04(this,false)"><strong>C.</strong> Land immediately at the drone's current GPS-reported position.</button>
         <button class="scenario-choice" onclick="scenarioB04(this,false)"><strong>D.</strong> Ignore both &mdash; continue the mission using the camera feed to visually navigate.</button>
       </div>
       <div class="scenario-feedback" id="sc4-feedback"></div>
@@ -465,7 +465,7 @@
       </div>
 
       <div class="bq-question"
-           data-question="A drone&apos;s GPS position and its INS dead-reckoning estimate suddenly disagree by several kilometres, but the GPS shows no alarm. What does this most likely indicate?"
+           data-question="A drone's GPS position and its INS dead-reckoning estimate suddenly disagree by several kilometres, but the GPS shows no alarm. What does this most likely indicate?"
            data-options='["The IMU has failed","GPS spoofing &mdash; the GPS is reporting false positions while appearing normal","The drone has flown into a cloud","The barometer needs calibration"]'
            data-correct="1"
            data-explanation="A clean GPS fix that disagrees significantly with an independent INS estimate is a classic signature of GPS spoofing. Jamming would show a No Fix alarm. INS drift alone typically produces gradual, small errors &mdash; not a sudden multi-kilometre disagreement. When GPS and INS diverge suddenly and GPS shows no error, the correct assumption is spoofing until proven otherwise.">
@@ -473,7 +473,7 @@
 
       <div class="bq-question"
            data-question="What is sensor fusion in the context of GPS-denied navigation, and why does it outperform any single method?"
-           data-options='["Combining camera and radar into one sensor package","Mathematically combining data from multiple independent navigation sources so each covers the weaknesses of the others","Using two GPS receivers instead of one","Fusing the pilot&apos;s commands with the autopilot&apos;s commands"]'
+           data-options='["Combining camera and radar into one sensor package","Mathematically combining data from multiple independent navigation sources so each covers the weaknesses of the others","Using two GPS receivers instead of one","Fusing the pilot's commands with the autopilot's commands"]'
            data-correct="1"
            data-explanation="Sensor fusion combines IMU, visual odometry, terrain matching, barometer, magnetometer, and other sources through a mathematical filter (typically an Extended Kalman Filter). Each source has different failure modes: INS drifts over time, visual odometry fails in darkness, terrain matching fails in unknown terrain. By fusing all sources, the system degrades gracefully &mdash; losing one sensor degrades accuracy slightly rather than causing complete navigation failure.">
       </div>
