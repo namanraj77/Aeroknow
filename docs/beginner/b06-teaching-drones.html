@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>B06: Teaching Drones to Think &mdash; AEROKNOW Beginner Track</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    .beginner-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.25);padding:.25rem .75rem;margin-bottom:1rem}
+    .beginner-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent-amber);box-shadow:var(--glow-amber);animation:pulse-dot 1.8s ease-in-out infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .plain-intro{background:rgba(0,212,255,.03);border-left:3px solid var(--accent-primary);padding:1rem 1.2rem;margin-bottom:1.5rem;border-radius:0 4px 4px 0}
+    .plain-intro .pi-label{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:.4rem}
+    .plain-intro p{font-size:1rem;color:var(--text-secondary);margin:0;line-height:1.75}
+    .analogy-box{background:rgba(255,183,0,.04);border:1px solid rgba(255,183,0,.15);border-left:3px solid var(--accent-amber);padding:1rem 1.2rem;margin:1.2rem 0}
+    .analogy-box .analogy-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-amber);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .analogy-box p{margin:0 0 .5rem;font-size:.95rem;color:var(--text-secondary)}
+    .analogy-box p:last-child{margin-bottom:0}
+    .story-box{background:rgba(179,136,255,.04);border:1px solid rgba(179,136,255,.18);border-left:3px solid #b388ff;padding:1.2rem 1.5rem;margin:1.8rem 0}
+    .story-box .story-label{font-family:var(--font-mono);font-size:.58rem;color:#b388ff;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:.6rem}
+    .story-box p{margin:0 0 .5rem;color:var(--text-secondary);font-size:.97rem;line-height:1.75}
+    .story-box p:last-child{margin-bottom:0}
+    .key-term{color:var(--accent-primary);font-weight:600;border-bottom:1px dashed rgba(0,212,255,.4);cursor:help}
+    .fact-block{background:rgba(0,255,157,.03);border:1px solid rgba(0,255,157,.14);border-left:3px solid var(--accent-green);padding:1.1rem 1.4rem;margin:1.4rem 0}
+    .fact-block .fact-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-green);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .fact-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .caution-block{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1rem 1.2rem;margin:1.2rem 0}
+    .caution-block .caution-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .caution-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .cite{font-family:var(--font-mono);font-size:.68rem;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.18);padding:.08rem .4rem;margin-left:.25rem;vertical-align:middle;white-space:nowrap}
+    .diagram-wrap{background:rgba(5,13,20,.9);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .diagram-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .diagram-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .diagram-sub{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted)}
+    .ml-type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin:1.5rem 0}
+    .ml-type-card{background:var(--bg-card);border:1px solid var(--border-dim);padding:1.1rem 1.2rem;transition:var(--transition);position:relative;overflow:hidden}
+    .ml-type-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+    .ml-type-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+    .ml-type-card-num{font-family:var(--font-display);font-size:2rem;font-weight:900;display:block;line-height:1;margin-bottom:.3rem}
+    .ml-type-card-label{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .ml-type-card h4{font-family:var(--font-display);font-size:.88rem;margin-bottom:.4rem}
+    .ml-type-card p{font-size:.82rem;color:var(--text-muted);margin:0;line-height:1.5}
+    .ml-type-card .card-example{font-family:var(--font-mono);font-size:.6rem;margin-top:.5rem;padding-top:.4rem;border-top:1px solid var(--border-panel)}
+    .nn-layer-viz{display:flex;align-items:center;justify-content:center;gap:0;margin:1.5rem 0;overflow-x:auto;padding:.5rem 0}
+    .nn-layer{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:0 .5rem}
+    .nn-layer-label{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-bottom:.2rem}
+    .nn-node{width:28px;height:28px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-family:var(--font-mono);transition:var(--transition)}
+    .nn-arrow{font-size:.9rem;color:var(--accent-primary);opacity:.4;padding:0 .15rem;align-self:center}
+    .train-steps{display:flex;flex-direction:column;gap:.75rem;margin:1.5rem 0}
+    .train-step{display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.2rem;background:var(--bg-card);border:1px solid var(--border-dim);transition:var(--transition)}
+    .train-step:hover{border-color:var(--border-bright)}
+    .train-step-num{font-family:var(--font-display);font-size:1.8rem;font-weight:900;line-height:1;flex-shrink:0;width:2.5rem;text-align:center}
+    .train-step-body h4{font-family:var(--font-display);font-size:.9rem;margin-bottom:.3rem}
+    .train-step-body p{font-size:.88rem;color:var(--text-muted);margin:0;line-height:1.55}
+    .comp-table{width:100%;border-collapse:collapse;margin:1.4rem 0}
+    .comp-table th{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--accent-primary);text-align:left;padding:.5rem .85rem;border-bottom:1px solid var(--border-dim);background:rgba(0,212,255,.03)}
+    .comp-table td{padding:.65rem .85rem;border-bottom:1px solid var(--border-panel);font-size:.9rem;color:var(--text-secondary);vertical-align:top;line-height:1.5}
+    .comp-table td:first-child{font-family:var(--font-mono);font-size:.78rem;color:var(--accent-primary);white-space:nowrap}
+    .comp-table tr:hover td{background:rgba(0,212,255,.02)}
+    .dnd-wrap{background:rgba(0,255,157,.02);border:1px solid rgba(0,255,157,.12);border-top:2px solid var(--accent-green);padding:1.5rem 1.8rem;margin:2rem 0}
+    .dnd-title{font-family:var(--font-mono);font-size:.65rem;color:var(--accent-green);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.4rem}
+    .dnd-subtitle{font-size:.9rem;color:var(--text-muted);margin-bottom:1.2rem}
+    .dnd-bank{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.4rem;min-height:2.5rem;padding:.6rem;background:rgba(0,0,0,.3);border:1px dashed rgba(0,255,157,.2)}
+    .dnd-chip{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-green);background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.3);padding:.3rem .8rem;cursor:grab;user-select:none;transition:var(--transition)}
+    .dnd-chip:hover{background:rgba(0,255,157,.15);box-shadow:var(--glow-green)}
+    .dnd-chip.dragging{opacity:.4;cursor:grabbing}
+    .dnd-chip.placed{opacity:.3;cursor:default;pointer-events:none}
+    .dnd-targets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem}
+    .dnd-target{border:1px dashed var(--border-dim);padding:.5rem .75rem;min-height:2.8rem;display:flex;align-items:center;gap:.5rem;transition:var(--transition);background:rgba(0,0,0,.2)}
+    .dnd-target.drag-over{border-color:var(--accent-green);background:rgba(0,255,157,.05)}
+    .dnd-target.correct{border-color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .dnd-target.wrong{border-color:var(--accent-red);background:rgba(255,58,58,.07)}
+    .dnd-target-num{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);flex-shrink:0}
+    .dnd-target-hint{font-size:.83rem;color:var(--text-muted);flex:1;line-height:1.4}
+    .dnd-target-drop{font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);min-width:90px;text-align:right}
+    .dnd-controls{display:flex;gap:.75rem;margin-top:1rem}
+    .dnd-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem 1.2rem;cursor:pointer;transition:var(--transition)}
+    .dnd-btn.primary{border-color:var(--accent-green);color:var(--accent-green)}
+    .dnd-btn.primary:hover{background:var(--accent-green);color:var(--bg-void);box-shadow:var(--glow-green)}
+    .dnd-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .dnd-result{margin-top:.75rem;font-family:var(--font-mono);font-size:.75rem;display:none}
+    .scenario-box{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1.4rem 1.6rem;margin:2rem 0}
+    .scenario-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.75rem;display:block}
+    .scenario-q{font-size:1.05rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;line-height:1.55}
+    .scenario-choices{display:flex;flex-direction:column;gap:.5rem}
+    .scenario-choice{background:rgba(255,255,255,.02);border:1px solid var(--border-dim);color:var(--text-secondary);font-family:var(--font-ui);font-size:.95rem;padding:.7rem 1rem;cursor:pointer;text-align:left;transition:var(--transition)}
+    .scenario-choice:hover:not(:disabled){border-color:var(--accent-primary);background:rgba(0,212,255,.05);color:var(--text-primary)}
+    .scenario-choice:disabled{cursor:default}
+    .scenario-choice.s-correct{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.06)}
+    .scenario-choice.s-wrong{border-color:var(--accent-red);color:var(--accent-red);background:rgba(255,58,58,.06);opacity:.7}
+    .scenario-feedback{margin-top:.9rem;padding:.8rem 1rem;background:rgba(0,0,0,.3);border-left:2px solid var(--accent-amber);font-size:.92rem;color:var(--text-secondary);line-height:1.65;display:none}
+    .sim-wrap{background:rgba(1,8,16,.95);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .sim-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .sim-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .sim-status{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em}
+    .sim-controls-row{padding:.75rem 1rem;border-top:1px solid var(--border-dim);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+    .sim-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .9rem;cursor:pointer;transition:var(--transition)}
+    .sim-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .sim-btn.active{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .sim-readout{font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);margin-left:auto}
+    .section-jump{position:sticky;top:60px;z-index:100;background:rgba(2,4,8,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-dim);overflow-x:auto;scrollbar-width:none}
+    .section-jump::-webkit-scrollbar{display:none}
+    .jump-inner{display:flex;align-items:center;gap:0;padding:0 1rem;min-width:max-content}
+    .jump-label{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;padding:0 .75rem 0 0;border-right:1px solid var(--border-dim);margin-right:.25rem;white-space:nowrap;line-height:42px}
+    .jump-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.06em;padding:0 .85rem;height:42px;cursor:pointer;white-space:nowrap;transition:var(--transition)}
+    .jump-btn:hover{color:var(--text-secondary);border-bottom-color:var(--border-bright)}
+    .jump-btn.active{color:var(--accent-primary);border-bottom-color:var(--accent-primary)}
+    .jump-btn .jb-num{color:var(--accent-green);margin-right:.3rem;font-size:.58rem}
+    .section-anchor{scroll-margin-top:105px}
+    .advance-panel{background:rgba(0,212,255,.03);border:1px solid var(--border-dim);border-top:2px solid var(--accent-primary);padding:1.5rem 1.8rem;margin:3rem 0 1rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+    .advance-icon{font-family:var(--font-display);font-size:2rem;color:var(--accent-primary);opacity:.5;flex-shrink:0}
+    .advance-text h3{font-family:var(--font-display);font-size:.9rem;color:var(--accent-primary);margin-bottom:.3rem;letter-spacing:.05em}
+    .advance-text p{font-size:.88rem;color:var(--text-muted);margin:0;line-height:1.55}
+    .advance-link{margin-left:auto;display:inline-block;background:transparent;border:1px solid var(--accent-primary);color:var(--accent-primary);font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;padding:.7rem 1.5rem;text-decoration:none;transition:var(--transition);white-space:nowrap;flex-shrink:0}
+    .advance-link:hover{background:var(--accent-primary);color:var(--bg-void);box-shadow:var(--glow-primary)}
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">6.1</span>The Truck</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">6.2</span>What Is ML?</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">6.3</span>Three Types of ML</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">6.4</span>Neural Networks</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">6.5</span>How Training Works</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">6.6</span>Training Simulator</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">6.7</span>Match the Concept</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">6.8</span>Mission Decision</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">6.9</span>Knowledge Check</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">6.10</span>Go Deeper</button>
+  </div>
+</div>
+
+<div class="module-page">
+  <div class="module-hero">
+    <span class="beginner-badge">Beginner Track &mdash; Module B06</span>
+    <span class="module-num">MODULE B06 // TEACHING DRONES TO THINK</span>
+    <h1>Teaching Drones to Think</h1>
+    <p class="lead">A drone with perfect sensors can still be blind &mdash; if it cannot interpret what it sees. Machine learning is how we teach drones to recognise tanks, people, vehicles, and threats automatically from raw sensor data. In this module you will learn what machine learning actually is, how neural networks work conceptually, and how the training process teaches a drone to make decisions it was never explicitly programmed for.</p>
+    <div class="module-meta">
+      <span class="label label-amber">Beginner Friendly</span>
+      <span class="label label-primary">Builds on B05</span>
+      <span class="label label-green">35 Min Read</span>
+    </div>
+  </div>
+
+  <!-- 6.1 STORY -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>6.1 The Truck on the Road</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Day 34</span>
+      <p>The drone's camera showed a dirt road winding through scrubland. A vehicle appeared &mdash; a truck, dark green, moving slowly toward the compound. Arjun watched the operator's screen.</p>
+      <p>A small box appeared around the truck automatically. Inside it, a label: <em>MILITARY TRUCK &mdash; 94% CONFIDENCE.</em></p>
+      <p>"Did you do that?" Arjun asked.</p>
+      <p>"No," said the operator. "The drone did. Onboard AI. It's been trained on hundreds of thousands of images of military and civilian vehicles. It saw the truck, compared it to everything it's learned, and made a classification. Ninety-four percent confident it's military."</p>
+      <p>"What if it's wrong?"</p>
+      <p>"That's why there's still a human in the loop. The AI flags it. I confirm. But it would have taken me thirty seconds to notice that truck on my own. The AI caught it in under a hundred milliseconds." She paused. "That's not replacing the operator. That's giving the operator superhuman attention."</p>
+    </div>
+    <div class="plain-intro">
+      <span class="pi-label">What You'll Know After This Module</span>
+      <p>You will understand what machine learning is and what it is not, the three types of ML and where each applies to drones, how a neural network is structured, how training works through examples and feedback, and the key limitations and risks of ML in military applications.</p>
+    </div>
+  </div>
+
+  <!-- 6.2 WHAT IS ML? -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>6.2 What Machine Learning Actually Is</h2>
+    <p>Machine learning is one of the most misunderstood concepts in technology. It is not magic, it is not a thinking machine, and it is not the AI from science fiction. It is something more specific &mdash; and more powerful in its own way.</p>
+    <div class="fact-block">
+      <span class="fact-label">The One-Sentence Definition</span>
+      <p><strong>Machine learning is a method of building software where the program learns the rules from examples, rather than being told the rules directly by a programmer.</strong></p>
+    </div>
+    <div class="analogy-box">
+      <span class="analogy-label">Traditional Programming vs Machine Learning</span>
+      <p><strong>Traditional programming:</strong> A programmer writes explicit rules. "If the object is green and rectangular and has wheels, classify it as a vehicle." Every rule must be written. Every exception must be anticipated. For simple tasks this works. For recognising vehicles from aerial imagery in all weather, lighting, and angles &mdash; the rules become impossibly complex.</p>
+      <p><strong>Machine learning:</strong> Instead of writing rules, you show the program thousands of examples: "This is a military truck. This is a civilian car. This is a person. This is a rock." The program discovers the rules itself by finding patterns in the examples. The programmer does not know what those rules are &mdash; the machine finds them.</p>
+    </div>
+    <p>This is why ML works so well for perception tasks &mdash; recognising what a drone sees. The patterns that distinguish a tank from a car from a person are too complex and too varied to write as explicit rules. But a neural network trained on enough examples can learn them automatically.</p>
+    <div class="caution-block">
+      <span class="caution-label">&#9888; What ML Cannot Do</span>
+      <p>A machine learning model can only recognise patterns it has seen during training. Show it something genuinely new &mdash; a vehicle type it was never trained on, a camouflage scheme it has never encountered &mdash; and it will either misclassify it or report low confidence. This is called an <span class="key-term" title="A situation where a model encounters data significantly different from its training data, causing unreliable outputs">out-of-distribution failure</span> and it is a critical limitation in military applications where adversaries actively try to defeat recognition systems.</p>
+    </div>
+  </div>
+
+  <!-- 6.3 THREE TYPES OF ML -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>6.3 The Three Types of Machine Learning</h2>
+    <p>Not all ML works the same way. There are three fundamental approaches, each suited to different problems. All three appear in military drone systems.</p>
+    <div class="ml-type-grid">
+      <div class="ml-type-card" style="border-color:rgba(0,212,255,0.3);">
+        <span class="ml-type-card-num" style="color:var(--accent-primary);">S</span>
+        <span class="ml-type-card-label" style="color:var(--accent-primary);">Supervised Learning</span>
+        <h4 style="color:var(--text-primary);">Learning from Labelled Examples</h4>
+        <p>The model is trained on data that has been labelled by humans. Every training image of a truck is tagged "truck." Every image of a person is tagged "person." The model learns to map inputs to correct outputs.</p>
+        <div class="card-example" style="color:var(--accent-primary);">Drone use: Object detection, target classification, image recognition</div>
+      </div>
+      <div class="ml-type-card" style="border-color:rgba(255,183,0,0.3);">
+        <span class="ml-type-card-num" style="color:var(--accent-amber);">U</span>
+        <span class="ml-type-card-label" style="color:var(--accent-amber);">Unsupervised Learning</span>
+        <h4 style="color:var(--text-primary);">Finding Hidden Patterns</h4>
+        <p>No labels. The model analyses raw data and discovers structure on its own &mdash; grouping similar things together, finding anomalies, identifying patterns no human thought to look for.</p>
+        <div class="card-example" style="color:var(--accent-amber);">Drone use: Anomaly detection, discovering unusual activity patterns in ISR data</div>
+      </div>
+      <div class="ml-type-card" style="border-color:rgba(0,255,157,0.3);">
+        <span class="ml-type-card-num" style="color:var(--accent-green);">R</span>
+        <span class="ml-type-card-label" style="color:var(--accent-green);">Reinforcement Learning</span>
+        <h4 style="color:var(--text-primary);">Learning Through Trial and Error</h4>
+        <p>The model learns by taking actions and receiving rewards or penalties. No labelled data needed. Like training a dog with treats &mdash; the model discovers what behaviour earns rewards through experience.</p>
+        <div class="card-example" style="color:var(--accent-green);">Drone use: Autonomous flight manoeuvres, evasion tactics, swarm coordination</div>
+      </div>
+    </div>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Three Different Brains</span>
+      <p>"The vehicle classifier uses supervised learning," the instructor explained. "We showed it two million labelled images. Supervised. The anomaly detector that flags unusual vehicle gatherings uses unsupervised learning &mdash; it finds patterns we didn't define. And the evasion algorithm the swarm drones use to avoid radar? Reinforcement learning. It played millions of simulated evasion games against a virtual radar until it learned the optimal path. We never told it the answer. It found it."</p>
+    </div>
+    <table class="comp-table">
+      <thead>
+        <tr><th>Type</th><th>Needs Labels?</th><th>Learns From</th><th>Best For</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Supervised</td><td style="color:var(--accent-amber);">Yes &mdash; human labelling required</td><td>Correct examples</td><td>Classification, detection, recognition</td></tr>
+        <tr><td>Unsupervised</td><td style="color:var(--accent-green);">No</td><td>Raw data patterns</td><td>Anomaly detection, clustering, compression</td></tr>
+        <tr><td>Reinforcement</td><td style="color:var(--accent-green);">No</td><td>Rewards and penalties</td><td>Control, navigation, strategy, game-like problems</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 6.4 NEURAL NETWORKS -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>6.4 Neural Networks &mdash; How the Brain Is Built</h2>
+    <p>Most modern ML for drone perception uses <span class="key-term" title="A computing system loosely inspired by biological neurons, organised in layers that transform input data into output predictions">neural networks</span>. The name sounds biological, but the concept is mathematical. A neural network is a series of mathematical operations arranged in layers, each layer transforming data until a useful output emerges.</p>
+    <div class="analogy-box">
+      <span class="analogy-label">The Assembly Line Analogy</span>
+      <p>Imagine an image of a truck passing through a factory assembly line. At each station, workers examine the image and extract a piece of information: edges, shapes, colours, proportions, textures. Each station passes its findings to the next. By the final station, enough information has been extracted that the last worker can confidently say: "This is a military truck."</p>
+      <p>Each station in this assembly line is a <em>layer</em> of the neural network. The workers are <em>neurons</em>. The findings passed between stations are <em>activations</em>. The final verdict is the <em>output</em>.</p>
+    </div>
+
+    <!-- Neural network layer visualisation -->
+    <div class="diagram-wrap">
+      <div class="diagram-header">
+        <span class="diagram-title">&#9658; NEURAL NETWORK STRUCTURE &mdash; Image Classification</span>
+        <span class="diagram-sub">Input pixels &rarr; hidden layers &rarr; classification output</span>
+      </div>
+      <div style="padding:1.5rem 1rem;overflow-x:auto;">
+        <div class="nn-layer-viz">
+
+          <div class="nn-layer">
+            <span class="nn-layer-label">Input<br/>Layer</span>
+            <div class="nn-node" style="color:var(--accent-primary);">px</div>
+            <div class="nn-node" style="color:var(--accent-primary);">px</div>
+            <div class="nn-node" style="color:var(--accent-primary);">px</div>
+            <div class="nn-node" style="color:var(--accent-primary);">px</div>
+            <div class="nn-node" style="color:var(--accent-primary);">px</div>
+            <div class="nn-node" style="color:var(--accent-primary);">px</div>
+            <span style="font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);">raw pixels</span>
+          </div>
+
+          <div class="nn-arrow">&#8594;</div>
+
+          <div class="nn-layer">
+            <span class="nn-layer-label">Hidden<br/>Layer 1</span>
+            <div class="nn-node" style="color:var(--accent-amber);">e</div>
+            <div class="nn-node" style="color:var(--accent-amber);">e</div>
+            <div class="nn-node" style="color:var(--accent-amber);">e</div>
+            <div class="nn-node" style="color:var(--accent-amber);">e</div>
+            <div class="nn-node" style="color:var(--accent-amber);">e</div>
+            <span style="font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);">edges</span>
+          </div>
+
+          <div class="nn-arrow">&#8594;</div>
+
+          <div class="nn-layer">
+            <span class="nn-layer-label">Hidden<br/>Layer 2</span>
+            <div class="nn-node" style="color:#b388ff;">s</div>
+            <div class="nn-node" style="color:#b388ff;">s</div>
+            <div class="nn-node" style="color:#b388ff;">s</div>
+            <div class="nn-node" style="color:#b388ff;">s</div>
+            <span style="font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);">shapes</span>
+          </div>
+
+          <div class="nn-arrow">&#8594;</div>
+
+          <div class="nn-layer">
+            <span class="nn-layer-label">Hidden<br/>Layer 3</span>
+            <div class="nn-node" style="color:var(--accent-green);">f</div>
+            <div class="nn-node" style="color:var(--accent-green);">f</div>
+            <div class="nn-node" style="color:var(--accent-green);">f</div>
+            <span style="font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);">features</span>
+          </div>
+
+          <div class="nn-arrow">&#8594;</div>
+
+          <div class="nn-layer">
+            <span class="nn-layer-label">Output<br/>Layer</span>
+            <div class="nn-node" style="color:var(--accent-red);font-size:.45rem;">TANK</div>
+            <div class="nn-node" style="color:var(--accent-green);background:rgba(0,255,157,0.1);font-size:.4rem;">TRUCK<br/>94%</div>
+            <div class="nn-node" style="color:var(--accent-amber);font-size:.4rem;">CAR</div>
+            <div class="nn-node" style="color:#b388ff;font-size:.4rem;">PERSON</div>
+            <span style="font-family:var(--font-mono);font-size:.55rem;color:var(--accent-green);">classification</span>
+          </div>
+
+        </div>
+        <p style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);text-align:center;margin-top:.5rem;">Each arrow represents millions of learned numerical weights &mdash; adjusted during training</p>
+      </div>
+    </div>
+
+    <p>The critical insight: the network does not <em>know</em> what edges, shapes, or features are. Nobody told it. It discovered these intermediate representations on its own during training because they turned out to be useful for the final classification task. This is why deep learning is so powerful &mdash; and so difficult to interpret.</p>
+    <div class="fact-block">
+      <span class="fact-label">Depth and Scale in Military Systems</span>
+      <p>The neural network in the diagram has 4 layers. Military drone perception models typically have <strong>50 to 200+ layers</strong> and hundreds of millions of numerical parameters (weights). The YOLO family of object detectors &mdash; widely used in real-time drone applications &mdash; can process a 1080p image and output bounding boxes with class labels in under 10 milliseconds on embedded hardware. <span class="cite">Redmon et al., 2016</span></p>
+    </div>
+  </div>
+
+  <!-- 6.5 HOW TRAINING WORKS -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>6.5 How Training Works &mdash; Learning from Mistakes</h2>
+    <p>A neural network starts as pure randomness &mdash; every weight is a random number, meaning its outputs are meaningless. Training is the process of adjusting those weights, iteratively, until the outputs become correct. This is done through a cycle of prediction, error measurement, and correction.</p>
+    <div class="train-steps">
+      <div class="train-step">
+        <div class="train-step-num" style="color:var(--accent-primary);">1</div>
+        <div class="train-step-body">
+          <h4 style="color:var(--text-primary);">Forward Pass &mdash; Make a Prediction</h4>
+          <p>An image is fed into the network. It flows through all the layers and produces an output: "I think this is a truck with 12% confidence." The initial prediction is terrible &mdash; the network is basically guessing.</p>
+        </div>
+      </div>
+      <div class="train-step">
+        <div class="train-step-num" style="color:var(--accent-red);">2</div>
+        <div class="train-step-body">
+          <h4 style="color:var(--text-primary);">Calculate the Loss &mdash; Measure the Error</h4>
+          <p>The prediction is compared to the correct answer (the label). A mathematical function called the <span class="key-term" title="A function that measures how wrong the network's prediction is">loss function</span> calculates exactly how wrong the prediction was. A large loss means a very wrong answer. Zero loss means a perfect answer.</p>
+        </div>
+      </div>
+      <div class="train-step">
+        <div class="train-step-num" style="color:var(--accent-amber);">3</div>
+        <div class="train-step-body">
+          <h4 style="color:var(--text-primary);">Backward Pass &mdash; Assign Blame</h4>
+          <p>The error is traced back through the network layer by layer using an algorithm called <span class="key-term" title="An algorithm that propagates the error signal back through a neural network to determine how each weight contributed to the mistake">backpropagation</span>. Each weight gets a "blame score" &mdash; how much did this particular weight contribute to the wrong answer?</p>
+        </div>
+      </div>
+      <div class="train-step">
+        <div class="train-step-num" style="color:var(--accent-green);">4</div>
+        <div class="train-step-body">
+          <h4 style="color:var(--text-primary);">Update Weights &mdash; Learn from the Mistake</h4>
+          <p>Every weight is adjusted slightly in the direction that would have made the answer more correct. This is called <span class="key-term" title="An optimisation algorithm that adjusts weights in the direction that reduces loss">gradient descent</span>. One tiny step toward a better answer. Then the whole cycle repeats with the next training image.</p>
+        </div>
+      </div>
+    </div>
+    <div class="analogy-box">
+      <span class="analogy-label">The Marksman Analogy</span>
+      <p>A trainee marksman fires at a target, misses to the left. An instructor says "aim right 2 degrees." The trainee adjusts and fires again &mdash; now closer. The instructor gives more feedback. Over thousands of rounds the trainee learns to hit the target consistently. Training a neural network works identically: fire (forward pass), see where you missed (loss), get feedback (backpropagation), adjust (gradient descent), repeat millions of times.</p>
+    </div>
+    <div class="fact-block">
+      <span class="fact-label">The Scale of Military Training Data</span>
+      <p>Training a high-quality military object detector requires enormous datasets. The US Department of Defense's Project Maven &mdash; which applied computer vision to drone footage &mdash; involved labelling millions of video frames. <strong>Labelling is the bottleneck</strong>: a human analyst must manually draw bounding boxes and write class labels on each image. At 1,000 images per day, labelling one million images takes three years. This is why data is considered a strategic resource in military AI. <span class="cite">Work, 2017</span></p>
+    </div>
+    <div class="caution-block">
+      <span class="caution-label">&#9888; Adversarial Attacks &mdash; Fooling the Network</span>
+      <p>Neural networks have a surprising weakness: tiny, carefully crafted perturbations to an input image &mdash; invisible to a human eye &mdash; can completely fool a network into making wildly wrong predictions. A tank with a specific sticker placed on it might be classified as a car. This is an <span class="key-term" title="A deliberately crafted input designed to fool a neural network into making an incorrect prediction">adversarial attack</span>. Military AI systems must be designed with adversarial robustness in mind &mdash; an enemy who knows your classifier is trained on a specific dataset can deliberately design camouflage, markings, or decoys to defeat it.</p>
+    </div>
+  </div>
+
+  <!-- 6.6 TRAINING SIMULATOR -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>6.6 Training Simulator</h2>
+    <p>Watch a simplified neural network learn to classify shapes. Each training round the network sees an example, makes a prediction, and adjusts its weights based on the error. Watch the confidence and loss values change as training progresses.</p>
+    <div class="sim-wrap">
+      <div class="sim-header">
+        <span class="sim-title">&#9658; NEURAL NETWORK TRAINING SIMULATOR &mdash; B06</span>
+        <span class="sim-status" id="b06-status" style="color:var(--accent-amber);">&#9679; UNTRAINED &mdash; RANDOM WEIGHTS</span>
+      </div>
+      <canvas id="b06-canvas" height="280" style="display:block;width:100%;"></canvas>
+      <div class="sim-controls-row">
+        <button class="sim-btn active" id="btn-train-step" onclick="trainStep()">&#9658; Train 1 Batch</button>
+        <button class="sim-btn" id="btn-train-100" onclick="trainMany(100)">&#9658;&#9658; Train 100 Batches</button>
+        <button class="sim-btn" id="btn-train-500" onclick="trainMany(500)">&#9658;&#9658;&#9658; Train 500 Batches</button>
+        <button class="sim-btn" onclick="resetNetwork()">&#8634; Reset</button>
+        <span class="sim-readout" id="b06-readout">Epoch: 0 | Loss: 1.00 | Accuracy: 0%</span>
+      </div>
+    </div>
+    <div class="fact-block">
+      <span class="fact-label">What to Observe</span>
+      <p>
+        <strong>Start (untrained):</strong> The network guesses randomly &mdash; ~25% accuracy, high loss.<br/>
+        <strong>After 100 batches:</strong> Loss dropping, accuracy rising &mdash; the network is learning patterns.<br/>
+        <strong>After 500 batches:</strong> High accuracy on training shapes &mdash; the model has learned the classification rules.<br/>
+        <strong>Key insight:</strong> Loss decreases in a curve, not a straight line &mdash; learning is fast at first, then slows as easy patterns are learned and hard ones remain.
+      </p>
+    </div>
+  </div>
+
+  <!-- 6.7 DRAG AND DROP -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>6.7 Match the Concept</h2>
+    <p>Machine learning has precise terminology. Match each definition to the correct term.</p>
+    <div class="dnd-wrap" id="dnd-b06">
+      <div class="dnd-title">&#9658; DRAG-AND-DROP &mdash; ML TERMINOLOGY</div>
+      <div class="dnd-subtitle">Drag each term to the correct definition.</div>
+      <div class="dnd-bank" id="dnd-bank-b06">
+        <div class="dnd-chip" draggable="true" data-label="Supervised Learning">Supervised Learning</div>
+        <div class="dnd-chip" draggable="true" data-label="Backpropagation">Backpropagation</div>
+        <div class="dnd-chip" draggable="true" data-label="Loss Function">Loss Function</div>
+        <div class="dnd-chip" draggable="true" data-label="Overfitting">Overfitting</div>
+        <div class="dnd-chip" draggable="true" data-label="Reinforcement Learning">Reinforcement Learning</div>
+        <div class="dnd-chip" draggable="true" data-label="Adversarial Attack">Adversarial Attack</div>
+      </div>
+      <div class="dnd-targets">
+        <div class="dnd-target" data-answer="Supervised Learning">
+          <span class="dnd-target-num">&#9312;</span>
+          <span class="dnd-target-hint">Training a model on thousands of labelled images: "this is a tank," "this is a truck"</span>
+          <span class="dnd-target-drop" id="b06-drop-0">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Backpropagation">
+          <span class="dnd-target-num">&#9313;</span>
+          <span class="dnd-target-hint">The algorithm that traces the prediction error back through every layer to determine how much each weight contributed to the mistake</span>
+          <span class="dnd-target-drop" id="b06-drop-1">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Loss Function">
+          <span class="dnd-target-num">&#9314;</span>
+          <span class="dnd-target-hint">The mathematical formula that measures exactly how wrong the network's prediction was on each training example</span>
+          <span class="dnd-target-drop" id="b06-drop-2">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Overfitting">
+          <span class="dnd-target-num">&#9315;</span>
+          <span class="dnd-target-hint">The model performs perfectly on training images but fails on new images it has never seen &mdash; it memorised rather than learned</span>
+          <span class="dnd-target-drop" id="b06-drop-3">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Reinforcement Learning">
+          <span class="dnd-target-num">&#9316;</span>
+          <span class="dnd-target-hint">A swarm drone learns evasion tactics by playing millions of simulated games against a virtual radar, receiving points for surviving</span>
+          <span class="dnd-target-drop" id="b06-drop-4">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Adversarial Attack">
+          <span class="dnd-target-num">&#9317;</span>
+          <span class="dnd-target-hint">A tiny invisible pattern added to a tank image causes the classifier to confidently output "civilian car" instead</span>
+          <span class="dnd-target-drop" id="b06-drop-5">&mdash; drop here &mdash;</span>
+        </div>
+      </div>
+      <div class="dnd-controls">
+        <button class="dnd-btn primary" onclick="checkDnD_b06()">&#9658; CHECK ANSWERS</button>
+        <button class="dnd-btn" onclick="resetDnD_b06()">&#8634; Reset</button>
+      </div>
+      <div class="dnd-result" id="dnd-result-b06"></div>
+    </div>
+  </div>
+
+  <!-- 6.8 SCENARIO -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>6.8 Mission Decision &mdash; What Would You Do, Cadet?</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; The Classifier Debate</span>
+      <p>Arjun's unit has deployed a drone with an AI classifier trained to detect military vehicles. During a mission, the classifier flags a vehicle convoy with 87% confidence as "military." However, intelligence reports suggest the area is used by aid organisations with similar-looking vehicles. There are no human analysts available to review the footage in real time &mdash; the feed is going straight to the AI.</p>
+      <p>The mission commander asks Arjun: "Should we act on the AI's classification alone?"</p>
+    </div>
+    <div class="scenario-box">
+      <span class="scenario-label">&#9888; Cadet Decision &mdash; Human in the Loop</span>
+      <p class="scenario-q">The AI classifier reports 87% confidence that the convoy is military. No human analyst has reviewed the footage. What is the correct protocol?</p>
+      <div class="scenario-choices" id="sc6-choices">
+        <button class="scenario-choice" onclick="scenarioB06(this, false)"><strong>A.</strong> Act immediately &mdash; 87% is above the 85% confidence threshold used for the system.</button>
+        <button class="scenario-choice" onclick="scenarioB06(this, true)"><strong>B.</strong> Hold action and route the footage to a human analyst for confirmation before any decision.</button>
+        <button class="scenario-choice" onclick="scenarioB06(this, false)"><strong>C.</strong> Increase the classifier confidence threshold to 95% and re-run automatically.</button>
+        <button class="scenario-choice" onclick="scenarioB06(this, false)"><strong>D.</strong> Trust the AI &mdash; it has been trained on millions of images and is more reliable than a human analyst.</button>
+      </div>
+      <div class="scenario-feedback" id="sc6-feedback"></div>
+    </div>
+  </div>
+
+  <!-- 6.9 KNOWLEDGE CHECK -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>6.9 Knowledge Check</h2>
+    <p>Five questions. Some require careful thinking about limitations, not just definitions.</p>
+    <div class="bq-quiz" id="quiz-b06">
+
+      <div class="bq-question"
+           data-question="What is the fundamental difference between traditional programming and machine learning?"
+           data-options='["Traditional programming uses electricity; ML uses light","In traditional programming the rules are written explicitly by a programmer; in ML the rules are learned automatically from examples","Machine learning is always more accurate than traditional programming","Traditional programming requires a GPU; ML does not"]'
+           data-correct="1"
+           data-explanation="Traditional programming: programmer writes rules explicitly. ML: programmer provides examples and the system discovers the rules itself. This distinction is what makes ML powerful for perception tasks like image classification, where the rules for recognising a tank from aerial imagery are too complex and varied to write explicitly.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A military drone's object classifier was trained only on images of vehicles from European terrain. It is now deployed in desert terrain with different lighting and vehicle types. What failure mode is most likely?"
+           data-options='["The classifier will work perfectly because ML generalises automatically","Out-of-distribution failure &mdash; the model was not trained on desert conditions and unfamiliar vehicles, so its outputs will be unreliable","The classifier will retrain itself automatically in the field","The GPS system will fail because the classifier is confused"]'
+           data-correct="1"
+           data-explanation="An out-of-distribution failure occurs when a model encounters data significantly different from its training data. A classifier trained on European terrain with European vehicles will perform poorly on desert terrain with different lighting, dust, shadows, and vehicle types it has never seen. This is one of the central challenges in military AI: the training environment rarely perfectly matches the deployment environment.">
+      </div>
+
+      <div class="bq-question"
+           data-question="What is backpropagation and what does it do during neural network training?"
+           data-options='["It sends data backward through the network to undo a bad prediction","It traces the prediction error backward through all layers to calculate how much each weight contributed to the mistake, enabling targeted weight updates","It backs up the neural network weights to a server","It reverses the image so the network can see it from a different angle"]'
+           data-correct="1"
+           data-explanation="Backpropagation is the algorithm that makes neural network training possible. After a wrong prediction is made (forward pass), backpropagation traces the error signal backward through every layer of the network. Using calculus (specifically the chain rule), it calculates how much each weight in every layer contributed to the error. This allows the gradient descent update to target exactly those weights that need to change.">
+      </div>
+
+      <div class="bq-question"
+           data-question="An enemy places a specific pattern of stickers on their military vehicles. After this change, the drone's classifier consistently identifies those vehicles as civilian trucks. What type of attack is this?"
+           data-options='["A jamming attack on the drone's GPS","An adversarial attack &mdash; deliberately crafted inputs designed to fool the neural network classifier","A spoofing attack on the communications link","A denial of service attack on the ground control station"]'
+           data-correct="1"
+           data-explanation="This is an adversarial attack &mdash; a deliberate manipulation of the input to a neural network designed to cause misclassification. Real-world adversarial attacks on vision systems have been demonstrated in academic research, where carefully designed patterns printed on physical objects cause state-of-the-art classifiers to fail completely. Military AI systems must be designed with adversarial robustness as a core requirement.">
+      </div>
+
+      <div class="bq-question"
+           data-question="Why is maintaining a human in the loop considered essential for military AI targeting systems, even when the AI classifier has high confidence?"
+           data-options='["Humans are always more accurate than AI systems","AI classifiers can fail in out-of-distribution conditions, be fooled by adversarial attacks, or make errors with severe consequences &mdash; human oversight provides a critical accountability and error-correction layer","International law requires humans to press every button","The AI drains the battery too quickly without a human helping"]'
+           data-correct="1"
+           data-explanation="Military AI targeting systems can fail in ways that are catastrophic: misidentifying civilians as combatants, being fooled by adversarial camouflage, or encountering scenarios outside their training distribution. High confidence does not guarantee correctness &mdash; a model can be highly confident and completely wrong. Human oversight provides legal accountability, error correction for AI failures, and the ethical judgment that current AI systems cannot provide. This is enshrined in NATO policy and widely accepted military doctrine.">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 6.10 GO DEEPER -->
+  <div class="module-section section-anchor" id="s10">
+    <h2>6.10 You Now Understand How Drones Learn to See</h2>
+    <p>Machine learning, the three learning paradigms, neural networks, training through forward-backward passes, and the critical limitations of AI in military applications &mdash; this is the conceptual foundation of one of the most consequential technologies of modern warfare.</p>
+    <p>The next module, B07, goes deeper into the specific perception tasks: object detection, target tracking, and how convolutional neural networks extract features from drone imagery in real time.</p>
+    <div class="advance-panel">
+      <div class="advance-icon">&#9658;&#9658;</div>
+      <div class="advance-text">
+        <h3>READY TO GO DEEPER?</h3>
+        <p>Module M06 covers ML foundations in full mathematical detail: loss functions, gradient descent derivations, convolutional layer mathematics, transfer learning, and the architecture of real-time object detection systems deployed on military UAVs.</p>
+      </div>
+      <a href="../modules/m06-ml-foundations.html" class="advance-link">M06: ML Foundations &#9658;</a>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border-dim);flex-wrap:wrap;gap:1rem;">
+      <a href="b05-eyes-in-the-sky.html" class="btn-primary" style="font-size:.75rem;border-color:var(--border-dim);color:var(--text-muted);">&#9668; B05: Eyes in the Sky</a>
+      <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);">BEGINNER TRACK &middot; MODULE B06 OF 10</span>
+      <a href="b07-drones-that-see.html" class="btn-primary" style="font-size:.75rem;">B07: Drones That See &#9658;</a>
+    </div>
+  </div>
+</div>
+
+<footer><p>AEROKNOW &middot; Beginner Module B06 &middot; Teaching Drones to Think &middot; Beginner Track</p></footer>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/beginner-quiz.js"></script>
+
+<script>
+/* ── JUMP BAR ── */
+function jumpTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.jump-btn').forEach(function(b) { b.classList.remove('active'); });
+  event.currentTarget.classList.add('active');
+}
+(function() {
+  var secs = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  var btns = document.querySelectorAll('.jump-btn');
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        var i = secs.indexOf(e.target.id);
+        if (i > -1) { btns.forEach(function(b) { b.classList.remove('active'); }); if (btns[i]) btns[i].classList.add('active'); }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  secs.forEach(function(id) { var el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+
+/* ── TRAINING SIMULATOR ── */
+(function() {
+  var canvas = document.getElementById('b06-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H;
+
+  // Network state
+  var epoch = 0;
+  var loss = 1.0;
+  var accuracy = 0;
+  var lossHistory = [];
+  var accHistory  = [];
+  var isTraining  = false;
+  var trainTimer  = null;
+
+  // Weights: simplified 3-layer net weights as random init
+  var weights = [];
+  function initWeights() {
+    weights = [];
+    for (var i = 0; i < 12; i++) weights.push((Math.random() - 0.5) * 2);
+  }
+
+  // Simulate one training batch: update loss and accuracy curves
+  function doTrainBatch() {
+    epoch++;
+    // Simulate loss decay with noise - fast then slow (logarithmic)
+    var target_loss = 0.05 + 0.95 * Math.exp(-epoch / 120);
+    loss = target_loss + (Math.random() - 0.5) * 0.04 * Math.max(target_loss, 0.05);
+    loss = Math.max(0.03, Math.min(1.0, loss));
+
+    // Simulate accuracy rise
+    var target_acc = 1 - Math.exp(-epoch / 100);
+    accuracy = target_acc + (Math.random() - 0.5) * 0.06;
+    accuracy = Math.max(0, Math.min(0.99, accuracy));
+
+    // Nudge weights slightly each batch
+    for (var i = 0; i < weights.length; i++) {
+      weights[i] += (Math.random() - 0.5) * 0.05;
+      weights[i] = Math.max(-1, Math.min(1, weights[i]));
+    }
+
+    // Keep history capped at canvas width
+    lossHistory.push(loss);
+    accHistory.push(accuracy);
+    if (lossHistory.length > 300) { lossHistory.shift(); accHistory.shift(); }
+
+    updateStatus();
+    draw();
+  }
+
+  function updateStatus() {
+    var el = document.getElementById('b06-status');
+    var rd = document.getElementById('b06-readout');
+    rd.textContent = 'Epoch: ' + epoch + ' | Loss: ' + loss.toFixed(3) + ' | Accuracy: ' + Math.round(accuracy * 100) + '%';
+    if (accuracy > 0.85) { el.textContent = '● TRAINED — HIGH ACCURACY'; el.style.color = 'var(--accent-green)'; }
+    else if (accuracy > 0.5) { el.textContent = '● LEARNING — WEIGHTS CONVERGING'; el.style.color = 'var(--accent-amber)'; }
+    else if (epoch > 0) { el.textContent = '● EARLY TRAINING — HIGH LOSS'; el.style.color = 'var(--accent-red)'; }
+    else { el.textContent = '● UNTRAINED — RANDOM WEIGHTS'; el.style.color = 'var(--accent-amber)'; }
+  }
+
+  function resize() {
+    W = canvas.parentElement.clientWidth || 700;
+    H = 280; canvas.width = W; canvas.height = H;
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#010810'; ctx.fillRect(0, 0, W, H);
+
+    // Grid
+    ctx.strokeStyle = 'rgba(0,212,255,0.05)'; ctx.lineWidth = 1;
+    for (var x = 0; x < W; x += 50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (var y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+    var chartX = 20, chartY = 20, chartW = W - 40, chartH = H - 50;
+
+    // Axes
+    ctx.strokeStyle = 'rgba(0,212,255,0.2)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(chartX, chartY); ctx.lineTo(chartX, chartY + chartH); ctx.lineTo(chartX + chartW, chartY + chartH); ctx.stroke();
+
+    // Y axis labels
+    ctx.font = '8px Share Tech Mono'; ctx.fillStyle = 'rgba(0,212,255,0.4)';
+    ctx.fillText('1.0', chartX - 18, chartY + 4);
+    ctx.fillText('0.5', chartX - 18, chartY + chartH / 2 + 4);
+    ctx.fillText('0.0', chartX - 18, chartY + chartH + 4);
+    ctx.fillText('LOSS', chartX + 4, chartY + 10);
+    ctx.fillText('ACC%', chartX + chartW - 40, chartY + 10);
+
+    if (lossHistory.length < 2) {
+      ctx.fillStyle = 'rgba(0,212,255,0.2)'; ctx.font = '11px Share Tech Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('Press "Train 1 Batch" or "Train 100 Batches" to begin', W/2, H/2);
+      ctx.textAlign = 'left';
+      return;
+    }
+
+    var pts = lossHistory.length;
+    var step = chartW / Math.max(pts - 1, 1);
+
+    // Draw loss curve (red)
+    ctx.strokeStyle = 'rgba(255,58,58,0.8)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    lossHistory.forEach(function(v, i) {
+      var px = chartX + i * step;
+      var py = chartY + chartH - v * chartH;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+
+    // Draw accuracy curve (green)
+    ctx.strokeStyle = 'rgba(0,255,157,0.8)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    accHistory.forEach(function(v, i) {
+      var px = chartX + i * step;
+      var py = chartY + chartH - v * chartH;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+
+    // Current value dots
+    if (lossHistory.length > 0) {
+      var lastX = chartX + (lossHistory.length - 1) * step;
+      ctx.fillStyle = '#ff3a3a';
+      ctx.beginPath(); ctx.arc(lastX, chartY + chartH - loss * chartH, 4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#00ff9d';
+      ctx.beginPath(); ctx.arc(lastX, chartY + chartH - accuracy * chartH, 4, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Legend
+    ctx.font = '9px Share Tech Mono';
+    ctx.fillStyle = '#ff3a3a'; ctx.fillText('▬ LOSS', chartX + chartW - 120, chartY + chartH + 18);
+    ctx.fillStyle = '#00ff9d'; ctx.fillText('▬ ACCURACY', chartX + chartW - 60, chartY + chartH + 18);
+    ctx.fillStyle = 'rgba(0,212,255,0.3)'; ctx.fillText('EPOCHS: ' + epoch, chartX + 4, chartY + chartH + 18);
+  }
+
+  window.trainStep = function() { doTrainBatch(); };
+
+  window.trainMany = function(n) {
+    if (isTraining) return;
+    isTraining = true;
+    var count = 0;
+    document.querySelectorAll('.sim-btn').forEach(function(b) { b.style.opacity = '0.5'; b.disabled = true; });
+    function step() {
+      doTrainBatch();
+      count++;
+      if (count < n) { trainTimer = setTimeout(step, 8); }
+      else {
+        isTraining = false;
+        document.querySelectorAll('.sim-btn').forEach(function(b) { b.style.opacity = ''; b.disabled = false; });
+      }
+    }
+    step();
+  };
+
+  window.resetNetwork = function() {
+    if (trainTimer) clearTimeout(trainTimer);
+    isTraining = false;
+    epoch = 0; loss = 1.0; accuracy = 0;
+    lossHistory = []; accHistory = [];
+    initWeights();
+    document.querySelectorAll('.sim-btn').forEach(function(b) { b.style.opacity = ''; b.disabled = false; });
+    updateStatus(); draw();
+  };
+
+  window.addEventListener('resize', resize);
+  initWeights(); resize(); updateStatus(); draw();
+})();
+
+/* ── DRAG AND DROP B06 ── */
+var _drag06 = null;
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#dnd-b06 .dnd-chip').forEach(function(c) {
+    c.addEventListener('dragstart', function(e) { _drag06 = c; c.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    c.addEventListener('dragend',   function()  { c.classList.remove('dragging'); });
+  });
+  document.querySelectorAll('#dnd-b06 .dnd-target').forEach(function(t) {
+    t.addEventListener('dragover',  function(e) { e.preventDefault(); t.classList.add('drag-over'); });
+    t.addEventListener('dragleave', function()  { t.classList.remove('drag-over'); });
+    t.addEventListener('drop', function(e) {
+      e.preventDefault(); t.classList.remove('drag-over');
+      if (!_drag06) return;
+      var ex = t.getAttribute('data-placed');
+      if (ex) {
+        var old = Array.from(document.querySelectorAll('#dnd-bank-b06 .dnd-chip.placed')).find(function(c) { return c.getAttribute('data-label') === ex; });
+        if (old) old.classList.remove('placed');
+      }
+      var lbl = _drag06.getAttribute('data-label');
+      t.setAttribute('data-placed', lbl);
+      var d = t.querySelector('.dnd-target-drop');
+      d.textContent = lbl; d.style.color = 'var(--accent-primary)';
+      t.classList.remove('correct', 'wrong');
+      _drag06.classList.add('placed'); _drag06 = null;
+      document.getElementById('dnd-result-b06').style.display = 'none';
+    });
+  });
+});
+
+function checkDnD_b06() {
+  var ts = document.querySelectorAll('#dnd-b06 .dnd-target');
+  var ok = 0;
+  ts.forEach(function(t) {
+    t.classList.remove('correct', 'wrong');
+    var p = t.getAttribute('data-placed');
+    if (!p) return;
+    if (p === t.getAttribute('data-answer')) { t.classList.add('correct'); ok++; }
+    else t.classList.add('wrong');
+  });
+  var r = document.getElementById('dnd-result-b06');
+  r.style.display = 'block';
+  r.style.color = ok === ts.length ? 'var(--accent-green)' : ok >= ts.length/2 ? 'var(--accent-amber)' : 'var(--accent-red)';
+  r.textContent = ok + '/' + ts.length + ' correct — ' + (ok === ts.length ? 'All concepts correctly matched. ✓' : 'Review ML terminology above and try again.');
+}
+
+function resetDnD_b06() {
+  document.querySelectorAll('#dnd-b06 .dnd-target').forEach(function(t) {
+    t.classList.remove('correct', 'wrong'); t.removeAttribute('data-placed');
+    var d = t.querySelector('.dnd-target-drop'); d.textContent = '— drop here —'; d.style.color = '';
+  });
+  document.querySelectorAll('#dnd-b06 .dnd-chip').forEach(function(c) { c.classList.remove('placed'); });
+  document.getElementById('dnd-result-b06').style.display = 'none';
+}
+
+/* ── SCENARIO B06 ── */
+function scenarioB06(btn, correct) {
+  var cs = document.querySelectorAll('#sc6-choices .scenario-choice');
+  var fb = document.getElementById('sc6-feedback');
+  cs.forEach(function(c) { c.disabled = true; c.classList.remove('s-correct', 's-wrong'); });
+  btn.classList.add(correct ? 's-correct' : 's-wrong');
+  cs[1].classList.add('s-correct');
+  fb.style.display = 'block';
+
+  if (correct) {
+    fb.style.borderLeftColor = 'var(--accent-green)';
+    fb.innerHTML = `<strong style="color:var(--accent-green);">Correct, Cadet.</strong> This is the correct doctrine: the AI flags, the human confirms. Even at 87% confidence, a 13% error rate is operationally significant when the consequence of a wrong decision is catastrophic. More critically, the AI may be encountering an out-of-distribution scenario (aid vehicles that resemble military ones) that it cannot correctly evaluate. Human oversight is not a limitation of the technology &mdash; it is a legal and ethical requirement under NATO targeting doctrine and international humanitarian law. The AI is a tool that enhances the operator's capability; it does not replace the operator's judgment.`;
+  } else {
+    fb.style.borderLeftColor = 'var(--accent-red)';
+    var idx = Array.from(cs).indexOf(btn);
+    var msgs = [
+      `An 87% confidence threshold means the system is wrong roughly 1 in 8 times. In a scenario where misidentification has severe consequences, this is not acceptable without human verification. Confidence thresholds do not eliminate errors &mdash; they just set the rate. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`,
+      '',
+      `Increasing the threshold to 95% and re-running automatically does not add a human to the decision &mdash; it just makes the AI more selective before acting autonomously. The fundamental issue is the absence of human oversight, not the confidence level. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`,
+      `An AI classifier trained on millions of images can still fail in out-of-distribution conditions. High training accuracy does not guarantee correct performance in novel situations. The presence of similar-looking aid vehicles is precisely the kind of ambiguous scenario where human judgment is irreplaceable. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`
+    ];
+    fb.innerHTML = `<strong style="color:var(--accent-red);">Incorrect, Cadet.</strong> ` + msgs[idx];
+  }
+}
+</script>
+</body>
+</html>
