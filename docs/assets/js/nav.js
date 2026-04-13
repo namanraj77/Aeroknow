@@ -35,7 +35,7 @@
     { num: 'B04', title: 'When GPS Fails',             href: 'beginner/b04-when-gps-fails.html',       done: true },
     { num: 'B05', title: 'Eyes in the Sky',            href: 'beginner/b05-eyes-in-the-sky.html',      done: true },
     { num: 'B06', title: 'Teaching Drones to Think',   href: 'beginner/b06-teaching-drones.html',      done: true },
-    { num: 'B07', title: 'Drones That See',            href: 'beginner/b07-drones-that-see.html',      done: false },
+    { num: 'B07', title: 'Drones That See',            href: 'beginner/b07-drones-that-see.html',      done: true},
     { num: 'B08', title: 'Drones That Decide',         href: 'beginner/b08-drones-that-decide.html',   done: false },
     { num: 'B09', title: 'The Swarm',                  href: 'beginner/b09-the-swarm.html',            done: false },
     { num: 'B10', title: 'Building the Full System',   href: 'beginner/b10-building-the-system.html',  done: false },
