@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>B07: Drones That See &mdash; AEROKNOW Beginner Track</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    .beginner-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.25);padding:.25rem .75rem;margin-bottom:1rem}
+    .beginner-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent-amber);box-shadow:var(--glow-amber);animation:pulse-dot 1.8s ease-in-out infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .plain-intro{background:rgba(0,212,255,.03);border-left:3px solid var(--accent-primary);padding:1rem 1.2rem;margin-bottom:1.5rem;border-radius:0 4px 4px 0}
+    .plain-intro .pi-label{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:.4rem}
+    .plain-intro p{font-size:1rem;color:var(--text-secondary);margin:0;line-height:1.75}
+    .analogy-box{background:rgba(255,183,0,.04);border:1px solid rgba(255,183,0,.15);border-left:3px solid var(--accent-amber);padding:1rem 1.2rem;margin:1.2rem 0}
+    .analogy-box .analogy-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-amber);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .analogy-box p{margin:0 0 .5rem;font-size:.95rem;color:var(--text-secondary)}
+    .analogy-box p:last-child{margin-bottom:0}
+    .story-box{background:rgba(179,136,255,.04);border:1px solid rgba(179,136,255,.18);border-left:3px solid #b388ff;padding:1.2rem 1.5rem;margin:1.8rem 0}
+    .story-box .story-label{font-family:var(--font-mono);font-size:.58rem;color:#b388ff;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:.6rem}
+    .story-box p{margin:0 0 .5rem;color:var(--text-secondary);font-size:.97rem;line-height:1.75}
+    .story-box p:last-child{margin-bottom:0}
+    .key-term{color:var(--accent-primary);font-weight:600;border-bottom:1px dashed rgba(0,212,255,.4);cursor:help}
+    .fact-block{background:rgba(0,255,157,.03);border:1px solid rgba(0,255,157,.14);border-left:3px solid var(--accent-green);padding:1.1rem 1.4rem;margin:1.4rem 0}
+    .fact-block .fact-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-green);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .fact-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .caution-block{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1rem 1.2rem;margin:1.2rem 0}
+    .caution-block .caution-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .caution-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .cite{font-family:var(--font-mono);font-size:.68rem;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.18);padding:.08rem .4rem;margin-left:.25rem;vertical-align:middle;white-space:nowrap}
+    .diagram-wrap{background:rgba(5,13,20,.9);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .diagram-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .diagram-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .diagram-sub{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted)}
+    .task-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin:1.5rem 0}
+    .task-card{background:var(--bg-card);border:1px solid var(--border-dim);padding:1.1rem 1.2rem;transition:var(--transition);position:relative}
+    .task-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+    .task-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+    .task-card-icon{font-size:1.4rem;display:block;margin-bottom:.4rem}
+    .task-card-type{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .task-card h4{font-family:var(--font-display);font-size:.88rem;margin-bottom:.4rem}
+    .task-card p{font-size:.82rem;color:var(--text-muted);margin:0;line-height:1.5}
+    .task-card .tc-note{font-family:var(--font-mono);font-size:.6rem;margin-top:.5rem;padding-top:.4rem;border-top:1px solid var(--border-panel)}
+    .pipeline-steps{display:flex;align-items:stretch;gap:0;margin:1.5rem 0;overflow-x:auto}
+    .pipeline-step{flex:1;min-width:110px;background:var(--bg-card);border:1px solid var(--border-dim);padding:.8rem .9rem;position:relative}
+    .pipeline-step+.pipeline-step{border-left:none}
+    .pipeline-step-num{font-family:var(--font-display);font-size:1.4rem;font-weight:900;line-height:1;display:block;margin-bottom:.2rem}
+    .pipeline-step h4{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.35rem}
+    .pipeline-step p{font-size:.78rem;color:var(--text-muted);margin:0;line-height:1.45}
+    .pipeline-arrow{display:flex;align-items:center;padding:0 .2rem;color:var(--accent-primary);font-size:1rem;opacity:.5;flex-shrink:0}
+    .comp-table{width:100%;border-collapse:collapse;margin:1.4rem 0}
+    .comp-table th{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--accent-primary);text-align:left;padding:.5rem .85rem;border-bottom:1px solid var(--border-dim);background:rgba(0,212,255,.03)}
+    .comp-table td{padding:.65rem .85rem;border-bottom:1px solid var(--border-panel);font-size:.9rem;color:var(--text-secondary);vertical-align:top;line-height:1.5}
+    .comp-table td:first-child{font-family:var(--font-mono);font-size:.78rem;color:var(--accent-primary);white-space:nowrap}
+    .comp-table tr:hover td{background:rgba(0,212,255,.02)}
+    .dnd-wrap{background:rgba(0,255,157,.02);border:1px solid rgba(0,255,157,.12);border-top:2px solid var(--accent-green);padding:1.5rem 1.8rem;margin:2rem 0}
+    .dnd-title{font-family:var(--font-mono);font-size:.65rem;color:var(--accent-green);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.4rem}
+    .dnd-subtitle{font-size:.9rem;color:var(--text-muted);margin-bottom:1.2rem}
+    .dnd-bank{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.4rem;min-height:2.5rem;padding:.6rem;background:rgba(0,0,0,.3);border:1px dashed rgba(0,255,157,.2)}
+    .dnd-chip{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-green);background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.3);padding:.3rem .8rem;cursor:grab;user-select:none;transition:var(--transition)}
+    .dnd-chip:hover{background:rgba(0,255,157,.15);box-shadow:var(--glow-green)}
+    .dnd-chip.dragging{opacity:.4;cursor:grabbing}
+    .dnd-chip.placed{opacity:.3;cursor:default;pointer-events:none}
+    .dnd-targets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem}
+    .dnd-target{border:1px dashed var(--border-dim);padding:.5rem .75rem;min-height:2.8rem;display:flex;align-items:center;gap:.5rem;transition:var(--transition);background:rgba(0,0,0,.2)}
+    .dnd-target.drag-over{border-color:var(--accent-green);background:rgba(0,255,157,.05)}
+    .dnd-target.correct{border-color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .dnd-target.wrong{border-color:var(--accent-red);background:rgba(255,58,58,.07)}
+    .dnd-target-num{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);flex-shrink:0}
+    .dnd-target-hint{font-size:.83rem;color:var(--text-muted);flex:1;line-height:1.4}
+    .dnd-target-drop{font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);min-width:90px;text-align:right}
+    .dnd-controls{display:flex;gap:.75rem;margin-top:1rem}
+    .dnd-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem 1.2rem;cursor:pointer;transition:var(--transition)}
+    .dnd-btn.primary{border-color:var(--accent-green);color:var(--accent-green)}
+    .dnd-btn.primary:hover{background:var(--accent-green);color:var(--bg-void);box-shadow:var(--glow-green)}
+    .dnd-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .dnd-result{margin-top:.75rem;font-family:var(--font-mono);font-size:.75rem;display:none}
+    .scenario-box{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1.4rem 1.6rem;margin:2rem 0}
+    .scenario-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.75rem;display:block}
+    .scenario-q{font-size:1.05rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;line-height:1.55}
+    .scenario-choices{display:flex;flex-direction:column;gap:.5rem}
+    .scenario-choice{background:rgba(255,255,255,.02);border:1px solid var(--border-dim);color:var(--text-secondary);font-family:var(--font-ui);font-size:.95rem;padding:.7rem 1rem;cursor:pointer;text-align:left;transition:var(--transition)}
+    .scenario-choice:hover:not(:disabled){border-color:var(--accent-primary);background:rgba(0,212,255,.05);color:var(--text-primary)}
+    .scenario-choice:disabled{cursor:default}
+    .scenario-choice.s-correct{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.06)}
+    .scenario-choice.s-wrong{border-color:var(--accent-red);color:var(--accent-red);background:rgba(255,58,58,.06);opacity:.7}
+    .scenario-feedback{margin-top:.9rem;padding:.8rem 1rem;background:rgba(0,0,0,.3);border-left:2px solid var(--accent-amber);font-size:.92rem;color:var(--text-secondary);line-height:1.65;display:none}
+    .sim-wrap{background:rgba(1,8,16,.95);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .sim-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .sim-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .sim-status{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em}
+    .sim-controls-row{padding:.75rem 1rem;border-top:1px solid var(--border-dim);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+    .sim-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .9rem;cursor:pointer;transition:var(--transition)}
+    .sim-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .sim-btn.active{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .sim-readout{font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);margin-left:auto}
+    .section-jump{position:sticky;top:60px;z-index:100;background:rgba(2,4,8,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-dim);overflow-x:auto;scrollbar-width:none}
+    .section-jump::-webkit-scrollbar{display:none}
+    .jump-inner{display:flex;align-items:center;gap:0;padding:0 1rem;min-width:max-content}
+    .jump-label{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;padding:0 .75rem 0 0;border-right:1px solid var(--border-dim);margin-right:.25rem;white-space:nowrap;line-height:42px}
+    .jump-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.06em;padding:0 .85rem;height:42px;cursor:pointer;white-space:nowrap;transition:var(--transition)}
+    .jump-btn:hover{color:var(--text-secondary);border-bottom-color:var(--border-bright)}
+    .jump-btn.active{color:var(--accent-primary);border-bottom-color:var(--accent-primary)}
+    .jump-btn .jb-num{color:var(--accent-green);margin-right:.3rem;font-size:.58rem}
+    .section-anchor{scroll-margin-top:105px}
+    .advance-panel{background:rgba(0,212,255,.03);border:1px solid var(--border-dim);border-top:2px solid var(--accent-primary);padding:1.5rem 1.8rem;margin:3rem 0 1rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+    .advance-icon{font-family:var(--font-display);font-size:2rem;color:var(--accent-primary);opacity:.5;flex-shrink:0}
+    .advance-text h3{font-family:var(--font-display);font-size:.9rem;color:var(--accent-primary);margin-bottom:.3rem;letter-spacing:.05em}
+    .advance-text p{font-size:.88rem;color:var(--text-muted);margin:0;line-height:1.55}
+    .advance-link{margin-left:auto;display:inline-block;background:transparent;border:1px solid var(--accent-primary);color:var(--accent-primary);font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;padding:.7rem 1.5rem;text-decoration:none;transition:var(--transition);white-space:nowrap;flex-shrink:0}
+    .advance-link:hover{background:var(--accent-primary);color:var(--bg-void);box-shadow:var(--glow-primary)}
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">7.1</span>The Missed Flag</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">7.2</span>Computer Vision Tasks</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">7.3</span>How CNNs See</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">7.4</span>Object Detection</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">7.5</span>Target Tracking</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">7.6</span>Detection Simulator</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">7.7</span>Match the Task</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">7.8</span>Mission Decision</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">7.9</span>Knowledge Check</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">7.10</span>Go Deeper</button>
+  </div>
+</div>
+
+<div class="module-page">
+  <div class="module-hero">
+    <span class="beginner-badge">Beginner Track &mdash; Module B07</span>
+    <span class="module-num">MODULE B07 // DRONES THAT SEE</span>
+    <h1>Drones That See</h1>
+    <p class="lead">In B06 you learned how drones learn. Now you learn what they learn to <em>do</em>. Object detection, target tracking, semantic segmentation &mdash; these are the specific computer vision tasks that turn raw camera pixels into actionable battlefield intelligence. In this module you will understand exactly how a drone recognises, locates, and follows a target in real time.</p>
+    <div class="module-meta">
+      <span class="label label-amber">Beginner Friendly</span>
+      <span class="label label-primary">Builds on B05 + B06</span>
+      <span class="label label-green">35 Min Read</span>
+    </div>
+  </div>
+
+  <!-- 7.1 STORY -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>7.1 The Missed Flag</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Day 41</span>
+      <p>The analyst had been staring at six hours of drone footage. Fifty minutes in, a figure appeared at the edge of a compound for three seconds, then vanished. The analyst missed it. Blinked at the wrong moment. The report said: no significant activity.</p>
+      <p>Two days later, the AI review system flagged the same frame. A small green box around a figure. Class label: <em>PERSON WITH WEAPON &mdash; 91%.</em> The analyst had missed what the machine caught in a hundred milliseconds.</p>
+      <p>"That's the gap we're closing," said the intelligence officer briefing Arjun's group. "A human analyst watching six hours of footage will miss things. Fatigue, attention, cognitive limits. The computer vision system watches every frame, every pixel, every second &mdash; without blinking. It doesn't catch everything. But it catches things the human misses. And the human catches things the machine misses. Together they outperform either alone."</p>
+      <p>Arjun thought about that. Not replacing the analyst. Augmenting them. But how does the machine actually <em>see</em>?</p>
+    </div>
+    <div class="plain-intro">
+      <span class="pi-label">What You'll Know After This Module</span>
+      <p>You will understand the four main computer vision tasks on military drones, how convolutional neural networks extract features from images, how object detection produces bounding boxes and class labels in real time, and how target tracking maintains lock on a moving object across frames.</p>
+    </div>
+  </div>
+
+  <!-- 7.2 COMPUTER VISION TASKS -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>7.2 The Four Computer Vision Tasks</h2>
+    <p>Computer vision is not one thing &mdash; it is a family of related tasks, each answering a different question about what the drone sees. Military UAVs use all four, often simultaneously on the same video feed.</p>
+    <div class="task-grid">
+      <div class="task-card" style="border-color:rgba(0,212,255,0.3);">
+        <span class="task-card-icon">&#128269;</span>
+        <span class="task-card-type" style="color:var(--accent-primary);">Classification</span>
+        <h4 style="color:var(--text-primary);">What is it?</h4>
+        <p>The entire image is assigned a single label. "This image contains a tank." No location, no box &mdash; just a category. Useful for rapid scene categorisation.</p>
+        <div class="tc-note" style="color:var(--accent-primary);">Speed: Very fast &mdash; simplest task</div>
+      </div>
+      <div class="task-card" style="border-color:rgba(0,255,157,0.3);">
+        <span class="task-card-icon">&#9645;</span>
+        <span class="task-card-type" style="color:var(--accent-green);">Object Detection</span>
+        <h4 style="color:var(--text-primary);">What is it and where?</h4>
+        <p>Finds every object of interest in the image, draws a bounding box around each one, and assigns a class label with confidence score. Multiple objects, one pass.</p>
+        <div class="tc-note" style="color:var(--accent-green);">The workhorse of military UAV perception &mdash; YOLO, SSD, Faster R-CNN</div>
+      </div>
+      <div class="task-card" style="border-color:rgba(255,183,0,0.3);">
+        <span class="task-card-icon">&#127912;</span>
+        <span class="task-card-type" style="color:var(--accent-amber);">Semantic Segmentation</span>
+        <h4 style="color:var(--text-primary);">What is every pixel?</h4>
+        <p>Every pixel in the image is classified into a category: road, vehicle, building, vegetation, person. No boxes &mdash; precise pixel-level understanding of the scene.</p>
+        <div class="tc-note" style="color:var(--accent-amber);">Used for terrain analysis, safe landing zone detection, mapping</div>
+      </div>
+      <div class="task-card" style="border-color:rgba(255,58,58,0.3);">
+        <span class="task-card-icon">&#128250;</span>
+        <span class="task-card-type" style="color:var(--accent-red);">Object Tracking</span>
+        <h4 style="color:var(--text-primary);">Where is it going?</h4>
+        <p>Once an object is detected, tracking maintains a persistent lock on it across frames &mdash; even when it moves, rotates, changes size, or is briefly occluded by another object.</p>
+        <div class="tc-note" style="color:var(--accent-red);">Enables persistent surveillance &mdash; the drone follows the target automatically</div>
+      </div>
+    </div>
+
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Four Questions at Once</span>
+      <p>"On the MQ-9, the perception pipeline runs all four simultaneously," the officer explained. "Classification tells command what type of scene we're looking at. Detection finds every vehicle and person in frame. Segmentation maps which areas are road, building, open ground. And tracking locks onto a specific target and follows it even if the drone banks or the target tries to hide. One camera feed, four parallel analyses, all in under fifty milliseconds."</p>
+    </div>
+
+    <table class="comp-table">
+      <thead>
+        <tr><th>Task</th><th>Output</th><th>Speed</th><th>Primary Military Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Classification</td><td>Single label for whole image</td><td style="color:var(--accent-green);">Very fast</td><td>Scene type recognition, rapid triage of footage</td></tr>
+        <tr><td>Object Detection</td><td>Bounding boxes + class labels</td><td style="color:var(--accent-green);">Fast (real-time capable)</td><td>Vehicle/person detection, threat identification</td></tr>
+        <tr><td>Segmentation</td><td>Per-pixel class map</td><td style="color:var(--accent-amber);">Moderate</td><td>Terrain mapping, landing zone analysis</td></tr>
+        <tr><td>Tracking</td><td>Target trajectory over time</td><td style="color:var(--accent-green);">Fast (per-frame update)</td><td>Persistent surveillance, target following</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 7.3 HOW CNNs SEE -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>7.3 How Convolutional Neural Networks Actually See</h2>
+    <p>In B06 you learned that neural networks have layers. For image tasks, a specific type of layer called a <span class="key-term" title="A layer that applies a small filter across an image, detecting local patterns like edges, corners, and textures">convolutional layer</span> is what makes image understanding possible. Understanding convolutions conceptually explains why deep learning works so well on visual data.</p>
+    <div class="analogy-box">
+      <span class="analogy-label">The Magnifying Glass Analogy</span>
+      <p>Imagine examining a photograph with a small magnifying glass. You slide it across the image systematically, left to right, top to bottom. At each position, you record what you see: an edge here, a curve there, a dark patch, a bright corner. You build up a map of every local pattern across the image.</p>
+      <p>That is exactly what a convolutional layer does. The "magnifying glass" is called a <strong>filter</strong> or <strong>kernel</strong> &mdash; a small grid of learned numbers. It slides across the image, producing a number at each position that indicates how strongly that filter's pattern appeared there. Early layers detect simple things (edges, colours). Deeper layers combine those into complex things (wheels, gun barrels, vehicle silhouettes).</p>
+    </div>
+
+    <!-- CNN feature extraction SVG -->
+    <div class="diagram-wrap">
+      <div class="diagram-header">
+        <span class="diagram-title">&#9658; CNN FEATURE EXTRACTION &mdash; What Each Layer Detects</span>
+        <span class="diagram-sub">Complexity increases with depth</span>
+      </div>
+      <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#010810;">
+        <defs>
+          <marker id="b07arr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0,1 L5,3.5 L0,6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+          </marker>
+          <filter id="b07glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="700" height="200" fill="#010810"/>
+        <g stroke="rgba(0,212,255,0.04)" stroke-width="1">
+          <line x1="0" y1="50" x2="700" y2="50"/><line x1="0" y1="100" x2="700" y2="100"/><line x1="0" y1="150" x2="700" y2="150"/>
+        </g>
+        <!-- Input image block -->
+        <rect x="10" y="55" width="70" height="90" rx="2" fill="rgba(0,212,255,0.07)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+        <text x="45" y="85"  text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,212,255,0.7)">INPUT</text>
+        <text x="45" y="100" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,212,255,0.7)">IMAGE</text>
+        <text x="45" y="115" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,212,255,0.7)">pixels</text>
+        <text x="45" y="160" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(0,212,255,0.35)">raw data</text>
+        <!-- Arrow -->
+        <line x1="82" y1="100" x2="108" y2="100" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#b07arr)"/>
+        <!-- Layer 1: edges -->
+        <rect x="110" y="45" width="80" height="110" rx="2" fill="rgba(255,183,0,0.06)" stroke="rgba(255,183,0,0.4)" stroke-width="1.5"/>
+        <text x="150" y="80"  text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,183,0,0.8)">LAYER 1</text>
+        <text x="150" y="96"  text-anchor="middle" font-family="sans-serif" font-size="10" fill="#ffb700">Edges</text>
+        <text x="150" y="112" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(255,183,0,0.5)">lines, corners</text>
+        <text x="150" y="128" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(255,183,0,0.5)">colour blobs</text>
+        <text x="150" y="168" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(255,183,0,0.35)">simple patterns</text>
+        <line x1="192" y1="100" x2="218" y2="100" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#b07arr)"/>
+        <!-- Layer 2: shapes -->
+        <rect x="220" y="38" width="80" height="124" rx="2" fill="rgba(179,136,255,0.06)" stroke="rgba(179,136,255,0.4)" stroke-width="1.5"/>
+        <text x="260" y="72"  text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(179,136,255,0.8)">LAYER 2</text>
+        <text x="260" y="88"  text-anchor="middle" font-family="sans-serif" font-size="10" fill="#b388ff">Shapes</text>
+        <text x="260" y="104" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(179,136,255,0.5)">circles, rectangles</text>
+        <text x="260" y="120" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(179,136,255,0.5)">curves, silhouettes</text>
+        <text x="260" y="175" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(179,136,255,0.35)">combined patterns</text>
+        <line x1="302" y1="100" x2="328" y2="100" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#b07arr)"/>
+        <!-- Layer 3: parts -->
+        <rect x="330" y="30" width="80" height="140" rx="2" fill="rgba(0,255,157,0.05)" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+        <text x="370" y="64"  text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,255,157,0.8)">LAYER 3</text>
+        <text x="370" y="80"  text-anchor="middle" font-family="sans-serif" font-size="10" fill="#00ff9d">Parts</text>
+        <text x="370" y="96"  text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(0,255,157,0.5)">wheels, windows</text>
+        <text x="370" y="112" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(0,255,157,0.5)">gun barrels</text>
+        <text x="370" y="128" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(0,255,157,0.5)">antennas</text>
+        <text x="370" y="182" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(0,255,157,0.35)">semantic parts</text>
+        <line x1="412" y1="100" x2="438" y2="100" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#b07arr)"/>
+        <!-- Layer N: objects -->
+        <rect x="440" y="22" width="80" height="156" rx="2" fill="rgba(0,212,255,0.08)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b07glow)"/>
+        <text x="480" y="56"  text-anchor="middle" font-family="monospace" font-size="8" fill="#00d4ff">DEEP</text>
+        <text x="480" y="70"  text-anchor="middle" font-family="monospace" font-size="8" fill="#00d4ff">LAYERS</text>
+        <text x="480" y="88"  text-anchor="middle" font-family="sans-serif" font-size="10" fill="var(--text-primary)">Objects</text>
+        <text x="480" y="104" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(0,212,255,0.6)">tank, truck</text>
+        <text x="480" y="120" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(0,212,255,0.6)">person, aircraft</text>
+        <text x="480" y="136" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(0,212,255,0.6)">building, road</text>
+        <text x="480" y="190" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(0,212,255,0.35)">full objects</text>
+        <line x1="522" y1="100" x2="548" y2="100" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#b07arr)"/>
+        <!-- Output -->
+        <rect x="550" y="55" width="130" height="90" rx="2" fill="rgba(0,255,157,0.06)" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+        <text x="615" y="80"  text-anchor="middle" font-family="monospace" font-size="8" fill="#00ff9d">OUTPUT</text>
+        <text x="615" y="96"  text-anchor="middle" font-family="sans-serif" font-size="9" fill="var(--text-secondary)">MILITARY TRUCK</text>
+        <text x="615" y="112" text-anchor="middle" font-family="monospace" font-size="9" fill="#00ff9d">94% confidence</text>
+        <text x="615" y="128" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,255,157,0.4)">bbox: [x,y,w,h]</text>
+      </svg>
+    </div>
+
+    <div class="fact-block">
+      <span class="fact-label">Why "Convolutional" Networks Work So Well on Images</span>
+      <p>A full-resolution aerial image might be 4000&times;3000 pixels &mdash; 12 million values. A standard neural network would need billions of connections just to process one frame. Convolutional layers use a small filter (e.g. 3&times;3 pixels) that is applied across the whole image &mdash; the same filter, reused at every position. This <strong>weight sharing</strong> makes CNNs computationally practical and also gives them a property called <span class="key-term" title="The ability to detect a pattern regardless of where it appears in the image">translation invariance</span>: a wheel is recognised as a wheel whether it appears in the top-left or bottom-right of the image. <span class="cite">LeCun et al., 1998</span></p>
+    </div>
+  </div>
+
+  <!-- 7.4 OBJECT DETECTION -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>7.4 Object Detection &mdash; Finding Everything in One Pass</h2>
+    <p><span class="key-term" title="A computer vision task that locates objects in an image and classifies them simultaneously">Object detection</span> is the most operationally important computer vision task for military UAVs. It does two things simultaneously: finds where objects are (bounding box) and what they are (class label with confidence score). Multiple objects, one forward pass, in real time.</p>
+    <div class="analogy-box">
+      <span class="analogy-label">The Grid Search Analogy</span>
+      <p>Imagine dividing a satellite image into a grid of 100 cells. In each cell, the network asks: "Is there an object here? If so, what type and how confident am I?" Then it refines those guesses, merges overlapping boxes, and outputs only the cleanest, most confident detections. This grid-based approach is the core of the YOLO ("You Only Look Once") family &mdash; the dominant real-time detector in both commercial and military UAV systems.</p>
+    </div>
+
+    <!-- Detection pipeline steps -->
+    <div style="overflow-x:auto;margin:1.5rem 0;">
+      <div class="pipeline-steps">
+        <div class="pipeline-step">
+          <span class="pipeline-step-num" style="color:var(--accent-primary);">1</span>
+          <h4 style="color:var(--accent-primary);">Image Resize</h4>
+          <p>Input image resized to fixed dimensions (e.g. 640&times;640). Standardises the input for the network.</p>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step">
+          <span class="pipeline-step-num" style="color:var(--accent-amber);">2</span>
+          <h4 style="color:var(--accent-amber);">Backbone CNN</h4>
+          <p>Deep convolutional network extracts feature maps at multiple scales. Identifies what is present and where.</p>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step">
+          <span class="pipeline-step-num" style="color:#b388ff;">3</span>
+          <h4 style="color:#b388ff;">Detection Head</h4>
+          <p>For each grid cell: predict bounding box coordinates, object confidence, and class probabilities.</p>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step">
+          <span class="pipeline-step-num" style="color:var(--accent-green);">4</span>
+          <h4 style="color:var(--accent-green);">NMS Filter</h4>
+          <p>Non-Maximum Suppression removes duplicate overlapping boxes, keeping only the best prediction per object.</p>
+        </div>
+        <div class="pipeline-arrow">&#8594;</div>
+        <div class="pipeline-step">
+          <span class="pipeline-step-num" style="color:var(--accent-red);">5</span>
+          <h4 style="color:var(--accent-red);">Output</h4>
+          <p>Final bounding boxes, class labels, and confidence scores passed to the operator display or tracking system.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-block">
+      <span class="fact-label">Real-Time Performance on Embedded Hardware</span>
+      <p>YOLOv8 &mdash; the current generation standard &mdash; achieves 50+ frames per second on a modern GPU and 10-20 FPS on embedded edge processors (NVIDIA Jetson, Hailo-8) used in military drone payloads. At 1080p video, that means a new detection result every 20&ndash;50 milliseconds. A vehicle moving at 100 km/h travels 0.6&ndash;1.4 metres between detection frames &mdash; well within tracking tolerance. <span class="cite">Ultralytics, 2023</span></p>
+    </div>
+    <div class="caution-block">
+      <span class="caution-label">&#9888; The Confidence Score Is Not a Certainty</span>
+      <p>A detection with 92% confidence means the model has assigned that probability based on learned patterns &mdash; it does not mean the model is correct 92% of the time in all conditions. In novel environments (new terrain, unusual lighting, adversarial camouflage), a 92% confident detection can still be wrong. Confidence scores must always be interpreted in the context of the operating environment versus the training data distribution.</p>
+    </div>
+  </div>
+
+  <!-- 7.5 TARGET TRACKING -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>7.5 Target Tracking &mdash; Keeping Eyes on the Target</h2>
+    <p>Detection finds objects in a single frame. <span class="key-term" title="Maintaining a persistent identity and bounding box for a detected object across multiple video frames">Tracking</span> maintains a persistent lock on a specific object across many frames &mdash; even as the drone moves, the camera pans, the target accelerates, or something briefly passes in front of it. This is what makes persistent surveillance possible.</p>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Do Not Lose the Vehicle</span>
+      <p>"Once you have the target," the operator told Arjun, "you cannot let it disappear into the urban grid. One wrong turn and you lose it in the traffic." She pointed at the screen. The bounding box around the vehicle was locked &mdash; moving with it smoothly as it turned, accelerated, slowed. The drone banked to follow. "The tracker handles that. Even if a truck parks between us and the target for two seconds, the tracker predicts where the target should be and re-acquires when line of sight returns."</p>
+    </div>
+    <h3>How Tracking Works</h3>
+    <p>Modern trackers combine detection with prediction. The most widely used approach is <span class="key-term" title="A tracking paradigm that assigns persistent identities to detections across frames using motion prediction and appearance matching">Multi-Object Tracking (MOT)</span>. Each detected object gets an identity. Between frames, the tracker predicts where each identity will be next (using the Kalman Filter from B05). When the next frame arrives, new detections are matched to existing identities using both position and appearance. If a match is found, the track continues. If not, a new track is started.</p>
+    <div class="fact-block">
+      <span class="fact-label">Track ID Persistence &mdash; Why It Matters Operationally</span>
+      <p>Tracking assigns each target a persistent ID (e.g. Track 007) that survives across the entire surveillance session. This allows analysts to build a timeline: "Track 007 departed the compound at 14:23, stopped at coordinates X for 11 minutes, then rendezvoused with Track 012 at 15:40." Without persistent track IDs, each detection is an isolated event with no temporal connection. With tracking, the drone produces intelligence &mdash; not just observations.</p>
+    </div>
+    <table class="comp-table">
+      <thead>
+        <tr><th>Method</th><th>How It Works</th><th>Strength</th><th>Weakness</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SORT</td><td>Kalman Filter prediction + Hungarian algorithm matching</td><td>Very fast, simple</td><td>Loses track when object disappears briefly</td></tr>
+        <tr><td>DeepSORT</td><td>SORT + appearance embedding (CNN feature vector per object)</td><td>Re-identifies lost targets using appearance</td><td>Slower, needs appearance model training</td></tr>
+        <tr><td>ByteTrack</td><td>Uses low-confidence detections to maintain tracks in occlusion</td><td>Handles crowds and occlusion well</td><td>More complex tuning required</td></tr>
+        <tr><td>BoT-SORT</td><td>Camera motion compensation + appearance + IoU matching</td><td>State of the art accuracy</td><td>Highest computational cost</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 7.6 DETECTION SIMULATOR -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>7.6 Object Detection Simulator</h2>
+    <p>Watch a simulated detection and tracking system in action. Objects move across the scene; the detector finds them and the tracker assigns persistent IDs. Adjust confidence threshold to see how it affects what gets detected.</p>
+    <div class="sim-wrap">
+      <div class="sim-header">
+        <span class="sim-title">&#9658; OBJECT DETECTION + TRACKING SIMULATOR &mdash; B07</span>
+        <span class="sim-status" id="b07-status" style="color:var(--accent-green);">&#9679; DETECTION ACTIVE &mdash; TRACKING 0 TARGETS</span>
+      </div>
+      <canvas id="b07-canvas" height="300" style="display:block;width:100%;"></canvas>
+      <div class="sim-controls-row">
+        <button class="sim-btn active" id="b07-btn-det" onclick="toggleDetection()">&#9645; Detection</button>
+        <button class="sim-btn active" id="b07-btn-trk" onclick="toggleTracking()">&#128250; Tracking</button>
+        <button class="sim-btn" onclick="spawnTarget()">&#43; Spawn Target</button>
+        <button class="sim-btn" onclick="clearTargets()">&#8634; Clear</button>
+        <span style="font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);padding:0 .5rem;">Conf threshold:</span>
+        <input type="range" id="conf-slider" min="10" max="95" value="50" style="width:80px;accent-color:var(--accent-green);" oninput="updateConf()"/>
+        <span class="sim-readout" id="b07-readout">Threshold: 50% | Tracks: 0 | Detections: 0</span>
+      </div>
+    </div>
+    <div class="fact-block">
+      <span class="fact-label">What to Observe</span>
+      <p>
+        <strong>Low threshold (10-30%):</strong> More detections, including false positives &mdash; some boxes appear on background noise.<br/>
+        <strong>High threshold (80-95%):</strong> Only high-confidence detections &mdash; some real targets may be missed, but false positives are minimised.<br/>
+        <strong>Tracking on:</strong> Each target gets a persistent coloured ID that survives across frames even as it moves.<br/>
+        <strong>Tracking off:</strong> Each frame is independent &mdash; no persistent identity, no trajectory, just raw detections.
+      </p>
+    </div>
+  </div>
+
+  <!-- 7.7 DRAG AND DROP -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>7.7 Match the Computer Vision Task</h2>
+    <p>Each operational requirement calls for a specific computer vision task. Match them correctly.</p>
+    <div class="dnd-wrap" id="dnd-b07">
+      <div class="dnd-title">&#9658; DRAG-AND-DROP &mdash; COMPUTER VISION TASK SELECTION</div>
+      <div class="dnd-subtitle">Drag each CV task to the operational scenario it best addresses.</div>
+      <div class="dnd-bank" id="dnd-bank-b07">
+        <div class="dnd-chip" draggable="true" data-label="Classification">Classification</div>
+        <div class="dnd-chip" draggable="true" data-label="Object Detection">Object Detection</div>
+        <div class="dnd-chip" draggable="true" data-label="Segmentation">Segmentation</div>
+        <div class="dnd-chip" draggable="true" data-label="Object Tracking">Object Tracking</div>
+        <div class="dnd-chip" draggable="true" data-label="NMS Filter">NMS Filter</div>
+        <div class="dnd-chip" draggable="true" data-label="CNN Backbone">CNN Backbone</div>
+      </div>
+      <div class="dnd-targets">
+        <div class="dnd-target" data-answer="Object Detection">
+          <span class="dnd-target-num">&#9312;</span>
+          <span class="dnd-target-hint">Find every vehicle and person in an aerial image and draw a labelled box around each one in real time</span>
+          <span class="dnd-target-drop" id="b07-drop-0">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Object Tracking">
+          <span class="dnd-target-num">&#9313;</span>
+          <span class="dnd-target-hint">A suspect vehicle turns into an alley; maintain persistent lock on it across 200 video frames as it reappears</span>
+          <span class="dnd-target-drop" id="b07-drop-1">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Segmentation">
+          <span class="dnd-target-num">&#9314;</span>
+          <span class="dnd-target-hint">Identify every safe landing zone in a landing area by classifying each pixel as road, grass, obstacle, or water</span>
+          <span class="dnd-target-drop" id="b07-drop-2">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Classification">
+          <span class="dnd-target-num">&#9315;</span>
+          <span class="dnd-target-hint">Rapidly sort 10,000 stored drone images into "contains military vehicle" or "no military vehicle" categories</span>
+          <span class="dnd-target-drop" id="b07-drop-3">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="NMS Filter">
+          <span class="dnd-target-num">&#9316;</span>
+          <span class="dnd-target-hint">The detector predicted five overlapping boxes around the same truck &mdash; this step removes the four redundant ones</span>
+          <span class="dnd-target-drop" id="b07-drop-4">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="CNN Backbone">
+          <span class="dnd-target-num">&#9317;</span>
+          <span class="dnd-target-hint">The part of the detection network that extracts feature maps from the image before any box predictions are made</span>
+          <span class="dnd-target-drop" id="b07-drop-5">&mdash; drop here &mdash;</span>
+        </div>
+      </div>
+      <div class="dnd-controls">
+        <button class="dnd-btn primary" onclick="checkDnD_b07()">&#9658; CHECK ANSWERS</button>
+        <button class="dnd-btn" onclick="resetDnD_b07()">&#8634; Reset</button>
+      </div>
+      <div class="dnd-result" id="dnd-result-b07"></div>
+    </div>
+  </div>
+
+  <!-- 7.8 SCENARIO -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>7.8 Mission Decision &mdash; What Would You Do, Cadet?</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; The Tracking Decision</span>
+      <p>A drone is conducting persistent surveillance over a busy marketplace. Intelligence believes a high-value target (HVT) is present and will depart by vehicle in the next 30 minutes. The drone's detection system is picking up 40+ people and 12 vehicles simultaneously. The market is crowded &mdash; objects constantly overlapping, passing in front of each other, briefly disappearing behind stalls.</p>
+      <p>The operator spots a person matching the HVT description at 89% confidence. He enters a vehicle. The vehicle moves. 8 seconds later, three vehicles of similar type are visible, all moving. Which one has the HVT?</p>
+    </div>
+    <div class="scenario-box">
+      <span class="scenario-label">&#9888; Cadet Decision &mdash; Track Management Under Occlusion</span>
+      <p class="scenario-q">The HVT's vehicle was briefly occluded by a market stall for 8 seconds. Now three similar vehicles are visible. The tracker lost confidence during occlusion. What is the best course of action?</p>
+      <div class="scenario-choices" id="sc7-choices">
+        <button class="scenario-choice" onclick="scenarioB07(this, false)"><strong>A.</strong> Pick the vehicle closest to where the HVT was last seen &mdash; distance is the best proxy.</button>
+        <button class="scenario-choice" onclick="scenarioB07(this, true)"><strong>B.</strong> Use the tracker's predicted trajectory from the last known position and velocity, cross-reference with appearance features, and re-acquire the highest-confidence match.</button>
+        <button class="scenario-choice" onclick="scenarioB07(this, false)"><strong>C.</strong> Abandon the track &mdash; once confidence is lost, restart detection from scratch on all three vehicles.</button>
+        <button class="scenario-choice" onclick="scenarioB07(this, false)"><strong>D.</strong> Follow all three vehicles simultaneously by splitting the drone's attention equally.</button>
+      </div>
+      <div class="scenario-feedback" id="sc7-feedback"></div>
+    </div>
+  </div>
+
+  <!-- 7.9 KNOWLEDGE CHECK -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>7.9 Knowledge Check</h2>
+    <p>Five questions. These require understanding of both concepts and their operational implications.</p>
+    <div class="bq-quiz" id="quiz-b07">
+
+      <div class="bq-question"
+           data-question="What is the key difference between object detection and image classification in UAV applications?"
+           data-options='["Detection is faster than classification","Classification labels the whole image once; detection finds every object in the image and locates each one with a bounding box","Detection only works on military vehicles; classification works on all objects","Classification requires a GPU; detection does not"]'
+           data-correct="1"
+           data-explanation="Classification assigns a single label to the entire image (e.g. contains a vehicle). Object detection simultaneously locates every object in the image and assigns class labels and confidence scores to each one. For military UAV operations, detection is far more useful because it identifies multiple distinct objects, their locations, and their types in a single real-time pass.">
+      </div>
+
+      <div class="bq-question"
+           data-question="What property of convolutional neural networks makes them particularly well-suited to aerial image analysis?"
+           data-options='["They only need one training image to learn","Translation invariance &mdash; a learned pattern (like a wheel or rotor blade) is recognised regardless of where it appears in the image","They process colour images faster than black and white","They do not require any training data"]'
+           data-correct="1"
+           data-explanation="Translation invariance means a convolutional filter that learns to detect a wheel in the top-left corner of an image can detect the same wheel anywhere else in the image &mdash; because the same filter is applied at every position. This is critical for aerial imagery where the same object type can appear anywhere in the frame at any scale, angle, and lighting condition.">
+      </div>
+
+      <div class="bq-question"
+           data-question="What does Non-Maximum Suppression (NMS) do in an object detection pipeline?"
+           data-options='["It reduces the image resolution before processing","It removes duplicate overlapping bounding box predictions, keeping only the highest-confidence box per detected object","It suppresses false positives by deleting all detections below a confidence threshold","It normalises the pixel values before they enter the neural network"]'
+           data-correct="1"
+           data-explanation="When a detection network predicts boxes for each grid cell, multiple cells near the same object will all predict a box around it, resulting in many overlapping boxes for a single object. NMS removes all the redundant lower-confidence boxes, keeping only the single best-fitting, highest-confidence prediction per object. Without NMS, a single vehicle would be surrounded by dozens of overlapping boxes.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A tracked vehicle disappears behind a building for 12 seconds. How does a modern tracker like DeepSORT maintain the track?"
+           data-options='["It declares the track lost and starts a new detection from scratch","It uses the Kalman Filter to predict where the vehicle should be based on its last known velocity, and matches new detections to the track using both position and appearance features when it reappears","It freezes the last known position indefinitely until the vehicle reappears","It sends an alert to the operator to visually search for the vehicle"]'
+           data-correct="1"
+           data-explanation="DeepSORT and similar modern trackers use two complementary mechanisms to handle occlusion. The Kalman Filter predicts the expected position of the target during the occlusion period based on its previous velocity and direction. When new detections appear, the tracker matches them to existing track IDs using both IoU (positional overlap) and an appearance embedding (a learned visual description of the target). This allows re-identification even after multi-second occlusions.">
+      </div>
+
+      <div class="bq-question"
+           data-question="Why does increasing the confidence threshold in an object detector reduce false positives but risk missing real targets?"
+           data-options='["Higher thresholds make the network run slower, giving it less time to find targets","Only detections that score above the threshold are reported &mdash; raising it rejects more detections, including genuinely real ones the model rated below the threshold","A higher threshold forces the network to use more GPU memory","Confidence thresholds only affect the tracking system, not the detector"]'
+           data-correct="1"
+           data-explanation="The confidence threshold is a gate: only detections with confidence above it are reported. A high threshold means only very confident detections are shown &mdash; fewer false positives (background noise misidentified as objects). But real targets that the model correctly detects at lower confidence (e.g. due to unusual angle, partial occlusion, or poor lighting) will be suppressed too. This is the precision-recall trade-off: higher precision (fewer false positives) comes at the cost of lower recall (missing more real targets).">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 7.10 GO DEEPER -->
+  <div class="module-section section-anchor" id="s10">
+    <h2>7.10 You Now Know How Drones See the World</h2>
+    <p>Classification, object detection, segmentation, tracking &mdash; four tasks, one video feed, running simultaneously in real time. Convolutional networks extracting features layer by layer. YOLO-family detectors finding and boxing every target in under 50 milliseconds. Kalman-based trackers maintaining persistent identity through occlusion. This is the perception stack of every serious military ISR system operating today.</p>
+    <p>The next module, B08, goes up one level: once the drone knows what it sees, how does it <em>decide</em> what to do about it? That is autonomy and decision-making &mdash; the subject of B08.</p>
+    <div class="advance-panel">
+      <div class="advance-icon">&#9658;&#9658;</div>
+      <div class="advance-text">
+        <h3>READY TO GO DEEPER?</h3>
+        <p>Module M07 covers deep learning for UAV perception in full: CNN architecture mathematics, YOLO family design, anchor boxes, IoU loss, multi-scale feature pyramids, and the full implementation of a real-time detection pipeline on embedded edge hardware.</p>
+      </div>
+      <a href="../modules/m07-deep-learning-uav.html" class="advance-link">M07: Deep Learning &amp; Perception &#9658;</a>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border-dim);flex-wrap:wrap;gap:1rem;">
+      <a href="b06-teaching-drones.html" class="btn-primary" style="font-size:.75rem;border-color:var(--border-dim);color:var(--text-muted);">&#9668; B06: Teaching Drones to Think</a>
+      <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);">BEGINNER TRACK &middot; MODULE B07 OF 10</span>
+      <a href="b08-drones-that-decide.html" class="btn-primary" style="font-size:.75rem;">B08: Drones That Decide &#9658;</a>
+    </div>
+  </div>
+</div>
+
+<footer><p>AEROKNOW &middot; Beginner Module B07 &middot; Drones That See &middot; Beginner Track</p></footer>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/beginner-quiz.js"></script>
+
+<script>
+/* ── JUMP BAR ── */
+function jumpTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.jump-btn').forEach(function(b) { b.classList.remove('active'); });
+  event.currentTarget.classList.add('active');
+}
+(function() {
+  var secs = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  var btns = document.querySelectorAll('.jump-btn');
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        var i = secs.indexOf(e.target.id);
+        if (i > -1) { btns.forEach(function(b) { b.classList.remove('active'); }); if (btns[i]) btns[i].classList.add('active'); }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  secs.forEach(function(id) { var el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+
+/* ── DETECTION + TRACKING SIMULATOR ── */
+(function() {
+  var canvas = document.getElementById('b07-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H;
+  var detectionOn = true;
+  var trackingOn  = true;
+  var confThresh  = 0.5;
+  var targets = [];
+  var nextId  = 1;
+  var t = 0;
+
+  var CLASSES = ['VEHICLE','PERSON','TRUCK','AIRCRAFT'];
+  var COLORS  = ['#00d4ff','#00ff9d','#ffb700','#ff3a3a'];
+
+  function resize() {
+    W = canvas.parentElement.clientWidth || 700;
+    H = 300; canvas.width = W; canvas.height = H;
+  }
+
+  function spawnOne() {
+    var side = Math.floor(Math.random() * 4);
+    var x, y, vx, vy;
+    var speed = 0.6 + Math.random() * 1.2;
+    if (side === 0) { x = 0; y = Math.random() * H; vx = speed; vy = (Math.random()-0.5)*0.5; }
+    else if (side === 1) { x = W; y = Math.random() * H; vx = -speed; vy = (Math.random()-0.5)*0.5; }
+    else if (side === 2) { x = Math.random() * W; y = 0; vx = (Math.random()-0.5)*0.5; vy = speed; }
+    else { x = Math.random() * W; y = H; vx = (Math.random()-0.5)*0.5; vy = -speed; }
+    var cls = Math.floor(Math.random() * CLASSES.length);
+    var w = 35 + Math.random() * 25;
+    var h = 20 + Math.random() * 20;
+    // Confidence varies slightly each frame to simulate detection noise
+    var baseConf = 0.55 + Math.random() * 0.44;
+    targets.push({ id: nextId++, x: x, y: y, vx: vx, vy: vy, w: w, h: h, cls: cls, baseConf: baseConf, alive: true, age: 0 });
+  }
+
+  window.spawnTarget  = function() { spawnOne(); };
+  window.clearTargets = function() { targets = []; nextId = 1; };
+
+  window.toggleDetection = function() {
+    detectionOn = !detectionOn;
+    document.getElementById('b07-btn-det').classList.toggle('active', detectionOn);
+  };
+  window.toggleTracking = function() {
+    trackingOn = !trackingOn;
+    document.getElementById('b07-btn-trk').classList.toggle('active', trackingOn);
+  };
+  window.updateConf = function() {
+    confThresh = parseInt(document.getElementById('conf-slider').value) / 100;
+  };
+
+  // Seed a few targets
+  for (var i = 0; i < 3; i++) spawnOne();
+
+  function tick() {
+    t++;
+    // Move targets
+    targets.forEach(function(tgt) {
+      tgt.x += tgt.vx; tgt.y += tgt.vy; tgt.age++;
+      // Slight wander
+      tgt.vx += (Math.random()-0.5)*0.05; tgt.vy += (Math.random()-0.5)*0.05;
+      tgt.vx = Math.max(-2, Math.min(2, tgt.vx));
+      tgt.vy = Math.max(-2, Math.min(2, tgt.vy));
+      // Kill if off screen for too long
+      if (tgt.x < -80 || tgt.x > W+80 || tgt.y < -80 || tgt.y > H+80) tgt.alive = false;
+    });
+    targets = targets.filter(function(tgt) { return tgt.alive; });
+
+    // Randomly spawn new targets
+    if (t % 180 === 0 && targets.length < 8) spawnOne();
+
+    // Compute per-frame confidence (add noise to base)
+    var detected = targets.filter(function(tgt) {
+      var conf = tgt.baseConf + (Math.random()-0.5)*0.12;
+      tgt.frameConf = Math.max(0, Math.min(0.99, conf));
+      return tgt.frameConf >= confThresh;
+    });
+
+    // False positives at low threshold
+    var fpCount = 0;
+    if (detectionOn && confThresh < 0.35) fpCount = Math.floor((0.35 - confThresh) * 20);
+
+    // Update status
+    var st = document.getElementById('b07-status');
+    var rd = document.getElementById('b07-readout');
+    var trackCount = trackingOn ? detected.length : 0;
+    rd.textContent = 'Threshold: ' + Math.round(confThresh*100) + '% | Tracks: ' + trackCount + ' | Detections: ' + detected.length;
+    if (!detectionOn) { st.textContent = '● DETECTION OFF'; st.style.color = 'var(--accent-red)'; }
+    else if (detected.length === 0) { st.textContent = '● SCANNING — NO TARGETS'; st.style.color = 'var(--accent-amber)'; }
+    else { st.textContent = '● DETECTION ACTIVE — TRACKING ' + trackCount + ' TARGETS'; st.style.color = 'var(--accent-green)'; }
+
+    draw(detected, fpCount);
+    requestAnimationFrame(tick);
+  }
+
+  function draw(detected, fpCount) {
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#010810'; ctx.fillRect(0,0,W,H);
+    // Grid
+    ctx.strokeStyle='rgba(0,212,255,0.04)'; ctx.lineWidth=1;
+    for (var x=0;x<W;x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (var y=0;y<H;y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+    // Terrain suggestion
+    ctx.strokeStyle='rgba(0,255,157,0.06)'; ctx.lineWidth=1; ctx.setLineDash([3,5]);
+    ctx.beginPath(); ctx.moveTo(0,H*0.55); ctx.bezierCurveTo(W*0.3,H*0.45, W*0.6,H*0.65, W,H*0.5); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(0,212,255,0.06)';
+    ctx.font='8px Share Tech Mono'; ctx.fillText('ROAD',W*0.15,H*0.52);
+
+    // False positive boxes (noise at low threshold)
+    if (detectionOn) {
+      for (var fp=0; fp<fpCount; fp++) {
+        var fx = 40 + Math.random()*(W-80), fy = 40 + Math.random()*(H-80);
+        var fc = 0.1 + Math.random()*0.24;
+        ctx.strokeStyle = 'rgba(255,58,58,0.3)'; ctx.lineWidth=1; ctx.setLineDash([2,2]);
+        ctx.strokeRect(fx, fy, 30, 20); ctx.setLineDash([]);
+        ctx.fillStyle='rgba(255,58,58,0.5)'; ctx.font='7px Share Tech Mono';
+        ctx.fillText('?? ' + Math.round(fc*100)+'%', fx+1, fy-2);
+      }
+    }
+
+    // All targets (draw as simple shapes - true position)
+    targets.forEach(function(tgt) {
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.fillRect(tgt.x - tgt.w/2, tgt.y - tgt.h/2, tgt.w, tgt.h);
+    });
+
+    // Detected + tracked targets
+    if (detectionOn) {
+      detected.forEach(function(tgt) {
+        var col = COLORS[tgt.cls];
+        var bx = tgt.x - tgt.w/2, by = tgt.y - tgt.h/2;
+
+        // Bounding box
+        ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash([]);
+        ctx.strokeRect(bx, by, tgt.w, tgt.h);
+
+        // Corner accents
+        var cs = 6;
+        ctx.lineWidth = 2;
+        [[bx,by],[bx+tgt.w,by],[bx,by+tgt.h],[bx+tgt.w,by+tgt.h]].forEach(function(c,ci) {
+          var sx = ci%2===0?1:-1, sy = ci<2?1:-1;
+          ctx.beginPath(); ctx.moveTo(c[0],c[1]+sy*cs); ctx.lineTo(c[0],c[1]); ctx.lineTo(c[0]+sx*cs,c[1]); ctx.stroke();
+        });
+
+        // Label
+        var label = (trackingOn ? '#' + String(tgt.id).padStart(3,'0') + ' ' : '') + CLASSES[tgt.cls] + ' ' + Math.round(tgt.frameConf*100) + '%';
+        var lw = ctx.measureText(label).width + 6;
+        ctx.fillStyle = col.replace(')', ',0.85)').replace('#', 'rgba(').replace('rgba(#','rgba(');
+        // Use hex color directly for fill
+        ctx.fillStyle = col;
+        ctx.globalAlpha = 0.85;
+        ctx.fillRect(bx, by - 14, lw, 13);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#010810';
+        ctx.font = '7px Share Tech Mono';
+        ctx.fillText(label, bx+3, by-4);
+
+        // Tracking trail
+        if (trackingOn) {
+          // Velocity vector
+          ctx.strokeStyle = col; ctx.lineWidth=1; ctx.globalAlpha=0.4;
+          ctx.setLineDash([2,2]);
+          ctx.beginPath(); ctx.moveTo(tgt.x,tgt.y); ctx.lineTo(tgt.x+tgt.vx*20, tgt.y+tgt.vy*20); ctx.stroke();
+          ctx.setLineDash([]); ctx.globalAlpha=1;
+        }
+      });
+    }
+
+    // Readout
+    ctx.fillStyle = 'rgba(0,212,255,0.3)'; ctx.font='9px Share Tech Mono';
+    ctx.fillText('TARGETS: ' + targets.length, 8, 16);
+    ctx.fillText('CONF: ' + Math.round(confThresh*100) + '%', 8, 30);
+  }
+
+  window.addEventListener('resize', resize);
+  resize(); tick();
+})();
+
+/* ── DRAG AND DROP B07 ── */
+var _drag07 = null;
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#dnd-b07 .dnd-chip').forEach(function(c) {
+    c.addEventListener('dragstart', function(e) { _drag07=c; c.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    c.addEventListener('dragend',   function()  { c.classList.remove('dragging'); });
+  });
+  document.querySelectorAll('#dnd-b07 .dnd-target').forEach(function(t) {
+    t.addEventListener('dragover',  function(e) { e.preventDefault(); t.classList.add('drag-over'); });
+    t.addEventListener('dragleave', function()  { t.classList.remove('drag-over'); });
+    t.addEventListener('drop', function(e) {
+      e.preventDefault(); t.classList.remove('drag-over');
+      if (!_drag07) return;
+      var ex = t.getAttribute('data-placed');
+      if (ex) {
+        var old = Array.from(document.querySelectorAll('#dnd-bank-b07 .dnd-chip.placed')).find(function(c) { return c.getAttribute('data-label')===ex; });
+        if (old) old.classList.remove('placed');
+      }
+      var lbl = _drag07.getAttribute('data-label');
+      t.setAttribute('data-placed', lbl);
+      var d = t.querySelector('.dnd-target-drop'); d.textContent=lbl; d.style.color='var(--accent-primary)';
+      t.classList.remove('correct','wrong');
+      _drag07.classList.add('placed'); _drag07=null;
+      document.getElementById('dnd-result-b07').style.display='none';
+    });
+  });
+});
+
+function checkDnD_b07() {
+  var ts=document.querySelectorAll('#dnd-b07 .dnd-target'); var ok=0;
+  ts.forEach(function(t) {
+    t.classList.remove('correct','wrong');
+    var p=t.getAttribute('data-placed'); if(!p) return;
+    if(p===t.getAttribute('data-answer')) { t.classList.add('correct'); ok++; } else t.classList.add('wrong');
+  });
+  var r=document.getElementById('dnd-result-b07'); r.style.display='block';
+  r.style.color=ok===ts.length?'var(--accent-green)':ok>=ts.length/2?'var(--accent-amber)':'var(--accent-red)';
+  r.textContent=ok+'/'+ts.length+' correct — '+(ok===ts.length?'All tasks correctly matched. ✓':'Review computer vision task descriptions above.');
+}
+
+function resetDnD_b07() {
+  document.querySelectorAll('#dnd-b07 .dnd-target').forEach(function(t) {
+    t.classList.remove('correct','wrong'); t.removeAttribute('data-placed');
+    var d=t.querySelector('.dnd-target-drop'); d.textContent='— drop here —'; d.style.color='';
+  });
+  document.querySelectorAll('#dnd-b07 .dnd-chip').forEach(function(c) { c.classList.remove('placed'); });
+  document.getElementById('dnd-result-b07').style.display='none';
+}
+
+/* ── SCENARIO B07 ── */
+function scenarioB07(btn, correct) {
+  var cs=document.querySelectorAll('#sc7-choices .scenario-choice');
+  var fb=document.getElementById('sc7-feedback');
+  cs.forEach(function(c) { c.disabled=true; c.classList.remove('s-correct','s-wrong'); });
+  btn.classList.add(correct?'s-correct':'s-wrong');
+  cs[1].classList.add('s-correct');
+  fb.style.display='block';
+  if (correct) {
+    fb.style.borderLeftColor='var(--accent-green)';
+    fb.innerHTML = `<strong style="color:var(--accent-green);">Correct, Cadet.</strong> This is the standard approach for track re-acquisition under occlusion. The Kalman Filter continuously predicts the target's position even when it is not visible, based on its last known velocity and direction. When the three vehicles reappear, the tracker computes an IoU score (overlap between predicted position and each detected vehicle) combined with an appearance embedding match. The vehicle whose position and appearance best match the prediction is re-acquired as the continuing track. This is exactly how DeepSORT and BoT-SORT handle occlusion in crowded environments.`;
+  } else {
+    fb.style.borderLeftColor='var(--accent-red)';
+    var msgs=[
+      `Proximity alone is unreliable in a crowded marketplace where vehicles may change lanes or speeds. The tracker uses both predicted position (from Kalman) AND appearance features, not just distance. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`,
+      '',
+      `Abandoning the track and restarting from scratch loses all historical trajectory information and cannot distinguish the HVT's vehicle from the other two. Modern trackers are specifically designed to handle brief occlusion &mdash; this is one of their core use cases. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`,
+      `A single drone cannot reliably split attention between three simultaneous tracks with equal priority without degrading all three. The operationally correct action is to use the tracker's prediction to identify the most likely HVT vehicle and re-acquire it. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`
+    ];
+    fb.innerHTML = `<strong style="color:var(--accent-red);">Incorrect, Cadet.</strong> ` + msgs[Array.from(cs).indexOf(btn)];
+  }
+}
+</script>
+</body>
+</html>
