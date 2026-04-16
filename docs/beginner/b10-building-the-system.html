@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>B10: Building the Full System &mdash; AEROKNOW Beginner Track</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    .beginner-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.25);padding:.25rem .75rem;margin-bottom:1rem}
+    .beginner-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent-amber);box-shadow:var(--glow-amber);animation:pulse-dot 1.8s ease-in-out infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .plain-intro{background:rgba(0,212,255,.03);border-left:3px solid var(--accent-primary);padding:1rem 1.2rem;margin-bottom:1.5rem;border-radius:0 4px 4px 0}
+    .plain-intro .pi-label{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:.4rem}
+    .plain-intro p{font-size:1rem;color:var(--text-secondary);margin:0;line-height:1.75}
+    .analogy-box{background:rgba(255,183,0,.04);border:1px solid rgba(255,183,0,.15);border-left:3px solid var(--accent-amber);padding:1rem 1.2rem;margin:1.2rem 0}
+    .analogy-box .analogy-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-amber);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .analogy-box p{margin:0 0 .5rem;font-size:.95rem;color:var(--text-secondary)}
+    .analogy-box p:last-child{margin-bottom:0}
+    .story-box{background:rgba(179,136,255,.04);border:1px solid rgba(179,136,255,.18);border-left:3px solid #b388ff;padding:1.2rem 1.5rem;margin:1.8rem 0}
+    .story-box .story-label{font-family:var(--font-mono);font-size:.58rem;color:#b388ff;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:.6rem}
+    .story-box p{margin:0 0 .5rem;color:var(--text-secondary);font-size:.97rem;line-height:1.75}
+    .story-box p:last-child{margin-bottom:0}
+    .key-term{color:var(--accent-primary);font-weight:600;border-bottom:1px dashed rgba(0,212,255,.4);cursor:help}
+    .fact-block{background:rgba(0,255,157,.03);border:1px solid rgba(0,255,157,.14);border-left:3px solid var(--accent-green);padding:1.1rem 1.4rem;margin:1.4rem 0}
+    .fact-block .fact-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-green);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .fact-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .caution-block{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1rem 1.2rem;margin:1.2rem 0}
+    .caution-block .caution-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .caution-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .cite{font-family:var(--font-mono);font-size:.68rem;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.18);padding:.08rem .4rem;margin-left:.25rem;vertical-align:middle;white-space:nowrap}
+    .diagram-wrap{background:rgba(5,13,20,.9);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .diagram-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .diagram-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .diagram-sub{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted)}
+    .se-phase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:1rem;margin:1.5rem 0}
+    .se-phase{background:var(--bg-card);border:1px solid var(--border-dim);padding:1.1rem 1.2rem;transition:var(--transition);position:relative}
+    .se-phase::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+    .se-phase:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+    .se-phase-num{font-family:var(--font-display);font-size:2rem;font-weight:900;display:block;line-height:1;margin-bottom:.25rem}
+    .se-phase-name{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.35rem;display:block}
+    .se-phase h4{font-family:var(--font-display);font-size:.88rem;margin-bottom:.35rem}
+    .se-phase p{font-size:.82rem;color:var(--text-muted);margin:0;line-height:1.5}
+    .se-phase .sp-example{font-family:var(--font-mono);font-size:.6rem;margin-top:.5rem;padding-top:.4rem;border-top:1px solid var(--border-panel)}
+    .tradeoff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin:1.5rem 0}
+    .tradeoff-card{background:var(--bg-card);border:1px solid var(--border-dim);padding:1rem 1.1rem;transition:var(--transition)}
+    .tradeoff-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+    .tradeoff-card-title{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.35rem;display:block}
+    .tradeoff-card p{font-size:.83rem;color:var(--text-muted);margin:0;line-height:1.5}
+    .tradeoff-card .tc-vs{font-family:var(--font-mono);font-size:.65rem;color:var(--accent-amber);margin:.4rem 0;display:block}
+    .review-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;margin:1.5rem 0}
+    .review-card{background:var(--bg-card);border:1px solid var(--border-dim);padding:.9rem 1rem;transition:var(--transition);text-decoration:none;display:block}
+    .review-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+    .review-card-module{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.3rem;display:block}
+    .review-card h4{font-family:var(--font-display);font-size:.85rem;margin-bottom:.3rem}
+    .review-card p{font-size:.78rem;color:var(--text-muted);margin:0;line-height:1.4}
+    .completion-panel{background:rgba(0,255,157,.03);border:1px solid rgba(0,255,157,.2);border-top:3px solid var(--accent-green);padding:2rem;margin:2rem 0;text-align:center}
+    .completion-panel h3{font-family:var(--font-display);font-size:1.4rem;color:var(--accent-green);margin-bottom:.5rem;letter-spacing:.05em}
+    .completion-panel p{font-size:.95rem;color:var(--text-secondary);max-width:600px;margin:0 auto 1rem;line-height:1.7}
+    .comp-table{width:100%;border-collapse:collapse;margin:1.4rem 0}
+    .comp-table th{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--accent-primary);text-align:left;padding:.5rem .85rem;border-bottom:1px solid var(--border-dim);background:rgba(0,212,255,.03)}
+    .comp-table td{padding:.65rem .85rem;border-bottom:1px solid var(--border-panel);font-size:.9rem;color:var(--text-secondary);vertical-align:top;line-height:1.5}
+    .comp-table td:first-child{font-family:var(--font-mono);font-size:.78rem;color:var(--accent-primary);white-space:nowrap}
+    .comp-table tr:hover td{background:rgba(0,212,255,.02)}
+    .dnd-wrap{background:rgba(0,255,157,.02);border:1px solid rgba(0,255,157,.12);border-top:2px solid var(--accent-green);padding:1.5rem 1.8rem;margin:2rem 0}
+    .dnd-title{font-family:var(--font-mono);font-size:.65rem;color:var(--accent-green);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.4rem}
+    .dnd-subtitle{font-size:.9rem;color:var(--text-muted);margin-bottom:1.2rem}
+    .dnd-bank{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.4rem;min-height:2.5rem;padding:.6rem;background:rgba(0,0,0,.3);border:1px dashed rgba(0,255,157,.2)}
+    .dnd-chip{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-green);background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.3);padding:.3rem .8rem;cursor:grab;user-select:none;transition:var(--transition)}
+    .dnd-chip:hover{background:rgba(0,255,157,.15);box-shadow:var(--glow-green)}
+    .dnd-chip.dragging{opacity:.4;cursor:grabbing}
+    .dnd-chip.placed{opacity:.3;cursor:default;pointer-events:none}
+    .dnd-targets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem}
+    .dnd-target{border:1px dashed var(--border-dim);padding:.5rem .75rem;min-height:2.8rem;display:flex;align-items:center;gap:.5rem;transition:var(--transition);background:rgba(0,0,0,.2)}
+    .dnd-target.drag-over{border-color:var(--accent-green);background:rgba(0,255,157,.05)}
+    .dnd-target.correct{border-color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .dnd-target.wrong{border-color:var(--accent-red);background:rgba(255,58,58,.07)}
+    .dnd-target-num{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);flex-shrink:0}
+    .dnd-target-hint{font-size:.83rem;color:var(--text-muted);flex:1;line-height:1.4}
+    .dnd-target-drop{font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);min-width:90px;text-align:right}
+    .dnd-controls{display:flex;gap:.75rem;margin-top:1rem}
+    .dnd-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem 1.2rem;cursor:pointer;transition:var(--transition)}
+    .dnd-btn.primary{border-color:var(--accent-green);color:var(--accent-green)}
+    .dnd-btn.primary:hover{background:var(--accent-green);color:var(--bg-void);box-shadow:var(--glow-green)}
+    .dnd-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .dnd-result{margin-top:.75rem;font-family:var(--font-mono);font-size:.75rem;display:none}
+    .scenario-box{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1.4rem 1.6rem;margin:2rem 0}
+    .scenario-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.75rem;display:block}
+    .scenario-q{font-size:1.05rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;line-height:1.55}
+    .scenario-choices{display:flex;flex-direction:column;gap:.5rem}
+    .scenario-choice{background:rgba(255,255,255,.02);border:1px solid var(--border-dim);color:var(--text-secondary);font-family:var(--font-ui);font-size:.95rem;padding:.7rem 1rem;cursor:pointer;text-align:left;transition:var(--transition)}
+    .scenario-choice:hover:not(:disabled){border-color:var(--accent-primary);background:rgba(0,212,255,.05);color:var(--text-primary)}
+    .scenario-choice:disabled{cursor:default}
+    .scenario-choice.s-correct{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.06)}
+    .scenario-choice.s-wrong{border-color:var(--accent-red);color:var(--accent-red);background:rgba(255,58,58,.06);opacity:.7}
+    .scenario-feedback{margin-top:.9rem;padding:.8rem 1rem;background:rgba(0,0,0,.3);border-left:2px solid var(--accent-amber);font-size:.92rem;color:var(--text-secondary);line-height:1.65;display:none}
+    .sim-wrap{background:rgba(1,8,16,.95);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .sim-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .sim-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .sim-status{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em}
+    .sim-controls-row{padding:.75rem 1rem;border-top:1px solid var(--border-dim);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+    .sim-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .9rem;cursor:pointer;transition:var(--transition)}
+    .sim-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .sim-btn.active{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .sim-readout{font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);margin-left:auto}
+    .section-jump{position:sticky;top:60px;z-index:100;background:rgba(2,4,8,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-dim);overflow-x:auto;scrollbar-width:none}
+    .section-jump::-webkit-scrollbar{display:none}
+    .jump-inner{display:flex;align-items:center;gap:0;padding:0 1rem;min-width:max-content}
+    .jump-label{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;padding:0 .75rem 0 0;border-right:1px solid var(--border-dim);margin-right:.25rem;white-space:nowrap;line-height:42px}
+    .jump-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.06em;padding:0 .85rem;height:42px;cursor:pointer;white-space:nowrap;transition:var(--transition)}
+    .jump-btn:hover{color:var(--text-secondary);border-bottom-color:var(--border-bright)}
+    .jump-btn.active{color:var(--accent-primary);border-bottom-color:var(--accent-primary)}
+    .jump-btn .jb-num{color:var(--accent-green);margin-right:.3rem;font-size:.58rem}
+    .section-anchor{scroll-margin-top:105px}
+    .advance-panel{background:rgba(0,212,255,.03);border:1px solid var(--border-dim);border-top:2px solid var(--accent-primary);padding:1.5rem 1.8rem;margin:3rem 0 1rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+    .advance-icon{font-family:var(--font-display);font-size:2rem;color:var(--accent-primary);opacity:.5;flex-shrink:0}
+    .advance-text h3{font-family:var(--font-display);font-size:.9rem;color:var(--accent-primary);margin-bottom:.3rem;letter-spacing:.05em}
+    .advance-text p{font-size:.88rem;color:var(--text-muted);margin:0;line-height:1.55}
+    .advance-link{margin-left:auto;display:inline-block;background:transparent;border:1px solid var(--accent-primary);color:var(--accent-primary);font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;padding:.7rem 1.5rem;text-decoration:none;transition:var(--transition);white-space:nowrap;flex-shrink:0}
+    .advance-link:hover{background:var(--accent-primary);color:var(--bg-void);box-shadow:var(--glow-primary)}
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">10.1</span>The Brief</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">10.2</span>Systems Engineering</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">10.3</span>The V-Model</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">10.4</span>Key Trade-offs</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">10.5</span>The Full Stack</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">10.6</span>Design Simulator</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">10.7</span>Match the Phase</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">10.8</span>Mission Decision</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">10.9</span>Knowledge Check</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">10.10</span>Track Complete</button>
+  </div>
+</div>
+
+<div class="module-page">
+  <div class="module-hero">
+    <span class="beginner-badge">Beginner Track &mdash; Module B10</span>
+    <span class="module-num">MODULE B10 // BUILDING THE FULL SYSTEM</span>
+    <h1>Building the Full System</h1>
+    <p class="lead">This is the capstone. You have learned how drones fly, navigate, sense, think, decide, and swarm. Now you will learn how all of those pieces are designed and integrated together &mdash; how engineers go from a mission requirement written on a page to a UAV system that can operate in the field. Systems engineering, design trade-offs, the V-model lifecycle, and a full-stack view of everything you have learned.</p>
+    <div class="module-meta">
+      <span class="label label-amber">Capstone Module</span>
+      <span class="label label-primary">Integrates B01 &ndash; B09</span>
+      <span class="label label-green">40 Min Read</span>
+    </div>
+  </div>
+
+  <!-- 10.1 STORY -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>10.1 Cadet Arjun's Design Brief</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Day 60</span>
+      <p>The envelope landed on Arjun's desk at 0700. Inside: three pages. A classified requirement document. His first real design task.</p>
+      <p>He read it slowly. The requirement: a tactical ISR drone for a mountain infantry unit. It must be man-portable, operate in GPS-denied terrain, fly for four hours, carry an EO/IR sensor package, survive a jamming environment, and be deployable by a two-person team with no ground infrastructure.</p>
+      <p>He stared at the page for a long time. Every module he had studied over the past two months lived somewhere in those three pages. The flight dynamics. The sensors. The autopilot. The GPS-denied navigation. The AI perception. The autonomy levels. The swarm architecture he wouldn't need for this one, but needed to understand why he didn't need it.</p>
+      <p>A colleague sat down beside him. "Intimidating?" she said.</p>
+      <p>"No," said Arjun, surprising himself. "I think I actually know where to start."</p>
+    </div>
+    <div class="plain-intro">
+      <span class="pi-label">What You'll Know After This Module</span>
+      <p>You will understand the systems engineering process, how the V-model lifecycle takes a UAV from requirement to field deployment, the key engineering trade-offs every UAV designer must navigate, and how every module of this beginner track maps onto a real subsystem of a real UAV programme.</p>
+    </div>
+  </div>
+
+  <!-- 10.2 SYSTEMS ENGINEERING -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>10.2 What Is Systems Engineering?</h2>
+    <p>A military drone is not a single device. It is a <span class="key-term" title="A collection of interacting components designed to achieve a common goal">system of systems</span>: an airframe, a propulsion system, a flight controller, a navigation stack, a sensor payload, a communications architecture, a ground control station, and a logistics and maintenance chain. Each of these is complex in its own right. Systems engineering is the discipline that designs, integrates, and verifies all of them together.</p>
+    <div class="analogy-box">
+      <span class="analogy-label">Why Systems Engineering Exists</span>
+      <p>You can hire the best aerodynamicist in the world to design a perfect wing, the best software engineer to write a perfect autopilot, and the best sensor specialist to build a perfect camera payload &mdash; and still end up with a drone that cannot complete a mission, because the wing's vibration profile corrupts the camera's image stabilisation, the autopilot's PID gains are tuned for a different weight distribution than the final sensor payload adds, and the comms link uses a frequency that interferes with the GPS receiver.</p>
+      <p>Systems engineering exists to ensure that all the parts work together, not just individually. Integration is where most real-world engineering projects fail.</p>
+    </div>
+    <div class="fact-block">
+      <span class="fact-label">The Systems Engineering Mandate</span>
+      <p>Systems engineering translates a <strong>mission need</strong> into a set of <strong>system requirements</strong>, allocates those requirements to <strong>subsystems</strong>, manages the <strong>interfaces</strong> between subsystems, and verifies that the integrated system meets the original mission need. It is the engineering discipline of making sure the whole is greater than &mdash; not less than &mdash; the sum of its parts. <span class="cite">INCOSE, 2015</span></p>
+    </div>
+  </div>
+
+  <!-- 10.3 THE V-MODEL -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>10.3 The V-Model &mdash; From Requirement to Flight</h2>
+    <p>The <span class="key-term" title="A systems engineering lifecycle model showing the parallel relationship between design decomposition and verification/validation">V-model</span> is the standard lifecycle framework for military UAV development. It describes how a programme progresses from a mission requirement all the way to a fielded system &mdash; and how every design decision must be matched with a verification plan.</p>
+    <div class="diagram-wrap">
+      <div class="diagram-header">
+        <span class="diagram-title">&#9658; THE V-MODEL LIFECYCLE &mdash; UAV Development</span>
+        <span class="diagram-sub">Left side: decomposition &mdash; Right side: integration and verification</span>
+      </div>
+      <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#010810;">
+        <defs>
+          <marker id="b10arr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0,1 L5,3.5 L0,6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+          </marker>
+          <marker id="b10arrg" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0,1 L5,3.5 L0,6" fill="none" stroke="#00ff9d" stroke-width="1.5"/>
+          </marker>
+          <filter id="b10glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="700" height="280" fill="#010810"/>
+        <g stroke="rgba(0,212,255,0.04)" stroke-width="1">
+          <line x1="0" y1="70" x2="700" y2="70"/>
+          <line x1="0" y1="140" x2="700" y2="140"/>
+          <line x1="0" y1="210" x2="700" y2="210"/>
+        </g>
+        <!-- V shape path -->
+        <path d="M 30,20 L 340,240 L 670,20" fill="none" stroke="rgba(0,212,255,0.15)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <!-- LEFT SIDE: Decomposition -->
+        <!-- Mission Requirements -->
+        <rect x="10" y="8" width="145" height="32" rx="2" fill="rgba(255,58,58,0.08)" stroke="rgba(255,58,58,0.5)" stroke-width="1.5" filter="url(#b10glow)"/>
+        <text x="82" y="22" text-anchor="middle" font-family="monospace" font-size="8" fill="#ff3a3a" letter-spacing="1">MISSION REQUIREMENT</text>
+        <text x="82" y="34" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,58,58,0.6)">What must it do?</text>
+        <!-- System Requirements -->
+        <rect x="22" y="58" width="133" height="30" rx="2" fill="rgba(255,183,0,0.07)" stroke="rgba(255,183,0,0.4)" stroke-width="1"/>
+        <text x="88" y="71" text-anchor="middle" font-family="monospace" font-size="8" fill="#ffb700" letter-spacing="1">SYSTEM REQUIREMENTS</text>
+        <text x="88" y="82" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,183,0,0.5)">Specs + constraints</text>
+        <!-- Subsystem Design -->
+        <rect x="38" y="105" width="130" height="30" rx="2" fill="rgba(179,136,255,0.07)" stroke="rgba(179,136,255,0.4)" stroke-width="1"/>
+        <text x="103" y="118" text-anchor="middle" font-family="monospace" font-size="8" fill="#b388ff" letter-spacing="1">SUBSYSTEM DESIGN</text>
+        <text x="103" y="129" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(179,136,255,0.5)">Flight ctrl, nav, sensors</text>
+        <!-- Component Design -->
+        <rect x="55" y="152" width="125" height="30" rx="2" fill="rgba(0,212,255,0.07)" stroke="rgba(0,212,255,0.35)" stroke-width="1"/>
+        <text x="117" y="165" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,212,255,0.8)" letter-spacing="1">COMPONENT DESIGN</text>
+        <text x="117" y="176" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(0,212,255,0.4)">PCBs, code, airframe</text>
+        <!-- Arrows left side -->
+        <line x1="82" y1="40" x2="82" y2="56" stroke="rgba(255,183,0,0.4)" stroke-width="1" marker-end="url(#b10arr)"/>
+        <line x1="88" y1="88" x2="100" y2="103" stroke="rgba(179,136,255,0.4)" stroke-width="1" marker-end="url(#b10arr)"/>
+        <line x1="110" y1="135" x2="118" y2="150" stroke="rgba(0,212,255,0.4)" stroke-width="1" marker-end="url(#b10arr)"/>
+        <!-- BOTTOM: Implementation -->
+        <rect x="285" y="220" width="130" height="32" rx="2" fill="rgba(0,212,255,0.1)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b10glow)"/>
+        <text x="350" y="234" text-anchor="middle" font-family="monospace" font-size="8" fill="#00d4ff" letter-spacing="1">IMPLEMENTATION</text>
+        <text x="350" y="245" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(0,212,255,0.6)">Build. Code. Fabricate.</text>
+        <!-- Arrows to bottom -->
+        <line x1="170" y1="167" x2="290" y2="228" stroke="rgba(0,212,255,0.3)" stroke-width="1" marker-end="url(#b10arr)"/>
+        <!-- RIGHT SIDE: Verification -->
+        <!-- Unit Test -->
+        <rect x="515" y="152" width="130" height="30" rx="2" fill="rgba(0,212,255,0.07)" stroke="rgba(0,212,255,0.35)" stroke-width="1"/>
+        <text x="580" y="165" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,212,255,0.8)" letter-spacing="1">UNIT TESTING</text>
+        <text x="580" y="176" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(0,212,255,0.4)">Does each part work?</text>
+        <!-- Integration Test -->
+        <rect x="505" y="105" width="135" height="30" rx="2" fill="rgba(0,255,157,0.06)" stroke="rgba(0,255,157,0.35)" stroke-width="1"/>
+        <text x="572" y="118" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(0,255,157,0.8)" letter-spacing="1">INTEGRATION TEST</text>
+        <text x="572" y="129" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(0,255,157,0.4)">Do subsystems work together?</text>
+        <!-- System Test -->
+        <rect x="495" y="58" width="140" height="30" rx="2" fill="rgba(0,255,157,0.08)" stroke="rgba(0,255,157,0.5)" stroke-width="1"/>
+        <text x="565" y="71" text-anchor="middle" font-family="monospace" font-size="8" fill="#00ff9d" letter-spacing="1">SYSTEM TEST</text>
+        <text x="565" y="82" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(0,255,157,0.5)">Does it meet requirements?</text>
+        <!-- Operational Validation -->
+        <rect x="540" y="8" width="150" height="32" rx="2" fill="rgba(0,255,157,0.1)" stroke="rgba(0,255,157,0.6)" stroke-width="1.5" filter="url(#b10glow)"/>
+        <text x="615" y="22" text-anchor="middle" font-family="monospace" font-size="8" fill="#00ff9d" letter-spacing="1">OPERATIONAL VALIDATION</text>
+        <text x="615" y="34" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(0,255,157,0.6)">Does it do the mission?</text>
+        <!-- Arrows right side -->
+        <line x1="415" y1="228" x2="520" y2="173" stroke="rgba(0,212,255,0.3)" stroke-width="1" marker-end="url(#b10arrg)"/>
+        <line x1="568" y1="182" x2="565" y2="138" stroke="rgba(0,255,157,0.4)" stroke-width="1" marker-end="url(#b10arrg)"/>
+        <line x1="568" y1="105" x2="565" y2="90" stroke="rgba(0,255,157,0.4)" stroke-width="1" marker-end="url(#b10arrg)"/>
+        <line x1="568" y1="58" x2="600" y2="42" stroke="rgba(0,255,157,0.4)" stroke-width="1" marker-end="url(#b10arrg)"/>
+        <!-- Horizontal verification arrows -->
+        <line x1="157" y1="167" x2="512" y2="167" stroke="rgba(0,212,255,0.12)" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="170" y1="120" x2="502" y2="120" stroke="rgba(179,136,255,0.12)" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="157" y1="73" x2="492" y2="73" stroke="rgba(255,183,0,0.12)" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="157" y1="24" x2="537" y2="24" stroke="rgba(255,58,58,0.12)" stroke-width="1" stroke-dasharray="3 3"/>
+        <!-- Labels -->
+        <text x="16" y="272" font-family="monospace" font-size="7" fill="rgba(0,212,255,0.3)" letter-spacing="1">DECOMPOSITION &#9658;</text>
+        <text x="450" y="272" font-family="monospace" font-size="7" fill="rgba(0,255,157,0.3)" letter-spacing="1">&#9658; VERIFICATION</text>
+      </svg>
+    </div>
+    <p>The left side of the V is <strong>decomposition</strong>: breaking a complex mission need into progressively more detailed requirements and designs. The right side is <strong>verification</strong>: testing that each implemented piece actually meets the requirement it was designed to satisfy. The bottom of the V is the build phase. The horizontal dashed lines are the crucial insight: <em>every design decision on the left must have a test planned on the right before you start building</em>. Design without a verification plan is not engineering &mdash; it is hope.</p>
+  </div>
+
+  <!-- 10.4 KEY TRADE-OFFS -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>10.4 The Engineering Trade-offs Every UAV Designer Faces</h2>
+    <p>Every UAV design is a negotiation between competing constraints. Understanding these trade-offs is what separates an engineer who has memorised facts from one who can solve real problems.</p>
+    <div class="tradeoff-grid">
+      <div class="tradeoff-card">
+        <span class="tradeoff-card-title" style="color:var(--accent-primary);">Endurance vs Payload</span>
+        <p>Every kilogram of payload requires more lift, which requires more power, which requires more battery, which adds weight, which requires more lift&hellip;</p>
+        <span class="tc-vs">More sensors = less flight time. Always.</span>
+        <p style="font-size:.78rem;color:var(--text-muted);">This is why MALE drones are enormous &mdash; fitting 24-hour endurance AND a multi-sensor payload requires a very large airframe.</p>
+      </div>
+      <div class="tradeoff-card">
+        <span class="tradeoff-card-title" style="color:var(--accent-green);">Range vs Bandwidth</span>
+        <p>Long-range missions require either a satellite link (high cost, limited bandwidth) or autonomous operation (no real-time video feed).</p>
+        <span class="tc-vs">Real-time 4K video = short range. Autonomy = long range.</span>
+        <p style="font-size:.78rem;color:var(--text-muted);">This trade-off directly drives autonomy requirements &mdash; GPS-denied nav and onboard AI are not optional for deep-penetration missions.</p>
+      </div>
+      <div class="tradeoff-card">
+        <span class="tradeoff-card-title" style="color:var(--accent-amber);">Speed vs Stealth</span>
+        <p>Faster flight generates more radar cross-section and acoustic signature. Slow, quiet flight is stealthier but limits survivability in contested airspace.</p>
+        <span class="tc-vs">Loitering munitions solve this: slow until terminal phase, then speed.</span>
+        <p style="font-size:.78rem;color:var(--text-muted);">Aircraft shaping (angular surfaces, composite materials) reduces radar cross-section independent of speed but adds cost and manufacturing complexity.</p>
+      </div>
+      <div class="tradeoff-card">
+        <span class="tradeoff-card-title" style="color:var(--accent-red);">Autonomy vs Accountability</span>
+        <p>More autonomy reduces operator workload and enables GPS-denied / comms-denied operations. But it moves decisions further from human oversight.</p>
+        <span class="tc-vs">Full autonomy = maximum capability. Zero accountability.</span>
+        <p style="font-size:.78rem;color:var(--text-muted);">IHL requires human judgment in lethal decisions. This trade-off is not engineering &mdash; it is law and ethics. It cannot be optimised away.</p>
+      </div>
+      <div class="tradeoff-card">
+        <span class="tradeoff-card-title" style="color:#b388ff;">Unit Cost vs Capability</span>
+        <p>A $500 commercial-derived swarm drone and a $30M MALE UAV are both "drones." The capability gap is enormous; so is the cost asymmetry they create.</p>
+        <span class="tc-vs">Cheap + many = swarm logic. Expensive + few = precision logic.</span>
+        <p style="font-size:.78rem;color:var(--text-muted);">Different missions, different economics. The correct platform is the one the mission requires, not the most capable one available.</p>
+      </div>
+      <div class="tradeoff-card">
+        <span class="tradeoff-card-title" style="color:var(--accent-green);">Fixed-Wing vs Rotary</span>
+        <p>Fixed-wing: 3&times; the endurance at cruise, cannot hover. Rotary: VTOL, precise hover, one-third the range. VTOL fixed-wing: both capabilities, double the complexity.</p>
+        <span class="tc-vs">The mission requirement defines the correct answer. Always.</span>
+        <p style="font-size:.78rem;color:var(--text-muted);">This trade-off was introduced in B02 and underpins every UAV procurement decision ever made.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10.5 THE FULL STACK -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>10.5 The Full Stack &mdash; Every Subsystem You Now Understand</h2>
+    <p>Look at the table below. Every row represents a subsystem of a real military UAV. Every concept you have studied in this track maps directly onto one of them. This is the full picture.</p>
+    <table class="comp-table">
+      <thead>
+        <tr><th>Subsystem</th><th>What It Does</th><th>Key Concepts</th><th>B-Module</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Airframe + Propulsion</td><td>Physical structure, lift generation, forward thrust</td><td>Four forces, lift, drag, fixed vs rotary, aerofoil design</td><td style="color:var(--accent-amber);">B01, B02</td></tr>
+        <tr><td>Flight Controller</td><td>Reads sensors, runs PID, commands motors 400&ndash;8,000 Hz</td><td>PID control, Sense-Plan-Act loop, failsafe modes</td><td style="color:var(--accent-amber);">B03</td></tr>
+        <tr><td>Navigation Stack</td><td>Estimates position: GPS, INS, optical flow, terrain match</td><td>GPS vulnerability, jamming, spoofing, sensor fusion, Kalman</td><td style="color:var(--accent-amber);">B04, B05</td></tr>
+        <tr><td>ISR Payload</td><td>EO/IR camera, SAR radar, lidar &mdash; see the world</td><td>Sensor types, electromagnetic spectrum, sensor fusion</td><td style="color:var(--accent-amber);">B05</td></tr>
+        <tr><td>AI / Perception</td><td>Detects, classifies, and tracks targets in sensor data</td><td>ML, neural networks, object detection, tracking</td><td style="color:var(--accent-amber);">B06, B07</td></tr>
+        <tr><td>Mission Autonomy</td><td>Waypoint nav, conditional logic, failsafe decisions</td><td>Autonomy levels, SPA loop, human-in-the-loop</td><td style="color:var(--accent-amber);">B08</td></tr>
+        <tr><td>Comms + Data Link</td><td>Uplink commands, downlink video and telemetry</td><td>Link loss, jamming, bandwidth vs range trade-off</td><td style="color:var(--accent-amber);">B04, B08</td></tr>
+        <tr><td>Ground Control Station</td><td>Operator interface: display, command, mission planning</td><td>Human-on-the-loop, waypoint upload, real-time monitoring</td><td style="color:var(--accent-amber);">B08</td></tr>
+        <tr><td>Swarm Coordination</td><td>Multi-agent task allocation, mesh comms, emergent behaviour</td><td>Boids rules, architectures, cost asymmetry</td><td style="color:var(--accent-amber);">B09</td></tr>
+      </tbody>
+    </table>
+    <div class="fact-block">
+      <span class="fact-label">How the Subsystems Interact &mdash; The Integration Challenge</span>
+      <p>None of these subsystems can be designed in isolation. The flight controller's PID gains depend on the airframe's mass distribution, which changes with payload. The navigation stack's Kalman Filter weights depend on the GPS receiver's noise characteristics, which depend on the antenna placement, which depends on the airframe design. The AI perception model's latency budget depends on the embedded processor chosen, which depends on the power budget, which depends on battery capacity, which depends on endurance requirements. Every decision touches every other decision. This is systems engineering.</p>
+    </div>
+  </div>
+
+  <!-- 10.6 DESIGN SIMULATOR -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>10.6 UAV Design Trade-off Simulator</h2>
+    <p>Adjust the design parameters and watch how trade-offs propagate across the whole system. Every slider you move affects multiple other metrics &mdash; this is the reality of systems engineering.</p>
+    <div class="sim-wrap">
+      <div class="sim-header">
+        <span class="sim-title">&#9658; UAV DESIGN TRADE-OFF SIMULATOR &mdash; B10</span>
+        <span class="sim-status" id="b10-status" style="color:var(--accent-green);">&#9679; DESIGN BALANCED &mdash; MISSION FEASIBLE</span>
+      </div>
+      <canvas id="b10-canvas" height="260" style="display:block;width:100%;"></canvas>
+      <div style="padding:.75rem 1rem;border-top:1px solid var(--border-dim);display:grid;grid-template-columns:1fr 1fr;gap:.75rem 1.5rem;">
+        <div style="display:flex;flex-direction:column;gap:.3rem;">
+          <label style="font-family:var(--font-mono);font-size:.6rem;color:var(--accent-primary);letter-spacing:.1em;display:flex;justify-content:space-between;">
+            <span>PAYLOAD MASS</span><span id="lbl-payload">3 kg</span>
+          </label>
+          <input type="range" id="sl-payload" min="0" max="10" value="3" style="accent-color:var(--accent-primary);" oninput="updateDesign()"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;">
+          <label style="font-family:var(--font-mono);font-size:.6rem;color:var(--accent-green);letter-spacing:.1em;display:flex;justify-content:space-between;">
+            <span>BATTERY CAPACITY</span><span id="lbl-battery">50%</span>
+          </label>
+          <input type="range" id="sl-battery" min="10" max="100" value="50" style="accent-color:var(--accent-green);" oninput="updateDesign()"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;">
+          <label style="font-family:var(--font-mono);font-size:.6rem;color:var(--accent-amber);letter-spacing:.1em;display:flex;justify-content:space-between;">
+            <span>AUTONOMY LEVEL</span><span id="lbl-auto">L2</span>
+          </label>
+          <input type="range" id="sl-auto" min="1" max="4" value="2" style="accent-color:var(--accent-amber);" oninput="updateDesign()"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;">
+          <label style="font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.1em;display:flex;justify-content:space-between;">
+            <span>AIRFRAME SIZE</span><span id="lbl-airframe">Medium</span>
+          </label>
+          <input type="range" id="sl-airframe" min="1" max="5" value="3" style="accent-color:var(--accent-red);" oninput="updateDesign()"/>
+        </div>
+      </div>
+      <div style="padding:.5rem 1rem;border-top:1px solid var(--border-dim);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+        <button class="sim-btn" onclick="resetDesign()">&#8634; Reset to Default</button>
+        <button class="sim-btn" onclick="presetDesign('recon')">&#9670; ISR Preset</button>
+        <button class="sim-btn" onclick="presetDesign('strike')">&#9650; Strike Preset</button>
+        <button class="sim-btn" onclick="presetDesign('swarm')">&#9679; Swarm Preset</button>
+        <span class="sim-readout" id="b10-readout">Endurance: 4h | Range: 80km | Cost: Medium</span>
+      </div>
+    </div>
+    <div class="fact-block">
+      <span class="fact-label">What to Observe</span>
+      <p>
+        <strong>Increase payload:</strong> Endurance drops, required airframe size rises &mdash; the weight spiral in action.<br/>
+        <strong>Increase battery:</strong> Endurance rises, but so does weight, partially cancelling the gain.<br/>
+        <strong>Increase autonomy:</strong> Complexity rises, software cost rises, but range and comms resilience improve.<br/>
+        <strong>Increase airframe size:</strong> Payload and endurance headroom improves, but unit cost and portability worsen significantly.<br/>
+        <strong>Key lesson:</strong> No single slider improves everything. Every design decision is a trade.
+      </p>
+    </div>
+  </div>
+
+  <!-- 10.7 DRAG AND DROP -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>10.7 Match the Subsystem to the Module</h2>
+    <p>Every beginner module covered a specific UAV subsystem. Match each concept from the beginner track to the system engineering phase or subsystem it belongs to.</p>
+    <div class="dnd-wrap" id="dnd-b10">
+      <div class="dnd-title">&#9658; DRAG-AND-DROP &mdash; SYSTEM ENGINEERING MAPPING</div>
+      <div class="dnd-subtitle">Drag each beginner-track concept to the UAV subsystem it primarily describes.</div>
+      <div class="dnd-bank" id="dnd-bank-b10">
+        <div class="dnd-chip" draggable="true" data-label="PID Controller">PID Controller</div>
+        <div class="dnd-chip" draggable="true" data-label="Kalman Filter">Kalman Filter</div>
+        <div class="dnd-chip" draggable="true" data-label="YOLO Detection">YOLO Detection</div>
+        <div class="dnd-chip" draggable="true" data-label="Boids Rules">Boids Rules</div>
+        <div class="dnd-chip" draggable="true" data-label="V-Model">V-Model</div>
+        <div class="dnd-chip" draggable="true" data-label="EO/IR Turret">EO/IR Turret</div>
+      </div>
+      <div class="dnd-targets">
+        <div class="dnd-target" data-answer="PID Controller">
+          <span class="dnd-target-num">&#9312;</span>
+          <span class="dnd-target-hint">Flight Controller subsystem &mdash; reads IMU error 400&times;/second and adjusts motor speeds to stay stable</span>
+          <span class="dnd-target-drop" id="b10-drop-0">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Kalman Filter">
+          <span class="dnd-target-num">&#9313;</span>
+          <span class="dnd-target-hint">Navigation Stack &mdash; fuses GPS, IMU, and optical flow data into a single best-estimate position</span>
+          <span class="dnd-target-drop" id="b10-drop-1">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="YOLO Detection">
+          <span class="dnd-target-num">&#9314;</span>
+          <span class="dnd-target-hint">AI/Perception subsystem &mdash; finds and classifies every vehicle and person in the camera frame in under 50ms</span>
+          <span class="dnd-target-drop" id="b10-drop-2">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Boids Rules">
+          <span class="dnd-target-num">&#9315;</span>
+          <span class="dnd-target-hint">Swarm Coordination subsystem &mdash; Separation, Alignment, Cohesion rules produce emergent collective behaviour</span>
+          <span class="dnd-target-drop" id="b10-drop-3">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="V-Model">
+          <span class="dnd-target-num">&#9316;</span>
+          <span class="dnd-target-hint">Systems Engineering process &mdash; the lifecycle framework linking requirements to verification at every level</span>
+          <span class="dnd-target-drop" id="b10-drop-4">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="EO/IR Turret">
+          <span class="dnd-target-num">&#9317;</span>
+          <span class="dnd-target-hint">ISR Payload subsystem &mdash; dual-sensor gimbal providing visible camera + thermal imaging simultaneously</span>
+          <span class="dnd-target-drop" id="b10-drop-5">&mdash; drop here &mdash;</span>
+        </div>
+      </div>
+      <div class="dnd-controls">
+        <button class="dnd-btn primary" onclick="checkDnD_b10()">&#9658; CHECK ANSWERS</button>
+        <button class="dnd-btn" onclick="resetDnD_b10()">&#8634; Reset</button>
+      </div>
+      <div class="dnd-result" id="dnd-result-b10"></div>
+    </div>
+  </div>
+
+  <!-- 10.8 SCENARIO -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>10.8 Mission Decision &mdash; Arjun's Design Choice</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; The Design Review</span>
+      <p>Arjun has completed his preliminary design for the mountain infantry ISR drone. The requirement: man-portable, 4-hour endurance, EO/IR payload, GPS-denied capable, 2-person deployment, no ground infrastructure.</p>
+      <p>In the design review, a colleague challenges him: "Why fixed-wing? A quadcopter is simpler to operate and can hover for a persistent stare on a single location."</p>
+      <p>Arjun looks at the requirement document. The key constraint: 4-hour endurance. The EO/IR payload weighs 1.8 kg. The team must carry the entire system in two backpacks to an altitude of 3,500 metres.</p>
+    </div>
+    <div class="scenario-box">
+      <span class="scenario-label">&#9888; Cadet Decision &mdash; Airframe Selection</span>
+      <p class="scenario-q">The mission requires 4-hour endurance with a 1.8 kg sensor payload in a man-portable package. A quadcopter or fixed-wing VTOL drone are both available. Which does Arjun correctly recommend, and why?</p>
+      <div class="scenario-choices" id="sc10-choices">
+        <button class="scenario-choice" onclick="scenarioB10(this, true)"><strong>A.</strong> Fixed-wing VTOL &mdash; takes off vertically like a quadcopter, transitions to efficient fixed-wing cruise for the 4-hour endurance requirement, lands vertically in the mountain clearing.</button>
+        <button class="scenario-choice" onclick="scenarioB10(this, false)"><strong>B.</strong> Quadcopter &mdash; simpler to operate, can hover for persistent stare, VTOL inherent.</button>
+        <button class="scenario-choice" onclick="scenarioB10(this, false)"><strong>C.</strong> Pure fixed-wing (no VTOL) &mdash; maximum endurance efficiency, launched by catapult, recovered by parachute.</button>
+        <button class="scenario-choice" onclick="scenarioB10(this, false)"><strong>D.</strong> A large MALE UAV (MQ-9 class) &mdash; best endurance and sensor capability.</button>
+      </div>
+      <div class="scenario-feedback" id="sc10-feedback"></div>
+    </div>
+  </div>
+
+  <!-- 10.9 KNOWLEDGE CHECK -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>10.9 Knowledge Check &mdash; The Capstone Quiz</h2>
+    <p>Five final questions. These integrate concepts from across the full beginner track.</p>
+    <div class="bq-quiz" id="quiz-b10">
+
+      <div class="bq-question"
+           data-question="An infantry unit needs a drone for a 6-hour mountain surveillance mission in a GPS-jammed area. Which combination of subsystem capabilities is non-negotiable?"
+           data-options='["Fixed-wing airframe + visible camera + GPS navigation","Long-endurance airframe + GPS-denied navigation (INS/optical flow) + EO/IR payload + autonomous operation","Quadcopter + swarm capability + satellite comms","MALE-class airframe + SAR radar + centralised swarm architecture"]'
+           data-correct="1"
+           data-explanation="The mission constraints drive the required capabilities directly. 6-hour endurance = long-endurance airframe (fixed-wing or VTOL fixed-wing). GPS-jammed area = GPS-denied navigation using IMU, barometer, and optical flow. Mountain surveillance at night/day = EO/IR payload. No ground infrastructure = autonomous operation (waypoint mission, failsafe RTH). Every other option either misses a critical requirement or introduces an unnecessary capability. This is requirements-driven design.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A UAV programme has designed a perfect airframe and a perfect flight controller, but the integrated drone oscillates uncontrollably during hover. What type of problem is this?"
+           data-options='["A materials failure in the airframe","An integration failure &mdash; the flight controller PID gains were tuned for a different mass distribution than the final airframe provides","A software bug in the navigation stack","A power supply issue causing the motors to cut out"]'
+           data-correct="1"
+           data-explanation="This is an integration failure &mdash; the most common and most costly type of systems engineering problem. The flight controller's PID gains were tuned (or the controller was designed) assuming a specific mass distribution and moment of inertia. The actual airframe has different properties, so the control system that worked perfectly in isolation produces unstable behaviour in the integrated system. This is precisely why the V-model mandates integration testing as a separate phase from unit testing.">
+      </div>
+
+      <div class="bq-question"
+           data-question="The weight of a UAV's battery is increased by 20% to improve endurance. What is the most likely systemic consequence?"
+           data-options='["Endurance increases by exactly 20%","Endurance increases by less than 20% because the heavier battery increases total weight, which increases power required to fly, which partially offsets the energy gain","The airframe automatically adjusts to accommodate the extra weight","Range doubles because there is more energy available"]'
+           data-correct="1"
+           data-explanation="This is the weight spiral in action. A 20% battery mass increase adds energy but also adds weight. The heavier drone requires more thrust to maintain lift (F=ma), which consumes more power per hour of flight. The net endurance improvement is therefore less than 20% &mdash; sometimes significantly less. In extreme cases (very weight-sensitive designs), increasing battery mass can actually reduce endurance if the weight penalty exceeds the energy benefit. This is why UAV designers obsess over every gram.">
+      </div>
+
+      <div class="bq-question"
+           data-question="In the V-model, what must be defined before the implementation (build) phase begins, and why?"
+           data-options='["The operator training programme","The test and verification plan for every requirement, so that there is a clear method to confirm each requirement is met before the system is declared complete","The marketing strategy for the drone","The colour and aesthetic design of the airframe"]'
+           data-correct="1"
+           data-explanation="The V-model's central discipline is that every requirement on the left side of the V must have a corresponding verification method on the right side defined before building begins. If you cannot describe how you will test that a requirement is met, you either cannot verify it (a programme risk) or the requirement is not well-defined (a design risk). Building without defined verification criteria leads to programmes that cannot prove they have met their requirements &mdash; a common cause of military programme overruns and failures.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A drone swarm is proposed for a mission requiring persistent 8-hour surveillance of a fixed target. A single MALE UAV is also available. Which is the better choice and why?"
+           data-options='["The swarm &mdash; more drones always provides more capability","The MALE UAV &mdash; a single high-quality persistent ISR platform with long endurance, stable sensor gimbal, and high-bandwidth data link is better suited to fixed-point persistent surveillance than a swarm","The swarm &mdash; it cannot be shot down because it has no single point of failure","Neither &mdash; both are incapable of an 8-hour mission"]'
+           data-correct="1"
+           data-explanation="Swarms excel at area coverage, saturation, and distributed tasks. Persistent point surveillance &mdash; maintaining a continuous high-quality sensor lock on a single fixed target for 8 hours &mdash; is exactly what a MALE UAV is designed for. A swarm of small drones would have shorter individual endurance requiring complex relay handoffs, lower-quality individual sensors than a MALE EO/IR turret, and communication complexity for relaying video from dozens of drones simultaneously. The correct platform is always the one that matches the mission requirements, not the most tactically impressive one.">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 10.10 TRACK COMPLETE -->
+  <div class="module-section section-anchor" id="s10">
+    <h2>10.10 Track Complete &mdash; Cadet Arjun, Dismissed</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Final Entry</span>
+      <p>Arjun submitted his preliminary design at 1800. Fixed-wing VTOL, 4.2-hour endurance, EO/IR payload, INS/optical flow navigation stack, L3 autonomy with human-on-the-loop engagement protocol. Two backpacks. Two-person deployment. No ground infrastructure required.</p>
+      <p>The review board approved it for Phase 2 development.</p>
+      <p>Walking out, his colleague caught up with him. "How did you know where to start, back when you got the brief?"</p>
+      <p>Arjun thought about it. The airshow. The blank screen. The thermal image through smoke. The swarm on the radar. The PID loop that never stopped running. The Kalman Filter that fused imperfect truths into something usable. The human in the loop who had to carry the accountability that no machine could bear.</p>
+      <p>"I started with the mission," he said. "And worked backward. Every decision follows from that."</p>
+      <p>That, he had learned, was engineering.</p>
+    </div>
+
+    <div class="completion-panel">
+      <h3>&#9679; BEGINNER TRACK &mdash; COMPLETE</h3>
+      <p>You have completed all 10 modules of the AEROKNOW Beginner Track. From lift and thrust to neural networks, from GPS jamming to swarm emergence, from PID loops to human-in-the-loop ethics &mdash; you now have the conceptual foundation that most people who work with drones professionally never develop.</p>
+      <p>The advanced modules are waiting. Each one takes a concept you have learned here and goes deep into the mathematics, the engineering, and the real-world implementation. The beginner track was the map. The advanced track is the terrain.</p>
+    </div>
+
+    <!-- Module review links -->
+    <h3 style="margin:2rem 0 1rem;">Review Any Module</h3>
+    <div class="review-grid">
+      <a href="b01-what-is-a-drone.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B01</span>
+        <h4 style="color:var(--text-primary);">What Is a Drone?</h4>
+        <p>UAV definition, four forces, drone classification</p>
+      </a>
+      <a href="b02-why-drones-fly.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B02</span>
+        <h4 style="color:var(--text-primary);">Why Drones Fly</h4>
+        <p>Newton's laws, lift, aerofoil, fixed vs rotary</p>
+      </a>
+      <a href="b03-autopilots-sensors.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B03</span>
+        <h4 style="color:var(--text-primary);">The Brain of a Drone</h4>
+        <p>Flight controller, sensors, PID, closed-loop</p>
+      </a>
+      <a href="b04-when-gps-fails.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B04</span>
+        <h4 style="color:var(--text-primary);">When GPS Fails</h4>
+        <p>Jamming, spoofing, GPS-denied navigation</p>
+      </a>
+      <a href="b05-eyes-in-the-sky.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B05</span>
+        <h4 style="color:var(--text-primary);">Eyes in the Sky</h4>
+        <p>EO/IR/SAR/Lidar, sensor fusion, Kalman Filter</p>
+      </a>
+      <a href="b06-teaching-drones.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B06</span>
+        <h4 style="color:var(--text-primary);">Teaching Drones to Think</h4>
+        <p>ML, neural networks, supervised/RL, training</p>
+      </a>
+      <a href="b07-drones-that-see.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B07</span>
+        <h4 style="color:var(--text-primary);">Drones That See</h4>
+        <p>Detection, tracking, CNNs, YOLO, NMS</p>
+      </a>
+      <a href="b08-drones-that-decide.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B08</span>
+        <h4 style="color:var(--text-primary);">Drones That Decide</h4>
+        <p>Autonomy levels, SPA loop, waypoints, HITL</p>
+      </a>
+      <a href="b09-the-swarm.html" class="review-card">
+        <span class="review-card-module" style="color:var(--accent-amber);">B09</span>
+        <h4 style="color:var(--text-primary);">The Swarm</h4>
+        <p>Boids, emergence, architectures, cost asymmetry</p>
+      </a>
+    </div>
+
+    <div class="advance-panel">
+      <div class="advance-icon">&#9658;&#9658;</div>
+      <div class="advance-text">
+        <h3>READY FOR THE ADVANCED TRACK?</h3>
+        <p>Module M10 covers Systems Engineering in full: requirements engineering, interface control documents, FMEA, mass and power budget management, airworthiness certification, and the full lifecycle of a military UAV programme from concept to IOC.</p>
+      </div>
+      <a href="../modules/m10-systems-engineering.html" class="advance-link">M10: Systems Engineering &#9658;</a>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border-dim);flex-wrap:wrap;gap:1rem;">
+      <a href="b09-the-swarm.html" class="btn-primary" style="font-size:.75rem;border-color:var(--border-dim);color:var(--text-muted);">&#9668; B09: The Swarm</a>
+      <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent-green);">BEGINNER TRACK &middot; COMPLETE &#10003;</span>
+      <a href="../index.html" class="btn-primary" style="font-size:.75rem;">Return to Home &#9658;</a>
+    </div>
+  </div>
+</div>
+
+<footer><p>AEROKNOW &middot; Beginner Module B10 &middot; Building the Full System &middot; Beginner Track Complete</p></footer>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/beginner-quiz.js"></script>
+
+<script>
+/* ── JUMP BAR ── */
+function jumpTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.jump-btn').forEach(function(b) { b.classList.remove('active'); });
+  event.currentTarget.classList.add('active');
+}
+(function() {
+  var secs = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  var btns = document.querySelectorAll('.jump-btn');
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        var i = secs.indexOf(e.target.id);
+        if (i > -1) {
+          btns.forEach(function(b) { b.classList.remove('active'); });
+          if (btns[i]) btns[i].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  secs.forEach(function(id) { var el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+
+/* ── DESIGN TRADE-OFF SIMULATOR ── */
+(function() {
+  var canvas = document.getElementById('b10-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H;
+
+  var params = { payload: 3, battery: 50, auto: 2, airframe: 3 };
+
+  function calcMetrics(p) {
+    var baseEndurance = (p.battery / 50) * 4 * (p.airframe / 3);
+    var payloadPenalty = 1 - (p.payload / 10) * 0.4;
+    var endurance = Math.max(0.5, baseEndurance * payloadPenalty);
+
+    var range = endurance * (p.airframe < 3 ? 15 : 20) * (p.auto >= 3 ? 1.3 : 1.0);
+
+    var cost = (p.airframe * p.airframe * 10) + (p.auto * 15) + (p.payload * 8) + (p.battery * 0.5);
+
+    var portability = Math.max(0, 100 - (p.airframe * 12) - (p.payload * 5) - (p.battery * 0.3));
+
+    var aiCapability = (p.auto / 4) * 85 + (p.payload > 5 ? 15 : p.payload * 3);
+
+    var complexity = (p.auto * 20) + (p.airframe * 10) + (p.battery * 0.3) + (p.payload * 5);
+    complexity = Math.min(100, complexity);
+
+    var feasible = endurance >= 1.5 && portability >= 20;
+
+    return { endurance: endurance, range: Math.round(range), cost: cost,
+             portability: Math.round(portability), aiCapability: Math.round(aiCapability),
+             complexity: Math.round(complexity), feasible: feasible };
+  }
+
+  function resize() {
+    W = canvas.parentElement.clientWidth || 700;
+    H = 260; canvas.width = W; canvas.height = H;
+  }
+
+  function updateLabels(p) {
+    document.getElementById('lbl-payload').textContent  = p.payload + ' kg';
+    document.getElementById('lbl-battery').textContent  = p.battery + '%';
+    document.getElementById('lbl-auto').textContent     = 'L' + p.auto;
+    var sizes = ['','Micro','Small','Medium','Large','MALE'];
+    document.getElementById('lbl-airframe').textContent = sizes[p.airframe] || p.airframe;
+  }
+
+  window.updateDesign = function() {
+    params.payload  = parseInt(document.getElementById('sl-payload').value);
+    params.battery  = parseInt(document.getElementById('sl-battery').value);
+    params.auto     = parseInt(document.getElementById('sl-auto').value);
+    params.airframe = parseInt(document.getElementById('sl-airframe').value);
+    updateLabels(params);
+    draw();
+  };
+
+  window.resetDesign = function() {
+    params = { payload:3, battery:50, auto:2, airframe:3 };
+    document.getElementById('sl-payload').value  = 3;
+    document.getElementById('sl-battery').value  = 50;
+    document.getElementById('sl-auto').value     = 2;
+    document.getElementById('sl-airframe').value = 3;
+    updateLabels(params); draw();
+  };
+
+  window.presetDesign = function(type) {
+    if (type === 'recon')  { params = {payload:5, battery:80, auto:3, airframe:4}; }
+    if (type === 'strike') { params = {payload:8, battery:60, auto:4, airframe:5}; }
+    if (type === 'swarm')  { params = {payload:1, battery:30, auto:4, airframe:1}; }
+    document.getElementById('sl-payload').value  = params.payload;
+    document.getElementById('sl-battery').value  = params.battery;
+    document.getElementById('sl-auto').value     = params.auto;
+    document.getElementById('sl-airframe').value = params.airframe;
+    updateLabels(params); draw();
+  };
+
+  function draw() {
+    var m = calcMetrics(params);
+
+    // Update status
+    var st = document.getElementById('b10-status');
+    var rd = document.getElementById('b10-readout');
+    var costLabel = m.cost < 80 ? 'Low' : m.cost < 160 ? 'Medium' : m.cost < 280 ? 'High' : 'Very High';
+    rd.textContent = 'Endurance: ' + m.endurance.toFixed(1) + 'h | Range: ' + m.range + 'km | Cost: ' + costLabel;
+    if (!m.feasible) {
+      st.textContent = '● DESIGN INFEASIBLE — CHECK CONSTRAINTS'; st.style.color='var(--accent-red)';
+    } else if (m.complexity > 75) {
+      st.textContent = '● HIGH COMPLEXITY — INTEGRATION RISK'; st.style.color='var(--accent-amber)';
+    } else {
+      st.textContent = '● DESIGN BALANCED — MISSION FEASIBLE'; st.style.color='var(--accent-green)';
+    }
+
+    // Draw radar/spider chart
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#010810'; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(0,212,255,0.04)'; ctx.lineWidth=1;
+    for (var gx=0;gx<W;gx+=50){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke();}
+    for (var gy=0;gy<H;gy+=50){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();}
+
+    var cx = W * 0.38, cy = H * 0.5, R = Math.min(W*0.28, H*0.38);
+
+    // Axes (6 metrics: endurance, range, portability, ai, complexity, cost-inv)
+    var metrics = [
+      { name:'Endurance', val: Math.min(1, m.endurance/8),       col:'#00ff9d' },
+      { name:'Range',     val: Math.min(1, m.range/200),          col:'#00d4ff' },
+      { name:'Payload',   val: params.payload/10,                  col:'#b388ff' },
+      { name:'Portability', val: m.portability/100,                col:'#ffb700' },
+      { name:'AI Level',  val: m.aiCapability/100,                 col:'#ff3a3a' },
+      { name:'Simplicity',val: 1 - m.complexity/100,              col:'#00d4ff' },
+    ];
+    var n = metrics.length;
+
+    // Background rings
+    [0.25, 0.5, 0.75, 1.0].forEach(function(r) {
+      ctx.strokeStyle='rgba(0,212,255,0.08)'; ctx.lineWidth=1;
+      ctx.beginPath();
+      for (var j=0; j<n; j++) {
+        var ang = (j/n)*Math.PI*2 - Math.PI/2;
+        var px = cx + Math.cos(ang)*R*r, py = cy + Math.sin(ang)*R*r;
+        j===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+      }
+      ctx.closePath(); ctx.stroke();
+    });
+
+    // Axis lines
+    ctx.strokeStyle='rgba(0,212,255,0.15)'; ctx.lineWidth=1;
+    metrics.forEach(function(mt, i) {
+      var ang = (i/n)*Math.PI*2 - Math.PI/2;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(ang)*R, cy+Math.sin(ang)*R); ctx.stroke();
+      // Label
+      var lx = cx+Math.cos(ang)*(R+22), ly = cy+Math.sin(ang)*(R+22);
+      ctx.fillStyle=mt.col; ctx.font='8px Share Tech Mono'; ctx.textAlign='center';
+      ctx.fillText(mt.name, lx, ly);
+    });
+
+    // Data polygon
+    ctx.beginPath();
+    metrics.forEach(function(mt, i) {
+      var ang = (i/n)*Math.PI*2 - Math.PI/2;
+      var px = cx + Math.cos(ang)*R*mt.val, py = cy + Math.sin(ang)*R*mt.val;
+      i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+    });
+    ctx.closePath();
+    ctx.fillStyle='rgba(0,212,255,0.1)'; ctx.fill();
+    ctx.strokeStyle=m.feasible?'rgba(0,255,157,0.7)':'rgba(255,58,58,0.7)'; ctx.lineWidth=2; ctx.stroke();
+
+    // Data points
+    metrics.forEach(function(mt, i) {
+      var ang = (i/n)*Math.PI*2 - Math.PI/2;
+      var px = cx + Math.cos(ang)*R*mt.val, py = cy + Math.sin(ang)*R*mt.val;
+      ctx.fillStyle=mt.col; ctx.beginPath(); ctx.arc(px,py,4,0,Math.PI*2); ctx.fill();
+    });
+
+    // Right side: metric bars
+    var bx = W*0.72, by = 30, bw = W*0.24, bh = 16, gap = 30;
+    ctx.textAlign='left';
+    metrics.forEach(function(mt, i) {
+      var y = by + i*gap;
+      ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.fillRect(bx, y, bw, bh);
+      ctx.fillStyle=mt.col; ctx.fillRect(bx, y, bw*mt.val, bh);
+      ctx.fillStyle=mt.col; ctx.font='7px Share Tech Mono';
+      ctx.fillText(mt.name + ': ' + Math.round(mt.val*100)+'%', bx, y-3);
+    });
+
+    // Endurance number overlay
+    ctx.fillStyle=m.feasible?'rgba(0,255,157,0.8)':'rgba(255,58,58,0.8)';
+    ctx.font='bold 11px Share Tech Mono'; ctx.textAlign='center';
+    ctx.fillText(m.endurance.toFixed(1) + 'h', cx, cy+4);
+    ctx.font='7px Share Tech Mono'; ctx.fillStyle='rgba(0,212,255,0.4)';
+    ctx.fillText('endurance', cx, cy+16);
+    ctx.textAlign='left';
+  }
+
+  window.addEventListener('resize', resize);
+  resize(); updateLabels(params); draw();
+})();
+
+/* ── DRAG AND DROP B10 ── */
+var _drag10 = null;
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#dnd-b10 .dnd-chip').forEach(function(c) {
+    c.addEventListener('dragstart', function(e) { _drag10=c; c.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    c.addEventListener('dragend',   function()  { c.classList.remove('dragging'); });
+  });
+  document.querySelectorAll('#dnd-b10 .dnd-target').forEach(function(t) {
+    t.addEventListener('dragover',  function(e) { e.preventDefault(); t.classList.add('drag-over'); });
+    t.addEventListener('dragleave', function()  { t.classList.remove('drag-over'); });
+    t.addEventListener('drop', function(e) {
+      e.preventDefault(); t.classList.remove('drag-over');
+      if (!_drag10) return;
+      var ex = t.getAttribute('data-placed');
+      if (ex) {
+        var old = Array.from(document.querySelectorAll('#dnd-bank-b10 .dnd-chip.placed')).find(function(c){return c.getAttribute('data-label')===ex;});
+        if (old) old.classList.remove('placed');
+      }
+      var lbl = _drag10.getAttribute('data-label');
+      t.setAttribute('data-placed', lbl);
+      var d = t.querySelector('.dnd-target-drop'); d.textContent=lbl; d.style.color='var(--accent-primary)';
+      t.classList.remove('correct','wrong');
+      _drag10.classList.add('placed'); _drag10=null;
+      document.getElementById('dnd-result-b10').style.display='none';
+    });
+  });
+});
+
+function checkDnD_b10() {
+  var ts=document.querySelectorAll('#dnd-b10 .dnd-target'); var ok=0;
+  ts.forEach(function(t) {
+    t.classList.remove('correct','wrong');
+    var p=t.getAttribute('data-placed'); if(!p) return;
+    if(p===t.getAttribute('data-answer')){t.classList.add('correct');ok++;}else t.classList.add('wrong');
+  });
+  var r=document.getElementById('dnd-result-b10'); r.style.display='block';
+  r.style.color=ok===ts.length?'var(--accent-green)':ok>=ts.length/2?'var(--accent-amber)':'var(--accent-red)';
+  r.textContent=ok+'/'+ts.length+' correct — '+(ok===ts.length?'All subsystems correctly mapped. ✓':'Review the full-stack subsystem table above.');
+}
+
+function resetDnD_b10() {
+  document.querySelectorAll('#dnd-b10 .dnd-target').forEach(function(t){
+    t.classList.remove('correct','wrong'); t.removeAttribute('data-placed');
+    var d=t.querySelector('.dnd-target-drop'); d.textContent='— drop here —'; d.style.color='';
+  });
+  document.querySelectorAll('#dnd-b10 .dnd-chip').forEach(function(c){c.classList.remove('placed');});
+  document.getElementById('dnd-result-b10').style.display='none';
+}
+
+/* ── SCENARIO B10 ── */
+function scenarioB10(btn, correct) {
+  var cs = document.querySelectorAll('#sc10-choices .scenario-choice');
+  var fb = document.getElementById('sc10-feedback');
+  cs.forEach(function(c){c.disabled=true;c.classList.remove('s-correct','s-wrong');});
+  btn.classList.add(correct?'s-correct':'s-wrong');
+  cs[0].classList.add('s-correct');
+  fb.style.display='block';
+  if (correct) {
+    fb.style.borderLeftColor='var(--accent-green)';
+    fb.innerHTML = `<strong style="color:var(--accent-green);">Correct, Cadet.</strong> Fixed-wing VTOL is the systems engineering optimum for this specific requirement set. The mission needs VTOL capability (no catapult/runway in a mountain clearing) AND 4-hour endurance (impossible for a quadcopter with a 1.8 kg payload). A pure fixed-wing solves endurance but not VTOL. A MALE UAV is not man-portable. The VTOL fixed-wing solves all three constraints simultaneously: it takes off vertically, transitions to efficient fixed-wing cruise for the endurance requirement, and lands vertically at the recovery point. The requirement drives the design. Always.`;
+  } else {
+    fb.style.borderLeftColor='var(--accent-red)';
+    var msgs = [
+      '',
+      `A quadcopter with a 1.8 kg payload cannot achieve 4-hour endurance in a man-portable package &mdash; this is a physics constraint, not a design choice. Rotary-wing drones consume 3&times; more power per hour than fixed-wing in cruise. The correct answer is <strong style="color:var(--accent-green);">A</strong> &mdash; VTOL fixed-wing, which combines VTOL landing with fixed-wing cruise efficiency.`,
+      `A pure fixed-wing with catapult/parachute recovery fails the two-person deployment and no-ground-infrastructure constraints. A mountain clearing cannot support catapult infrastructure. The correct answer is <strong style="color:var(--accent-green);">A</strong> &mdash; VTOL fixed-wing.`,
+      `A MALE UAV (MQ-9 class) cannot be carried in two backpacks and cannot be deployed by a two-person infantry team without ground infrastructure. The requirement explicitly prohibits this. The correct answer is <strong style="color:var(--accent-green);">A</strong>.`
+    ];
+    fb.innerHTML = `<strong style="color:var(--accent-red);">Incorrect, Cadet.</strong> ` + msgs[Array.from(cs).indexOf(btn)];
+  }
+}
+</script>
+</body>
+</html>
