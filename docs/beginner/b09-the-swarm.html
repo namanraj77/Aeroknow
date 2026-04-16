@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>B09: The Swarm &mdash; AEROKNOW Beginner Track</title>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <style>
+    .beginner-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.25);padding:.25rem .75rem;margin-bottom:1rem}
+    .beginner-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent-amber);box-shadow:var(--glow-amber);animation:pulse-dot 1.8s ease-in-out infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .plain-intro{background:rgba(0,212,255,.03);border-left:3px solid var(--accent-primary);padding:1rem 1.2rem;margin-bottom:1.5rem;border-radius:0 4px 4px 0}
+    .plain-intro .pi-label{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:.4rem}
+    .plain-intro p{font-size:1rem;color:var(--text-secondary);margin:0;line-height:1.75}
+    .analogy-box{background:rgba(255,183,0,.04);border:1px solid rgba(255,183,0,.15);border-left:3px solid var(--accent-amber);padding:1rem 1.2rem;margin:1.2rem 0}
+    .analogy-box .analogy-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-amber);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .analogy-box p{margin:0 0 .5rem;font-size:.95rem;color:var(--text-secondary)}
+    .analogy-box p:last-child{margin-bottom:0}
+    .story-box{background:rgba(179,136,255,.04);border:1px solid rgba(179,136,255,.18);border-left:3px solid #b388ff;padding:1.2rem 1.5rem;margin:1.8rem 0}
+    .story-box .story-label{font-family:var(--font-mono);font-size:.58rem;color:#b388ff;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:.6rem}
+    .story-box p{margin:0 0 .5rem;color:var(--text-secondary);font-size:.97rem;line-height:1.75}
+    .story-box p:last-child{margin-bottom:0}
+    .key-term{color:var(--accent-primary);font-weight:600;border-bottom:1px dashed rgba(0,212,255,.4);cursor:help}
+    .fact-block{background:rgba(0,255,157,.03);border:1px solid rgba(0,255,157,.14);border-left:3px solid var(--accent-green);padding:1.1rem 1.4rem;margin:1.4rem 0}
+    .fact-block .fact-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-green);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .fact-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .caution-block{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1rem 1.2rem;margin:1.2rem 0}
+    .caution-block .caution-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;display:block}
+    .caution-block p{margin:0;font-size:.95rem;color:var(--text-secondary);line-height:1.7}
+    .cite{font-family:var(--font-mono);font-size:.68rem;color:var(--accent-amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.18);padding:.08rem .4rem;margin-left:.25rem;vertical-align:middle;white-space:nowrap}
+    .diagram-wrap{background:rgba(5,13,20,.9);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .diagram-header{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .diagram-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .diagram-sub{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted)}
+    .swarm-rule-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin:1.5rem 0}
+    .swarm-rule-card{background:var(--bg-card);border:1px solid var(--border-dim);padding:1.1rem 1.2rem;transition:var(--transition);position:relative}
+    .swarm-rule-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+    .swarm-rule-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+    .src-icon{font-size:1.6rem;display:block;margin-bottom:.4rem}
+    .src-type{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.35rem;display:block}
+    .swarm-rule-card h4{font-family:var(--font-display);font-size:.9rem;margin-bottom:.4rem}
+    .swarm-rule-card p{font-size:.82rem;color:var(--text-muted);margin:0;line-height:1.5}
+    .src-example{font-family:var(--font-mono);font-size:.6rem;margin-top:.5rem;padding-top:.4rem;border-top:1px solid var(--border-panel)}
+    .arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;margin:1.5rem 0}
+    .arch-card{background:var(--bg-card);border:1px solid var(--border-dim);padding:1rem 1.1rem;transition:var(--transition)}
+    .arch-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+    .arch-card-type{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.35rem;display:block}
+    .arch-card h4{font-family:var(--font-display);font-size:.88rem;margin-bottom:.4rem}
+    .arch-card p{font-size:.82rem;color:var(--text-muted);margin:0;line-height:1.5}
+    .arch-card .ac-pro{font-family:var(--font-mono);font-size:.6rem;margin-top:.5rem;padding-top:.4rem;border-top:1px solid var(--border-panel)}
+    .comp-table{width:100%;border-collapse:collapse;margin:1.4rem 0}
+    .comp-table th{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--accent-primary);text-align:left;padding:.5rem .85rem;border-bottom:1px solid var(--border-dim);background:rgba(0,212,255,.03)}
+    .comp-table td{padding:.65rem .85rem;border-bottom:1px solid var(--border-panel);font-size:.9rem;color:var(--text-secondary);vertical-align:top;line-height:1.5}
+    .comp-table td:first-child{font-family:var(--font-mono);font-size:.78rem;color:var(--accent-primary);white-space:nowrap}
+    .comp-table tr:hover td{background:rgba(0,212,255,.02)}
+    .dnd-wrap{background:rgba(0,255,157,.02);border:1px solid rgba(0,255,157,.12);border-top:2px solid var(--accent-green);padding:1.5rem 1.8rem;margin:2rem 0}
+    .dnd-title{font-family:var(--font-mono);font-size:.65rem;color:var(--accent-green);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.4rem}
+    .dnd-subtitle{font-size:.9rem;color:var(--text-muted);margin-bottom:1.2rem}
+    .dnd-bank{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.4rem;min-height:2.5rem;padding:.6rem;background:rgba(0,0,0,.3);border:1px dashed rgba(0,255,157,.2)}
+    .dnd-chip{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-green);background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.3);padding:.3rem .8rem;cursor:grab;user-select:none;transition:var(--transition)}
+    .dnd-chip:hover{background:rgba(0,255,157,.15);box-shadow:var(--glow-green)}
+    .dnd-chip.dragging{opacity:.4;cursor:grabbing}
+    .dnd-chip.placed{opacity:.3;cursor:default;pointer-events:none}
+    .dnd-targets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem}
+    .dnd-target{border:1px dashed var(--border-dim);padding:.5rem .75rem;min-height:2.8rem;display:flex;align-items:center;gap:.5rem;transition:var(--transition);background:rgba(0,0,0,.2)}
+    .dnd-target.drag-over{border-color:var(--accent-green);background:rgba(0,255,157,.05)}
+    .dnd-target.correct{border-color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .dnd-target.wrong{border-color:var(--accent-red);background:rgba(255,58,58,.07)}
+    .dnd-target-num{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);flex-shrink:0}
+    .dnd-target-hint{font-size:.83rem;color:var(--text-muted);flex:1;line-height:1.4}
+    .dnd-target-drop{font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);min-width:90px;text-align:right}
+    .dnd-controls{display:flex;gap:.75rem;margin-top:1rem}
+    .dnd-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem 1.2rem;cursor:pointer;transition:var(--transition)}
+    .dnd-btn.primary{border-color:var(--accent-green);color:var(--accent-green)}
+    .dnd-btn.primary:hover{background:var(--accent-green);color:var(--bg-void);box-shadow:var(--glow-green)}
+    .dnd-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .dnd-result{margin-top:.75rem;font-family:var(--font-mono);font-size:.75rem;display:none}
+    .scenario-box{background:rgba(255,58,58,.03);border:1px solid rgba(255,58,58,.15);border-left:3px solid var(--accent-red);padding:1.4rem 1.6rem;margin:2rem 0}
+    .scenario-label{font-family:var(--font-mono);font-size:.6rem;color:var(--accent-red);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.75rem;display:block}
+    .scenario-q{font-size:1.05rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;line-height:1.55}
+    .scenario-choices{display:flex;flex-direction:column;gap:.5rem}
+    .scenario-choice{background:rgba(255,255,255,.02);border:1px solid var(--border-dim);color:var(--text-secondary);font-family:var(--font-ui);font-size:.95rem;padding:.7rem 1rem;cursor:pointer;text-align:left;transition:var(--transition)}
+    .scenario-choice:hover:not(:disabled){border-color:var(--accent-primary);background:rgba(0,212,255,.05);color:var(--text-primary)}
+    .scenario-choice:disabled{cursor:default}
+    .scenario-choice.s-correct{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.06)}
+    .scenario-choice.s-wrong{border-color:var(--accent-red);color:var(--accent-red);background:rgba(255,58,58,.06);opacity:.7}
+    .scenario-feedback{margin-top:.9rem;padding:.8rem 1rem;background:rgba(0,0,0,.3);border-left:2px solid var(--accent-amber);font-size:.92rem;color:var(--text-secondary);line-height:1.65;display:none}
+    .sim-wrap{background:rgba(1,8,16,.95);border:1px solid var(--border-dim);margin:1.5rem 0}
+    .sim-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--border-dim)}
+    .sim-title{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-primary);letter-spacing:.15em;text-transform:uppercase}
+    .sim-status{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em}
+    .sim-controls-row{padding:.75rem 1rem;border-top:1px solid var(--border-dim);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+    .sim-btn{background:transparent;border:1px solid var(--border-dim);color:var(--text-muted);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .9rem;cursor:pointer;transition:var(--transition)}
+    .sim-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
+    .sim-btn.active{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,255,157,.07)}
+    .sim-readout{font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);margin-left:auto}
+    .section-jump{position:sticky;top:60px;z-index:100;background:rgba(2,4,8,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-dim);overflow-x:auto;scrollbar-width:none}
+    .section-jump::-webkit-scrollbar{display:none}
+    .jump-inner{display:flex;align-items:center;gap:0;padding:0 1rem;min-width:max-content}
+    .jump-label{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;padding:0 .75rem 0 0;border-right:1px solid var(--border-dim);margin-right:.25rem;white-space:nowrap;line-height:42px}
+    .jump-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.06em;padding:0 .85rem;height:42px;cursor:pointer;white-space:nowrap;transition:var(--transition)}
+    .jump-btn:hover{color:var(--text-secondary);border-bottom-color:var(--border-bright)}
+    .jump-btn.active{color:var(--accent-primary);border-bottom-color:var(--accent-primary)}
+    .jump-btn .jb-num{color:var(--accent-green);margin-right:.3rem;font-size:.58rem}
+    .section-anchor{scroll-margin-top:105px}
+    .advance-panel{background:rgba(0,212,255,.03);border:1px solid var(--border-dim);border-top:2px solid var(--accent-primary);padding:1.5rem 1.8rem;margin:3rem 0 1rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+    .advance-icon{font-family:var(--font-display);font-size:2rem;color:var(--accent-primary);opacity:.5;flex-shrink:0}
+    .advance-text h3{font-family:var(--font-display);font-size:.9rem;color:var(--accent-primary);margin-bottom:.3rem;letter-spacing:.05em}
+    .advance-text p{font-size:.88rem;color:var(--text-muted);margin:0;line-height:1.55}
+    .advance-link{margin-left:auto;display:inline-block;background:transparent;border:1px solid var(--accent-primary);color:var(--accent-primary);font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;padding:.7rem 1.5rem;text-decoration:none;transition:var(--transition);white-space:nowrap;flex-shrink:0}
+    .advance-link:hover{background:var(--accent-primary);color:var(--bg-void);box-shadow:var(--glow-primary)}
+  </style>
+</head>
+<body>
+<nav class="nav-bar" id="main-nav"></nav>
+
+<div class="section-jump" id="jump-bar">
+  <div class="jump-inner">
+    <span class="jump-label">Jump to</span>
+    <button class="jump-btn active" onclick="jumpTo('s1')"><span class="jb-num">9.1</span>One Hundred Drones</button>
+    <button class="jump-btn" onclick="jumpTo('s2')"><span class="jb-num">9.2</span>What Is a Swarm?</button>
+    <button class="jump-btn" onclick="jumpTo('s3')"><span class="jb-num">9.3</span>The Three Rules</button>
+    <button class="jump-btn" onclick="jumpTo('s4')"><span class="jb-num">9.4</span>Swarm Architectures</button>
+    <button class="jump-btn" onclick="jumpTo('s5')"><span class="jb-num">9.5</span>Military Applications</button>
+    <button class="jump-btn" onclick="jumpTo('s6')"><span class="jb-num">9.6</span>Swarm Simulator</button>
+    <button class="jump-btn" onclick="jumpTo('s7')"><span class="jb-num">9.7</span>Match the Concept</button>
+    <button class="jump-btn" onclick="jumpTo('s8')"><span class="jb-num">9.8</span>Mission Decision</button>
+    <button class="jump-btn" onclick="jumpTo('s9')"><span class="jb-num">9.9</span>Knowledge Check</button>
+    <button class="jump-btn" onclick="jumpTo('s10')"><span class="jb-num">9.10</span>Go Deeper</button>
+  </div>
+</div>
+
+<div class="module-page">
+  <div class="module-hero">
+    <span class="beginner-badge">Beginner Track &mdash; Module B09</span>
+    <span class="module-num">MODULE B09 // THE SWARM</span>
+    <h1>The Swarm</h1>
+    <p class="lead">One drone can be shot down. One hundred cannot all be stopped. Swarm technology is the most disruptive development in military UAV history &mdash; not because individual drones become smarter, but because many simple drones working together produce emergent behaviour that no single drone could achieve alone. In this module you will learn how swarms are coordinated, what rules govern their collective behaviour, and why they are reshaping modern warfare.</p>
+    <div class="module-meta">
+      <span class="label label-amber">Beginner Friendly</span>
+      <span class="label label-primary">Builds on B08</span>
+      <span class="label label-green">35 Min Read</span>
+    </div>
+  </div>
+
+  <!-- 9.1 STORY -->
+  <div class="module-section section-anchor" id="s1">
+    <h2>9.1 One Hundred Drones</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; Day 55</span>
+      <p>The screen showed a radar picture of the exercise area. One by one, then in clusters, then all at once, small icons bloomed across the display. Arjun counted &mdash; thirty, fifty, seventy, ninety. They kept coming.</p>
+      <p>"One operator," said the exercise commander. "One laptop. One hundred drones."</p>
+      <p>The icons were moving with purpose &mdash; spreading out to cover the entire target area simultaneously, some climbing, some dropping low, forming patterns that shifted and reformed like a murmuration of starlings. No two were flying the same path. No two were colliding. And yet there was unmistakably a single intent behind all of them.</p>
+      <p>"How are they all being controlled?" Arjun asked.</p>
+      <p>"They're not," said the commander. "That's the point. Each drone follows three simple rules. The behaviour you're watching emerges from those rules. Nobody planned it. Nobody programmed it. It appeared."</p>
+      <p>Arjun stared at the screen. A hundred machines, acting as one, following rules simple enough to fit on a page &mdash; producing behaviour complex enough to overwhelm any single-point defence system.</p>
+      <p>"That," said the commander quietly, "is why swarms change everything."</p>
+    </div>
+    <div class="plain-intro">
+      <span class="pi-label">What You'll Know After This Module</span>
+      <p>You will understand what a drone swarm is and how it differs from multiple drones, the three core rules that produce swarm behaviour, the key swarm architectures (centralised vs decentralised vs hybrid), the main military applications of swarm technology, and the counters and vulnerabilities that defenders exploit.</p>
+    </div>
+  </div>
+
+  <!-- 9.2 WHAT IS A SWARM? -->
+  <div class="module-section section-anchor" id="s2">
+    <h2>9.2 What Makes a Swarm Different from Multiple Drones?</h2>
+    <p>Flying ten drones to the same area is not a swarm. A swarm is a specific type of multi-agent system where individual agents interact with each other and their environment to produce <span class="key-term" title="Complex collective behaviour that arises from simple individual rules, not from central planning">emergent behaviour</span> &mdash; behaviour that nobody explicitly programmed.</p>
+    <div class="analogy-box">
+      <span class="analogy-label">The Murmuration Analogy</span>
+      <p>Watch a flock of starlings &mdash; thousands of birds moving as a single fluid shape, no two colliding, the whole group responding to a falcon in under a second. There is no lead bird. No choreographer. No central computer. Each bird follows three simple rules about its nearest neighbours, and the flock-level behaviour emerges automatically.</p>
+      <p>Military drone swarms are engineered on the same principle. The intelligence is distributed. The complexity emerges. The operator sets the objective &mdash; the swarm figures out the how.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-header">
+        <span class="diagram-title">&#9658; MULTIPLE DRONES vs SWARM &mdash; Key Distinction</span>
+        <span class="diagram-sub">Same hardware, fundamentally different coordination</span>
+      </div>
+      <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#010810;">
+        <defs>
+          <marker id="b09arr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0,1 L5,3.5 L0,6" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+          </marker>
+          <filter id="b09glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="700" height="200" fill="#010810"/>
+        <g stroke="rgba(0,212,255,0.04)" stroke-width="1">
+          <line x1="350" y1="0" x2="350" y2="200"/>
+          <line x1="0" y1="100" x2="700" y2="100"/>
+        </g>
+        <!-- Left: Multiple drones (star topology, central GCS) -->
+        <text x="175" y="18" text-anchor="middle" font-family="monospace" font-size="9" fill="rgba(255,183,0,0.7)" letter-spacing="2">MULTIPLE DRONES</text>
+        <text x="175" y="30" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,183,0,0.4)">centralised, independent</text>
+        <!-- GCS center -->
+        <rect x="145" y="85" width="60" height="28" rx="2" fill="rgba(255,183,0,0.1)" stroke="rgba(255,183,0,0.5)" stroke-width="1.5"/>
+        <text x="175" y="103" text-anchor="middle" font-family="monospace" font-size="8" fill="#ffb700">GCS</text>
+        <!-- Drones radiating from GCS -->
+        <g stroke="rgba(255,183,0,0.3)" stroke-width="1">
+          <line x1="175" y1="85" x2="80"  y2="50" marker-end="url(#b09arr)"/>
+          <line x1="175" y1="85" x2="175" y2="45" marker-end="url(#b09arr)"/>
+          <line x1="175" y1="85" x2="270" y2="50" marker-end="url(#b09arr)"/>
+          <line x1="175" y1="113" x2="80"  y2="155" marker-end="url(#b09arr)"/>
+          <line x1="175" y1="113" x2="175" y2="160" marker-end="url(#b09arr)"/>
+          <line x1="175" y1="113" x2="270" y2="155" marker-end="url(#b09arr)"/>
+        </g>
+        <!-- Drone icons -->
+        <g fill="rgba(255,183,0,0.6)" font-family="monospace" font-size="8">
+          <text x="72"  y="48"  text-anchor="middle">&#9670;</text>
+          <text x="175" y="43"  text-anchor="middle">&#9670;</text>
+          <text x="278" y="48"  text-anchor="middle">&#9670;</text>
+          <text x="72"  y="158" text-anchor="middle">&#9670;</text>
+          <text x="175" y="163" text-anchor="middle">&#9670;</text>
+          <text x="278" y="158" text-anchor="middle">&#9670;</text>
+        </g>
+        <text x="175" y="185" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(255,58,58,0.5)">Single point of failure &mdash; lose GCS, lose all</text>
+
+        <!-- Right: Swarm (mesh topology, peer-to-peer) -->
+        <text x="525" y="18" text-anchor="middle" font-family="monospace" font-size="9" fill="rgba(0,212,255,0.7)" letter-spacing="2">SWARM</text>
+        <text x="525" y="30" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(0,212,255,0.4)">decentralised, emergent</text>
+        <!-- Drone positions in mesh -->
+        <g id="swarm-nodes">
+          <circle cx="420" cy="70"  r="8" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b09glow)"/>
+          <circle cx="480" cy="50"  r="8" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b09glow)"/>
+          <circle cx="540" cy="75"  r="8" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b09glow)"/>
+          <circle cx="600" cy="55"  r="8" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b09glow)"/>
+          <circle cx="440" cy="130" r="8" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b09glow)"/>
+          <circle cx="510" cy="145" r="8" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b09glow)"/>
+          <circle cx="575" cy="130" r="8" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b09glow)"/>
+          <circle cx="630" cy="110" r="8" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5" filter="url(#b09glow)"/>
+        </g>
+        <!-- Mesh connections (peer-to-peer) -->
+        <g stroke="rgba(0,212,255,0.18)" stroke-width="1">
+          <line x1="420" y1="70"  x2="480" y2="50"/>
+          <line x1="480" y1="50"  x2="540" y2="75"/>
+          <line x1="540" y1="75"  x2="600" y2="55"/>
+          <line x1="420" y1="70"  x2="440" y2="130"/>
+          <line x1="480" y1="50"  x2="440" y2="130"/>
+          <line x1="480" y1="50"  x2="510" y2="145"/>
+          <line x1="540" y1="75"  x2="510" y2="145"/>
+          <line x1="540" y1="75"  x2="575" y2="130"/>
+          <line x1="600" y1="55"  x2="575" y2="130"/>
+          <line x1="600" y1="55"  x2="630" y2="110"/>
+          <line x1="575" y1="130" x2="630" y2="110"/>
+          <line x1="510" y1="145" x2="575" y2="130"/>
+          <line x1="440" y1="130" x2="510" y2="145"/>
+        </g>
+        <text x="525" y="185" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(0,255,157,0.5)">No single point of failure &mdash; loses nodes, adapts</text>
+      </svg>
+    </div>
+
+    <div class="fact-block">
+      <span class="fact-label">Why Swarms Change the Economics of Air Defence</span>
+      <p>A single interceptor missile costs tens or hundreds of thousands of dollars. A small swarm drone costs hundreds to thousands. Defending against a swarm of 100 cheap drones using expensive interceptors is economically unsustainable &mdash; the attacker wins by attrition even if every drone is shot down. This <strong>cost asymmetry</strong> is the most disruptive aspect of swarm technology and is actively reshaping military procurement globally. <span class="cite">RAND, 2020</span></p>
+    </div>
+  </div>
+
+  <!-- 9.3 THE THREE RULES -->
+  <div class="module-section section-anchor" id="s3">
+    <h2>9.3 The Three Rules That Create a Swarm</h2>
+    <p>In 1986, computer scientist Craig Reynolds showed that three simple rules applied to every individual agent were sufficient to produce realistic flock-like behaviour. These rules &mdash; called <span class="key-term" title="The three rules of flocking behaviour: separation, alignment, cohesion">Boids rules</span> &mdash; remain the foundation of modern swarm algorithm design. <span class="cite">Reynolds, 1987</span></p>
+
+    <div class="swarm-rule-cards">
+      <div class="swarm-rule-card" style="border-color:rgba(255,58,58,0.3);">
+        <span class="src-icon">&#8592;&#8594;</span>
+        <span class="src-type" style="color:var(--accent-red);">Rule 1</span>
+        <h4 style="color:var(--text-primary);">Separation</h4>
+        <p>Avoid getting too close to neighbours. Each agent steers away from others within a minimum distance threshold. This prevents collisions without any central coordination.</p>
+        <div class="src-example" style="color:var(--accent-red);">Effect: Drones naturally spread out and never collide</div>
+      </div>
+      <div class="swarm-rule-card" style="border-color:rgba(0,212,255,0.3);">
+        <span class="src-icon">&#8593;</span>
+        <span class="src-type" style="color:var(--accent-primary);">Rule 2</span>
+        <h4 style="color:var(--text-primary);">Alignment</h4>
+        <p>Steer toward the average heading of nearby neighbours. Each agent matches the direction of those around it, causing the group to move coherently in a shared direction.</p>
+        <div class="src-example" style="color:var(--accent-primary);">Effect: The swarm moves as a coordinated unit, not a mob</div>
+      </div>
+      <div class="swarm-rule-card" style="border-color:rgba(0,255,157,0.3);">
+        <span class="src-icon">&#9679;</span>
+        <span class="src-type" style="color:var(--accent-green);">Rule 3</span>
+        <h4 style="color:var(--text-primary);">Cohesion</h4>
+        <p>Steer toward the average position of nearby neighbours. Each agent is attracted to the centre of mass of its local group, keeping the swarm together as a coherent whole.</p>
+        <div class="src-example" style="color:var(--accent-green);">Effect: Drones stay grouped, gaps close automatically</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <span class="analogy-label">From Three Rules to Emergent Intelligence</span>
+      <p>These three rules &mdash; Separation, Alignment, Cohesion &mdash; are implemented locally. Each drone only observes its nearest neighbours, not the whole swarm. Yet from these local interactions, global behaviour emerges: the swarm navigates around obstacles, reforms after being split, covers a search area efficiently, and responds to threats as a collective. Nobody programmed any of this global behaviour. It appeared from the interactions of simple local rules.</p>
+      <p>Military swarm algorithms build on these foundations, adding mission-specific rules: move toward target areas, prioritise unexplored regions, maintain communication mesh, avoid radar detection zones.</p>
+    </div>
+  </div>
+
+  <!-- 9.4 SWARM ARCHITECTURES -->
+  <div class="module-section section-anchor" id="s4">
+    <h2>9.4 Swarm Architectures &mdash; Who Is in Charge?</h2>
+    <p>Not all swarms are structured the same way. The architecture determines how decisions are made, how resilient the swarm is to losses, and how much bandwidth is required to operate it.</p>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <span class="arch-card-type" style="color:var(--accent-amber);">Centralised</span>
+        <h4 style="color:var(--text-primary);">One Leader, Many Followers</h4>
+        <p>A single master drone or ground station computes all assignments and broadcasts commands. Simple to implement. Operator has full visibility and control.</p>
+        <div class="ac-pro" style="color:var(--accent-red);">&#9888; Single point of failure &mdash; lose the leader, lose the swarm</div>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-type" style="color:var(--accent-green);">Decentralised</span>
+        <h4 style="color:var(--text-primary);">No Leader, Peer Rules</h4>
+        <p>Each drone makes its own decisions based only on local sensor data and neighbour interactions. No communication with a ground station required during operation.</p>
+        <div class="ac-pro" style="color:var(--accent-green);">&#9989; Fully resilient &mdash; works in comms-denied environments, no single point of failure</div>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-type" style="color:var(--accent-primary);">Hierarchical</span>
+        <h4 style="color:var(--text-primary);">Leader Drones + Followers</h4>
+        <p>A small number of "leader" drones receive high-level commands from the operator and relay lower-level tasking to follower drones. Balances control with resilience.</p>
+        <div class="ac-pro" style="color:var(--accent-amber);">&#9888; Partial resilience &mdash; lose a leader, its sub-group degrades</div>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-type" style="color:#b388ff;">Hybrid</span>
+        <h4 style="color:var(--text-primary);">Adaptive Architecture</h4>
+        <p>Starts centralised for mission planning, transitions to decentralised when comms are jammed or a leader is lost. Most resilient, most complex to implement.</p>
+        <div class="ac-pro" style="color:var(--accent-green);">&#9989; Best operational resilience &mdash; used in advanced military programmes</div>
+      </div>
+    </div>
+
+    <table class="comp-table">
+      <thead>
+        <tr><th>Architecture</th><th>Comms Required</th><th>Resilience</th><th>Operator Workload</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Centralised</td><td style="color:var(--accent-red);">High &mdash; constant uplink</td><td style="color:var(--accent-red);">Low &mdash; single failure point</td><td style="color:var(--accent-amber);">Moderate</td></tr>
+        <tr><td>Decentralised</td><td style="color:var(--accent-green);">None &mdash; fully onboard</td><td style="color:var(--accent-green);">Very high &mdash; no single failure</td><td style="color:var(--accent-green);">Low &mdash; set objective and release</td></tr>
+        <tr><td>Hierarchical</td><td style="color:var(--accent-amber);">Moderate &mdash; leader uplink only</td><td style="color:var(--accent-amber);">Moderate</td><td style="color:var(--accent-amber);">Low-moderate</td></tr>
+        <tr><td>Hybrid</td><td style="color:var(--accent-green);">Adaptive &mdash; degrades gracefully</td><td style="color:var(--accent-green);">High</td><td style="color:var(--accent-amber);">Low (automated transition)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 9.5 MILITARY APPLICATIONS -->
+  <div class="module-section section-anchor" id="s5">
+    <h2>9.5 Military Applications &mdash; What Swarms Actually Do</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; The Threat Brief</span>
+      <p>"Three scenarios," said the intelligence officer. "First: 200 cheap loitering munitions launched simultaneously at a carrier group. Air defence systems can engage forty per minute. The carrier is overwhelmed before the magazine empties. Second: forty ISR drones saturating a 50 km&#178; search area in parallel &mdash; clearing it in ten minutes instead of six hours. Third: a communications relay swarm that self-organises into a mesh network, extending data link range into GPS-denied terrain without any fixed infrastructure."</p>
+      <p>"Same technology," she said. "Three completely different missions."</p>
+    </div>
+
+    <div class="swarm-rule-cards">
+      <div class="swarm-rule-card" style="border-color:rgba(255,58,58,0.3);">
+        <span class="src-icon" style="font-size:1.2rem;">&#128246;</span>
+        <span class="src-type" style="color:var(--accent-red);">Saturation Attack</span>
+        <h4 style="color:var(--text-primary);">Overwhelm Defences</h4>
+        <p>Launch more simultaneous threats than the defender can engage. Exploits the cost asymmetry &mdash; cheap attackers vs expensive interceptors. Forces difficult prioritisation decisions.</p>
+        <div class="src-example" style="color:var(--accent-red);">Example: Shahed drone mass attacks on Ukrainian infrastructure</div>
+      </div>
+      <div class="swarm-rule-card" style="border-color:rgba(0,212,255,0.3);">
+        <span class="src-icon" style="font-size:1.2rem;">&#128269;</span>
+        <span class="src-type" style="color:var(--accent-primary);">Distributed ISR</span>
+        <h4 style="color:var(--text-primary);">Wide-Area Surveillance</h4>
+        <p>Many sensors covering an area simultaneously produce intelligence orders of magnitude faster than a single drone. Persistent coverage with no blind spots or gaps.</p>
+        <div class="src-example" style="color:var(--accent-primary);">Example: DARPA Gremlins programme &mdash; rapid area coverage</div>
+      </div>
+      <div class="swarm-rule-card" style="border-color:rgba(0,255,157,0.3);">
+        <span class="src-icon" style="font-size:1.2rem;">&#128268;</span>
+        <span class="src-type" style="color:var(--accent-green);">Comms Relay Mesh</span>
+        <h4 style="color:var(--text-primary);">Self-Organising Network</h4>
+        <p>Swarm drones act as airborne radio repeaters, forming a mesh network that extends communications range into terrain where ground links cannot reach.</p>
+        <div class="src-example" style="color:var(--accent-green);">Example: Urban canyon comms in GPS-denied environments</div>
+      </div>
+      <div class="swarm-rule-card" style="border-color:rgba(255,183,0,0.3);">
+        <span class="src-icon" style="font-size:1.2rem;">&#128736;</span>
+        <span class="src-type" style="color:var(--accent-amber);">Electronic Warfare</span>
+        <h4 style="color:var(--text-primary);">Distributed Jamming</h4>
+        <p>Multiple drones carrying jamming payloads disperse around a target area, making it impossible to destroy all jamming sources simultaneously. Saturates defensive sensors.</p>
+        <div class="src-example" style="color:var(--accent-amber);">Example: LREW &mdash; Low-cost Russian Electronic Warfare drones</div>
+      </div>
+    </div>
+
+    <div class="caution-block">
+      <span class="caution-label">&#9888; Counter-Swarm &mdash; The Defender's Problem</span>
+      <p>Defending against a swarm requires fundamentally different approaches from defending against a single threat. High-energy lasers (directed energy weapons) can engage at the speed of light with unlimited "magazine depth." Electronic warfare can disrupt swarm communications. Counter-drone swarms can intercept attacker swarms. But no single counter-swarm technology is yet mature enough to reliably defeat a well-designed swarm at scale. This is one of the most active research areas in modern defence. <span class="cite">RUSI, 2022</span></p>
+    </div>
+  </div>
+
+  <!-- 9.6 SWARM SIMULATOR -->
+  <div class="module-section section-anchor" id="s6">
+    <h2>9.6 Swarm Simulator</h2>
+    <p>Watch emergent swarm behaviour arise from three simple rules. Toggle each rule on and off to see exactly what it contributes. Add drones, inject obstacles, and observe how the swarm self-organises without any central control.</p>
+    <div class="sim-wrap">
+      <div class="sim-header">
+        <span class="sim-title">&#9658; BOIDS SWARM SIMULATOR &mdash; B09</span>
+        <span class="sim-status" id="b09-status" style="color:var(--accent-green);">&#9679; SWARM ACTIVE &mdash; 20 DRONES &mdash; ALL RULES ON</span>
+      </div>
+      <canvas id="b09-canvas" height="320" style="display:block;width:100%;"></canvas>
+      <div class="sim-controls-row">
+        <button class="sim-btn active" id="btn-sep"  onclick="toggleRule('sep')">&#8592;&#8594; Separation</button>
+        <button class="sim-btn active" id="btn-ali"  onclick="toggleRule('ali')">&#8593; Alignment</button>
+        <button class="sim-btn active" id="btn-coh"  onclick="toggleRule('coh')">&#9679; Cohesion</button>
+        <button class="sim-btn" onclick="addDrones(10)">&#43; 10 Drones</button>
+        <button class="sim-btn" onclick="addObstacle()">&#9632; Add Obstacle</button>
+        <button class="sim-btn" onclick="resetSwarm()">&#8634; Reset</button>
+        <span class="sim-readout" id="b09-readout">Drones: 20 | Rules: Sep+Ali+Coh</span>
+      </div>
+    </div>
+    <div class="fact-block">
+      <span class="fact-label">Experiments to Try</span>
+      <p>
+        <strong>Turn off Separation only:</strong> Drones cluster into one point and collide &mdash; no collision avoidance.<br/>
+        <strong>Turn off Alignment only:</strong> Drones stay together but move chaotically, no shared direction.<br/>
+        <strong>Turn off Cohesion only:</strong> Drones disperse indefinitely &mdash; the swarm breaks apart.<br/>
+        <strong>All rules on + obstacle:</strong> Watch the swarm split, flow around the obstacle, and reform automatically &mdash; nobody told it to do this.
+      </p>
+    </div>
+  </div>
+
+  <!-- 9.7 DRAG AND DROP -->
+  <div class="module-section section-anchor" id="s7">
+    <h2>9.7 Match the Swarm Concept</h2>
+    <p>Match each description to the correct swarm term or rule.</p>
+    <div class="dnd-wrap" id="dnd-b09">
+      <div class="dnd-title">&#9658; DRAG-AND-DROP &mdash; SWARM CONCEPTS</div>
+      <div class="dnd-subtitle">Drag each term to the scenario or definition it best describes.</div>
+      <div class="dnd-bank" id="dnd-bank-b09">
+        <div class="dnd-chip" draggable="true" data-label="Separation">Separation</div>
+        <div class="dnd-chip" draggable="true" data-label="Alignment">Alignment</div>
+        <div class="dnd-chip" draggable="true" data-label="Cohesion">Cohesion</div>
+        <div class="dnd-chip" draggable="true" data-label="Emergent Behaviour">Emergent Behaviour</div>
+        <div class="dnd-chip" draggable="true" data-label="Cost Asymmetry">Cost Asymmetry</div>
+        <div class="dnd-chip" draggable="true" data-label="Decentralised">Decentralised</div>
+      </div>
+      <div class="dnd-targets">
+        <div class="dnd-target" data-answer="Separation">
+          <span class="dnd-target-num">&#9312;</span>
+          <span class="dnd-target-hint">The rule that prevents drones colliding &mdash; each steers away when a neighbour gets too close</span>
+          <span class="dnd-target-drop" id="b09-drop-0">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Alignment">
+          <span class="dnd-target-num">&#9313;</span>
+          <span class="dnd-target-hint">The rule that makes a swarm move coherently &mdash; each drone matches the heading of nearby neighbours</span>
+          <span class="dnd-target-drop" id="b09-drop-1">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Cohesion">
+          <span class="dnd-target-num">&#9314;</span>
+          <span class="dnd-target-hint">The rule that keeps the swarm together &mdash; each drone steers toward the centre of mass of its neighbours</span>
+          <span class="dnd-target-drop" id="b09-drop-2">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Emergent Behaviour">
+          <span class="dnd-target-num">&#9315;</span>
+          <span class="dnd-target-hint">The swarm navigates around a building and reforms on the other side &mdash; no drone was programmed to do this</span>
+          <span class="dnd-target-drop" id="b09-drop-3">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Cost Asymmetry">
+          <span class="dnd-target-num">&#9316;</span>
+          <span class="dnd-target-hint">Defenders must fire $500,000 missiles to shoot down $500 drones &mdash; the attacker wins economically even if every drone is destroyed</span>
+          <span class="dnd-target-drop" id="b09-drop-4">&mdash; drop here &mdash;</span>
+        </div>
+        <div class="dnd-target" data-answer="Decentralised">
+          <span class="dnd-target-num">&#9317;</span>
+          <span class="dnd-target-hint">The leader drone is shot down &mdash; but the swarm keeps flying because every drone makes its own decisions locally</span>
+          <span class="dnd-target-drop" id="b09-drop-5">&mdash; drop here &mdash;</span>
+        </div>
+      </div>
+      <div class="dnd-controls">
+        <button class="dnd-btn primary" onclick="checkDnD_b09()">&#9658; CHECK ANSWERS</button>
+        <button class="dnd-btn" onclick="resetDnD_b09()">&#8634; Reset</button>
+      </div>
+      <div class="dnd-result" id="dnd-result-b09"></div>
+    </div>
+  </div>
+
+  <!-- 9.8 SCENARIO -->
+  <div class="module-section section-anchor" id="s8">
+    <h2>9.8 Mission Decision &mdash; What Would You Do, Cadet?</h2>
+    <div class="story-box">
+      <span class="story-label">&#128214; Mission Log &mdash; The Architecture Choice</span>
+      <p>Arjun's unit is planning a swarm ISR mission into a GPS-denied, communications-jammed valley. The mission: search a 20 km&#178; area for enemy supply caches. The environment is contested &mdash; enemy jamming covers the entire operational area, making all radio communications unreliable. The swarm must operate for 45 minutes with no guaranteed link back to the ground station.</p>
+      <p>Two swarm architectures are available. The mission commander asks Arjun to recommend one.</p>
+    </div>
+    <div class="scenario-box">
+      <span class="scenario-label">&#9888; Cadet Decision &mdash; Swarm Architecture Selection</span>
+      <p class="scenario-q">The operational area has active jamming and no reliable communications. The swarm must operate autonomously for 45 minutes. Which architecture is correct?</p>
+      <div class="scenario-choices" id="sc9-choices">
+        <button class="scenario-choice" onclick="scenarioB09(this, false)"><strong>A.</strong> Centralised architecture &mdash; a ground controller manages all drones via a high-power uplink that can punch through the jamming.</button>
+        <button class="scenario-choice" onclick="scenarioB09(this, true)"><strong>B.</strong> Decentralised architecture &mdash; each drone follows local Boids-style rules and onboard mission logic, with no ground station required during operation.</button>
+        <button class="scenario-choice" onclick="scenarioB09(this, false)"><strong>C.</strong> Cancel the mission &mdash; swarms cannot operate without communications.</button>
+        <button class="scenario-choice" onclick="scenarioB09(this, false)"><strong>D.</strong> Centralised with a relay drone &mdash; one drone acts as a comms bridge between the ground station and the swarm.</button>
+      </div>
+      <div class="scenario-feedback" id="sc9-feedback"></div>
+    </div>
+  </div>
+
+  <!-- 9.9 KNOWLEDGE CHECK -->
+  <div class="module-section section-anchor" id="s9">
+    <h2>9.9 Knowledge Check</h2>
+    <p>Five questions. The swarm module introduces concepts that appear nowhere else in the curriculum &mdash; think carefully.</p>
+    <div class="bq-quiz" id="quiz-b09">
+
+      <div class="bq-question"
+           data-question="What is emergent behaviour in a drone swarm, and why does it matter militarily?"
+           data-options='["Pre-programmed behaviour that each drone executes in sequence","Complex collective behaviour that arises from simple local rules, not from central programming &mdash; the swarm can navigate, regroup, and adapt in ways nobody explicitly planned","Behaviour that only appears when more than 50 drones are present","The behaviour of the swarm when the leader drone is lost"]'
+           data-correct="1"
+           data-explanation="Emergent behaviour is the key phenomenon that makes swarms more than just multiple drones. It arises from the interactions of simple local rules (Separation, Alignment, Cohesion) and produces complex collective responses &mdash; obstacle navigation, gap-filling, area coverage optimisation &mdash; that nobody explicitly programmed. Militarily this matters because the swarm's capabilities exceed the sum of its individual drones, and emergent adaptability is inherently harder to counter than scripted behaviour.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A swarm of 80 drones is flying in formation. The Cohesion rule is disabled. What happens?"
+           data-options='["Drones begin colliding with each other","The swarm continues flying but in a straight line only","Drones gradually disperse and the swarm breaks apart &mdash; there is no longer any force attracting them toward the group","The swarm speed doubles because there is less constraint"]'
+           data-correct="2"
+           data-explanation="Cohesion is the rule that steers each drone toward the average position of its neighbours. Without it, there is no attractive force keeping the swarm together. Separation (avoid collisions) and Alignment (match heading) may keep nearby drones from colliding and point them in a shared direction, but without Cohesion the swarm gradually disperses as individual drones drift apart and lose contact with neighbours.">
+      </div>
+
+      <div class="bq-question"
+           data-question="Why is cost asymmetry considered the most strategically significant aspect of drone swarms?"
+           data-options='["Swarm drones are cheaper to maintain than pilots","Attacking with cheap drones forces defenders to expend expensive interceptors at an economically unsustainable ratio &mdash; the attacker wins financially even if every drone is destroyed","Swarms do not require GPS so they are cheaper to navigate","Cost asymmetry refers to the training cost of swarm operators vs conventional pilots"]'
+           data-correct="1"
+           data-explanation="Cost asymmetry is the strategic lever of swarm warfare. A single Patriot interceptor costs $3-4 million. A commercial-derived swarm drone costs hundreds to low thousands. Firing $4 million missiles to destroy $1,000 drones is economically unsustainable. An adversary can exhaust a defender's missile magazine with cheap drones before the expensive missiles are replenished. This asymmetry fundamentally changes the economics of air defence and is reshaping procurement priorities in every major military.">
+      </div>
+
+      <div class="bq-question"
+           data-question="A swarm is operating in a communications-jammed environment. The operator loses all uplink contact. The swarm continues its mission and returns home successfully. Which architecture was used?"
+           data-options='["Centralised &mdash; the leader drone maintained internal comms","Decentralised &mdash; each drone operated autonomously using onboard rules with no ground station required","Hierarchical &mdash; the sub-leaders kept the groups together","Centralised with a relay drone that survived the jamming"]'
+           data-correct="1"
+           data-explanation="A centralised swarm requires continuous uplink to the ground station &mdash; jam the link, and the swarm is blind and uncontrolled. A decentralised swarm requires no external communications during operation. Each drone runs its own Sense-Plan-Act loop using local sensor data and onboard mission logic. The swarm can complete its mission and return home regardless of whether the ground station can communicate with it. This is the defining operational advantage of decentralised architecture.">
+      </div>
+
+      <div class="bq-question"
+           data-question="What is the Alignment rule in a Boids-based swarm, and what would happen to a swarm flying into a headwind if this rule were disabled?"
+           data-options='["Alignment keeps drones at equal altitude &mdash; without it, drones would fly at random heights","Alignment makes each drone match the heading of its neighbours. Without it, drones would react to the headwind individually and the swarm would scatter in multiple directions rather than holding a coherent course","Alignment controls the radio frequency used between drones","Alignment prevents drones from flying too close to the ground"]'
+           data-correct="1"
+           data-explanation="The Alignment rule causes each drone to steer toward the average heading of its nearby neighbours. When a swarm meets a headwind, Alignment causes all drones to adjust course together &mdash; the group response propagates through the swarm as each drone matches its neighbours. Without Alignment, each drone reacts independently to the headwind based on its own sensor reading. Some drift left, some drift right, some climb, some descend &mdash; the coherent swarm disintegrates into uncoordinated individuals.">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 9.10 GO DEEPER -->
+  <div class="module-section section-anchor" id="s10">
+    <h2>9.10 You Now Understand the Swarm</h2>
+    <p>Emergent behaviour from three simple rules. Four swarm architectures and their operational trade-offs. Saturation attack, distributed ISR, comms relay mesh, and electronic warfare as the four primary military applications. Cost asymmetry as the defining strategic reality. Counter-swarm as the unsolved defensive problem.</p>
+    <p>The final module &mdash; B10 &mdash; brings everything together: how do you take all of this knowledge and build an actual military UAV system from a blank page? Systems engineering, design trade-offs, and the full lifecycle of a UAV programme.</p>
+    <div class="advance-panel">
+      <div class="advance-icon">&#9658;&#9658;</div>
+      <div class="advance-text">
+        <h3>READY TO GO DEEPER?</h3>
+        <p>Module M09 covers swarm systems in full: consensus algorithms, distributed task allocation, auction-based coordination, bio-inspired optimisation (particle swarm, ant colony), communication topology design, and the formal resilience analysis of multi-agent systems.</p>
+      </div>
+      <a href="../modules/m09-swarm-systems.html" class="advance-link">M09: Swarm Systems &#9658;</a>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border-dim);flex-wrap:wrap;gap:1rem;">
+      <a href="b08-drones-that-decide.html" class="btn-primary" style="font-size:.75rem;border-color:var(--border-dim);color:var(--text-muted);">&#9668; B08: Drones That Decide</a>
+      <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);">BEGINNER TRACK &middot; MODULE B09 OF 10</span>
+      <a href="b10-building-the-system.html" class="btn-primary" style="font-size:.75rem;">B10: Building the Full System &#9658;</a>
+    </div>
+  </div>
+</div>
+
+<footer><p>AEROKNOW &middot; Beginner Module B09 &middot; The Swarm &middot; Beginner Track</p></footer>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/beginner-quiz.js"></script>
+
+<script>
+/* ── JUMP BAR ── */
+function jumpTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.jump-btn').forEach(function(b) { b.classList.remove('active'); });
+  event.currentTarget.classList.add('active');
+}
+(function() {
+  var secs = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+  var btns = document.querySelectorAll('.jump-btn');
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        var i = secs.indexOf(e.target.id);
+        if (i > -1) {
+          btns.forEach(function(b) { b.classList.remove('active'); });
+          if (btns[i]) btns[i].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  secs.forEach(function(id) { var el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+
+/* ── BOIDS SWARM SIMULATOR ── */
+(function() {
+  var canvas = document.getElementById('b09-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H;
+  var boids = [];
+  var obstacles = [];
+  var rules = { sep: true, ali: true, coh: true };
+
+  var SEP_DIST = 28, ALI_DIST = 55, COH_DIST = 70;
+  var SEP_FORCE = 1.6, ALI_FORCE = 0.06, COH_FORCE = 0.005;
+  var MAX_SPEED = 2.2, MAX_FORCE = 0.12;
+
+  function Boid(x, y) {
+    this.x  = x || Math.random() * (W || 700);
+    this.y  = y || Math.random() * (H || 320);
+    this.vx = (Math.random() - 0.5) * 2;
+    this.vy = (Math.random() - 0.5) * 2;
+    this.col = 'rgba(' + [Math.floor(100+Math.random()*155), Math.floor(150+Math.random()*105), 255].join(',') + ',0.85)';
+  }
+
+  Boid.prototype.update = function(all) {
+    var sx=0,sy=0,sc=0, ax=0,ay=0,ac=0, cx=0,cy=0,cc=0;
+    for (var i=0; i<all.length; i++) {
+      var o = all[i]; if (o===this) continue;
+      var dx=o.x-this.x, dy=o.y-this.y;
+      var d = Math.sqrt(dx*dx+dy*dy);
+      if (d===0) continue;
+      if (rules.sep && d < SEP_DIST) { sx -= dx/d; sy -= dy/d; sc++; }
+      if (rules.ali && d < ALI_DIST) { ax += o.vx; ay += o.vy; ac++; }
+      if (rules.coh && d < COH_DIST) { cx += o.x;  cy += o.y;  cc++; }
+    }
+    var fx=0, fy=0;
+    if (sc>0) { fx += (sx/sc)*SEP_FORCE; fy += (sy/sc)*SEP_FORCE; }
+    if (ac>0) { var tx=ax/ac-this.vx, ty=ay/ac-this.vy; fx += tx*ALI_FORCE; fy += ty*ALI_FORCE; }
+    if (cc>0) { fx += (cx/cc-this.x)*COH_FORCE; fy += (cy/cc-this.y)*COH_FORCE; }
+    // Obstacle avoidance
+    for (var j=0; j<obstacles.length; j++) {
+      var ob=obstacles[j];
+      var odx=this.x-ob.x, ody=this.y-ob.y;
+      var od=Math.sqrt(odx*odx+ody*ody);
+      if (od < ob.r+35 && od>0) { fx += (odx/od)*2.5; fy += (ody/od)*2.5; }
+    }
+    // Clamp force
+    var fm = Math.sqrt(fx*fx+fy*fy);
+    if (fm > MAX_FORCE) { fx=fx/fm*MAX_FORCE; fy=fy/fm*MAX_FORCE; }
+    this.vx += fx; this.vy += fy;
+    // Clamp speed
+    var spd = Math.sqrt(this.vx*this.vx+this.vy*this.vy);
+    if (spd > MAX_SPEED) { this.vx=this.vx/spd*MAX_SPEED; this.vy=this.vy/spd*MAX_SPEED; }
+    if (spd < 0.5) { this.vx += (Math.random()-0.5)*0.3; this.vy += (Math.random()-0.5)*0.3; }
+    this.x += this.vx; this.y += this.vy;
+    // Wrap around edges
+    if (this.x < 0) this.x = W; if (this.x > W) this.x = 0;
+    if (this.y < 0) this.y = H; if (this.y > H) this.y = 0;
+  };
+
+  Boid.prototype.draw = function() {
+    var angle = Math.atan2(this.vy, this.vx);
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(angle);
+    ctx.fillStyle = this.col;
+    ctx.beginPath();
+    ctx.moveTo(7, 0); ctx.lineTo(-5, 3); ctx.lineTo(-3, 0); ctx.lineTo(-5, -3);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  };
+
+  function resize() {
+    W = canvas.parentElement.clientWidth || 700;
+    H = 320; canvas.width = W; canvas.height = H;
+  }
+
+  function initBoids(n) {
+    boids = [];
+    for (var i=0; i<n; i++) boids.push(new Boid());
+  }
+
+  window.toggleRule = function(r) {
+    rules[r] = !rules[r];
+    document.getElementById('btn-' + r).classList.toggle('active', rules[r]);
+    updateReadout();
+  };
+
+  window.addDrones = function(n) {
+    for (var i=0; i<n; i++) boids.push(new Boid());
+    updateReadout();
+  };
+
+  window.addObstacle = function() {
+    if (obstacles.length >= 4) obstacles.shift();
+    obstacles.push({ x: W*0.2 + Math.random()*W*0.6, y: H*0.2 + Math.random()*H*0.6, r: 18+Math.random()*20 });
+  };
+
+  window.resetSwarm = function() {
+    obstacles = [];
+    rules = { sep:true, ali:true, coh:true };
+    ['sep','ali','coh'].forEach(function(r) { document.getElementById('btn-'+r).classList.add('active'); });
+    initBoids(20);
+    updateReadout();
+  };
+
+  function updateReadout() {
+    var active = Object.keys(rules).filter(function(r) { return rules[r]; });
+    var names = { sep:'Sep', ali:'Ali', coh:'Coh' };
+    var ruleStr = active.length ? active.map(function(r) { return names[r]; }).join('+') : 'None';
+    document.getElementById('b09-readout').textContent = 'Drones: ' + boids.length + ' | Rules: ' + ruleStr;
+    var st = document.getElementById('b09-status');
+    if (active.length === 3) { st.textContent = '● SWARM ACTIVE — ' + boids.length + ' DRONES — ALL RULES ON'; st.style.color='var(--accent-green)'; }
+    else if (active.length === 0) { st.textContent = '● NO RULES — CHAOTIC MOTION'; st.style.color='var(--accent-red)'; }
+    else { st.textContent = '● PARTIAL RULES — ' + boids.length + ' DRONES'; st.style.color='var(--accent-amber)'; }
+  }
+
+  function tick() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#010810'; ctx.fillRect(0,0,W,H);
+    // Grid
+    ctx.strokeStyle='rgba(0,212,255,0.04)'; ctx.lineWidth=1;
+    for (var gx=0;gx<W;gx+=50) { ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke(); }
+    for (var gy=0;gy<H;gy+=50) { ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke(); }
+    // Obstacles
+    obstacles.forEach(function(ob) {
+      ctx.fillStyle='rgba(255,58,58,0.15)'; ctx.strokeStyle='rgba(255,58,58,0.5)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(ob.x,ob.y,ob.r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='rgba(255,58,58,0.5)'; ctx.font='8px Share Tech Mono'; ctx.textAlign='center';
+      ctx.fillText('OBS',ob.x,ob.y+3); ctx.textAlign='left';
+    });
+    // Neighbour radius hints (faint)
+    if (boids.length <= 5 && boids.length > 0) {
+      ctx.strokeStyle='rgba(0,212,255,0.04)'; ctx.lineWidth=1;
+      boids.forEach(function(b) { ctx.beginPath(); ctx.arc(b.x,b.y,COH_DIST,0,Math.PI*2); ctx.stroke(); });
+    }
+    // Update and draw boids
+    var snapshot = boids.slice();
+    boids.forEach(function(b) { b.update(snapshot); });
+    boids.forEach(function(b) { b.draw(); });
+    // Stats
+    ctx.fillStyle='rgba(0,212,255,0.3)'; ctx.font='8px Share Tech Mono';
+    ctx.fillText('N=' + boids.length, 8, 14);
+    var rOn = Object.keys(rules).filter(function(r){return rules[r];});
+    ctx.fillText('RULES: ' + (rOn.length ? rOn.map(function(r){return r.toUpperCase();}).join('+') : 'NONE'), 8, 26);
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', resize);
+  resize(); initBoids(20); updateReadout(); tick();
+})();
+
+/* ── DRAG AND DROP B09 ── */
+var _drag09 = null;
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#dnd-b09 .dnd-chip').forEach(function(c) {
+    c.addEventListener('dragstart', function(e) { _drag09=c; c.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    c.addEventListener('dragend',   function()  { c.classList.remove('dragging'); });
+  });
+  document.querySelectorAll('#dnd-b09 .dnd-target').forEach(function(t) {
+    t.addEventListener('dragover',  function(e) { e.preventDefault(); t.classList.add('drag-over'); });
+    t.addEventListener('dragleave', function()  { t.classList.remove('drag-over'); });
+    t.addEventListener('drop', function(e) {
+      e.preventDefault(); t.classList.remove('drag-over');
+      if (!_drag09) return;
+      var ex = t.getAttribute('data-placed');
+      if (ex) {
+        var old = Array.from(document.querySelectorAll('#dnd-bank-b09 .dnd-chip.placed')).find(function(c) { return c.getAttribute('data-label')===ex; });
+        if (old) old.classList.remove('placed');
+      }
+      var lbl = _drag09.getAttribute('data-label');
+      t.setAttribute('data-placed', lbl);
+      var d = t.querySelector('.dnd-target-drop'); d.textContent=lbl; d.style.color='var(--accent-primary)';
+      t.classList.remove('correct','wrong');
+      _drag09.classList.add('placed'); _drag09=null;
+      document.getElementById('dnd-result-b09').style.display='none';
+    });
+  });
+});
+
+function checkDnD_b09() {
+  var ts = document.querySelectorAll('#dnd-b09 .dnd-target'); var ok=0;
+  ts.forEach(function(t) {
+    t.classList.remove('correct','wrong');
+    var p = t.getAttribute('data-placed'); if(!p) return;
+    if (p===t.getAttribute('data-answer')) { t.classList.add('correct'); ok++; } else t.classList.add('wrong');
+  });
+  var r = document.getElementById('dnd-result-b09'); r.style.display='block';
+  r.style.color = ok===ts.length?'var(--accent-green)':ok>=ts.length/2?'var(--accent-amber)':'var(--accent-red)';
+  r.textContent = ok+'/'+ts.length+' correct — '+(ok===ts.length?'All swarm concepts correctly matched. ✓':'Review the swarm rule descriptions above.');
+}
+
+function resetDnD_b09() {
+  document.querySelectorAll('#dnd-b09 .dnd-target').forEach(function(t) {
+    t.classList.remove('correct','wrong'); t.removeAttribute('data-placed');
+    var d=t.querySelector('.dnd-target-drop'); d.textContent='— drop here —'; d.style.color='';
+  });
+  document.querySelectorAll('#dnd-b09 .dnd-chip').forEach(function(c) { c.classList.remove('placed'); });
+  document.getElementById('dnd-result-b09').style.display='none';
+}
+
+/* ── SCENARIO B09 ── */
+function scenarioB09(btn, correct) {
+  var cs = document.querySelectorAll('#sc9-choices .scenario-choice');
+  var fb = document.getElementById('sc9-feedback');
+  cs.forEach(function(c) { c.disabled=true; c.classList.remove('s-correct','s-wrong'); });
+  btn.classList.add(correct?'s-correct':'s-wrong');
+  cs[1].classList.add('s-correct');
+  fb.style.display='block';
+  if (correct) {
+    fb.style.borderLeftColor='var(--accent-green)';
+    fb.innerHTML = `<strong style="color:var(--accent-green);">Correct, Cadet.</strong> Decentralised architecture is the only viable choice for a comms-jammed environment. Each drone carries its own mission logic and operates on local sensor data and Boids-style interaction rules. No ground station contact is required during the 45-minute mission window. The swarm searches the area cooperatively using onboard task allocation, collects data, and returns to a pre-programmed rally point. This is exactly why DARPA's and China's advanced swarm programmes prioritise decentralised operation &mdash; in a contested electromagnetic environment, a centralised swarm is a single jamming event away from complete failure.`;
+  } else {
+    fb.style.borderLeftColor='var(--accent-red)';
+    var msgs = [
+      `A high-power uplink in a jammed environment is exactly what an adversary has anticipated and is prepared to counter with more power. Even if it breaks through initially, the adversary can increase jamming power in response. More fundamentally, a centralised architecture with a single uplink still has a single point of failure. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`,
+      '',
+      `Swarms are specifically designed for communications-denied environments &mdash; this is one of their defining advantages over conventional multi-drone operations. A decentralised swarm requires zero communications during operation. Correct answer: <strong style="color:var(--accent-green);">B</strong>.`,
+      `A relay drone is itself a centralised communications node and would be a priority target for the enemy jammer or kinetic interception. Eliminating the relay collapses the entire comms architecture. Correct answer: <strong style="color:var(--accent-green);">B</strong> &mdash; decentralised, no relay required.`
+    ];
+    fb.innerHTML = `<strong style="color:var(--accent-red);">Incorrect, Cadet.</strong> ` + msgs[Array.from(cs).indexOf(btn)];
+  }
+}
+</script>
+</body>
+</html>
